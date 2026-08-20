@@ -1,11 +1,12 @@
 import React from 'react';
-import { Search, Plus, Sparkles, Timer, Cloud, CheckCircle2, User } from 'lucide-react';
+import { Search, Plus, Sparkles, Timer, Cloud, CheckCircle2, User, Menu } from 'lucide-react';
 
 export default function Header({
   activeTab,
   onOpenSearch,
   onOpenPomodoro,
   onOpenAuth,
+  onToggleMobileMenu,
   user,
   isLoggedIn,
   isSyncing,
@@ -14,36 +15,45 @@ export default function Header({
 }) {
   const titles = {
     dashboard: 'Painel Geral',
-    notes: 'Notas & Grafo de Conhecimento',
-    finance: 'Controle Financeiro',
-    books: 'Biblioteca & Leituras',
-    tasks: 'Quadro de Tarefas & Kanban',
-    calendar: 'Calendário & Rotina Semanal',
-    habits: 'Rastreador de Hábitos',
-    journal: 'Diário Pessoal & Reflexão',
-    settings: 'Configurações & Backup'
+    notes: 'Notas & Grafo',
+    finance: 'Finanças',
+    books: 'Biblioteca',
+    tasks: 'Tarefas & Kanban',
+    calendar: 'Calendário & Rotina',
+    habits: 'Hábitos',
+    journal: 'Diário Pessoal',
+    settings: 'Configurações'
   };
 
   const getFormattedDate = () => {
-    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    const options = { weekday: 'short', day: 'numeric', month: 'short' };
     const dateStr = new Date().toLocaleDateString('pt-BR', options);
     return dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
   };
 
   return (
     <header
-      className={`h-16 px-6 border-b flex items-center justify-between transition-colors ${
+      className={`h-16 px-4 md:px-6 border-b flex items-center justify-between transition-colors ${
         darkMode
           ? 'bg-[#14151b] border-gray-800 text-gray-100'
           : 'bg-white border-gray-200 text-gray-800'
       } sticky top-0 z-10`}
     >
-      {/* Title / Breadcrumb */}
-      <div className="flex items-center space-x-3">
-        <h2 className="text-lg font-bold tracking-tight text-inherit">
+      {/* Title / Hamburger Menu / Breadcrumb */}
+      <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+        {/* Mobile Drawer Trigger */}
+        <button
+          onClick={onToggleMobileMenu}
+          className="p-2 -ml-1 rounded-xl text-gray-400 hover:text-gray-100 hover:bg-gray-800/50 md:hidden flex-shrink-0"
+          title="Abrir Menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
+        <h2 className="text-base sm:text-lg font-bold tracking-tight text-inherit truncate">
           {titles[activeTab] || 'Obnotion'}
         </h2>
-        <span className="hidden md:inline-block text-xs px-2.5 py-1 rounded-full bg-gray-500/10 text-gray-400 border border-gray-500/20">
+        <span className="hidden lg:inline-block text-[11px] px-2.5 py-0.5 rounded-full bg-gray-500/10 text-gray-400 border border-gray-500/20">
           {getFormattedDate()}
         </span>
       </div>

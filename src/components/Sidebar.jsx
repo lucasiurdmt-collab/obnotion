@@ -16,7 +16,8 @@ import {
   ChevronRight,
   Plus,
   Sparkles,
-  User
+  User,
+  X
 } from 'lucide-react';
 
 export default function Sidebar({
@@ -26,6 +27,8 @@ export default function Sidebar({
   setDarkMode,
   collapsed,
   setCollapsed,
+  mobileOpen,
+  onCloseMobile,
   onOpenPomodoro,
   onOpenAuth,
   user,
@@ -55,20 +58,38 @@ export default function Sidebar({
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  const handleSelectTab = (id) => {
+    setActiveTab(id);
+    if (onCloseMobile) onCloseMobile();
+  };
+
   return (
-    <aside
-      className={`${
-        collapsed ? 'w-20' : 'w-64'
-      } flex-shrink-0 transition-all duration-300 ease-in-out flex flex-col border-r ${
-        darkMode
-          ? 'bg-[#181920] border-gray-800 text-gray-200'
-          : 'bg-white border-gray-200 text-gray-800'
-      } h-screen select-none relative z-20`}
-    >
-      {/* Brand Header */}
-      <div className="p-4 border-b border-inherit flex items-center justify-between">
-        {!collapsed && (
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setActiveTab('dashboard')}>
+    <>
+      {/* Mobile Backdrop Overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-40 md:hidden animate-fade-in"
+          onClick={onCloseMobile}
+        />
+      )}
+
+      <aside
+        className={`fixed md:relative inset-y-0 left-0 z-50 md:z-20 ${
+          collapsed ? 'md:w-20' : 'w-72 md:w-64'
+        } flex-shrink-0 transition-transform md:transition-all duration-300 ease-in-out flex flex-col border-r ${
+          darkMode
+            ? 'bg-[#181920] border-gray-800 text-gray-200 shadow-2xl md:shadow-none'
+            : 'bg-white border-gray-200 text-gray-800 shadow-2xl md:shadow-none'
+        } h-full select-none ${
+          mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
+      >
+        {/* Brand Header */}
+        <div className="p-4 border-b border-inherit flex items-center justify-between">
+          <div
+            className="flex items-center space-x-3 cursor-pointer"
+            onClick={() => handleSelectTab('dashboard')}
+          >
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-purple-500/25">
               <Sparkles className="w-5 h-5" />
             </div>
@@ -82,68 +103,67 @@ export default function Sidebar({
               <p className="text-xs text-gray-400 font-medium">Segundo Cérebro</p>
             </div>
           </div>
-        )}
 
-        {collapsed && (
-          <div
-            className="w-10 h-10 mx-auto rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white shadow-md cursor-pointer"
-            onClick={() => setActiveTab('dashboard')}
-            title="Obnotion"
-          >
-            <Sparkles className="w-5 h-5" />
-          </div>
-        )}
-
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className={`p-1.5 rounded-lg text-gray-400 hover:text-gray-100 hover:bg-gray-700/30 transition-colors ${
-            collapsed ? 'hidden' : 'block'
-          }`}
-          title={collapsed ? 'Expandir barra lateral' : 'Recolher barra lateral'}
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* Navigation Links */}
-      <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          return (
+          <div className="flex items-center space-x-1">
+            {/* Desktop Collapse Toggle */}
             <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center ${
-                collapsed ? 'justify-center px-0' : 'px-3'
-              } py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group relative ${
-                isActive
-                  ? 'bg-purple-600/15 text-purple-400 border border-purple-500/30 font-semibold shadow-sm'
-                  : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800/40'
-              }`}
-              title={collapsed ? item.label : undefined}
+              onClick={() => setCollapsed(!collapsed)}
+              className={`p-1.5 rounded-lg text-gray-400 hover:text-gray-100 hover:bg-gray-700/30 transition-colors hidden md:block`}
+              title={collapsed ? 'Expandir barra lateral' : 'Recolher barra lateral'}
             >
-              <Icon
-                className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${
-                  isActive ? 'text-purple-400' : 'text-gray-400 group-hover:text-gray-200'
-                } ${!collapsed ? 'mr-3' : ''}`}
-              />
-              {!collapsed && (
-                <span className="truncate flex-1 text-left">{item.label}</span>
-              )}
-              {!collapsed && item.badge && (
-                <span
-                  className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                    item.badgeColor || 'bg-gray-800 text-gray-400 border border-gray-700'
-                  }`}
-                >
-                  {item.badge}
-                </span>
-              )}
+              <ChevronLeft className="w-4 h-4" />
             </button>
-          );
-        })}
-      </div>
+
+            {/* Mobile Close Button */}
+            <button
+              onClick={onCloseMobile}
+              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-100 hover:bg-gray-700/30 transition-colors md:hidden"
+              title="Fechar menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Navigation Links */}
+        <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleSelectTab(item.id)}
+                className={`w-full flex items-center ${
+                  collapsed ? 'md:justify-center md:px-0' : ''
+                } px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group relative ${
+                  isActive
+                    ? 'bg-purple-600/15 text-purple-400 border border-purple-500/30 font-semibold shadow-sm'
+                    : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800/40'
+                }`}
+                title={item.label}
+              >
+                <Icon
+                  className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 mr-3 ${
+                    collapsed ? 'md:mr-0' : ''
+                  } ${isActive ? 'text-purple-400' : 'text-gray-400 group-hover:text-gray-200'}`}
+                />
+                <span className={`truncate flex-1 text-left ${collapsed ? 'md:hidden' : 'block'}`}>
+                  {item.label}
+                </span>
+                {item.badge && (
+                  <span
+                    className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${collapsed ? 'md:hidden' : 'inline-block'} ${
+                      item.badgeColor || 'bg-gray-800 text-gray-400 border border-gray-700'
+                    }`}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
 
       {/* Pomodoro Quick Widget in Sidebar */}
       <div className="p-3 border-t border-inherit">
@@ -250,5 +270,6 @@ export default function Sidebar({
         )}
       </div>
     </aside>
+    </>
   );
 }

@@ -1,0 +1,18 @@
+{
+  "short_name": "Obnotion",
+  "name": "Obnotion - Segundo Cérebro",
+  "description": "Seu centro de comando pessoal com notas, finanças, hábitos e tarefas.",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./",
+  "display": "standalone",
+  "theme_color": "#181920",
+  "background_color": "#0f1015",
+  "orientation": "portrait-primary"
+}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useStorage } from './hooks/useStorage';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
+import BottomNav from './components/Mobile/BottomNav';
 import QuickSearchModal from './components/QuickSearchModal';
 import PomodoroModal from './components/Pomodoro/PomodoroModal';
 import AuthModal from './components/Auth/AuthModal';
@@ -42,6 +43,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [darkMode, setDarkMode] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [selectedNoteId, setSelectedNoteId] = useState(data.notes?.[0]?.id || null);
@@ -123,6 +125,8 @@ export default function App() {
         setDarkMode={setDarkMode}
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
+        mobileOpen={isMobileMenuOpen}
+        onCloseMobile={() => setIsMobileMenuOpen(false)}
         onOpenPomodoro={() => setIsPomodoroOpen(true)}
         onOpenAuth={() => setIsAuthModalOpen(true)}
         user={user}
@@ -142,6 +146,7 @@ export default function App() {
           onOpenSearch={() => setIsSearchOpen(true)}
           onOpenPomodoro={() => setIsPomodoroOpen(true)}
           onOpenAuth={() => setIsAuthModalOpen(true)}
+          onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
           user={user}
           isLoggedIn={isLoggedIn}
           isSyncing={isSyncing}
@@ -149,7 +154,7 @@ export default function App() {
           darkMode={darkMode}
         />
 
-        <main className="flex-1 overflow-y-auto bg-inherit">
+        <main className="flex-1 overflow-y-auto bg-inherit pb-20 md:pb-0">
           {activeTab === 'dashboard' && (
             <DashboardView
               data={data}
@@ -266,6 +271,16 @@ export default function App() {
         setMode={setPomodoroMode}
         sessionsCompleted={pomodoroSessions}
         setSessionsCompleted={setPomodoroSessions}
+      />
+
+      {/* Mobile Bottom Navigation Bar */}
+      <BottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+        darkMode={darkMode}
+        notesCount={(data.notes || []).length}
+        tasksPendingCount={pendingTasksCount}
       />
 
       {/* Global Auth & Cloud Sync Modal */}
