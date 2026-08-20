@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import QuickSearchModal from './components/QuickSearchModal';
 import PomodoroModal from './components/Pomodoro/PomodoroModal';
+import AuthModal from './components/Auth/AuthModal';
 
 // Views
 import DashboardView from './components/Dashboard/DashboardView';
@@ -17,12 +18,31 @@ import JournalView from './components/Journal/JournalView';
 import SettingsView from './components/Settings/SettingsView';
 
 export default function App() {
-  const { data, setData, updateSection, resetToSampleData, importFullData } = useStorage();
+  const {
+    data,
+    setData,
+    updateSection,
+    resetToSampleData,
+    importFullData,
+    user,
+    isLoggedIn,
+    authLoading,
+    isSyncing,
+    lastSynced,
+    loginWithGoogle,
+    loginWithEmail,
+    registerWithEmail,
+    logout,
+    resetPassword,
+    syncToCloudNow,
+    syncFromCloudNow
+  } = useStorage();
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [darkMode, setDarkMode] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [selectedNoteId, setSelectedNoteId] = useState(data.notes?.[0]?.id || null);
 
   // Global Pomodoro State
@@ -103,6 +123,10 @@ export default function App() {
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
         onOpenPomodoro={() => setIsPomodoroOpen(true)}
+        onOpenAuth={() => setIsAuthModalOpen(true)}
+        user={user}
+        isLoggedIn={isLoggedIn}
+        isSyncing={isSyncing}
         pomodoroActive={pomodoroActive}
         pomodoroTimeLeft={pomodoroTimeLeft}
         notesCount={(data.notes || []).length}
@@ -116,6 +140,10 @@ export default function App() {
           activeTab={activeTab}
           onOpenSearch={() => setIsSearchOpen(true)}
           onOpenPomodoro={() => setIsPomodoroOpen(true)}
+          onOpenAuth={() => setIsAuthModalOpen(true)}
+          user={user}
+          isLoggedIn={isLoggedIn}
+          isSyncing={isSyncing}
           onQuickAction={handleQuickAction}
           darkMode={darkMode}
         />
@@ -232,6 +260,23 @@ export default function App() {
         setMode={setPomodoroMode}
         sessionsCompleted={pomodoroSessions}
         setSessionsCompleted={setPomodoroSessions}
+      />
+
+      {/* Global Auth & Cloud Sync Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        user={user}
+        isLoggedIn={isLoggedIn}
+        isSyncing={isSyncing}
+        lastSynced={lastSynced}
+        loginWithGoogle={loginWithGoogle}
+        loginWithEmail={loginWithEmail}
+        registerWithEmail={registerWithEmail}
+        logout={logout}
+        resetPassword={resetPassword}
+        syncToCloudNow={syncToCloudNow}
+        darkMode={darkMode}
       />
     </div>
   );

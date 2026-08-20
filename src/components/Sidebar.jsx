@@ -26,6 +26,10 @@ export default function Sidebar({
   collapsed,
   setCollapsed,
   onOpenPomodoro,
+  onOpenAuth,
+  user,
+  isLoggedIn,
+  isSyncing,
   pomodoroActive,
   pomodoroTimeLeft,
   notesCount,
@@ -161,6 +165,60 @@ export default function Sidebar({
                 {formatSeconds(pomodoroTimeLeft)}
               </span>
             </div>
+          )}
+        </button>
+      </div>
+
+      {/* User Cloud / Auth Profile Section */}
+      <div className="p-3 border-t border-inherit">
+        <button
+          onClick={onOpenAuth}
+          className={`w-full flex items-center ${
+            collapsed ? 'justify-center p-2' : 'px-3 py-2'
+          } rounded-xl text-xs font-medium transition-all ${
+            isLoggedIn
+              ? 'bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/20 text-purple-300'
+              : 'hover:bg-gray-800/40 text-gray-400 hover:text-gray-200 border border-transparent'
+          }`}
+          title={isLoggedIn ? `Conectado como ${user?.displayName || user?.email}` : 'Entrar / Criar Conta'}
+        >
+          {isLoggedIn ? (
+            <>
+              {user?.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt="Avatar"
+                  className={`w-5 h-5 rounded-full object-cover flex-shrink-0 ${!collapsed ? 'mr-2.5' : ''}`}
+                />
+              ) : (
+                <div className={`w-5 h-5 rounded-full bg-purple-600 text-[10px] font-bold text-white flex items-center justify-center flex-shrink-0 ${!collapsed ? 'mr-2.5' : ''}`}>
+                  {(user?.displayName || user?.email || 'U')[0].toUpperCase()}
+                </div>
+              )}
+              {!collapsed && (
+                <div className="flex-1 text-left min-w-0">
+                  <p className="font-semibold text-xs text-gray-200 truncate leading-tight">
+                    {user?.displayName || user?.email?.split('@')[0]}
+                  </p>
+                  <p className="text-[10px] text-emerald-400 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Nuvem Ativa
+                  </p>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div className={`w-5 h-5 rounded-full bg-gray-700/50 flex items-center justify-center text-gray-400 flex-shrink-0 ${!collapsed ? 'mr-2.5' : ''}`}>
+                <User className="w-3 h-3" />
+              </div>
+              {!collapsed && (
+                <div className="flex-1 text-left">
+                  <p className="font-semibold text-xs text-gray-300">Entrar na Conta</p>
+                  <p className="text-[10px] text-gray-400">Salvar na nuvem</p>
+                </div>
+              )}
+            </>
           )}
         </button>
       </div>

@@ -1,10 +1,14 @@
 import React from 'react';
-import { Search, Plus, Sparkles, Timer, Calendar, CheckSquare, FileText, DollarSign, BookOpen } from 'lucide-react';
+import { Search, Plus, Sparkles, Timer, Cloud, CheckCircle2, User } from 'lucide-react';
 
 export default function Header({
   activeTab,
   onOpenSearch,
   onOpenPomodoro,
+  onOpenAuth,
+  user,
+  isLoggedIn,
+  isSyncing,
   onQuickAction,
   darkMode
 }) {
@@ -45,7 +49,7 @@ export default function Header({
       </div>
 
       {/* Action Buttons & Search */}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-2.5 sm:space-x-3">
         {/* Global Search Button */}
         <button
           onClick={onOpenSearch}
@@ -69,6 +73,48 @@ export default function Header({
           title="Abrir Pomodoro Timer"
         >
           <Timer className="w-4 h-4" />
+        </button>
+
+        {/* Cloud Sync / Auth Button */}
+        <button
+          onClick={onOpenAuth}
+          className={`flex items-center space-x-2 px-2.5 py-1.5 rounded-xl border text-xs font-medium transition-all ${
+            isLoggedIn
+              ? 'border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20'
+              : darkMode
+              ? 'bg-gray-900/60 border-gray-700 text-gray-300 hover:border-gray-500'
+              : 'bg-gray-100 border-gray-200 text-gray-700 hover:border-gray-300'
+          }`}
+          title={isLoggedIn ? `Conectado como ${user?.displayName || user?.email}` : 'Entrar / Sincronizar'}
+        >
+          {isLoggedIn ? (
+            <>
+              {user?.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt={user.displayName || 'Avatar'}
+                  className="w-4 h-4 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-4 h-4 rounded-full bg-purple-600 text-[10px] font-bold text-white flex items-center justify-center">
+                  {(user?.displayName || user?.email || 'U')[0].toUpperCase()}
+                </div>
+              )}
+              <span className="hidden sm:inline max-w-[100px] truncate font-medium">
+                {user?.displayName || user?.email?.split('@')[0]}
+              </span>
+              <Cloud
+                className={`w-3.5 h-3.5 ${
+                  isSyncing ? 'text-amber-400 animate-pulse' : 'text-emerald-400'
+                }`}
+              />
+            </>
+          ) : (
+            <>
+              <User className="w-3.5 h-3.5 text-purple-400" />
+              <span className="hidden sm:inline">Entrar</span>
+            </>
+          )}
         </button>
 
         {/* Quick Add Button */}
