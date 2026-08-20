@@ -1,16 +1,28 @@
-# React + Vite
+# 🧠 Obnotion
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+> Seu centro de comando pessoal: a flexibilidade visual do **Notion** com as conexões e agilidade em grafo do **Obsidian**.
 
-Currently, two official plugins are available:
+## ✨ Funcionalidades
+- 📝 **Notas & Documentos**: Markdown rico com suporte a wikilinks `[[Nome da Nota]]`
+- 🕸️ **Grafo Interativo**: Conexões visuais entre suas ideias
+- 💰 **Finanças Pessoais**: Entradas, saídas, categorias e metas financeiras
+- 📚 **Biblioteca & Leituras**: Acompanhamento de livros, páginas lidas e notas
+- ✅ **Tarefas & Kanban**: Fluxo de trabalho ágil (A Fazer, Em Andamento, Concluído)
+- 📅 **Calendário & Rotina**: Planejamento diário e grade de atividades semanais
+- 🔥 **Rastreador de Hábitos**: Consistência diária com histórico de streaks
+- 📖 **Diário Pessoal**: Humor, gratidão e reflexões
+- ⏱️ **Pomodoro Timer**: Foco total com intervalos de descanso
+- 🔍 **Busca Rápida**: Command palette global (`Ctrl+K`)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Como Rodar Localmente
 
-## React Compiler
+```bash
+npm install
+npm run dev
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 📦 Build de Produção
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```bash
+npm run build
+```
