@@ -15,7 +15,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
-  Sparkles
+  Sparkles,
+  User
 } from 'lucide-react';
 
 export default function Sidebar({
