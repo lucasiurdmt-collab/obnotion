@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { INITIAL_DATA } from '../data/initialData';
+import { INITIAL_DATA, EMPTY_WORKSPACE_DATA } from '../data/initialData';
 import {
   onAuthChange,
   loginWithGoogle as fbLoginWithGoogle,
@@ -155,8 +155,44 @@ export function useStorage() {
     }
   }, [user]);
 
-  const resetToSampleData = () => {
+  const clearWorkspaceToEmpty = async () => {
+    setData(EMPTY_WORKSPACE_DATA);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(EMPTY_WORKSPACE_DATA));
+    } catch (e) {
+      console.error(e);
+    }
+    if (user) {
+      setIsSyncing(true);
+      try {
+        await saveUserDataToCloud(user.uid, EMPTY_WORKSPACE_DATA);
+        setLastSynced(new Date());
+      } catch (err) {
+        console.error('Cloud clear error:', err);
+      } finally {
+        setIsSyncing(false);
+      }
+    }
+  };
+
+  const resetToSampleData = async () => {
     setData(INITIAL_DATA);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_DATA));
+    } catch (e) {
+      console.error(e);
+    }
+    if (user) {
+      setIsSyncing(true);
+      try {
+        await saveUserDataToCloud(user.uid, INITIAL_DATA);
+        setLastSynced(new Date());
+      } catch (err) {
+        console.error('Cloud reset error:', err);
+      } finally {
+        setIsSyncing(false);
+      }
+    }
   };
 
   const importFullData = (jsonData) => {
@@ -173,6 +209,7 @@ export function useStorage() {
     data,
     setData,
     updateSection,
+    clearWorkspaceToEmpty,
     resetToSampleData,
     importFullData,
     // Auth & Cloud Sync

@@ -4,6 +4,7 @@ import {
   Download,
   Upload,
   RefreshCw,
+  Trash2,
   GitBranch,
   Globe,
   CheckCircle2,
@@ -11,13 +12,21 @@ import {
   FileCode,
   Shield,
   Copy,
-  Check
+  Check,
+  Cloud,
+  User,
+  Sparkles
 } from 'lucide-react';
 
 export default function SettingsView({
   data,
   onResetData,
+  onClearData,
   onImportData,
+  user,
+  isLoggedIn,
+  isSyncing,
+  onOpenAuth,
   darkMode,
   setDarkMode
 }) {
@@ -84,51 +93,148 @@ export default function SettingsView({
     <div className="p-6 md:p-8 space-y-8 max-w-5xl mx-auto overflow-y-auto">
       {/* Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Configurações & GitHub Pages</h1>
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Configurações & Workspace</h1>
         <p className="text-xs md:text-sm text-gray-400 mt-1">
-          Gerencie backups, exportações e aprenda a hospedar seu site gratuitamente no GitHub.
+          Gerencie backups, comece do zero com um workspace limpo ou sincronize na nuvem.
         </p>
       </div>
 
-      {/* Backup & Data Management */}
+      {/* Cloud & Account Card */}
+      <div
+        className={`p-6 md:p-8 rounded-3xl border shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+          darkMode ? 'bg-[#1a1b24] border-gray-800' : 'bg-white border-gray-200'
+        }`}
+      >
+        <div className="flex items-center space-x-4">
+          {isLoggedIn && user?.photoURL ? (
+            <img src={user.photoURL} alt="Avatar" className="w-12 h-12 rounded-2xl object-cover border border-purple-500 shadow" />
+          ) : (
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-500/25">
+              <Cloud className="w-6 h-6" />
+            </div>
+          )}
+          <div>
+            <h3 className="font-bold text-sm sm:text-base">
+              {isLoggedIn ? (user.displayName || user.email) : 'Sincronização em Nuvem (Firebase)'}
+            </h3>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {isLoggedIn
+                ? 'Seus dados estão salvos e sincronizados automaticamente na nuvem.'
+                : 'Faça login com Google ou E-mail para acessar de qualquer computador ou celular.'}
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={onOpenAuth}
+          className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs shadow-md shadow-purple-600/30 transition-all hover:scale-105 active:scale-95 flex-shrink-0"
+        >
+          {isLoggedIn ? 'Gerenciar Conta' : 'Conectar Conta / Entrar'}
+        </button>
+      </div>
+
+      {/* Workspace Management & Backup */}
       <div className={'p-6 md:p-8 rounded-3xl border shadow-md space-y-6 ' + (
         darkMode ? 'bg-[#1a1b24] border-gray-800' : 'bg-white border-gray-200'
       )}>
         <div className="flex items-center gap-2 pb-3 border-b border-inherit">
           <Shield className="w-5 h-5 text-purple-400" />
-          <h3 className="font-bold text-base">Backup & Privacidade de Dados</h3>
+          <h3 className="font-bold text-base">Gerenciamento do Workspace & Backup</h3>
         </div>
 
         <p className="text-xs text-gray-400 leading-relaxed">
-          O <strong>Obnotion</strong> roda 100% no seu navegador (LocalStorage). Nenhum dado é enviado para servidores externos. Você tem total posse dos seus arquivos e pode exportá-los quando desejar.
+          Você tem controle total sobre suas notas e dados. Pode exportar backups a qualquer momento ou limpar tudo para começar do zero.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+          {/* Começar do Zero */}
+          <button
+            onClick={() => {
+              if (window.confirm('⚠️ Tem certeza que deseja apagar todos os dados de exemplo e começar com o workspace 100% LIMPO e do zero?')) {
+                onClearData();
+                alert('✨ Workspace limpo com sucesso! Agora você pode criar suas próprias notas e registros.');
+              }
+            }}
+            className="p-5 rounded-2xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 font-semibold text-xs flex flex-col items-center text-center gap-2.5 transition-all group"
+          >
+            <div className="p-2.5 rounded-xl bg-red-500/20 text-red-400 group-hover:scale-110 transition-transform">
+              <Trash2 className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="block font-bold text-sm text-red-300">Começar do Zero (Limpar Tudo)</span>
+              <span className="text-[11px] text-gray-400 font-normal mt-1 block">
+                Apaga os dados de exemplo para você criar suas próprias notas e finanças
+              </span>
+            </div>
+          </button>
+
+          {/* Restaurar Exemplo */}
+          <button
+            onClick={() => {
+              if (window.confirm('Deseja recarregar os dados de exemplo padrão (modelos)?')) {
+                onResetData();
+                alert('Dados de exemplo restaurados com sucesso!');
+              }
+            }}
+            className="p-5 rounded-2xl bg-gray-800/40 hover:bg-gray-800 border border-gray-700 text-gray-300 font-semibold text-xs flex flex-col items-center text-center gap-2.5 transition-all group"
+          >
+            <div className="p-2.5 rounded-xl bg-gray-700/50 text-gray-300 group-hover:scale-110 transition-transform">
+              <RefreshCw className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="block font-bold text-sm">Restaurar Exemplos</span>
+              <span className="text-[11px] text-gray-400 font-normal mt-1 block">
+                Carrega modelos e notas prontas para demonstração
+              </span>
+            </div>
+          </button>
+
           {/* Export JSON */}
           <button
             onClick={handleExportJSON}
-            className="p-4 rounded-2xl bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/30 text-purple-300 font-semibold text-xs flex flex-col items-center text-center gap-2 transition-all"
+            className="p-5 rounded-2xl bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/30 text-purple-300 font-semibold text-xs flex flex-col items-center text-center gap-2.5 transition-all group"
           >
-            <Download className="w-5 h-5 text-purple-400" />
-            <span>Exportar Backup Completo (JSON)</span>
+            <div className="p-2.5 rounded-xl bg-purple-600/20 text-purple-400 group-hover:scale-110 transition-transform">
+              <Download className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="block font-bold text-sm">Exportar Backup (JSON)</span>
+              <span className="text-[11px] text-gray-400 font-normal mt-1 block">
+                Salva todas as suas notas e finanças em um arquivo no seu PC
+              </span>
+            </div>
           </button>
 
           {/* Export Markdown */}
           <button
             onClick={handleExportMarkdownNotes}
-            className="p-4 rounded-2xl bg-indigo-600/10 hover:bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 font-semibold text-xs flex flex-col items-center text-center gap-2 transition-all"
+            className="p-5 rounded-2xl bg-indigo-600/10 hover:bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 font-semibold text-xs flex flex-col items-center text-center gap-2.5 transition-all group"
           >
-            <FileCode className="w-5 h-5 text-indigo-400" />
-            <span>Exportar Notas (.md)</span>
+            <div className="p-2.5 rounded-xl bg-indigo-600/20 text-indigo-400 group-hover:scale-110 transition-transform">
+              <FileCode className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="block font-bold text-sm">Exportar Notas (.md)</span>
+              <span className="text-[11px] text-gray-400 font-normal mt-1 block">
+                Exporta todas as suas anotações em formato Markdown do Obsidian
+              </span>
+            </div>
           </button>
 
           {/* Import JSON */}
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="p-4 rounded-2xl bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/30 text-emerald-300 font-semibold text-xs flex flex-col items-center text-center gap-2 transition-all"
+            className="p-5 rounded-2xl bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/30 text-emerald-300 font-semibold text-xs flex flex-col items-center text-center gap-2.5 transition-all group"
           >
-            <Upload className="w-5 h-5 text-emerald-400" />
-            <span>Importar Backup (JSON)</span>
+            <div className="p-2.5 rounded-xl bg-emerald-600/20 text-emerald-400 group-hover:scale-110 transition-transform">
+              <Upload className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="block font-bold text-sm">Importar Backup (JSON)</span>
+              <span className="text-[11px] text-gray-400 font-normal mt-1 block">
+                Restaura um backup JSON salvo anteriormente
+              </span>
+            </div>
           </button>
           <input
             ref={fileInputRef}
@@ -137,17 +243,6 @@ export default function SettingsView({
             onChange={handleFileChange}
             className="hidden"
           />
-
-          {/* Reset Demo */}
-          <button
-            onClick={() => {
-              if (confirm('Deseja restaurar os dados de exemplo padrão?')) onResetData();
-            }}
-            className="p-4 rounded-2xl bg-gray-800/40 hover:bg-gray-800 border border-gray-700 text-gray-400 font-semibold text-xs flex flex-col items-center text-center gap-2 transition-all"
-          >
-            <RefreshCw className="w-5 h-5 text-gray-400" />
-            <span>Restaurar Dados Exemplo</span>
-          </button>
         </div>
       </div>
 

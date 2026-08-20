@@ -22,6 +22,7 @@ export default function App() {
     data,
     setData,
     updateSection,
+    clearWorkspaceToEmpty,
     resetToSampleData,
     importFullData,
     user,
@@ -227,7 +228,12 @@ export default function App() {
             <SettingsView
               data={data}
               onResetData={resetToSampleData}
+              onClearData={clearWorkspaceToEmpty}
               onImportData={importFullData}
+              user={user}
+              isLoggedIn={isLoggedIn}
+              isSyncing={isSyncing}
+              onOpenAuth={() => setIsAuthModalOpen(true)}
               darkMode={darkMode}
               setDarkMode={setDarkMode}
             />
