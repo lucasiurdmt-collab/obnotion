@@ -1,0 +1,195 @@
+import React from 'react';
+import {
+  LayoutDashboard,
+  FileText,
+  DollarSign,
+  BookOpen,
+  CheckSquare,
+  Calendar,
+  Flame,
+  BookHeart,
+  Settings,
+  Timer,
+  Moon,
+  Sun,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Sparkles
+} from 'lucide-react';
+
+export default function Sidebar({
+  activeTab,
+  setActiveTab,
+  darkMode,
+  setDarkMode,
+  collapsed,
+  setCollapsed,
+  onOpenPomodoro,
+  pomodoroActive,
+  pomodoroTimeLeft,
+  notesCount,
+  tasksPendingCount,
+  booksMonthCount
+}) {
+  const menuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
+    { id: 'notes', label: 'Notas & Grafo', icon: FileText, badge: notesCount },
+    { id: 'finance', label: 'Finanças', icon: DollarSign, badge: null },
+    { id: 'books', label: 'Biblioteca', icon: BookOpen, badge: booksMonthCount > 0 ? `${booksMonthCount} no mês` : null, badgeColor: 'bg-emerald-500/20 text-emerald-400' },
+    { id: 'tasks', label: 'Tarefas & Kanban', icon: CheckSquare, badge: tasksPendingCount > 0 ? tasksPendingCount : null, badgeColor: 'bg-amber-500/20 text-amber-400' },
+    { id: 'calendar', label: 'Calendário & Rotina', icon: Calendar, badge: null },
+    { id: 'habits', label: 'Hábitos', icon: Flame, badge: null },
+    { id: 'journal', label: 'Diário Pessoal', icon: BookHeart, badge: null },
+    { id: 'settings', label: 'Configurações', icon: Settings, badge: null },
+  ];
+
+  const formatSeconds = (sec) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <aside
+      className={`${
+        collapsed ? 'w-20' : 'w-64'
+      } flex-shrink-0 transition-all duration-300 ease-in-out flex flex-col border-r ${
+        darkMode
+          ? 'bg-[#181920] border-gray-800 text-gray-200'
+          : 'bg-white border-gray-200 text-gray-800'
+      } h-screen select-none relative z-20`}
+    >
+      {/* Brand Header */}
+      <div className="p-4 border-b border-inherit flex items-center justify-between">
+        {!collapsed && (
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setActiveTab('dashboard')}>
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-purple-500/25">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="font-bold text-lg leading-tight tracking-tight flex items-center gap-1.5">
+                Obnotion
+                <span className="text-[10px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                  Pro
+                </span>
+              </h1>
+              <p className="text-xs text-gray-400 font-medium">Segundo Cérebro</p>
+            </div>
+          </div>
+        )}
+
+        {collapsed && (
+          <div
+            className="w-10 h-10 mx-auto rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white shadow-md cursor-pointer"
+            onClick={() => setActiveTab('dashboard')}
+            title="Obnotion"
+          >
+            <Sparkles className="w-5 h-5" />
+          </div>
+        )}
+
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className={`p-1.5 rounded-lg text-gray-400 hover:text-gray-100 hover:bg-gray-700/30 transition-colors ${
+            collapsed ? 'hidden' : 'block'
+          }`}
+          title={collapsed ? 'Expandir barra lateral' : 'Recolher barra lateral'}
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Navigation Links */}
+      <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`w-full flex items-center ${
+                collapsed ? 'justify-center px-0' : 'px-3'
+              } py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group relative ${
+                isActive
+                  ? 'bg-purple-600/15 text-purple-400 border border-purple-500/30 font-semibold shadow-sm'
+                  : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800/40'
+              }`}
+              title={collapsed ? item.label : undefined}
+            >
+              <Icon
+                className={`w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 ${
+                  isActive ? 'text-purple-400' : 'text-gray-400 group-hover:text-gray-200'
+                } ${!collapsed ? 'mr-3' : ''}`}
+              />
+              {!collapsed && (
+                <span className="truncate flex-1 text-left">{item.label}</span>
+              )}
+              {!collapsed && item.badge && (
+                <span
+                  className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                    item.badgeColor || 'bg-gray-800 text-gray-400 border border-gray-700'
+                  }`}
+                >
+                  {item.badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Pomodoro Quick Widget in Sidebar */}
+      <div className="p-3 border-t border-inherit">
+        <button
+          onClick={onOpenPomodoro}
+          className={`w-full flex items-center ${
+            collapsed ? 'justify-center p-2' : 'px-3 py-2.5'
+          } rounded-xl text-xs font-semibold transition-all ${
+            pomodoroActive
+              ? 'bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse'
+              : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20'
+          }`}
+          title="Abrir Pomodoro Timer"
+        >
+          <Timer className={`w-4 h-4 flex-shrink-0 ${!collapsed ? 'mr-2' : ''}`} />
+          {!collapsed && (
+            <div className="flex items-center justify-between w-full">
+              <span>{pomodoroActive ? 'Foco Ativo' : 'Pomodoro Timer'}</span>
+              <span className="font-mono bg-black/30 px-1.5 py-0.5 rounded">
+                {formatSeconds(pomodoroTimeLeft)}
+              </span>
+            </div>
+          )}
+        </button>
+      </div>
+
+      {/* Footer / Theme switch & expand button */}
+      <div className="p-3 border-t border-inherit flex items-center justify-between">
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          className="p-2 rounded-xl text-gray-400 hover:text-gray-100 hover:bg-gray-800/50 transition-colors flex items-center gap-2 text-xs"
+          title={darkMode ? 'Mudar para Tema Claro' : 'Mudar para Tema Escuro'}
+        >
+          {darkMode ? (
+            <Sun className="w-4 h-4 text-amber-400" />
+          ) : (
+            <Moon className="w-4 h-4 text-indigo-400" />
+          )}
+          {!collapsed && <span>{darkMode ? 'Tema Claro' : 'Tema Escuro'}</span>}
+        </button>
+
+        {collapsed && (
+          <button
+            onClick={() => setCollapsed(false)}
+            className="p-2 rounded-xl text-gray-400 hover:text-gray-100 hover:bg-gray-800/50 transition-colors"
+            title="Expandir barra lateral"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+    </aside>
+  );
+}

@@ -1,0 +1,238 @@
+import React, { useState, useEffect } from 'react';
+import { useStorage } from './hooks/useStorage';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
+import QuickSearchModal from './components/QuickSearchModal';
+import PomodoroModal from './components/Pomodoro/PomodoroModal';
+
+// Views
+import DashboardView from './components/Dashboard/DashboardView';
+import NotesView from './components/Notes/NotesView';
+import FinanceView from './components/Finance/FinanceView';
+import BooksView from './components/Books/BooksView';
+import TasksView from './components/Tasks/TasksView';
+import CalendarView from './components/Calendar/CalendarView';
+import HabitsView from './components/Habits/HabitsView';
+import JournalView from './components/Journal/JournalView';
+import SettingsView from './components/Settings/SettingsView';
+
+export default function App() {
+  const { data, setData, updateSection, resetToSampleData, importFullData } = useStorage();
+
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [darkMode, setDarkMode] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedNoteId, setSelectedNoteId] = useState(data.notes?.[0]?.id || null);
+
+  // Global Pomodoro State
+  const [isPomodoroOpen, setIsPomodoroOpen] = useState(false);
+  const [pomodoroTimeLeft, setPomodoroTimeLeft] = useState(25 * 60);
+  const [pomodoroActive, setPomodoroActive] = useState(false);
+  const [pomodoroMode, setPomodoroMode] = useState('focus');
+  const [pomodoroSessions, setPomodoroSessions] = useState(0);
+
+  // Background Pomodoro Interval
+  useEffect(() => {
+    let interval = null;
+    if (pomodoroActive && pomodoroTimeLeft > 0) {
+      interval = setInterval(() => {
+        setPomodoroTimeLeft((prev) => prev - 1);
+      }, 1000);
+    } else if (pomodoroTimeLeft === 0) {
+      setPomodoroActive(false);
+      if (pomodoroMode === 'focus') {
+        setPomodoroSessions((s) => s + 1);
+        setPomodoroMode('shortBreak');
+        setPomodoroTimeLeft(5 * 60);
+      } else {
+        setPomodoroMode('focus');
+        setPomodoroTimeLeft(25 * 60);
+      }
+    }
+    return () => clearInterval(interval);
+  }, [pomodoroActive, pomodoroTimeLeft, pomodoroMode]);
+
+  // Sync dark mode class on document
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  // Keyboard shortcut Ctrl+K / Cmd+K for search
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const handleQuickAction = (actionType) => {
+    if (actionType === 'new-note') {
+      setActiveTab('notes');
+    }
+  };
+
+  // Badge calculations
+  const todayStr = new Date().toISOString().split('T')[0];
+  const currentMonthStr = todayStr.slice(0, 7);
+  const pendingTasksCount = (data.tasks || []).filter((t) => t.status !== 'done').length;
+  const booksThisMonthCount = (data.books || []).filter(
+    (b) => b.status === 'completed' && (b.monthRead === currentMonthStr || b.finishDate?.startsWith(currentMonthStr))
+  ).length;
+
+  return (
+    <div
+      className={'flex h-screen w-screen overflow-hidden font-sans select-none ' + (
+        darkMode ? 'bg-[#0f1015] text-gray-100 dark' : 'bg-gray-100 text-gray-800'
+      )}
+    >
+      {/* Sidebar */}
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
+        collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
+        onOpenPomodoro={() => setIsPomodoroOpen(true)}
+        pomodoroActive={pomodoroActive}
+        pomodoroTimeLeft={pomodoroTimeLeft}
+        notesCount={(data.notes || []).length}
+        tasksPendingCount={pendingTasksCount}
+        booksMonthCount={booksThisMonthCount}
+      />
+
+      {/* Main Workspace Area */}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <Header
+          activeTab={activeTab}
+          onOpenSearch={() => setIsSearchOpen(true)}
+          onOpenPomodoro={() => setIsPomodoroOpen(true)}
+          onQuickAction={handleQuickAction}
+          darkMode={darkMode}
+        />
+
+        <main className="flex-1 overflow-y-auto bg-inherit">
+          {activeTab === 'dashboard' && (
+            <DashboardView
+              data={data}
+              onNavigate={(tab) => setActiveTab(tab)}
+              onUpdateTasks={(tasks) => updateSection('tasks', tasks)}
+              onUpdateHabits={(habits) => updateSection('habits', habits)}
+              onOpenPomodoro={() => setIsPomodoroOpen(true)}
+              darkMode={darkMode}
+            />
+          )}
+
+          {activeTab === 'notes' && (
+            <NotesView
+              notes={data.notes || []}
+              onUpdateNotes={(notes) => updateSection('notes', notes)}
+              selectedNoteId={selectedNoteId}
+              onSelectNote={(id) => setSelectedNoteId(id)}
+              darkMode={darkMode}
+            />
+          )}
+
+          {activeTab === 'finance' && (
+            <FinanceView
+              data={data}
+              onUpdateTransactions={(txs) => updateSection('transactions', txs)}
+              onUpdateGoals={(goals) => updateSection('financeGoals', goals)}
+              darkMode={darkMode}
+            />
+          )}
+
+          {activeTab === 'books' && (
+            <BooksView
+              data={data}
+              onUpdateBooks={(books) => updateSection('books', books)}
+              onUpdateGoal={(goal) => updateSection('readingGoalYear', goal)}
+              darkMode={darkMode}
+            />
+          )}
+
+          {activeTab === 'tasks' && (
+            <TasksView
+              tasks={data.tasks || []}
+              onUpdateTasks={(tasks) => updateSection('tasks', tasks)}
+              darkMode={darkMode}
+            />
+          )}
+
+          {activeTab === 'calendar' && (
+            <CalendarView
+              events={data.calendarEvents || []}
+              tasks={data.tasks || []}
+              weeklySchedule={data.weeklySchedule || []}
+              onUpdateEvents={(evs) => updateSection('calendarEvents', evs)}
+              onUpdateWeeklySchedule={(sched) => updateSection('weeklySchedule', sched)}
+              darkMode={darkMode}
+            />
+          )}
+
+          {activeTab === 'habits' && (
+            <HabitsView
+              habits={data.habits || []}
+              onUpdateHabits={(habits) => updateSection('habits', habits)}
+              darkMode={darkMode}
+            />
+          )}
+
+          {activeTab === 'journal' && (
+            <JournalView
+              entries={data.journalEntries || []}
+              onUpdateEntries={(entries) => updateSection('journalEntries', entries)}
+              darkMode={darkMode}
+            />
+          )}
+
+          {activeTab === 'settings' && (
+            <SettingsView
+              data={data}
+              onResetData={resetToSampleData}
+              onImportData={importFullData}
+              darkMode={darkMode}
+              setDarkMode={setDarkMode}
+            />
+          )}
+        </main>
+      </div>
+
+      {/* Global Quick Search Spotlight Modal */}
+      <QuickSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        data={data}
+        onNavigate={(tab) => {
+          if (tab) setActiveTab(tab);
+        }}
+        onSelectNote={(id) => setSelectedNoteId(id)}
+        darkMode={darkMode}
+      />
+
+      {/* Global Pomodoro Timer Modal */}
+      <PomodoroModal
+        isOpen={isPomodoroOpen}
+        onClose={() => setIsPomodoroOpen(false)}
+        darkMode={darkMode}
+        timeLeft={pomodoroTimeLeft}
+        setTimeLeft={setPomodoroTimeLeft}
+        isActive={pomodoroActive}
+        setIsActive={setPomodoroActive}
+        mode={pomodoroMode}
+        setMode={setPomodoroMode}
+        sessionsCompleted={pomodoroSessions}
+        setSessionsCompleted={setPomodoroSessions}
+      />
+    </div>
+  );
+}
