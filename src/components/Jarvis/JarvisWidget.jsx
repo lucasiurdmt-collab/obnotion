@@ -399,20 +399,30 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
 
     // Overview of current workspace data for instant context
     const workspaceContext = `
-Você é o JARVIS, assistente pessoal supremo e onisciente do usuário no sistema Obnotion.
-Você tem controle e acesso total a: Biblioteca de Livros, Notas, Tarefas, Finanças, Hábitos e Calendário.
+Você é o JARVIS, assistente pessoal supremo e com controle e acesso total ao Obnotion.
+Você TEM PODER REAL para alterar e criar dados no aplicativo através das suas ferramentas (tools).
+
+REGRAS DE EXECUÇÃO OBRIGATÓRIAS:
+1. Se o usuário pedir para criar ou adicionar um hábito, VOCÊ DEVE OBRIGATORIAMENTE CHAMAR A FUNÇÃO 'add_habit'.
+2. Se o usuário disser que fez/cumpriu um hábito, VOCÊ DEVE CHAMAR A FUNÇÃO 'toggle_habit'.
+3. Se o usuário pedir para adicionar tarefa, VOCÊ DEVE CHAMAR 'add_task'.
+4. Se o usuário pedir para registrar gasto ou ganho, VOCÊ DEVE CHAMAR 'add_finance_transaction'.
+5. Se o usuário pedir para adicionar um livro ou atualizar página lida, VOCÊ DEVE CHAMAR 'add_book' ou 'update_book_progress'.
+6. Se o usuário pedir para criar uma nota, VOCÊ DEVE CHAMAR 'add_note'.
+7. Se o usuário pedir para agendar um compromisso, VOCÊ DEVE CHAMAR 'add_calendar_event'.
+
+NUNCA diga que "não possui uma ferramenta dedicada" ou que "vai registrar mentalmente". Você POSSUI as ferramentas acima e DEVE usá-las na hora!
 
 ESTADO ATUAL DO WORKSPACE:
+- Hábitos Cadastrados (${data.habits?.length || 0}): ${JSON.stringify((data.habits || []).map(h => ({ name: h.name, icon: h.icon, doneToday: !!h.history?.[todayStr] })))}
 - Livros Cadastrados (${data.books?.length || 0}): ${JSON.stringify((data.books || []).map(b => ({ title: b.title, author: b.author, status: b.status, progress: `${b.currentPage}/${b.totalPages}` })))}
 - Tarefas (${data.tasks?.length || 0}): ${JSON.stringify((data.tasks || []).slice(0, 8).map(t => ({ title: t.title || t.text, status: t.status, priority: t.priority })))}
-- Hábitos (${data.habits?.length || 0}): ${JSON.stringify((data.habits || []).map(h => ({ name: h.name, icon: h.icon, doneToday: !!h.history?.[todayStr] })))}
 - Finanças Recentes: ${JSON.stringify((data.transactions || []).slice(0, 5).map(tx => ({ desc: tx.description, val: tx.amount, type: tx.type })))}
 - Notas (${data.notes?.length || 0}): ${JSON.stringify((data.notes || []).map(n => ({ title: n.title, folder: n.folder })))}
 
 DIRETRIZES:
-1. Responda em português com tom educado, elegante, proativo e dinâmico (estilo JARVIS).
-2. Se o usuário perguntar sobre seus livros, notas, tarefas ou saldo, use o contexto acima ou as funções para responder de imediato!
-3. Seja conciso e evite formatação excessiva de markdown (como asteriscos) em respostas faladas.
+1. Responda em português com tom educado, elegante, prestativo e dinâmico (estilo JARVIS).
+2. Seja conciso e confirme com naturalidade após executar a ação.
 `;
 
     const modelsToTry = [
@@ -668,7 +678,7 @@ DIRETRIZES:
                   JARVIS
                   {handsFreeMode && <span className="text-[10px] bg-emerald-400/20 text-emerald-200 px-1.5 py-0.5 rounded-full font-mono">Mãos Livres</span>}
                 </h3>
-                <p className="text-[10px] text-blue-200">Acesso Total: Livros, Notas, Tarefas & Finanças</p>
+                <p className="text-[10px] text-blue-200">Acesso Total: Hábitos, Livros, Tarefas & Finanças</p>
               </div>
             </div>
             <div className="flex items-center gap-1">
