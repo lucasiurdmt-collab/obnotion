@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 export default function DashboardView({
-  data,
+  data = {},
   onNavigate,
   onUpdateTasks,
   onUpdateHabits,
@@ -23,24 +23,29 @@ export default function DashboardView({
   const todayStr = new Date().toISOString().split('T')[0];
   const currentMonthStr = todayStr.slice(0, 7);
 
-  const monthTransactions = data.transactions.filter(t => t.date.startsWith(currentMonthStr));
-  const incomeTotal = monthTransactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
-  const expenseTotal = monthTransactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
+  const transactions = data?.transactions || [];
+  const books = data?.books || [];
+  const tasks = data?.tasks || [];
+  const habits = data?.habits || [];
+
+  const monthTransactions = transactions.filter(t => t.date && t.date.startsWith(currentMonthStr));
+  const incomeTotal = monthTransactions.filter(t => t.type === 'income').reduce((acc, t) => acc + (t.amount || 0), 0);
+  const expenseTotal = monthTransactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + (t.amount || 0), 0);
   const balance = incomeTotal - expenseTotal;
 
-  const booksReadThisMonth = data.books.filter(b => b.status === 'completed' && b.monthRead === currentMonthStr);
-  const currentReading = data.books.find(b => b.status === 'reading');
+  const booksReadThisMonth = books.filter(b => b.status === 'completed' && b.monthRead === currentMonthStr);
+  const currentReading = books.find(b => b.status === 'reading');
 
-  const todayTasks = data.tasks.filter(t => t.dueDate === todayStr || t.status === 'in_progress');
+  const todayTasks = tasks.filter(t => t.dueDate === todayStr || t.status === 'in_progress');
   const completedTasksToday = todayTasks.filter(t => t.status === 'done').length;
 
-  const habitsDoneToday = data.habits.filter(h => h.history && h.history[todayStr]).length;
-  const habitCompletionPercent = data.habits.length > 0 ? Math.round((habitsDoneToday / data.habits.length) * 100) : 0;
+  const habitsDoneToday = habits.filter(h => h.history && h.history[todayStr]).length;
+  const habitCompletionPercent = habits.length > 0 ? Math.round((habitsDoneToday / habits.length) * 100) : 0;
 
-  const quote = data.quotes[0] || { text: "O segredo para progredir é começar.", author: "Mark Twain" };
+  const quote = data?.quotes?.[0] || { text: "O segredo para progredir é começar.", author: "Mark Twain" };
 
   const toggleTaskDone = (taskId) => {
-    onUpdateTasks(data.tasks.map(t => {
+    onUpdateTasks(tasks.map(t => {
       if (t.id === taskId) {
         return { ...t, status: t.status === 'done' ? 'todo' : 'done' };
       }
@@ -49,7 +54,7 @@ export default function DashboardView({
   };
 
   const toggleHabitToday = (habitId) => {
-    onUpdateHabits(data.habits.map(h => {
+    onUpdateHabits(habits.map(h => {
       if (h.id === habitId) {
         const current = h.history?.[todayStr] || false;
         return {
@@ -170,7 +175,7 @@ export default function DashboardView({
             {habitCompletionPercent}%
           </h3>
           <p className="text-xs text-gray-400 mt-2 flex items-center justify-between">
-            <span>{habitsDoneToday} de {data.habits.length} concluídos</span>
+            <span>{habitsDoneToday} de {habits.length} concluídos</span>
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-pink-400" />
           </p>
         </div>
@@ -281,7 +286,7 @@ export default function DashboardView({
               </button>
             </div>
             <div className="grid grid-cols-1 gap-2">
-              {data.habits.slice(0, 4).map(habit => {
+              {habits.slice(0, 4).map(habit => {
                 const done = habit.history?.[todayStr];
                 return (
                   <div
@@ -292,7 +297,7 @@ export default function DashboardView({
                     )}
                   >
                     <div className="flex items-center gap-2">
-                      <span>{habit.icon}</span>
+                      <span>{habit.icon || '⚡'}</span>
                       <span className="text-xs font-medium">{habit.name}</span>
                     </div>
                     <CheckCircle2 className={'w-4 h-4 ' + (done ? 'text-pink-400 fill-pink-400/20' : 'text-gray-600')} />
@@ -322,7 +327,7 @@ export default function DashboardView({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {data.notes.slice(0, 3).map(note => (
+          {(data?.notes || []).slice(0, 3).map(note => (
             <div
               key={note.id}
               onClick={() => onNavigate('notes')}

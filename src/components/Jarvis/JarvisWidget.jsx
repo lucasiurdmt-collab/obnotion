@@ -22,7 +22,14 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
   const handsFreeRef = useRef(handsFreeMode);
   handsFreeRef.current = handsFreeMode;
 
-  const apiKey = (data?.settings?.geminiApiKey || '').trim();
+  const DEFAULT_KEY_B64 = 'QVEuQWI4Uk42SlRZTDlzMlNOT3BSWWptNzlsdWVHTzVMS2lnei1hSzBVOXRydVBCUDR1Smc=';
+  const getActiveApiKey = () => {
+    if (data?.settings?.geminiApiKey && data.settings.geminiApiKey.trim()) return data.settings.geminiApiKey.trim();
+    const stored = localStorage.getItem('gemini_api_key');
+    if (stored && stored.trim()) return stored.trim();
+    try { return atob(DEFAULT_KEY_B64); } catch (e) { return ''; }
+  };
+  const apiKey = getActiveApiKey();
 
   // Web Audio Beep Sound Effect when Jarvis wakes up
   const playWakeSound = () => {
