@@ -178,16 +178,15 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
     }));
 
     const modelsToTry = [
+      'gemini-3.6-flash',
+      'gemini-3.7-flash',
+      'gemini-flash-latest',
       'gemini-2.5-flash',
-      'gemini-2.0-flash',
-      'gemini-2.0-flash-lite',
-      'gemini-1.5-flash-latest',
-      'gemini-2.5-pro',
-      'gemini-pro'
+      'gemini-2.5-pro'
     ];
 
     const callGeminiEndpoint = async (modelIndex = 0) => {
-      const model = modelsToTry[modelIndex] || 'gemini-2.0-flash';
+      const model = modelsToTry[modelIndex] || 'gemini-3.6-flash';
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
       const payload = {
         contents: contents,
