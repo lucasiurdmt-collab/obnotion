@@ -131,7 +131,8 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
       
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Desculpe, ocorreu um erro ao se comunicar com o Groq. Verifique sua chave da API.' }]);
+      const msg = error.message || 'Erro de conexão.';
+      setMessages(prev => [...prev, { role: 'assistant', content: `Ops! Ocorreu um problema: ${msg}` }]);
     } finally {
       setIsLoading(false);
     }
@@ -159,6 +160,10 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
         function: {
           name: 'get_tasks',
           description: 'Retorna a lista de tarefas atuais do usuário.',
+          parameters: {
+            type: 'object',
+            properties: {}
+          }
         }
       },
       {
@@ -182,6 +187,10 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
         function: {
           name: 'get_finances',
           description: 'Retorna o histórico de finanças do usuário.',
+          parameters: {
+            type: 'object',
+            properties: {}
+          }
         }
       }
     ];
@@ -194,10 +203,11 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
     let currentHistory = [systemPrompt, ...chatHistory];
 
     const callGroq = async (msgs, model = 'llama-3.3-70b-versatile') => {
+      const trimmedKey = (apiKey || '').trim();
       const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
+          'Authorization': `Bearer ${trimmedKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -210,13 +220,19 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
       });
 
       if (!res.ok) {
-        const err = await res.json();
-        // Fallback to smaller 8B model if 70B is overloaded
-        if (model === 'llama-3.3-70b-versatile') {
-          console.warn('Groq 70B failed, falling back to 8B instant...', err);
-          return callGroq(msgs, 'llama-3.1-8b-instant');
+        let errMsg = 'Groq API Error';
+        try {
+          const err = await res.json();
+          errMsg = err.error?.message || JSON.stringify(err);
+          // If 70b has an issue, try 8b
+          if (model === 'llama-3.3-70b-versatile' && !errMsg.includes('Invalid API Key')) {
+            console.warn('Groq 70B failed, falling back to 8B instant...', errMsg);
+            return callGroq(msgs, 'llama-3.1-8b-instant');
+          }
+        } catch (e) {
+          errMsg = `HTTP ${res.status} - ${res.statusText}`;
         }
-        throw new Error(err.error?.message || 'Groq API Error');
+        throw new Error(errMsg);
       }
       return res.json();
     };
