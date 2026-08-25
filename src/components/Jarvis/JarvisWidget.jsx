@@ -13,9 +13,9 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [handsFreeMode, setHandsFreeMode] = useState(false);
   const [availableVoices, setAvailableVoices] = useState([]);
-  const [selectedVoiceURI, setSelectedVoiceURI] = useState('');
-  const [voiceRate, setVoiceRate] = useState(1.05);
-  const [voicePitch, setVoicePitch] = useState(1.0);
+  const [selectedVoiceURI, setSelectedVoiceURI] = useState(() => localStorage.getItem('jarvis_voice_uri') || '');
+  const [voiceRate, setVoiceRate] = useState(() => Number(localStorage.getItem('jarvis_voice_rate')) || 1.35);
+  const [voicePitch, setVoicePitch] = useState(() => Number(localStorage.getItem('jarvis_voice_pitch')) || 1.0);
   
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
@@ -607,7 +607,10 @@ DIRETRIZES:
                 <label className="block text-[11px] text-gray-400 mb-1">Selecionar Voz:</label>
                 <select
                   value={selectedVoiceURI}
-                  onChange={(e) => setSelectedVoiceURI(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedVoiceURI(e.target.value);
+                    localStorage.setItem('jarvis_voice_uri', e.target.value);
+                  }}
                   className={`w-full p-1.5 rounded border text-xs outline-none ${darkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-800'}`}
                 >
                   {availableVoices.map((v, i) => (
@@ -627,10 +630,14 @@ DIRETRIZES:
                   <input
                     type="range"
                     min="0.8"
-                    max="1.3"
+                    max="1.6"
                     step="0.05"
                     value={voiceRate}
-                    onChange={(e) => setVoiceRate(Number(e.target.value))}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setVoiceRate(val);
+                      localStorage.setItem('jarvis_voice_rate', String(val));
+                    }}
                     className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer"
                   />
                 </div>
@@ -645,7 +652,11 @@ DIRETRIZES:
                     max="1.3"
                     step="0.05"
                     value={voicePitch}
-                    onChange={(e) => setVoicePitch(Number(e.target.value))}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setVoicePitch(val);
+                      localStorage.setItem('jarvis_voice_pitch', String(val));
+                    }}
                     className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer"
                   />
                 </div>

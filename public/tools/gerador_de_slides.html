@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gerador de Slides - Canva Killer Pro</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/libs/jszip.min.js"></script>
@@ -22,6 +23,23 @@
         }
         
         body { font-family: 'Inter', sans-serif; background: var(--bg-base); color: var(--text-light); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none; }
+        
+        /* Mobile Breakpoints */
+        @media (max-width: 768px) {
+            header { padding: 0 10px !important; height: auto !important; min-height: 48px !important; flex-wrap: wrap; gap: 8px; }
+            header h1 { font-size: 11px !important; }
+            .btn { padding: 5px 8px !important; font-size: 11px !important; }
+            #setup { margin: 12px auto !important; padding: 20px !important; max-width: 92% !important; }
+            .dropzone { padding: 20px !important; }
+            #main-row { flex-direction: column !important; position: relative; }
+            #left-bar { width: 100% !important; height: 44px !important; flex-direction: row !important; justify-content: space-around !important; border-right: none !important; border-bottom: 1px solid var(--border) !important; padding-top: 0 !important; gap: 0 !important; }
+            .tool-btn { width: 40px !important; height: 38px !important; font-size: 9px !important; }
+            .tool-btn svg { width: 16px !important; height: 16px !important; }
+            #right-bar { width: 100% !important; max-height: 180px !important; order: 3 !important; border-left: none !important; border-top: 1px solid var(--border) !important; overflow-y: auto !important; }
+            #filmstrip { height: 80px !important; padding: 0 8px !important; gap: 8px !important; }
+            .thumb { width: 90px !important; height: 50px !important; }
+            .handle { width: 14px !important; height: 14px !important; }
+        }
         
         /* Typography & Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -454,7 +472,8 @@
     // --- RENDER ---
     function resizeWorkspace() {
         const w = canvasContainer.parentElement.clientWidth; const h = canvasContainer.parentElement.clientHeight;
-        const scale = Math.min((w - 80) / C_WIDTH, (h - 80) / C_HEIGHT);
+        const padding = w < 768 ? 16 : 80;
+        const scale = Math.min((w - padding) / C_WIDTH, (h - padding) / C_HEIGHT);
         canvasContainer.style.width = `${C_WIDTH * scale}px`; canvasContainer.style.height = `${C_HEIGHT * scale}px`;
         slideCanvas.style.transform = `scale(${scale})`;
     }
