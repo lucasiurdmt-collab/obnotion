@@ -33,6 +33,7 @@ export default function SettingsView({
 }) {
   const fileInputRef = useRef(null);
   const [copiedIndex, setCopiedIndex] = useState(null);
+  const [showKey, setShowKey] = useState(false);
 
   const handleExportJSON = () => {
     const dataStr = JSON.stringify(data, null, 2);
@@ -288,18 +289,27 @@ export default function SettingsView({
                         Pegar chave grátis no AI Studio ↗
                       </a>
                     </div>
-                    <input
-                      type="password"
-                      placeholder="AIzaSy..."
-                      value={data.settings?.geminiApiKey || ''}
-                      onChange={(e) => {
-                        const newSettings = { ...(data.settings || {}), geminiApiKey: e.target.value };
-                        updateSection('settings', newSettings);
-                      }}
-                      className={`w-full px-3 py-2 text-sm rounded-lg border ${darkMode ? 'bg-gray-900/50 border-gray-700 focus:border-purple-500' : 'bg-gray-50 border-gray-300 focus:border-purple-500'} outline-none font-mono`}
-                    />
+                    <div className="relative">
+                      <input
+                        type={showKey ? "text" : "password"}
+                        placeholder="AIzaSy..."
+                        value={data.settings?.geminiApiKey || ''}
+                        onChange={(e) => {
+                          const newSettings = { ...(data.settings || {}), geminiApiKey: e.target.value.trim() };
+                          updateSection('settings', newSettings);
+                        }}
+                        className={`w-full px-3 py-2 pr-16 text-sm rounded-lg border ${darkMode ? 'bg-gray-900/50 border-gray-700 focus:border-purple-500' : 'bg-gray-50 border-gray-300 focus:border-purple-500'} outline-none font-mono`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowKey(!showKey)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 text-[11px] text-gray-400 hover:text-white rounded bg-gray-800/60"
+                      >
+                        {showKey ? 'Ocultar' : 'Ver'}
+                      </button>
+                    </div>
                     <p className="text-[10px] text-gray-500 mt-1">
-                      O Gemini Flash é 100% gratuito (1.500 msgs/dia) e não pede cartão de crédito.
+                      O Gemini Flash é 100% gratuito (1.500 msgs/dia). A chave deve começar com <b>AIzaSy...</b>
                     </p>
                   </div>
                 ) : (
