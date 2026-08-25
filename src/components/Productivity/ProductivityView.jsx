@@ -19,8 +19,8 @@ export default function ProductivityView({ darkMode }) {
         'Geração de arquivos PPTX nativos',
         'Separação automática de tópicos e versículos'
       ],
-      path: '/tools/gerador_de_slides.html',
-      iframeUrl: '/tools/gerador_de_slides.html'
+      path: `${import.meta.env.BASE_URL}tools/gerador_de_slides.html`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/gerador_de_slides.html`
     },
     {
       id: 'planilhas',
@@ -36,8 +36,8 @@ export default function ProductivityView({ darkMode }) {
         'Estatísticas calculadas (congregações, ativos)',
         'Visualização de hierarquia e validação de dados'
       ],
-      path: '/tools/planilhas/index.html',
-      iframeUrl: '/tools/planilhas/index.html'
+      path: `${import.meta.env.BASE_URL}tools/planilhas/index.html`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/planilhas/index.html`
     },
     {
       id: 'jarvis',
