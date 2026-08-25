@@ -20,6 +20,7 @@ import {
 
 export default function SettingsView({
   data,
+  updateSection,
   onResetData,
   onClearData,
   onImportData,
@@ -265,6 +266,33 @@ export default function SettingsView({
               </p>
             </div>
           </div>
+
+          <div className="pt-4 border-t border-inherit">
+              <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-purple-400" />
+                Inteligência Artificial (JARVIS)
+              </h4>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    Google Gemini API Key
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="AIzaSy..."
+                    value={data.settings?.geminiApiKey || ''}
+                    onChange={(e) => {
+                      const newSettings = { ...(data.settings || {}), geminiApiKey: e.target.value };
+                      updateSection('settings', newSettings);
+                    }}
+                    className={`w-full px-3 py-2 text-sm rounded-lg border ${darkMode ? 'bg-gray-900/50 border-gray-700 focus:border-purple-500' : 'bg-gray-50 border-gray-300 focus:border-purple-500'} outline-none`}
+                  />
+                  <p className="text-[10px] text-gray-500 mt-1">
+                    Sua chave é salva apenas localmente no seu navegador para alimentar o assistente de IA.
+                  </p>
+                </div>
+              </div>
+            </div>
 
           <div className="space-y-3">
             {deployCommands.map((item, idx) => (

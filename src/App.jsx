@@ -18,6 +18,7 @@ import HabitsView from './components/Habits/HabitsView';
 import JournalView from './components/Journal/JournalView';
 import SettingsView from './components/Settings/SettingsView';
 import ProductivityView from './components/Productivity/ProductivityView';
+import JarvisWidget from './components/Jarvis/JarvisWidget';
 
 export default function App() {
   const {
@@ -233,6 +234,7 @@ export default function App() {
           {activeTab === 'settings' && (
             <SettingsView
               data={data}
+              updateSection={updateSection}
               onResetData={resetToSampleData}
               onClearData={clearWorkspaceToEmpty}
               onImportData={importFullData}
@@ -250,6 +252,8 @@ export default function App() {
           )}
         </main>
       </div>
+
+      <JarvisWidget data={data} updateSection={updateSection} darkMode={darkMode} />
 
       {/* Global Quick Search Spotlight Modal */}
       <QuickSearchModal
