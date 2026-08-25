@@ -658,69 +658,95 @@ DIRETRIZES:
       <div className="fixed bottom-6 right-6 z-50 flex items-center justify-center">
         {isSpeaking && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-             <div className="w-20 h-20 bg-blue-500 rounded-full animate-ping opacity-30 absolute"></div>
-             <div className="w-24 h-24 bg-cyan-500 rounded-full animate-ping opacity-20 absolute" style={{ animationDelay: '200ms' }}></div>
+             <div className="w-16 h-16 bg-violet-500 rounded-full animate-ping opacity-25 absolute"></div>
+             <div className="w-20 h-20 bg-cyan-400 rounded-full animate-ping opacity-15 absolute" style={{ animationDelay: '200ms' }}></div>
           </div>
         )}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className={`w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-500/30 hover:scale-105 transition-all relative z-10 ${isSpeaking ? 'bg-gradient-to-tr from-cyan-500 to-blue-600 scale-110 shadow-cyan-500/50' : 'bg-gradient-to-tr from-blue-600 to-indigo-600'} ${handsFreeMode ? 'ring-4 ring-cyan-400/50' : ''}`}
+          className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-xl backdrop-blur-xl transition-all duration-300 relative z-10 border ${
+            isSpeaking 
+              ? 'bg-gradient-to-tr from-violet-600 to-cyan-500 scale-105 border-cyan-400/50 shadow-violet-500/40' 
+              : 'bg-[#12131b]/90 border-white/[0.12] hover:border-violet-500/50 hover:bg-[#181924]'
+          } ${handsFreeMode ? 'ring-2 ring-emerald-400/40' : ''}`}
+          title="JARVIS AI"
         >
-          <BrainCircuit className={`w-7 h-7 ${isSpeaking ? 'animate-pulse text-cyan-100' : 'text-blue-100 group-hover:animate-pulse'}`} />
+          <BrainCircuit className={`w-5 h-5 ${isSpeaking ? 'animate-pulse text-cyan-200' : 'text-violet-400'}`} />
           {handsFreeMode && (
-            <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full animate-pulse"></span>
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 border-2 border-black rounded-full animate-pulse"></span>
           )}
         </button>
       </div>
 
       {/* Chat Window */}
       {isOpen && (
-        <div className={`fixed bottom-24 right-4 md:right-6 w-[92vw] md:w-96 h-[520px] rounded-2xl flex flex-col shadow-2xl z-50 overflow-hidden border ${darkMode ? 'bg-[#181920] border-gray-800' : 'bg-white border-gray-200'}`}>
+        <div className={`fixed bottom-22 right-4 md:right-6 w-[92vw] md:w-[380px] h-[520px] rounded-2xl flex flex-col shadow-2xl z-50 overflow-hidden border backdrop-blur-2xl ${
+          darkMode ? 'bg-[#0f1017]/95 border-white/[0.1] text-zinc-100' : 'bg-white/95 border-zinc-200 text-zinc-800'
+        }`}>
           {/* Header */}
-          <div className="p-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-between text-white shadow-md z-10">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-blue-200" />
+          <div className="p-3.5 border-b border-white/[0.08] bg-white/[0.02] flex items-center justify-between z-10">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400">
+                <BrainCircuit className="w-4 h-4" />
+              </div>
               <div>
-                <h3 className="font-bold text-sm flex items-center gap-1.5">
-                  JARVIS
-                  {handsFreeMode && <span className="text-[10px] bg-emerald-400/20 text-emerald-200 px-1.5 py-0.5 rounded-full font-mono">Mãos Livres</span>}
-                </h3>
-                <p className="text-[10px] text-blue-200">Acesso Total: Hábitos, Livros, Tarefas & Finanças</p>
+                <div className="flex items-center gap-1.5">
+                  <h3 className="font-bold text-xs tracking-tight text-white">JARVIS AI</h3>
+                  {handsFreeMode && (
+                    <span className="text-[9px] font-mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 px-1.5 py-0.2 rounded">
+                      Voz Ativa
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] text-zinc-400 font-mono">Controle Executivo Obnotion</p>
               </div>
             </div>
             <div className="flex items-center gap-1">
               <button 
                 onClick={() => setShowVoiceSettings(!showVoiceSettings)} 
-                className={`p-1.5 rounded-lg transition-colors ${showVoiceSettings ? 'bg-white/30' : 'hover:bg-white/20'}`}
-                title="Configurações de Voz & Áudio"
+                className={`p-1.5 rounded-lg text-zinc-400 hover:text-white transition-colors ${showVoiceSettings ? 'bg-white/[0.1] text-white' : 'hover:bg-white/[0.06]'}`}
+                title="Configurações de Áudio & Voz"
               >
-                <Settings className="w-4 h-4" />
+                <Settings className="w-3.5 h-3.5" />
               </button>
-              <button onClick={() => setIsOpen(false)} className="hover:bg-white/20 p-1.5 rounded-lg transition-colors">
-                <X className="w-5 h-5" />
+              <button 
+                onClick={() => setIsOpen(false)} 
+                className="hover:bg-white/[0.06] text-zinc-400 hover:text-white p-1.5 rounded-lg transition-colors"
+                title="Fechar"
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
           {/* Voice Settings Panel Modal */}
           {showVoiceSettings && (
-            <div className={`p-4 border-b text-xs space-y-3 animate-fade-in ${darkMode ? 'bg-gray-900 border-gray-800 text-gray-200' : 'bg-gray-50 border-gray-200 text-gray-800'}`}>
-              <div className="flex items-center justify-between font-semibold">
-                <span className="flex items-center gap-1.5"><Volume2 className="w-4 h-4 text-blue-400" /> Personalizar Voz</span>
-                <button onClick={() => speakText("Olá! Esta é uma demonstração da minha voz configurada.")} className="text-[11px] text-blue-400 hover:underline">
+            <div className={`p-4 border-b border-white/[0.08] text-xs space-y-3 animate-fade-in ${
+              darkMode ? 'bg-[#141520]/90 text-zinc-200' : 'bg-zinc-50 text-zinc-800'
+            }`}>
+              <div className="flex items-center justify-between font-medium">
+                <span className="flex items-center gap-1.5 text-zinc-300">
+                  <Volume2 className="w-3.5 h-3.5 text-violet-400" /> Sintetizador de Voz
+                </span>
+                <button 
+                  onClick={() => speakText("Olá! Esta é uma demonstração da minha voz configurada.")} 
+                  className="text-[10px] font-mono text-violet-400 hover:text-violet-300"
+                >
                   Testar Voz 🔊
                 </button>
               </div>
 
               <div>
-                <label className="block text-[11px] text-gray-400 mb-1">Selecionar Voz:</label>
+                <label className="block text-[10px] text-zinc-400 uppercase font-mono mb-1">Selecionar Voz:</label>
                 <select
                   value={selectedVoiceURI}
                   onChange={(e) => {
                     setSelectedVoiceURI(e.target.value);
                     localStorage.setItem('jarvis_voice_uri', e.target.value);
                   }}
-                  className={`w-full p-1.5 rounded border text-xs outline-none ${darkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-800'}`}
+                  className={`w-full p-1.5 rounded-lg border text-xs outline-none ${
+                    darkMode ? 'bg-black/50 border-white/[0.1] text-white' : 'bg-white border-zinc-300 text-zinc-800'
+                  }`}
                 >
                   {availableVoices.map((v, i) => (
                     <option key={i} value={v.voiceURI}>
@@ -732,7 +758,7 @@ DIRETRIZES:
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <div className="flex justify-between text-[11px] text-gray-400 mb-1">
+                  <div className="flex justify-between text-[10px] font-mono text-zinc-400 mb-1">
                     <span>Velocidade:</span>
                     <span>{voiceRate}x</span>
                   </div>
@@ -747,11 +773,11 @@ DIRETRIZES:
                       setVoiceRate(val);
                       localStorage.setItem('jarvis_voice_rate', String(val));
                     }}
-                    className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-violet-500"
                   />
                 </div>
                 <div>
-                  <div className="flex justify-between text-[11px] text-gray-400 mb-1">
+                  <div className="flex justify-between text-[10px] font-mono text-zinc-400 mb-1">
                     <span>Tom (Pitch):</span>
                     <span>{voicePitch}x</span>
                   </div>
@@ -766,23 +792,27 @@ DIRETRIZES:
                       setVoicePitch(val);
                       localStorage.setItem('jarvis_voice_pitch', String(val));
                     }}
-                    className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-violet-500"
                   />
                 </div>
               </div>
 
               {/* Hands-Free Wake Word Toggle */}
-              <div className="pt-2 border-t border-inherit flex items-center justify-between">
+              <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-[11px] flex items-center gap-1">
+                  <p className="font-medium text-[11px] flex items-center gap-1 text-zinc-200">
                     <Radio className="w-3 h-3 text-emerald-400" />
                     Ativação por "Olá Jarvis"
                   </p>
-                  <p className="text-[10px] text-gray-500">Escuta contínua sem precisar clicar</p>
+                  <p className="text-[10px] text-zinc-500">Escuta contínua viva no navegador</p>
                 </div>
                 <button
                   onClick={() => setHandsFreeMode(!handsFreeMode)}
-                  className={`px-3 py-1 rounded-full text-[11px] font-semibold transition-all ${handsFreeMode ? 'bg-emerald-500 text-white' : 'bg-gray-700 text-gray-300'}`}
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-medium transition-all ${
+                    handsFreeMode 
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
+                      : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
+                  }`}
                 >
                   {handsFreeMode ? 'Ativado' : 'Desativado'}
                 </button>
@@ -791,55 +821,63 @@ DIRETRIZES:
           )}
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${m.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none shadow-sm' : (darkMode ? 'bg-gray-800 text-gray-200 rounded-bl-none border border-gray-700/50' : 'bg-gray-100 text-gray-800 rounded-bl-none shadow-sm')}`}>
+                <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed ${
+                  m.role === 'user' 
+                    ? 'bg-violet-600 text-white rounded-br-xs shadow-sm font-medium' 
+                    : (darkMode 
+                      ? 'bg-white/[0.05] text-zinc-200 rounded-bl-xs border border-white/[0.08]' 
+                      : 'bg-zinc-100 text-zinc-800 rounded-bl-xs shadow-sm')
+                }`}>
                   {m.text}
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className={`rounded-2xl px-4 py-3 rounded-bl-none flex items-center gap-2 ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
-                  <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-                  <span className="text-xs text-gray-500">Consultando o sistema...</span>
+                <div className={`rounded-2xl px-3.5 py-2.5 rounded-bl-xs flex items-center gap-2 text-xs ${
+                  darkMode ? 'bg-white/[0.04] border border-white/[0.06] text-zinc-400' : 'bg-zinc-100 text-zinc-500'
+                }`}>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-violet-400" />
+                  <span className="font-mono text-[11px]">Processando instrução...</span>
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {!apiKey && (
-            <div className="p-3 bg-blue-500/10 border-t border-blue-500/20 text-xs text-blue-400 text-center">
-              Adicione a chave grátis do <b>Gemini</b> em Configurações (senha: admin admin).
-            </div>
-          )}
-
           {/* Input Footer */}
-          <div className={`p-3 border-t flex items-center gap-2 ${darkMode ? 'border-gray-800 bg-[#15161e]' : 'border-gray-200 bg-gray-50'}`}>
+          <div className={`p-2.5 border-t border-white/[0.08] flex items-center gap-2 ${
+            darkMode ? 'bg-black/30' : 'bg-zinc-50'
+          }`}>
             <button 
               onClick={toggleSingleListen}
-              className={`p-2.5 rounded-full flex-shrink-0 transition-all ${isListening ? 'bg-red-500 text-white animate-pulse' : (darkMode ? 'bg-gray-800 text-gray-400 hover:text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300')}`}
-              title={isListening ? 'Escutando...' : 'Falar com o microfone'}
+              className={`p-2 rounded-xl flex-shrink-0 transition-all ${
+                isListening 
+                  ? 'bg-rose-500 text-white animate-pulse' 
+                  : (darkMode ? 'bg-white/[0.05] text-zinc-400 hover:text-white hover:bg-white/[0.1]' : 'bg-zinc-200 text-zinc-600 hover:bg-zinc-300')
+              }`}
+              title={isListening ? 'Ouvindo comando...' : 'Falar via microfone'}
             >
-              <Mic className="w-5 h-5" />
+              <Mic className="w-4 h-4" />
             </button>
             <input 
               type="text" 
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSend()}
-              placeholder={handsFreeMode ? 'Diga "Olá Jarvis" ou digite...' : 'Fale ou digite algo...'}
+              placeholder={handsFreeMode ? 'Diga "Olá Jarvis" ou digite...' : 'Digite sua instrução...'}
               disabled={isLoading}
-              className={`flex-1 bg-transparent border-none outline-none text-sm px-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}
+              className={`flex-1 bg-transparent border-none outline-none text-xs px-2 ${darkMode ? 'text-zinc-100 placeholder-zinc-500' : 'text-zinc-800'}`}
             />
             <button 
               onClick={() => handleSend()}
               disabled={!input.trim() || isLoading}
-              className="p-2.5 rounded-full bg-blue-600 text-white flex-shrink-0 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-2 rounded-xl bg-violet-600 text-white flex-shrink-0 hover:bg-violet-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
