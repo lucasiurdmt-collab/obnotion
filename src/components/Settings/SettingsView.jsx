@@ -275,21 +275,31 @@ export default function SettingsView({
               <div className="space-y-4">
                 {data.settings?.isAdminUnlocked ? (
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">
-                      OpenAI API Key (ChatGPT)
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-medium text-gray-500">
+                        Groq API Key (100% Grátis & Ultra-Rápido)
+                      </label>
+                      <a 
+                        href="https://console.groq.com/keys" 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="text-[11px] text-purple-400 hover:underline flex items-center gap-1"
+                      >
+                        Pegar chave grátis ↗
+                      </a>
+                    </div>
                     <input
                       type="password"
-                      placeholder="sk-proj-..."
-                      value={data.settings?.openAIApiKey || ''}
+                      placeholder="gsk_..."
+                      value={data.settings?.groqApiKey || ''}
                       onChange={(e) => {
-                        const newSettings = { ...(data.settings || {}), openAIApiKey: e.target.value };
+                        const newSettings = { ...(data.settings || {}), groqApiKey: e.target.value };
                         updateSection('settings', newSettings);
                       }}
-                      className={`w-full px-3 py-2 text-sm rounded-lg border ${darkMode ? 'bg-gray-900/50 border-gray-700 focus:border-purple-500' : 'bg-gray-50 border-gray-300 focus:border-purple-500'} outline-none`}
+                      className={`w-full px-3 py-2 text-sm rounded-lg border ${darkMode ? 'bg-gray-900/50 border-gray-700 focus:border-purple-500' : 'bg-gray-50 border-gray-300 focus:border-purple-500'} outline-none font-mono`}
                     />
                     <p className="text-[10px] text-gray-500 mt-1">
-                      Cole sua chave da OpenAI aqui (começa com sk-...).
+                      O Groq é 100% gratuito, não pede cartão e é o mais rápido do mundo (Llama 3.3 70B).
                     </p>
                   </div>
                 ) : (
