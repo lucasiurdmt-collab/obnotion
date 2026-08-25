@@ -17,6 +17,7 @@ import CalendarView from './components/Calendar/CalendarView';
 import HabitsView from './components/Habits/HabitsView';
 import JournalView from './components/Journal/JournalView';
 import SettingsView from './components/Settings/SettingsView';
+import ProductivityView from './components/Productivity/ProductivityView';
 
 export default function App() {
   const {
@@ -242,6 +243,10 @@ export default function App() {
               darkMode={darkMode}
               setDarkMode={setDarkMode}
             />
+          )}
+
+          {activeTab === 'productivity' && (
+            <ProductivityView darkMode={darkMode} />
           )}
         </main>
       </div>

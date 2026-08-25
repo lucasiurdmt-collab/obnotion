@@ -17,7 +17,8 @@ import {
   Plus,
   Sparkles,
   User,
-  X
+  X,
+  Wand2
 } from 'lucide-react';
 
 export default function Sidebar({
@@ -49,6 +50,7 @@ export default function Sidebar({
     { id: 'calendar', label: 'Calendário & Rotina', icon: Calendar, badge: null },
     { id: 'habits', label: 'Hábitos', icon: Flame, badge: null },
     { id: 'journal', label: 'Diário Pessoal', icon: BookHeart, badge: null },
+    { id: 'productivity', label: 'Produtividade', icon: Wand2, badge: null },
     { id: 'settings', label: 'Configurações', icon: Settings, badge: null },
   ];
 
