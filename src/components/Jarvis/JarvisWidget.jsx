@@ -339,6 +339,51 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
           name: 'get_habits',
           description: 'Retorna os hábitos cadastrados e os streaks do usuário.',
           parameters: { type: 'OBJECT', properties: {} }
+        },
+        {
+          name: 'add_habit',
+          description: 'Cria e adiciona um novo hábito diário no rastreador de hábitos do Obnotion.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              name: { type: 'STRING', description: 'Nome do hábito (ex: Beber 2L de Água, Meditar, Treinar)' },
+              icon: { type: 'STRING', description: 'Emoji representativo (ex: 💧, 🧘, 🏃, 📚, ✨)' },
+              color: { type: 'STRING', description: 'Cor hex (ex: #8b5cf6, #3b82f6, #10b981, #f59e0b)' }
+            },
+            required: ['name']
+          }
+        },
+        {
+          name: 'toggle_habit',
+          description: 'Marca um hábito como feito ou desmarca para o dia de hoje.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              name: { type: 'STRING', description: 'Nome ou parte do nome do hábito' },
+              done: { type: 'BOOLEAN', description: 'true para feito, false para não feito' }
+            },
+            required: ['name']
+          }
+        },
+        // CALENDAR
+        {
+          name: 'get_calendar_events',
+          description: 'Retorna eventos da agenda e calendário.',
+          parameters: { type: 'OBJECT', properties: {} }
+        },
+        {
+          name: 'add_calendar_event',
+          description: 'Adiciona um novo evento ou compromisso no calendário.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              title: { type: 'STRING', description: 'Título do compromisso' },
+              date: { type: 'STRING', description: 'Data YYYY-MM-DD' },
+              time: { type: 'STRING', description: 'Horário HH:MM (ex: 14:30)' },
+              category: { type: 'STRING', description: 'work, personal, health, ou study' }
+            },
+            required: ['title', 'date']
+          }
         }
       ]
     }];
@@ -350,6 +395,8 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
       parts: [{ text: m.text }]
     }));
 
+    const todayStr = new Date().toISOString().split('T')[0];
+
     // Overview of current workspace data for instant context
     const workspaceContext = `
 Você é o JARVIS, assistente pessoal supremo e onisciente do usuário no sistema Obnotion.
@@ -358,6 +405,7 @@ Você tem controle e acesso total a: Biblioteca de Livros, Notas, Tarefas, Finan
 ESTADO ATUAL DO WORKSPACE:
 - Livros Cadastrados (${data.books?.length || 0}): ${JSON.stringify((data.books || []).map(b => ({ title: b.title, author: b.author, status: b.status, progress: `${b.currentPage}/${b.totalPages}` })))}
 - Tarefas (${data.tasks?.length || 0}): ${JSON.stringify((data.tasks || []).slice(0, 8).map(t => ({ title: t.title || t.text, status: t.status, priority: t.priority })))}
+- Hábitos (${data.habits?.length || 0}): ${JSON.stringify((data.habits || []).map(h => ({ name: h.name, icon: h.icon, doneToday: !!h.history?.[todayStr] })))}
 - Finanças Recentes: ${JSON.stringify((data.transactions || []).slice(0, 5).map(tx => ({ desc: tx.description, val: tx.amount, type: tx.type })))}
 - Notas (${data.notes?.length || 0}): ${JSON.stringify((data.notes || []).map(n => ({ title: n.title, folder: n.folder })))}
 
@@ -538,6 +586,50 @@ DIRETRIZES:
     // HABITS
     if (name === 'get_habits') {
       return { habits: data.habits || [] };
+    }
+    if (name === 'add_habit') {
+      const today = new Date().toISOString().split('T')[0];
+      const newHabit = {
+        id: 'hab-' + Date.now(),
+        name: args.name,
+        icon: args.icon || '⚡',
+        color: args.color || '#8b5cf6',
+        history: { [today]: false }
+      };
+      const newHabits = [newHabit, ...(data.habits || [])];
+      updateSection('habits', newHabits);
+      return { success: true, habit: newHabit };
+    }
+    if (name === 'toggle_habit') {
+      const today = new Date().toISOString().split('T')[0];
+      const habits = [...(data.habits || [])];
+      const target = habits.find(h => h.name.toLowerCase().includes((args.name || '').toLowerCase()));
+      if (target) {
+        if (!target.history) target.history = {};
+        const isDone = args.done !== undefined ? args.done : !target.history[today];
+        target.history[today] = isDone;
+        updateSection('habits', habits);
+        return { success: true, habitName: target.name, doneToday: isDone };
+      }
+      return { success: false, message: 'Hábito não encontrado' };
+    }
+
+    // CALENDAR
+    if (name === 'get_calendar_events') {
+      return { calendarEvents: data.calendarEvents || [] };
+    }
+    if (name === 'add_calendar_event') {
+      const newEvent = {
+        id: 'ev-' + Date.now(),
+        title: args.title,
+        date: args.date,
+        time: args.time || '12:00',
+        category: args.category || 'work',
+        color: '#8b5cf6'
+      };
+      const newEvents = [newEvent, ...(data.calendarEvents || [])];
+      updateSection('calendarEvents', newEvents);
+      return { success: true, event: newEvent };
     }
 
     return { error: 'Function not implemented' };
