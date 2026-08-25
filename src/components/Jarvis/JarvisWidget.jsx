@@ -25,7 +25,7 @@ export default function JarvisWidget({
   const [messages, setMessages] = useState([
     {
       role: 'model',
-      text: 'Olá, Senhor. JARVIS totalmente operacional. Você pode me enviar mensagens de texto, falar por comando de voz ou me enviar MÚLTIPLAS fotos/prints de boletos, faturas e contas de uma só vez para eu analisar e organizar todo o seu mês!'
+      text: 'Olá, Senhor. JARVIS totalmente operacional. Você pode me enviar mensagens de texto, falar por comando de voz ou me enviar MÚLTIPLAS fotos/prints de boletos, faturas e contas de qualquer ano (2026, 2027, etc.) para eu analisar e organizar todo o seu planejamento!'
     }
   ]);
   const [input, setInput] = useState('');
@@ -47,6 +47,16 @@ export default function JarvisWidget({
   const recognitionRef = useRef(null);
   const handsFreeRef = useRef(handsFreeMode);
   handsFreeRef.current = handsFreeMode;
+
+  // Real-time data and session accumulators to prevent stale closure bugs during multi-tool execution
+  const dataRef = useRef(data);
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
+
+  const sessionBillsRef = useRef([]);
+  const sessionDebtsRef = useRef([]);
+  const sessionTxsRef = useRef([]);
 
   const DEFAULT_KEY_B64 = 'QVEuQWI4Uk42SlRZTDlzMlNOT3BSWWptNzlsdWVHTzVMS2lnei1hSzBVOXRydVBCUDR1Smc=';
   const getActiveApiKey = () => {
@@ -273,8 +283,13 @@ export default function JarvisWidget({
       return;
     }
 
+    // Initialize session refs with current latest state
+    sessionBillsRef.current = [...(dataRef.current.bills || [])];
+    sessionDebtsRef.current = [...(dataRef.current.debts || [])];
+    sessionTxsRef.current = [...(dataRef.current.transactions || [])];
+
     const userText = textToProcess.trim() || (imgsToSend.length > 0 
-      ? `Por favor, analise todas as ${imgsToSend.length} fotos/boletos/faturas que anexei e organize cada uma delas no meu sistema financeiro.` 
+      ? `Por favor, analise todas as ${imgsToSend.length} fotos/boletos/faturas que anexei e organize cada uma delas no meu sistema financeiro, incluindo faturas futuras de 2026, 2027 e além.` 
       : '');
 
     const newUserMsg = { 
@@ -307,15 +322,39 @@ export default function JarvisWidget({
       functionDeclarations: [
         // FINANCIAL MANAGEMENT (BILLS, DEBTS, SALARY, CARDS)
         {
-          name: 'add_bill',
-          description: 'Adiciona uma conta ou boleto a pagar no controle financeiro do usuário.',
+          name: 'add_multiple_bills',
+          description: 'Adiciona uma lista de múltiplas contas/faturas/parcelas de uma só vez (ex: faturas de vários meses como dez/2026, jan/2027, fev/2027, mar/2027...).',
           parameters: {
             type: 'OBJECT',
             properties: {
-              title: { type: 'STRING', description: 'Nome da conta (ex: Aluguel, Luz Enel, Internet Claro, Academia)' },
+              bills: {
+                type: 'ARRAY',
+                description: 'Lista de contas com título, valor numérico e data de vencimento YYYY-MM-DD',
+                items: {
+                  type: 'OBJECT',
+                  properties: {
+                    title: { type: 'STRING', description: 'Nome da conta (ex: Fatura Cartão Jan/2027)' },
+                    amount: { type: 'NUMBER', description: 'Valor numérico em reais (ex: 264.50)' },
+                    dueDate: { type: 'STRING', description: 'Data de vencimento YYYY-MM-DD (ex: 2027-01-14)' },
+                    category: { type: 'STRING', description: 'Categoria (ex: Cartão de Crédito, Moradia)' }
+                  },
+                  required: ['title', 'amount', 'dueDate']
+                }
+              }
+            },
+            required: ['bills']
+          }
+        },
+        {
+          name: 'add_bill',
+          description: 'Adiciona uma única conta ou boleto a pagar no controle financeiro do usuário.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              title: { type: 'STRING', description: 'Nome da conta (ex: Aluguel, Luz Enel, Internet Claro)' },
               amount: { type: 'NUMBER', description: 'Valor em reais (ex: 180.50)' },
-              dueDate: { type: 'STRING', description: 'Data de vencimento YYYY-MM-DD (ex: 2026-09-10)' },
-              category: { type: 'STRING', description: 'Moradia, Alimentação, Transporte, Saúde, Educação, Lazer, ou Outros' }
+              dueDate: { type: 'STRING', description: 'Data de vencimento YYYY-MM-DD (ex: 2027-01-14)' },
+              category: { type: 'STRING', description: 'Moradia, Alimentação, Transporte, Saúde, Cartão de Crédito, ou Outros' }
             },
             required: ['title', 'amount']
           }
@@ -538,10 +577,10 @@ export default function JarvisWidget({
     });
 
     const todayStr = new Date().toISOString().split('T')[0];
-    const profile = data?.financeProfile || { monthlySalary: 0, salaryDay: 5 };
-    const bills = data?.bills || [];
-    const debts = data?.debts || [];
-    const creditCards = data?.creditCards || [];
+    const profile = dataRef.current?.financeProfile || { monthlySalary: 0, salaryDay: 5 };
+    const bills = dataRef.current?.bills || [];
+    const debts = dataRef.current?.debts || [];
+    const creditCards = dataRef.current?.creditCards || [];
 
     const totalBills = bills.reduce((acc, b) => acc + (Number(b.amount) || 0), 0);
     const totalDebtMonthly = debts.reduce((acc, d) => acc + (Number(d.installmentAmount) || 0), 0);
@@ -552,28 +591,24 @@ export default function JarvisWidget({
 Você é o JARVIS, assistente supremo e consultor financeiro de elite do usuário no sistema Obnotion.
 Você tem poder de visão computacional multimodal avançada (capaz de analisar MÚLTIPLAS imagens enviadas simultaneamente) e ferramentas executáveis.
 
-RAIO-X FINANCEIRO DO USUÁRIO:
+RAIO-X FINANCEIRO ATUAL:
 - Salário Líquido: R$ ${(Number(profile.monthlySalary) || 0).toFixed(2)} (Recebimento estimado dia ${profile.salaryDay || 5})
-- Contas a Pagar / Boletos (${bills.length}): ${JSON.stringify(bills.map(b => ({ title: b.title, valor: b.amount, vencimento: b.dueDate, status: b.status })))}
+- Contas a Pagar / Boletos Cadastrados (${bills.length}): ${JSON.stringify(bills.map(b => ({ title: b.title, valor: b.amount, vencimento: b.dueDate, status: b.status })))}
 - Dívidas & Empréstimos (${debts.length}): ${JSON.stringify(debts.map(d => ({ title: d.title, total: d.totalAmount, parcela: d.installmentAmount, parcelasPagas: `${d.paidInstallments}/${d.totalInstallments}` })))}
 - Cartões de Crédito (${creditCards.length}): ${JSON.stringify(creditCards.map(c => ({ nome: c.name, fatura: c.currentBill, limite: c.limit })))}
 - Saldo Livre Real Projetado: R$ ${freeBalance.toFixed(2)}
-- Hábitos (${data.habits?.length || 0}): ${JSON.stringify((data.habits || []).map(h => ({ name: h.name, doneToday: !!h.history?.[todayStr] })))}
-- Livros (${data.books?.length || 0}): ${JSON.stringify((data.books || []).map(b => ({ title: b.title, progress: `${b.currentPage}/${b.totalPages}` })))}
-- Tarefas (${data.tasks?.length || 0}): ${JSON.stringify((data.tasks || []).slice(0, 5).map(t => ({ title: t.title, status: t.status })))}
 
 REGRAS MANDATÓRIAS DE EXECUÇÃO:
-1. Se o usuário enviar UMA OU VÁRIAS FOTOS/PRINTS (boletos, faturas de cartão, extratos, contas de consumo):
+1. Se o usuário enviar UMA OU VÁRIAS FOTOS/PRINTS (boletos, faturas de cartão parceladas, extratos de meses futuros como 2026, 2027, etc.):
    - Analise minuciosamente CADA imagem enviada.
-   - Para cada boleto ou conta encontrada, extraia o NOME DO CREDOR, o VALOR NUMÉRICO e a DATA DE VENCIMENTO.
-   - CHAME A FERRAMENTA 'add_bill' para CADA conta detectada nas fotos (você pode chamar múltiplas vezes para cada boleto).
-   - Se for um contrato de dívida/empréstimo, chame 'add_debt'.
-   - Resuma todas as contas identificadas em uma lista clara e mostre como isso impacta o saldo livre restante do salário dele!
-2. Se o usuário pedir para adicionar conta/boleto: CHAME 'add_bill'.
-3. Se o usuário disser que pagou uma conta: CHAME 'pay_bill'.
-4. Se o usuário falar de empréstimo ou dívida: CHAME 'add_debt'.
-5. Se o usuário informar seu salário: CHAME 'update_salary'.
-6. Se o usuário pedir consultoria/dicas: Seja empático, claro, prático e objetivo, como um consultor financeiro amigo e genial (sem jargões difíceis).
+   - Extraia TODAS as contas e faturas de cada mês visível (ex: fatura de 14/12/2026, 14/01/2027, 14/02/2027, 14/03/2027, 14/04/2027, 14/05/2027, etc.).
+   - USE A FERRAMENTA 'add_multiple_bills' passando TODAS as contas em um array com a data exata de cada vencimento YYYY-MM-DD!
+   - NÃO DEIXE NENHUMA FATURA DE FORA! Se houver 6 faturas nas fotos, cadastre as 6 faturas com suas respectivas datas em 2026 e 2027!
+   - Novas contas SEMPRE devem ser cadastradas com status 'pending' (pendente).
+   - Ao final, faça um resumo mês a mês (ex: Dezembro/2026: R$ 264,48, Janeiro/2027: R$ 264,50, Fevereiro/2027: R$ 229,29...).
+2. Se for um contrato de dívida/empréstimo consolidado: CHAME 'add_debt'.
+3. Se o usuário pedir para pagar conta: CHAME 'pay_bill'.
+4. Se o usuário informar seu salário: CHAME 'update_salary'.
 `;
 
     const modelsToTry = [
@@ -593,8 +628,8 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
         },
         tools: tools,
         generationConfig: {
-          temperature: 0.5,
-          maxOutputTokens: 1000
+          temperature: 0.4,
+          maxOutputTokens: 1200
         }
       };
 
@@ -621,8 +656,10 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
     let candidate = dataRes.candidates?.[0]?.content;
     let parts = candidate?.parts || [];
 
-    // Handle sequential function calls if Gemini invokes multiple actions for multiple images
-    while (parts.some(p => p.functionCall)) {
+    // Handle sequential and batch function calls
+    let loopCount = 0;
+    while (parts.some(p => p.functionCall) && loopCount < 10) {
+      loopCount++;
       const functionCallPart = parts.find(p => p.functionCall);
       const { name, args } = functionCallPart.functionCall;
       const fnResult = await handleFunctionCall(name, args || {});
@@ -648,7 +685,23 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
   };
 
   const handleFunctionCall = async (name, args) => {
-    // 1. BILLS
+    // 1. MULTIPLE BILLS BATCH
+    if (name === 'add_multiple_bills') {
+      const incoming = (args.bills || []).map((b, idx) => ({
+        id: 'bill-' + Date.now() + '-' + idx + '-' + Math.random().toString(36).substr(2, 5),
+        title: b.title,
+        amount: Number(b.amount),
+        dueDate: b.dueDate || new Date().toISOString().split('T')[0],
+        category: b.category || 'Cartão de Crédito',
+        status: 'pending',
+        createdAt: new Date().toISOString().split('T')[0]
+      }));
+      sessionBillsRef.current = [...incoming, ...sessionBillsRef.current];
+      updateSection('bills', sessionBillsRef.current);
+      return { success: true, count: incoming.length, message: `${incoming.length} contas cadastradas com sucesso para as datas especificadas.` };
+    }
+
+    // 2. SINGLE BILL
     if (name === 'add_bill') {
       const newBill = {
         id: 'bill-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
@@ -659,23 +712,23 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
         status: 'pending',
         createdAt: new Date().toISOString().split('T')[0]
       };
-      const newBills = [newBill, ...(data.bills || [])];
-      updateSection('bills', newBills);
+      sessionBillsRef.current = [newBill, ...sessionBillsRef.current];
+      updateSection('bills', sessionBillsRef.current);
       return { success: true, bill: newBill, message: `Conta ${args.title} no valor de R$ ${args.amount} cadastrada.` };
     }
+
     if (name === 'pay_bill') {
-      const bills = [...(data.bills || [])];
-      const target = bills.find(b => b.title.toLowerCase().includes((args.title || '').toLowerCase()));
+      const target = sessionBillsRef.current.find(b => b.title.toLowerCase().includes((args.title || '').toLowerCase()));
       if (target) {
         target.status = 'paid';
         target.paidAt = new Date().toISOString().split('T')[0];
-        updateSection('bills', bills);
+        updateSection('bills', [...sessionBillsRef.current]);
         return { success: true, paidBill: target.title };
       }
       return { success: false, message: 'Conta não encontrada' };
     }
 
-    // 2. DEBTS
+    // 3. DEBTS
     if (name === 'add_debt') {
       const newDebt = {
         id: 'debt-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
@@ -686,32 +739,32 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
         paidInstallments: Number(args.paidInstallments) || 0,
         createdAt: new Date().toISOString().split('T')[0]
       };
-      const newDebts = [newDebt, ...(data.debts || [])];
-      updateSection('debts', newDebts);
+      sessionDebtsRef.current = [newDebt, ...sessionDebtsRef.current];
+      updateSection('debts', sessionDebtsRef.current);
       return { success: true, debt: newDebt };
     }
+
     if (name === 'pay_debt_installment') {
-      const debts = [...(data.debts || [])];
-      const target = debts.find(d => d.title.toLowerCase().includes((args.title || '').toLowerCase()));
+      const target = sessionDebtsRef.current.find(d => d.title.toLowerCase().includes((args.title || '').toLowerCase()));
       if (target) {
         target.paidInstallments = Math.min(target.totalInstallments, (target.paidInstallments || 0) + 1);
-        updateSection('debts', debts);
+        updateSection('debts', [...sessionDebtsRef.current]);
         return { success: true, debt: target.title, paidNow: target.paidInstallments };
       }
       return { success: false, message: 'Dívida não encontrada' };
     }
 
-    // 3. SALARY PROFILE
+    // 4. SALARY PROFILE
     if (name === 'update_salary') {
       const profile = {
         monthlySalary: Number(args.monthlySalary),
-        salaryDay: Number(args.salaryDay) || (data.financeProfile?.salaryDay || 5)
+        salaryDay: Number(args.salaryDay) || (dataRef.current?.financeProfile?.salaryDay || 5)
       };
       updateSection('financeProfile', profile);
       return { success: true, profile };
     }
 
-    // 4. TRANSACTIONS
+    // 5. TRANSACTIONS
     if (name === 'add_finance_transaction') {
       const newTx = {
         id: 'tx-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
@@ -721,13 +774,13 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
         category: args.category || (args.type === 'income' ? 'Renda' : 'Outros'),
         date: new Date().toISOString().split('T')[0]
       };
-      const newTxs = [newTx, ...(data.transactions || [])];
-      updateSection('transactions', newTxs);
+      sessionTxsRef.current = [newTx, ...sessionTxsRef.current];
+      updateSection('transactions', sessionTxsRef.current);
       return { success: true, transaction: newTx };
     }
 
-    // 5. BOOKS
-    if (name === 'get_books') return { books: data.books || [] };
+    // 6. BOOKS
+    if (name === 'get_books') return { books: dataRef.current?.books || [] };
     if (name === 'add_book') {
       const newBook = {
         id: 'book-' + Date.now(),
@@ -742,24 +795,12 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
         cover: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80',
         review: ''
       };
-      updateSection('books', [newBook, ...(data.books || [])]);
+      updateSection('books', [newBook, ...(dataRef.current?.books || [])]);
       return { success: true, book: newBook };
     }
-    if (name === 'update_book_progress') {
-      const books = [...(data.books || [])];
-      const target = books.find(b => b.title.toLowerCase().includes((args.bookTitle || '').toLowerCase()));
-      if (target) {
-        target.currentPage = Number(args.currentPage);
-        if (args.status) target.status = args.status;
-        if (target.currentPage >= target.totalPages) target.status = 'completed';
-        updateSection('books', books);
-        return { success: true, updatedBook: target };
-      }
-      return { success: false, message: 'Livro não encontrado' };
-    }
 
-    // 6. TASKS
-    if (name === 'get_tasks') return { tasks: data.tasks || [] };
+    // 7. TASKS
+    if (name === 'get_tasks') return { tasks: dataRef.current?.tasks || [] };
     if (name === 'add_task') {
       const newTask = {
         id: 'task-' + Date.now(),
@@ -770,12 +811,12 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
         tags: ['JARVIS'],
         notes: 'Criado via assistente'
       };
-      updateSection('tasks', [newTask, ...(data.tasks || [])]);
+      updateSection('tasks', [newTask, ...(dataRef.current?.tasks || [])]);
       return { success: true, task: newTask };
     }
 
-    // 7. NOTES
-    if (name === 'get_notes') return { notes: data.notes || [] };
+    // 8. NOTES
+    if (name === 'get_notes') return { notes: dataRef.current?.notes || [] };
     if (name === 'add_note') {
       const newNote = {
         id: 'note-' + Date.now(),
@@ -787,12 +828,12 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
         createdAt: new Date().toISOString().split('T')[0],
         updatedAt: new Date().toISOString().split('T')[0]
       };
-      updateSection('notes', [newNote, ...(data.notes || [])]);
+      updateSection('notes', [newNote, ...(dataRef.current?.notes || [])]);
       return { success: true, note: newNote };
     }
 
-    // 8. HABITS
-    if (name === 'get_habits') return { habits: data.habits || [] };
+    // 9. HABITS
+    if (name === 'get_habits') return { habits: dataRef.current?.habits || [] };
     if (name === 'add_habit') {
       const today = new Date().toISOString().split('T')[0];
       const newHabit = {
@@ -802,12 +843,12 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
         color: args.color || '#8b5cf6',
         history: { [today]: false }
       };
-      updateSection('habits', [newHabit, ...(data.habits || [])]);
+      updateSection('habits', [newHabit, ...(dataRef.current?.habits || [])]);
       return { success: true, habit: newHabit };
     }
     if (name === 'toggle_habit') {
       const today = new Date().toISOString().split('T')[0];
-      const habits = [...(data.habits || [])];
+      const habits = [...(dataRef.current?.habits || [])];
       const target = habits.find(h => h.name.toLowerCase().includes((args.name || '').toLowerCase()));
       if (target) {
         if (!target.history) target.history = {};
@@ -819,8 +860,8 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
       return { success: false, message: 'Hábito não encontrado' };
     }
 
-    // 9. CALENDAR
-    if (name === 'get_calendar_events') return { calendarEvents: data.calendarEvents || [] };
+    // 10. CALENDAR
+    if (name === 'get_calendar_events') return { calendarEvents: dataRef.current?.calendarEvents || [] };
     if (name === 'add_calendar_event') {
       const newEvent = {
         id: 'ev-' + Date.now(),
@@ -830,7 +871,7 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
         category: args.category || 'work',
         color: '#8b5cf6'
       };
-      updateSection('calendarEvents', [newEvent, ...(data.calendarEvents || [])]);
+      updateSection('calendarEvents', [newEvent, ...(dataRef.current?.calendarEvents || [])]);
       return { success: true, event: newEvent };
     }
 
@@ -883,7 +924,7 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
                     </span>
                   )}
                 </div>
-                <p className="text-[10px] text-zinc-400 font-mono">Multimodal • Multi-Fotos</p>
+                <p className="text-[10px] text-zinc-400 font-mono">Multimodal • Multi-Fotos 2026/2027+</p>
               </div>
             </div>
             <div className="flex items-center gap-1">

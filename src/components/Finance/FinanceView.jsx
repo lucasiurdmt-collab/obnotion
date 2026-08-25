@@ -15,12 +15,13 @@ import {
   ShieldCheck,
   Target,
   ArrowRight,
-  HelpCircle,
-  FileSpreadsheet,
+  ChevronLeft,
+  ChevronRight,
   Check,
   Edit2,
   X,
-  PieChart
+  Layers,
+  Filter
 } from 'lucide-react';
 
 export default function FinanceView({
@@ -36,10 +37,11 @@ export default function FinanceView({
 }) {
   const today = new Date();
   const todayStr = today.toISOString().split('T')[0];
-  const currentMonth = today.toISOString().slice(0, 7);
+  const currentMonthStr = today.toISOString().slice(0, 7); // e.g. "2026-08"
 
   const [activeSubTab, setActiveSubTab] = useState('overview'); // 'overview' | 'bills' | 'debts' | 'cards' | 'transactions' | 'goals'
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonthStr);
+  const [viewAllMonths, setViewAllMonths] = useState(false);
 
   // Modals state
   const [isSalaryModalOpen, setIsSalaryModalOpen] = useState(false);
@@ -65,8 +67,8 @@ export default function FinanceView({
   const [billTitle, setBillTitle] = useState('');
   const [billAmount, setBillAmount] = useState('');
   const [billDueDate, setBillDueDate] = useState(todayStr);
-  const [billCategory, setBillCategory] = useState('Moradia');
-  const [billRecurring, setBillRecurring] = useState(true);
+  const [billCategory, setBillCategory] = useState('Cartão de Crédito');
+  const [billRecurring, setBillRecurring] = useState(false);
 
   // Debt Form
   const [debtTitle, setDebtTitle] = useState('');
@@ -97,13 +99,45 @@ export default function FinanceView({
   const [goalCurrent, setGoalCurrent] = useState('');
   const [goalDeadline, setGoalDeadline] = useState('');
 
-  // Calculations for current month
+  // Extract all distinct months from bills to allow quick navigation (e.g. "2026-12", "2027-01", "2027-02", etc.)
+  const availableMonths = Array.from(new Set([
+    currentMonthStr,
+    ...bills.map(b => (b.dueDate ? b.dueDate.slice(0, 7) : currentMonthStr))
+  ])).sort();
+
+  // Helper to format month name (e.g. "2027-01" -> "Janeiro de 2027")
+  const formatMonthTitle = (mStr) => {
+    try {
+      const [y, m] = mStr.split('-');
+      const d = new Date(Number(y), Number(m) - 1, 15);
+      const str = d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    } catch (e) {
+      return mStr;
+    }
+  };
+
+  const navigateMonth = (direction) => {
+    try {
+      const [y, m] = selectedMonth.split('-').map(Number);
+      const curDate = new Date(y, m - 1 + direction, 15);
+      const newMonthStr = curDate.toISOString().slice(0, 7);
+      setSelectedMonth(newMonthStr);
+      setViewAllMonths(false);
+    } catch (e) {}
+  };
+
+  // Filter bills by selected month or show all
+  const filteredBills = viewAllMonths 
+    ? [...bills].sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''))
+    : bills.filter(b => (b.dueDate || '').startsWith(selectedMonth));
+
+  // Calculations for selected month
   const monthlySalary = Number(profile.monthlySalary) || 0;
   
-  // Total bills of selected month
-  const totalBillsAmount = bills.reduce((acc, b) => acc + (Number(b.amount) || 0), 0);
-  const paidBillsAmount = bills.filter(b => b.status === 'paid').reduce((acc, b) => acc + (Number(b.amount) || 0), 0);
-  const pendingBillsAmount = bills.filter(b => b.status !== 'paid').reduce((acc, b) => acc + (Number(b.amount) || 0), 0);
+  const monthBillsAmount = filteredBills.reduce((acc, b) => acc + (Number(b.amount) || 0), 0);
+  const monthPaidBillsAmount = filteredBills.filter(b => b.status === 'paid').reduce((acc, b) => acc + (Number(b.amount) || 0), 0);
+  const monthPendingBillsAmount = filteredBills.filter(b => b.status !== 'paid').reduce((acc, b) => acc + (Number(b.amount) || 0), 0);
 
   // Total debt installments due this month
   const totalDebtInstallmentsMonthly = debts.reduce((acc, d) => acc + (Number(d.installmentAmount) || 0), 0);
@@ -111,12 +145,12 @@ export default function FinanceView({
   // Total card bills
   const totalCardBills = creditCards.reduce((acc, c) => acc + (Number(c.currentBill) || 0), 0);
 
-  // Total committed expenses
-  const totalCommittedExpenses = totalBillsAmount + totalDebtInstallmentsMonthly + totalCardBills;
+  // Total committed expenses for the selected month
+  const totalCommittedMonth = monthBillsAmount + totalDebtInstallmentsMonthly + totalCardBills;
   
-  // Real Free Cash Flow (Quanto sobra de verdade)
-  const realFreeBalance = monthlySalary - totalCommittedExpenses;
-  const commitmentRate = monthlySalary > 0 ? Math.round((totalCommittedExpenses / monthlySalary) * 100) : 0;
+  // Real Free Cash Flow for the selected month
+  const realFreeBalance = monthlySalary - totalCommittedMonth;
+  const commitmentRate = monthlySalary > 0 ? Math.round((totalCommittedMonth / monthlySalary) * 100) : 0;
 
   // Total remaining debt in general
   const totalDebtRemaining = debts.reduce((acc, d) => {
@@ -140,13 +174,13 @@ export default function FinanceView({
     e.preventDefault();
     if (!billTitle || !billAmount) return;
     const newBill = {
-      id: 'bill-' + Date.now(),
+      id: 'bill-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
       title: billTitle,
       amount: Number(billAmount),
       dueDate: billDueDate,
       category: billCategory,
       isRecurring: billRecurring,
-      status: 'pending', // 'pending' | 'paid'
+      status: 'pending',
       createdAt: todayStr
     };
     onUpdateBills([newBill, ...bills]);
@@ -160,7 +194,6 @@ export default function FinanceView({
     const updated = bills.map(b => {
       if (b.id === billId) {
         const nextStatus = b.status === 'paid' ? 'pending' : 'paid';
-        // If marking as paid, create an automatic transaction record
         if (nextStatus === 'paid') {
           const autoTx = {
             id: 'tx-' + Date.now(),
@@ -189,7 +222,7 @@ export default function FinanceView({
     e.preventDefault();
     if (!debtTitle || !debtTotalAmount) return;
     const newDebt = {
-      id: 'debt-' + Date.now(),
+      id: 'debt-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
       title: debtTitle,
       totalAmount: Number(debtTotalAmount),
       installmentAmount: Number(debtInstallmentAmount) || (Number(debtTotalAmount) / (Number(debtTotalInstallments) || 1)),
@@ -321,17 +354,17 @@ export default function FinanceView({
 
   // Quick Diagnosis Action with JARVIS
   const triggerJarvisDiagnosis = () => {
-    const prompt = `Faça um diagnóstico completo das minhas finanças atuais no Obnotion:
-- Salário Líquido: R$ ${monthlySalary.toFixed(2)}
-- Contas Fixas/Boletos a Pagar: R$ ${totalBillsAmount.toFixed(2)}
-- Dívidas e Empréstimos (Parcelas mensais): R$ ${totalDebtInstallmentsMonthly.toFixed(2)} (Saldo devedor total: R$ ${totalDebtRemaining.toFixed(2)})
+    const prompt = `Faça um diagnóstico completo das minhas finanças no Obnotion para o período de ${formatMonthTitle(selectedMonth)}:
+- Salário Líquido Mensal: R$ ${monthlySalary.toFixed(2)}
+- Contas a Pagar deste Mês: R$ ${monthBillsAmount.toFixed(2)} (${filteredBills.length} contas cadastradas)
+- Dívidas & Empréstimos (Parcelas mensais): R$ ${totalDebtInstallmentsMonthly.toFixed(2)} (Saldo devedor total acumulado: R$ ${totalDebtRemaining.toFixed(2)})
 - Faturas de Cartão: R$ ${totalCardBills.toFixed(2)}
-- Saldo Livre Real: R$ ${realFreeBalance.toFixed(2)} (${commitmentRate}% da renda comprometida).
+- Saldo Livre Real deste Mês: R$ ${realFreeBalance.toFixed(2)} (${commitmentRate}% da renda comprometida).
 
-Por favor, me dê um plano de ação tático:
-1. Minha situação está segura, em alerta ou crítica?
-2. Como devo organizar meus pagamentos para não pagar juros?
-3. O que fazer para zerar as dívidas mais rápido e começar a montar uma reserva?`;
+Por favor, me dê uma orientação direta e prática:
+1. Meu planejamento para ${formatMonthTitle(selectedMonth)} está sustentável?
+2. Como devo priorizar meus pagamentos para não entrar em cheque especial ou rotativo de cartão?
+3. Dicas práticas para eu manter minhas contas em dia e sobrar mais dinheiro todo mês.`;
 
     if (onAskJarvis) {
       onAskJarvis(prompt);
@@ -347,13 +380,13 @@ Por favor, me dê um plano de ação tático:
         <div className="space-y-1.5 z-10">
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full ${realFreeBalance >= 0 ? 'bg-emerald-400' : 'bg-rose-500'} animate-pulse`} />
-            <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-400">Raio-X de Fluxo de Caixa Real</span>
+            <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-400">Controle Orçamentário Multi-Mês</span>
           </div>
           <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
             Gestão Financeira & Dívidas
           </h1>
           <p className="text-xs text-zinc-400 max-w-xl">
-            Planejamento inteligente baseado no seu salário, contas fixas, faturas e controle de quitação de dívidas.
+            Planejamento inteligente por mês (2026, 2027 e além), salários, contas e quitação de parcelas.
           </p>
         </div>
 
@@ -382,7 +415,80 @@ Por favor, me dê um plano de ação tático:
         </div>
       </div>
 
-      {/* 4 Main Cash Flow Metric Cards */}
+      {/* MONTH / YEAR NAVIGATOR BAR */}
+      <div className={`p-4 rounded-2xl border ${
+        darkMode ? 'bg-[#0f1017]/80 border-white/[0.08]' : 'bg-zinc-50 border-zinc-200'
+      } flex flex-col md:flex-row md:items-center justify-between gap-4`}>
+        {/* Navigation Arrows & Current Month Display */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigateMonth(-1)}
+            className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-zinc-300 transition-colors"
+            title="Mês Anterior"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-violet-400" />
+            <h2 className="text-sm md:text-base font-bold text-white font-mono">
+              {viewAllMonths ? 'Visão Geral (Todos os Meses / Anos)' : formatMonthTitle(selectedMonth)}
+            </h2>
+          </div>
+
+          <button
+            onClick={() => navigateMonth(1)}
+            className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-zinc-300 transition-colors"
+            title="Próximo Mês"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => setViewAllMonths(!viewAllMonths)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
+              viewAllMonths 
+                ? 'bg-violet-600 text-white font-semibold shadow-sm' 
+                : 'bg-white/[0.03] text-zinc-400 border border-white/[0.08] hover:text-zinc-200'
+            }`}
+          >
+            {viewAllMonths ? 'Filtrar por Mês' : 'Ver Todas as Contas'}
+          </button>
+        </div>
+
+        {/* Quick Month Pills / Projection Timeline */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+          {availableMonths.map(mStr => {
+            const isSelected = selectedMonth === mStr && !viewAllMonths;
+            const count = bills.filter(b => (b.dueDate || '').startsWith(mStr)).length;
+            const total = bills.filter(b => (b.dueDate || '').startsWith(mStr)).reduce((acc, b) => acc + (Number(b.amount) || 0), 0);
+
+            return (
+              <button
+                key={mStr}
+                onClick={() => {
+                  setSelectedMonth(mStr);
+                  setViewAllMonths(false);
+                }}
+                className={`px-2.5 py-1.5 rounded-xl text-[11px] font-mono whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                  isSelected
+                    ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40 font-bold'
+                    : 'bg-white/[0.02] text-zinc-400 border border-white/[0.06] hover:bg-white/[0.05] hover:text-zinc-200'
+                }`}
+              >
+                <span>{mStr}</span>
+                {count > 0 && (
+                  <span className="text-[10px] text-zinc-400 font-normal">
+                    (R$ {total.toFixed(0)})
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 4 Main Cash Flow Metric Cards (for selected month) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* 1. Salário Previsto */}
         <div className={`p-5 rounded-2xl border ${
@@ -402,22 +508,24 @@ Por favor, me dê um plano de ação tático:
           </p>
         </div>
 
-        {/* 2. Contas & Boletos */}
+        {/* 2. Contas & Boletos do Mês */}
         <div className={`p-5 rounded-2xl border ${
           darkMode ? 'bg-[#111219]/70 border-white/[0.07]' : 'bg-white border-zinc-200'
         }`}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">Contas Fixas (Mês)</span>
+            <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
+              {viewAllMonths ? 'Total Geral Contas' : `Contas (${selectedMonth})`}
+            </span>
             <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
               <Calendar className="w-4 h-4" />
             </div>
           </div>
           <h3 className="text-2xl font-bold font-mono tracking-tight text-zinc-100">
-            R$ {totalBillsAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            R$ {monthBillsAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </h3>
           <p className="text-[10px] text-zinc-400 mt-2 font-mono flex items-center justify-between">
-            <span className="text-emerald-400">Pago: R$ {paidBillsAmount.toFixed(0)}</span>
-            <span className="text-amber-400">Pendente: R$ {pendingBillsAmount.toFixed(0)}</span>
+            <span className="text-emerald-400">Pago: R$ {monthPaidBillsAmount.toFixed(0)}</span>
+            <span className="text-amber-400">Pendente: R$ {monthPendingBillsAmount.toFixed(0)}</span>
           </p>
         </div>
 
@@ -446,7 +554,7 @@ Por favor, me dê um plano de ação tático:
             : (darkMode ? 'bg-[#111219]/70 border-rose-500/30' : 'bg-rose-50/50 border-rose-200')
         }`}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">Saldo Livre Real</span>
+            <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">Saldo Livre Previsto</span>
             <div className={`p-1.5 rounded-lg ${realFreeBalance >= 0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
               <ShieldCheck className="w-4 h-4" />
             </div>
@@ -455,7 +563,7 @@ Por favor, me dê um plano de ação tático:
             R$ {realFreeBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </h3>
           <p className="text-[10px] text-zinc-400 mt-2 font-mono">
-            {commitmentRate}% da sua renda comprometida
+            {commitmentRate}% da sua renda comprometida em {selectedMonth}
           </p>
         </div>
       </div>
@@ -464,7 +572,7 @@ Por favor, me dê um plano de ação tático:
       <div className="flex items-center space-x-1 border-b border-white/[0.08] pb-1 overflow-x-auto no-scrollbar">
         {[
           { id: 'overview', label: 'Visão Geral', count: null },
-          { id: 'bills', label: 'Contas & Boletos', count: bills.length },
+          { id: 'bills', label: 'Contas & Boletos', count: filteredBills.length },
           { id: 'debts', label: 'Dívidas & Empréstimos', count: debts.length },
           { id: 'cards', label: 'Cartões de Crédito', count: creditCards.length },
           { id: 'transactions', label: 'Extrato & Gastos', count: transactions.length },
@@ -492,17 +600,22 @@ Por favor, me dê um plano de ação tático:
       {/* ================= TAB 1: OVERVIEW ================= */}
       {activeSubTab === 'overview' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left: Pending Bills & Debts */}
+          {/* Left: Bills of Selected Month & Debts */}
           <div className="lg:col-span-2 space-y-6">
             {/* Quick Bill Checklist */}
             <div className={`p-6 rounded-2xl border ${
               darkMode ? 'bg-[#101118]/60 border-white/[0.08]' : 'bg-white border-zinc-200'
             } space-y-4`}>
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold tracking-tight text-white flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-amber-400" />
-                  Próximos Vencimentos de Contas
-                </h3>
+                <div>
+                  <h3 className="text-sm font-semibold tracking-tight text-white flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-amber-400" />
+                    Contas de {viewAllMonths ? 'Todos os Períodos' : formatMonthTitle(selectedMonth)}
+                  </h3>
+                  <p className="text-[11px] text-zinc-500 font-mono">
+                    Total deste mês: R$ {monthBillsAmount.toFixed(2)} ({filteredBills.length} faturas/contas)
+                  </p>
+                </div>
                 <button
                   onClick={() => setIsBillModalOpen(true)}
                   className="flex items-center gap-1 text-xs font-medium text-violet-400 hover:text-violet-300"
@@ -511,14 +624,14 @@ Por favor, me dê um plano de ação tático:
                 </button>
               </div>
 
-              <div className="space-y-2">
-                {bills.slice(0, 5).map(b => (
+              <div className="space-y-2 max-h-[420px] overflow-y-auto no-scrollbar">
+                {filteredBills.map(b => (
                   <div
                     key={b.id}
-                    className={`p-3 rounded-xl border flex items-center justify-between transition-all ${
+                    className={`p-3.5 rounded-xl border flex items-center justify-between transition-all ${
                       b.status === 'paid' 
-                        ? 'bg-white/[0.01] border-white/[0.04] text-zinc-500' 
-                        : 'bg-white/[0.03] border-white/[0.06] text-zinc-200'
+                        ? 'bg-white/[0.01] border-white/[0.04] text-zinc-500 opacity-75' 
+                        : 'bg-white/[0.03] border-white/[0.06] text-zinc-200 hover:border-white/[0.12]'
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -538,25 +651,34 @@ Por favor, me dê um plano de ação tático:
                           {b.title}
                         </p>
                         <p className="text-[10px] text-zinc-500 font-mono">
-                          Vence em: {b.dueDate} • {b.category}
+                          Vencimento: {b.dueDate} • {b.category}
                         </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs font-mono font-bold text-white">
-                        R$ {Number(b.amount).toFixed(2)}
-                      </p>
-                      <span className={`text-[9px] font-mono uppercase px-1.5 py-0.2 rounded ${
-                        b.status === 'paid' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
-                      }`}>
-                        {b.status === 'paid' ? 'Pago' : 'Pendente'}
-                      </span>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="text-xs font-mono font-bold text-white">
+                          R$ {Number(b.amount).toFixed(2)}
+                        </p>
+                        <span className={`text-[9px] font-mono uppercase px-1.5 py-0.2 rounded ${
+                          b.status === 'paid' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
+                        }`}>
+                          {b.status === 'paid' ? 'Pago' : 'Pendente'}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteBill(b.id)}
+                        className="p-1 text-zinc-600 hover:text-rose-400"
+                        title="Excluir"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 ))}
-                {bills.length === 0 && (
+                {filteredBills.length === 0 && (
                   <div className="py-8 text-center border border-dashed border-white/[0.06] rounded-xl">
-                    <p className="text-xs text-zinc-500">Nenhuma conta cadastrada ainda. Clique em "+ Adicionar Conta".</p>
+                    <p className="text-xs text-zinc-500">Nenhuma conta cadastrada para {formatMonthTitle(selectedMonth)}.</p>
                   </div>
                 )}
               </div>
@@ -639,14 +761,12 @@ Por favor, me dê um plano de ação tático:
             <div className="p-5 rounded-2xl bg-gradient-to-br from-violet-950/40 via-[#12131c] to-[#0c0d14] border border-violet-500/30 space-y-3">
               <div className="flex items-center gap-2 text-violet-300 font-semibold text-xs">
                 <Sparkles className="w-4 h-4 text-cyan-300 animate-pulse" />
-                <span>Estratégia Recomendada JARVIS</span>
+                <span>Estratégia para {formatMonthTitle(selectedMonth)}</span>
               </div>
               <p className="text-xs text-zinc-300 leading-relaxed">
-                {debts.length > 0 
-                  ? `Você tem R$ ${totalDebtRemaining.toFixed(2)} em dívidas ativas. Recomendo focar no método de amortização direta da parcela mais cara para liberar R$ ${totalDebtInstallmentsMonthly.toFixed(2)} no seu fluxo mensal.`
-                  : realFreeBalance > 0
-                  ? `Seu saldo livre projetado é de R$ ${realFreeBalance.toFixed(2)}. Recomendo direcionar pelo menos 20% para a sua Reserva de Emergência.`
-                  : `Atenção: seus compromissos superam ou empatam com sua renda. Clique no botão de Diagnóstico para ver onde enxugar despesas.`
+                {monthBillsAmount > 0 
+                  ? `Para ${formatMonthTitle(selectedMonth)}, você tem R$ ${monthBillsAmount.toFixed(2)} em contas previstas. Seu saldo livre restante estimado é de R$ ${realFreeBalance.toFixed(2)}.`
+                  : `Nenhuma conta cadastrada para ${formatMonthTitle(selectedMonth)}. Use o botão abaixo ou anexe as fotos de faturas no JARVIS para preencher os meses futuros!`
                 }
               </p>
               <button
@@ -715,14 +835,14 @@ Por favor, me dê um plano de ação tático:
         <div className={`p-6 rounded-2xl border ${
           darkMode ? 'bg-[#101118]/60 border-white/[0.08]' : 'bg-white border-zinc-200'
         } space-y-4`}>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-base font-bold text-white">Contas a Pagar & Boletos</h3>
-              <p className="text-xs text-zinc-400">Controle rigoroso de vencimentos para nunca mais pagar juros ou multas por atraso.</p>
+              <h3 className="text-base font-bold text-white">Contas a Pagar & Boletos ({viewAllMonths ? 'Todos os Meses' : formatMonthTitle(selectedMonth)})</h3>
+              <p className="text-xs text-zinc-400">Controle rigoroso de vencimentos e faturas por mês.</p>
             </div>
             <button
               onClick={() => setIsBillModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium transition-all self-start"
             >
               <Plus className="w-3.5 h-3.5" /> Adicionar Conta
             </button>
@@ -741,7 +861,7 @@ Por favor, me dê um plano de ação tático:
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
-                {bills.map(b => (
+                {filteredBills.map(b => (
                   <tr key={b.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="py-3 px-3">
                       <button
@@ -758,7 +878,7 @@ Por favor, me dê um plano de ação tático:
                     </td>
                     <td className="py-3 px-3 font-semibold text-zinc-200">{b.title}</td>
                     <td className="py-3 px-3 text-zinc-400">{b.category}</td>
-                    <td className="py-3 px-3 font-mono text-zinc-400">{b.dueDate}</td>
+                    <td className="py-3 px-3 font-mono text-zinc-300">{b.dueDate}</td>
                     <td className="py-3 px-3 font-mono font-bold text-white">R$ {Number(b.amount).toFixed(2)}</td>
                     <td className="py-3 px-3 text-right">
                       <button
@@ -772,9 +892,9 @@ Por favor, me dê um plano de ação tático:
                 ))}
               </tbody>
             </table>
-            {bills.length === 0 && (
+            {filteredBills.length === 0 && (
               <div className="py-12 text-center text-xs text-zinc-500">
-                Nenhuma conta cadastrada. Clique no botão acima para adicionar sua primeira conta!
+                Nenhuma conta encontrada para {formatMonthTitle(selectedMonth)}.
               </div>
             )}
           </div>
@@ -1091,7 +1211,7 @@ Por favor, me dê um plano de ação tático:
                 required
                 value={billTitle}
                 onChange={e => setBillTitle(e.target.value)}
-                placeholder="Ex: Aluguel, Luz, Internet, Academia"
+                placeholder="Ex: Fatura Nubank Jan/2027, Aluguel, Luz"
                 className="w-full p-2.5 rounded-xl bg-black/50 border border-white/[0.1] text-white outline-none"
               />
             </div>
@@ -1126,7 +1246,7 @@ Por favor, me dê um plano de ação tático:
                 onChange={e => setBillCategory(e.target.value)}
                 className="w-full p-2.5 rounded-xl bg-black/50 border border-white/[0.1] text-white outline-none"
               >
-                {['Moradia', 'Alimentação', 'Transporte', 'Saúde', 'Educação', 'Lazer', 'Assinaturas', 'Outros'].map(c => (
+                {['Cartão de Crédito', 'Moradia', 'Alimentação', 'Transporte', 'Saúde', 'Educação', 'Lazer', 'Assinaturas', 'Outros'].map(c => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
