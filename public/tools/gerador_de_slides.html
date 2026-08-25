@@ -3,333 +3,496 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gerador de Slides - Canva Killer Pro</title>
+    <title>Gerador de Slides - Canva Mobile Pro</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/libs/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&family=Oswald:wght@500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600&display=swap');
         
         :root { 
-            --bg-base: #18181b; /* Zinc 900 */
-            --bg-panel: #27272a; /* Zinc 800 */
-            --bg-hover: #3f3f46; /* Zinc 700 */
-            --primary: #8b5cf6; /* Violet 500 */
-            --primary-hover: #7c3aed; /* Violet 600 */
-            --text-light: #f4f4f5; /* Zinc 100 */
-            --text-dim: #a1a1aa; /* Zinc 400 */
-            --accent: #ef4444; /* Red 500 */
-            --border: #3f3f46;
+            --canva-bg: #0e0f12;
+            --canva-card: #18191f;
+            --canva-panel: #20222b;
+            --canva-purple: #7d2ae8;
+            --canva-cyan: #00c4cc;
+            --canva-pink: #ff007a;
+            --canva-border: #2d303e;
+            --text-main: #ffffff;
+            --text-dim: #9499ad;
         }
         
-        body { font-family: 'Inter', sans-serif; background: var(--bg-base); color: var(--text-light); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: var(--canva-bg); color: var(--text-main); margin: 0; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; user-select: none; }
         
-        /* Mobile Breakpoints */
-        @media (max-width: 768px) {
-            header { padding: 0 10px !important; height: auto !important; min-height: 48px !important; flex-wrap: wrap; gap: 8px; }
-            header h1 { font-size: 11px !important; }
-            .btn { padding: 5px 8px !important; font-size: 11px !important; }
-            #setup { margin: 12px auto !important; padding: 20px !important; max-width: 92% !important; }
-            .dropzone { padding: 20px !important; }
-            #main-row { flex-direction: column !important; position: relative; }
-            #left-bar { width: 100% !important; height: 44px !important; flex-direction: row !important; justify-content: space-around !important; border-right: none !important; border-bottom: 1px solid var(--border) !important; padding-top: 0 !important; gap: 0 !important; }
-            .tool-btn { width: 40px !important; height: 38px !important; font-size: 9px !important; }
-            .tool-btn svg { width: 16px !important; height: 16px !important; }
-            #right-bar { width: 100% !important; max-height: 180px !important; order: 3 !important; border-left: none !important; border-top: 1px solid var(--border) !important; overflow-y: auto !important; }
-            #filmstrip { height: 80px !important; padding: 0 8px !important; gap: 8px !important; }
-            .thumb { width: 90px !important; height: 50px !important; }
-            .handle { width: 14px !important; height: 14px !important; }
+        /* Top Navigation (Canva Style) */
+        .canva-nav {
+            height: 52px;
+            background: #181920;
+            border-bottom: 1px solid var(--canva-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px;
+            z-index: 100;
+        }
+        .nav-left { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; }
+        .nav-logo-badge {
+            background: linear-gradient(135deg, var(--canva-cyan), var(--canva-purple));
+            color: white;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .nav-right { display: flex; align-items: center; gap: 8px; }
+        
+        .canva-btn {
+            background: var(--canva-panel);
+            border: 1px solid var(--canva-border);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.15s;
+        }
+        .canva-btn-primary {
+            background: linear-gradient(135deg, var(--canva-cyan), var(--canva-purple));
+            border: none;
+            color: white;
+            box-shadow: 0 2px 8px rgba(125, 42, 232, 0.3);
+        }
+        .canva-btn:active { transform: scale(0.96); }
+
+        /* Setup / Welcome Screen */
+        #setup-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .setup-card {
+            background: var(--canva-card);
+            border: 1px solid var(--canva-border);
+            border-radius: 20px;
+            padding: 28px 20px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+        }
+        .dropzone-canva {
+            border: 2px dashed #4b4f63;
+            background: #121318;
+            border-radius: 14px;
+            padding: 28px 16px;
+            margin: 16px 0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .dropzone-canva:hover { border-color: var(--canva-cyan); background: rgba(0, 196, 204, 0.05); }
+
+        /* Main Workspace */
+        #editor-screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
         }
         
-        /* Typography & Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-base); }
-        ::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 4px; }
-        
-        /* Header */
-        header { background: var(--bg-panel); padding: 0 20px; height: 50px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        header h1 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 1px; color: var(--text-light); display: flex; align-items: center; gap: 8px; }
-        .badge { background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
-        
-        .btn { background: var(--primary); color: white; font-weight: 500; padding: 6px 14px; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 12px; display: flex; align-items: center; gap: 6px; }
-        .btn:hover { background: var(--primary-hover); }
-        .btn-outline { background: transparent; border: 1px solid var(--border); }
-        .btn-outline:hover { background: var(--bg-hover); }
-        .btn-danger { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
-        .btn-danger:hover { background: var(--accent); color: white; }
-        .btn-icon { padding: 4px; border-radius: 4px; background: transparent; border: none; color: var(--text-dim); cursor: pointer; display: grid; place-items: center; transition: 0.2s; }
-        .btn-icon:hover { background: var(--bg-hover); color: white; }
+        /* Canvas Center Viewport */
+        .viewport-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000000;
+            overflow: hidden;
+            position: relative;
+            background-image: radial-gradient(circle at center, #1b1c24 0%, #000000 100%);
+            touch-action: none;
+        }
+        #canvas-wrapper {
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            border-radius: 4px;
+        }
+        #slide-canvas {
+            width: 960px;
+            height: 540px;
+            background: #121316;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+            transform-origin: top left;
+        }
 
-        /* Setup Screen */
-        #setup { margin: auto; padding: 40px; background: var(--bg-panel); border-radius: 16px; text-align: center; max-width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 1px solid var(--border); }
-        .dropzone { border: 2px dashed var(--border); padding: 40px; border-radius: 12px; cursor: pointer; margin-top: 20px; transition: 0.2s; background: var(--bg-base); }
-        .dropzone:hover { border-color: var(--primary); background: rgba(139, 92, 246, 0.05); }
-
-        /* App Layout */
-        #app { display: none; flex: 1; flex-direction: column; overflow: hidden; }
-        #main-row { display: flex; flex: 1; overflow: hidden; }
-        
-        /* Left Toolbar */
-        #left-bar { width: 64px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding-top: 16px; gap: 12px; z-index: 50; }
-        .tool-btn { width: 44px; height: 44px; border-radius: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; color: var(--text-dim); transition: 0.2s; font-size: 10px; font-weight: 500; gap: 4px; }
-        .tool-btn svg { width: 20px; height: 20px; fill: currentColor; }
-        .tool-btn:hover { background: var(--bg-hover); color: var(--text-light); }
-
-        /* Right Panel */
-        #right-bar { width: 300px; background: var(--bg-panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; z-index: 50; }
-        .panel-section { border-bottom: 1px solid var(--border); display: flex; flex-direction: column; }
-        .panel-header { padding: 12px 16px; font-size: 12px; font-weight: 600; color: var(--text-light); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.1); }
-        .panel-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-        
-        .prop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .prop-group { display: flex; flex-direction: column; gap: 6px; }
-        .prop-group label { font-size: 11px; color: var(--text-dim); font-weight: 500; }
-        
-        .prop-input { background: var(--bg-base); border: 1px solid var(--border); color: white; padding: 6px 8px; border-radius: 6px; font-size: 12px; outline: none; transition: 0.2s; width: 100%; box-sizing: border-box; }
-        .prop-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2); }
-        .prop-input[type="color"] { padding: 2px; height: 28px; cursor: pointer; }
-        .prop-input[type="range"] { padding: 0; border: none; }
-        
-        .action-row { display: flex; gap: 8px; margin-top: 8px; }
-
-        /* Layers Panel */
-        #layers-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
-        .layer-item { background: var(--bg-base); padding: 8px 12px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; cursor: pointer; border: 1px solid var(--border); transition: 0.1s; }
-        .layer-item:hover { border-color: var(--text-dim); }
-        .layer-item.active { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
-        .layer-item .icons { display: flex; gap: 4px; }
-        .layer-item.locked { opacity: 0.6; }
-
-        /* Filmstrip (Bottom) */
-        #filmstrip { height: 110px; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; gap: 16px; overflow-x: auto; z-index: 50; }
-        .thumb-wrapper { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-        .thumb { width: 128px; height: 72px; background: #000; border: 2px solid var(--border); border-radius: 6px; cursor: pointer; position: relative; overflow: hidden; background-size: cover; background-position: center; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .thumb:hover { border-color: var(--text-dim); }
-        .thumb.active { border-color: var(--primary); }
-        .thumb-num { font-size: 11px; color: var(--text-dim); font-weight: 500; }
-        
-        /* Thumb Mini Canvas */
-        .thumb-mini-el { position: absolute; pointer-events: none; overflow: hidden; }
-        .thumb-mini-txt { width: 100%; height: 100%; transform-origin: top left; line-height: 1.1; white-space: pre-wrap; word-wrap: break-word; }
-
-        /* Canvas Area */
-        #canvas-area { flex: 1; background: #09090b; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; background-image: radial-gradient(circle at center, #1f1f22 0%, #09090b 100%); }
-        #canvas-container { position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
-        #slide-canvas { width: 960px; height: 540px; background: #000; background-size: cover; background-position: center; position: relative; overflow: hidden; transform-origin: top left; }
-
-        /* Elements */
-        .slide-el { position: absolute; box-sizing: border-box; }
+        /* Slide Elements */
+        .slide-el { position: absolute; box-sizing: border-box; touch-action: none; }
         .el-text { width: 100%; height: 100%; outline: none; line-height: 1.1; white-space: pre-wrap; word-wrap: break-word; }
-        .el-img { width: 100%; height: 100%; object-fit: cover; }
+        .el-img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
         
-        /* Transform Controls */
-        #transform-box { position: absolute; border: 1.5px solid var(--primary); pointer-events: none; display: none; z-index: 1000; box-shadow: 0 0 0 1px rgba(0,0,0,0.2); }
-        .handle { position: absolute; width: 10px; height: 10px; background: white; border: 1.5px solid var(--primary); pointer-events: auto; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-        .h-nw { top: 0; left: 0; cursor: nwse-resize; } .h-n { top: 0; left: 50%; cursor: ns-resize; } .h-ne { top: 0; left: 100%; cursor: nesw-resize; }
-        .h-e { top: 50%; left: 100%; cursor: ew-resize; } .h-se { top: 100%; left: 100%; cursor: nwse-resize; } .h-s { top: 100%; left: 50%; cursor: ns-resize; }
-        .h-sw { top: 100%; left: 0; cursor: nesw-resize; } .h-w { top: 50%; left: 0; cursor: ew-resize; }
-        .h-rot { top: -30px; left: 50%; cursor: crosshair; background: white; }
-        .rot-line { position: absolute; width: 1.5px; height: 30px; background: var(--primary); top: -30px; left: 50%; transform: translateX(-50%); pointer-events: none; }
+        /* Transform Box */
+        #transform-box {
+            position: absolute;
+            border: 2px solid var(--canva-cyan);
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
+        }
+        .handle {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: white;
+            border: 2px solid var(--canva-cyan);
+            pointer-events: auto;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+            touch-action: none;
+        }
+        .h-nw { top: 0; left: 0; } .h-n { top: 0; left: 50%; } .h-ne { top: 0; left: 100%; }
+        .h-e { top: 50%; left: 100%; } .h-se { top: 100%; left: 100%; } .h-s { top: 100%; left: 50%; }
+        .h-sw { top: 100%; left: 0; } .h-w { top: 50%; left: 0; }
+        .h-rot { top: -28px; left: 50%; background: var(--canva-cyan); border-color: white; }
+        .rot-line { position: absolute; width: 2px; height: 28px; background: var(--canva-cyan); top: -28px; left: 50%; transform: translateX(-50%); pointer-events: none; }
 
         /* Snapping Guides */
-        .snap-guide { position: absolute; background: #ec4899; pointer-events: none; z-index: 999; display: none; }
-        .guide-v { width: 1px; height: 100%; top: 0; }
-        .guide-h { height: 1px; width: 100%; left: 0; }
+        .snap-guide { position: absolute; background: var(--canva-pink); pointer-events: none; z-index: 999; display: none; }
+        .guide-v { width: 1.5px; height: 100%; top: 0; }
+        .guide-h { height: 1.5px; width: 100%; left: 0; }
 
-        /* Effects */
-        .shadow-dark { filter: drop-shadow(3px 4px 6px rgba(0,0,0,0.9)); }
-        .shadow-glow { filter: drop-shadow(0 0 10px rgba(255,255,255,0.7)); }
+        /* Filmstrip (Canva Carousel) */
+        .filmstrip-bar {
+            height: 90px;
+            background: #14151b;
+            border-top: 1px solid var(--canva-border);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 12px;
+            overflow-x: auto;
+            z-index: 40;
+            flex-shrink: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        .thumb-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .thumb-preview {
+            width: 105px;
+            height: 59px;
+            background: #000;
+            border: 2px solid var(--canva-border);
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            transition: 0.15s;
+        }
+        .thumb-preview.active {
+            border-color: var(--canva-cyan);
+            box-shadow: 0 0 12px rgba(0, 196, 204, 0.4);
+            transform: scale(1.04);
+        }
+        .thumb-badge {
+            font-size: 10px;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+        .thumb-mini-el { position: absolute; pointer-events: none; overflow: hidden; }
 
+        /* Bottom Toolbar (Canva Style Actions) */
+        .bottom-actions-bar {
+            height: 58px;
+            background: #181920;
+            border-top: 1px solid var(--canva-border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 6px;
+            z-index: 50;
+            flex-shrink: 0;
+        }
+        .bottom-tool-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            color: var(--text-dim);
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 8px;
+            transition: 0.15s;
+            flex: 1;
+        }
+        .bottom-tool-item svg { width: 20px; height: 20px; fill: currentColor; }
+        .bottom-tool-item.active, .bottom-tool-item:hover { color: var(--canva-cyan); background: rgba(0,196,204,0.08); }
+        .bottom-tool-item:active { transform: scale(0.92); }
+
+        /* Canva Bottom Drawer / Modal Panels */
+        .canva-drawer {
+            position: absolute;
+            bottom: 58px;
+            left: 0;
+            right: 0;
+            background: #1c1d26;
+            border-top: 1px solid var(--canva-border);
+            border-radius: 20px 20px 0 0;
+            max-height: 48dvh;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            z-index: 60;
+            box-shadow: 0 -8px 24px rgba(0,0,0,0.6);
+            animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .drawer-header {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--canva-border);
+            font-weight: 700;
+            font-size: 13px;
+        }
+        .drawer-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .prop-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .prop-item { display: flex; flex-direction: column; gap: 5px; }
+        .prop-item label { font-size: 11px; color: var(--text-dim); font-weight: 600; }
+        .prop-ctrl {
+            background: #121318;
+            border: 1px solid var(--canva-border);
+            color: white;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            outline: none;
+            width: 100%;
+        }
+        .prop-ctrl:focus { border-color: var(--canva-cyan); }
     </style>
 </head>
 <body>
 
-<header>
-    <h1><svg width="20" height="20" viewBox="0 0 24 24" fill="var(--primary)"><path d="M21 3H3C2 3 1 4 1 5V19C1 20 2 21 3 21H21C22 21 23 20 23 19V5C23 4 22 3 21 3ZM21 19H3V5H21V19Z"/><path d="M7 9L12 14L17 9H7Z"/></svg>
-        Gerador de Slides <span class="badge">PRO</span>
-    </h1>
-    <div style="display:flex; gap:12px; align-items:center;">
-        <input type="text" id="outFileName" value="Apresentacao.pptx" class="prop-input" style="width:200px; font-weight:500;" />
-        <button class="btn" id="btnExport">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19 9H15V3H9V9H5L12 16L19 9ZM5 18V20H19V18H5Z"/></svg>
+<!-- Top Navigation -->
+<header class="canva-nav">
+    <div class="nav-left">
+        <span class="nav-logo-badge">SLIDES</span>
+        <span>Canva Pro</span>
+    </div>
+    <div class="nav-right">
+        <button class="canva-btn" onclick="openDrawer('drawer-layers')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7L12 12L22 7L12 2Z"/><path d="M2 17L12 22L22 17L2 17Z"/><path d="M2 12L12 17L22 12L2 12Z"/></svg>
+            Camadas
+        </button>
+        <button class="canva-btn canva-btn-primary" id="btnExport">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9H15V3H9V9H5L12 16L19 9ZM5 18V20H19V18H5Z"/></svg>
             Exportar PPTX
         </button>
     </div>
 </header>
 
-<div id="setup">
-    <h2 style="margin-top:0; color:var(--text-light); font-weight:600;">Bem-vindo ao Estúdio</h2>
-    <p style="color:var(--text-dim); font-size:13px; margin-bottom:24px;">Transforme seus sermões em apresentações incríveis com ferramentas profissionais.</p>
-    
-    <div style="background:var(--bg-base); padding:20px; border-radius:12px; text-align:left; border:1px solid var(--border);">
-        <label style="font-size:12px; font-weight:500; color:var(--text-dim); display:block; margin-bottom:8px;">1. Fundo Padrão (Opcional)</label>
-        <input type="file" id="globalBg" accept="image/*" class="prop-input" />
+<!-- Setup Screen -->
+<div id="setup-screen">
+    <div class="setup-card">
+        <div style="width: 52px; height: 52px; background: linear-gradient(135deg, var(--canva-cyan), var(--canva-purple)); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px auto;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M21 3H3C2 3 1 4 1 5V19C1 20 2 21 3 21H21C22 21 23 20 23 19V5C23 4 22 3 21 3ZM21 19H3V5H21V19Z"/><path d="M7 9L12 14L17 9H7Z"/></svg>
+        </div>
+        <h2 style="margin: 0 0 6px 0; font-size: 19px; font-weight: 700;">Gerador de Slides</h2>
+        <p style="margin: 0 0 16px 0; font-size: 12px; color: var(--text-dim);">Importe seu sermão ou texto para criar apresentações completas automaticamente.</p>
+        
+        <div class="dropzone-canva" id="dropZone">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="var(--canva-cyan)" style="margin-bottom: 8px;"><path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z"/></svg>
+            <h4 style="margin: 0 0 4px 0; font-weight: 700; font-size: 14px;">1. Importar Sermão em PDF</h4>
+            <p style="margin: 0; color: var(--text-dim); font-size: 11px;">Toque para selecionar o arquivo</p>
+        </div>
+        <input type="file" id="pdfInput" accept="application/pdf" style="display:none;" />
+        
+        <div style="margin-top: 10px;">
+            <label style="font-size: 11px; color: var(--text-dim); display: block; margin-bottom: 6px; text-align: left;">Fundo Padrão (Opcional):</label>
+            <input type="file" id="globalBg" accept="image/*" class="prop-ctrl" />
+        </div>
+        
+        <div id="statusMsg" style="margin-top: 14px; color: var(--canva-cyan); font-size: 12px; font-weight: 600;"></div>
     </div>
-    
-    <div class="dropzone" id="dropZone">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="var(--text-dim)" style="margin-bottom:12px;"><path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z"/></svg>
-        <h3 style="margin:0 0 4px 0; font-weight:500;">2. Importar Sermão em PDF</h3>
-        <p style="margin:0; color:var(--text-dim); font-size:12px;">Arraste o arquivo ou clique para buscar</p>
-    </div>
-    <input type="file" id="pdfInput" accept="application/pdf" style="position:absolute; left:-9999px;" />
-    <div id="statusMsg" style="margin-top:16px; color:var(--primary); font-size:13px; font-weight:500;"></div>
 </div>
 
-<div id="app">
-    <div id="main-row">
-        <!-- Left Toolbar -->
-        <aside id="left-bar">
-            <div class="tool-btn" title="Texto Padrão" onclick="addElement('text')">
-                <svg viewBox="0 0 24 24"><path d="M5 4V7H10.5V19H13.5V7H19V4H5Z"/></svg>
-                Texto
+<!-- Editor Screen (Mobile Canva Style) -->
+<div id="editor-screen">
+    <!-- Viewport Area -->
+    <main class="viewport-area" id="canvas-area">
+        <div id="canvas-wrapper">
+            <div id="slide-canvas">
+                <div id="snap-v" class="snap-guide guide-v"></div>
+                <div id="snap-h" class="snap-guide guide-h"></div>
             </div>
-            <div class="tool-btn" title="Inserir Imagem" onclick="document.getElementById('imgUpload').click()">
-                <svg viewBox="0 0 24 24"><path d="M21 19V5C21 3.9 20.1 3 19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19ZM8.5 13.5L11 16.51L14.5 12L19 18H5L8.5 13.5Z"/></svg>
-                Imagem
-            </div>
-            <input type="file" id="imgUpload" accept="image/*" style="display:none;" onchange="handleElImageUpload(this)">
-            
-            <div class="tool-btn" title="Forma (Retângulo)" onclick="addElement('shape')">
-                <svg viewBox="0 0 24 24"><path d="M3 3H21V21H3V3Z"/></svg>
-                Forma
-            </div>
-        </aside>
+        </div>
+    </main>
 
-        <!-- Center Workspace -->
-        <main id="canvas-area">
-            <div id="canvas-container">
-                <div id="slide-canvas">
-                    <!-- Elements injected here -->
-                    <div id="snap-v" class="snap-guide guide-v"></div>
-                    <div id="snap-h" class="snap-guide guide-h"></div>
+    <!-- Bottom Carousel / Filmstrip -->
+    <footer class="filmstrip-bar" id="filmstrip">
+        <button class="canva-btn" style="height: 59px; width: 59px; flex-direction: column; justify-content: center; flex-shrink: 0; border-radius: 8px; border-style: dashed;" onclick="addBlankSlide()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/></svg>
+            <span style="font-size: 9px; font-weight: 700;">Novo</span>
+        </button>
+        <div id="thumb-container" style="display: flex; gap: 10px;"></div>
+    </footer>
+
+    <!-- Canva Bottom Tool Tabs -->
+    <nav class="bottom-actions-bar">
+        <div class="bottom-tool-item" onclick="addElement('text')">
+            <svg viewBox="0 0 24 24"><path d="M5 4V7H10.5V19H13.5V7H19V4H5Z"/></svg>
+            <span>Texto</span>
+        </div>
+        <div class="bottom-tool-item" onclick="addElement('shape')">
+            <svg viewBox="0 0 24 24"><path d="M3 3H21V21H3V3Z"/></svg>
+            <span>Forma</span>
+        </div>
+        <div class="bottom-tool-item" onclick="document.getElementById('imgUpload').click()">
+            <svg viewBox="0 0 24 24"><path d="M21 19V5C21 3.9 20.1 3 19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19ZM8.5 13.5L11 16.51L14.5 12L19 18H5L8.5 13.5Z"/></svg>
+            <span>Imagem</span>
+        </div>
+        <input type="file" id="imgUpload" accept="image/*" style="display:none;" onchange="handleElImageUpload(this)">
+        
+        <div class="bottom-tool-item" id="tool-item-adjust" onclick="openDrawer('drawer-element')">
+            <svg viewBox="0 0 24 24"><path d="M3 17V19H9V17H3ZM3 5V7H13V5H3ZM13 21V19H21V17H13V15H11V21H13ZM7 9V11H3V13H7V15H9V9H7ZM21 13V11H11V13H21ZM15 9H17V7H21V5H17V3H15V9Z"/></svg>
+            <span>Ajustes</span>
+        </div>
+        <div class="bottom-tool-item" onclick="openDrawer('drawer-slide')">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z"/></svg>
+            <span>Fundo</span>
+        </div>
+    </nav>
+
+    <!-- Drawer: Element Properties -->
+    <div class="canva-drawer" id="drawer-element">
+        <div class="drawer-header">
+            <span style="color: var(--canva-cyan);">Editar Objeto</span>
+            <button class="canva-btn" style="padding: 4px 8px;" onclick="closeAllDrawers()">✕</button>
+        </div>
+        <div class="drawer-body">
+            <div id="no-sel-msg" style="color: var(--text-dim); text-align: center; font-size: 12px; padding: 12px;">
+                Toque em um texto ou forma no slide para ajustar.
+            </div>
+            <div id="sel-props-area" style="display: none; flex-direction: column; gap: 12px;">
+                <div class="prop-row">
+                    <div class="prop-item">
+                        <label>Tamanho da Fonte</label>
+                        <input type="number" class="prop-ctrl" id="elFontSize" onchange="updateElProp('fontSize', Number(this.value))" />
+                    </div>
+                    <div class="prop-item">
+                        <label>Cor do Texto/Forma</label>
+                        <input type="color" class="prop-ctrl" style="height: 38px; padding: 2px;" id="elColor" onchange="updateElProp('color', this.value)" />
+                    </div>
                 </div>
-            </div>
-        </main>
 
-        <!-- Right Properties & Layers -->
-        <aside id="right-bar">
-            
-            <!-- Slide Props -->
-            <div class="panel-section" id="panel-slide">
-                <div class="panel-header">Propriedades do Slide</div>
-                <div class="panel-body">
-                    <div class="prop-group">
-                        <label>Classificação (Tipo)</label>
-                        <select class="prop-input" id="slType" onchange="updateSlideType(this.value)">
-                            <option value="verse">Versículo Bíblico</option>
-                            <option value="reflection">Reflexão / Texto Livre</option>
-                            <option value="topic">Tópico de Reunião</option>
+                <div class="prop-row">
+                    <div class="prop-item">
+                        <label>Tipografia</label>
+                        <select class="prop-ctrl" id="elFont" onchange="updateElProp('fontFace', this.value)">
+                            <option value="Bebas Neue">Bebas Neue (Impacto)</option>
+                            <option value="Oswald">Oswald (Sóbrio)</option>
+                            <option value="Inter">Inter (Leve)</option>
                         </select>
                     </div>
-                    <div class="prop-grid">
-                        <div class="prop-group">
-                            <label>Cor de Fundo</label>
-                            <input type="color" class="prop-input" id="slBgColor" onchange="updateSlideProp('bgColor', this.value)" />
-                        </div>
-                        <div class="prop-group">
-                            <label>Imagem Fundo</label>
-                            <input type="file" class="prop-input" style="padding:4px; font-size:10px;" accept="image/*" onchange="handleSlideBgUpload(this)" />
-                        </div>
-                    </div>
-                    <div class="action-row">
-                        <button class="btn btn-danger" style="flex:1;" onclick="deleteCurrentSlide()">🗑️ Excluir Slide</button>
+                    <div class="prop-item">
+                        <label>Alinhamento</label>
+                        <select class="prop-ctrl" id="elAlign" onchange="updateElProp('align', this.value)">
+                            <option value="left">Esquerda</option>
+                            <option value="center">Centro</option>
+                            <option value="right">Direita</option>
+                        </select>
                     </div>
                 </div>
-            </div>
 
-            <!-- Element Props -->
-            <div class="panel-section" id="panel-element" style="display:none;">
-                <div class="panel-header" style="color:var(--primary);">Inspetor de Objeto</div>
-                <div class="panel-body">
-                    <div class="prop-grid">
-                        <div class="prop-group">
-                            <label>Pos X / Y</label>
-                            <div style="display:flex; gap:4px;">
-                                <input type="number" class="prop-input" id="elX" onchange="updateElProp('x', this.value)" />
-                                <input type="number" class="prop-input" id="elY" onchange="updateElProp('y', this.value)" />
-                            </div>
-                        </div>
-                        <div class="prop-group">
-                            <label>Larg / Alt</label>
-                            <div style="display:flex; gap:4px;">
-                                <input type="number" class="prop-input" id="elW" onchange="updateElProp('w', this.value)" />
-                                <input type="number" class="prop-input" id="elH" onchange="updateElProp('h', this.value)" />
-                            </div>
-                        </div>
+                <div class="prop-row">
+                    <div class="prop-item">
+                        <label>Sombra / Efeito</label>
+                        <select class="prop-ctrl" id="elShadow" onchange="updateElProp('shadow', this.value)">
+                            <option value="none">Sem Sombra</option>
+                            <option value="dark">Sombra Escura</option>
+                            <option value="glow">Brilho (Glow)</option>
+                        </select>
                     </div>
-                    <div class="prop-group">
-                        <label>Opacidade / Transparência</label>
-                        <input type="range" min="0" max="1" step="0.05" id="elOpacity" oninput="updateElProp('opacity', this.value)" />
-                    </div>
-
-                    <div id="text-props">
-                        <div class="prop-group">
-                            <label>Tipografia</label>
-                            <div style="display:flex; gap:4px;">
-                                <select class="prop-input" id="elFont" style="flex:1;" onchange="updateElProp('fontFace', this.value)">
-                                    <option value="Bahnschrift SemiBold Condensed">Bahnschrift</option>
-                                    <option value="Bebas Neue">Bebas Neue</option>
-                                    <option value="Arial">Arial</option>
-                                </select>
-                                <input type="number" class="prop-input" style="width:50px;" id="elFontSize" oninput="updateElProp('fontSize', this.value)" title="Tamanho (pt)" />
-                            </div>
-                        </div>
-                        <div class="prop-grid">
-                            <div class="prop-group">
-                                <label>Cor do Texto</label>
-                                <input type="color" class="prop-input" id="elColor" oninput="updateElProp('color', this.value)" />
-                            </div>
-                            <div class="prop-group">
-                                <label>Alinhamento</label>
-                                <select class="prop-input" id="elAlign" onchange="updateElProp('align', this.value)">
-                                    <option value="left">Esquerda</option><option value="center">Centro</option><option value="right">Direita</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="prop-grid">
-                            <div class="prop-group">
-                                <label>Efeito Visual</label>
-                                <select class="prop-input" id="elShadow" onchange="updateElProp('shadow', this.value)">
-                                    <option value="none">Nenhum</option>
-                                    <option value="dark">Sombra (Drop)</option>
-                                    <option value="glow">Brilho (Glow)</option>
-                                </select>
-                            </div>
-                            <div class="prop-group">
-                                <label>Borda (Stroke)</label>
-                                <select class="prop-input" id="elStroke" onchange="updateElProp('stroke', this.value)">
-                                    <option value="none">Nenhum</option>
-                                    <option value="black">Contorno Preto</option>
-                                    <option value="white">Contorno Branco</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="action-row">
-                        <button class="btn btn-outline" style="flex:1;" onclick="cloneSelectedElement()">Copiar</button>
-                        <button class="btn btn-danger" style="flex:1;" onclick="deleteSelectedElement()">Apagar</button>
+                    <div class="prop-item">
+                        <label>Contorno</label>
+                        <select class="prop-ctrl" id="elStroke" onchange="updateElProp('stroke', this.value)">
+                            <option value="none">Nenhum</option>
+                            <option value="black">Borda Preta</option>
+                            <option value="white">Borda Branca</option>
+                        </select>
                     </div>
                 </div>
-            </div>
 
-            <!-- Layers Panel -->
-            <div class="panel-section" style="flex:1; display:flex; flex-direction:column; padding:0; border:none;">
-                <div class="panel-header">Camadas (Z-Index)</div>
-                <div id="layers-list"></div>
+                <div style="display: flex; gap: 8px; margin-top: 6px;">
+                    <button class="canva-btn" style="flex: 1;" onclick="cloneSelectedElement()">📑 Duplicar</button>
+                    <button class="canva-btn" style="flex: 1; border-color: #ef4444; color: #ef4444;" onclick="deleteSelectedElement()">🗑️ Excluir</button>
+                </div>
             </div>
-            
-        </aside>
+        </div>
     </div>
 
-    <!-- Filmstrip -->
-    <footer id="filmstrip">
-        <button class="btn btn-outline" style="height:76px; width:76px; flex-direction:column; justify-content:center;" onclick="addBlankSlide()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/></svg>
-            Novo
-        </button>
-        <div id="thumb-container" style="display:flex; gap:16px;"></div>
-    </footer>
+    <!-- Drawer: Slide Background -->
+    <div class="canva-drawer" id="drawer-slide">
+        <div class="drawer-header">
+            <span>Fundo do Slide</span>
+            <button class="canva-btn" style="padding: 4px 8px;" onclick="closeAllDrawers()">✕</button>
+        </div>
+        <div class="drawer-body">
+            <div class="prop-row">
+                <div class="prop-item">
+                    <label>Cor de Fundo</label>
+                    <input type="color" class="prop-ctrl" style="height: 38px; padding: 2px;" id="slBgColor" onchange="updateSlideProp('bgColor', this.value)" />
+                </div>
+                <div class="prop-item">
+                    <label>Imagem de Fundo</label>
+                    <input type="file" accept="image/*" class="prop-ctrl" onchange="handleSlideBgUpload(this)" />
+                </div>
+            </div>
+            <div style="margin-top: 8px;">
+                <button class="canva-btn" style="width: 100%; border-color: #ef4444; color: #ef4444;" onclick="deleteCurrentSlide()">🗑️ Excluir Slide Atual</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drawer: Layers -->
+    <div class="canva-drawer" id="drawer-layers">
+        <div class="drawer-header">
+            <span>Camadas do Slide</span>
+            <button class="canva-btn" style="padding: 4px 8px;" onclick="closeAllDrawers()">✕</button>
+        </div>
+        <div class="drawer-body">
+            <div id="layers-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -343,14 +506,14 @@
     let curSlideIdx = -1;
     let selElId = null;
 
-    const setup = document.getElementById('setup');
-    const app = document.getElementById('app');
-    const canvasContainer = document.getElementById('canvas-container');
+    const setupScreen = document.getElementById('setup-screen');
+    const editorScreen = document.getElementById('editor-screen');
+    const canvasContainer = document.getElementById('canvas-wrapper');
     const slideCanvas = document.getElementById('slide-canvas');
     const thumbContainer = document.getElementById('thumb-container');
     const layersList = document.getElementById('layers-list');
     
-    // Setup Drag handle box
+    // Transform Box
     const tfBox = document.createElement('div');
     tfBox.id = 'transform-box';
     tfBox.innerHTML = `
@@ -364,128 +527,131 @@
     const snapV = document.getElementById('snap-v');
     const snapH = document.getElementById('snap-h');
 
+    // Drawers Controller
+    window.openDrawer = (id) => {
+        closeAllDrawers();
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'flex';
+    };
+    window.closeAllDrawers = () => {
+        document.querySelectorAll('.canva-drawer').forEach(d => d.style.display = 'none');
+    };
+
     // Setup Listeners
     document.getElementById('globalBg').addEventListener('change', e => {
         const f = e.target.files[0]; if(f) { const r = new FileReader(); r.onload = ev => { globalBgData = ev.target.result; document.getElementById('statusMsg').innerText="Fundo padrão salvo!"; }; r.readAsDataURL(f); }
     });
     const dropZone = document.getElementById('dropZone');
     dropZone.addEventListener('click', () => document.getElementById('pdfInput').click());
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--primary)'; dropZone.style.background = 'rgba(139,92,246,0.1)'; });
-    dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--border)'; dropZone.style.background = 'var(--bg-base)'; });
-    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--border)'; dropZone.style.background = 'var(--bg-base)'; if(e.dataTransfer.files[0]) parsePDF(e.dataTransfer.files[0]); });
-    
     document.getElementById('pdfInput').addEventListener('change', e => { if(e.target.files[0]) parsePDF(e.target.files[0]); });
 
     async function parsePDF(file) {
         document.getElementById('statusMsg').innerText = 'Processando IA de extração...';
         try {
-            document.getElementById('outFileName').value = file.name.replace('.pdf', '.pptx');
             const arr = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({data: arr}).promise;
             let fullText = "";
             for(let i=1; i<=pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const tc = await page.getTextContent();
-                let lastY = null; let txt = "";
-                for(let item of tc.items) {
-                    if(lastY !== null && Math.abs(item.transform[5] - lastY) > 5) txt += "\n";
-                    txt += item.str; lastY = item.transform[5];
-                }
-                fullText += txt + "\n";
+                fullText += tc.items.map(x => x.str).join(" ") + "\n";
             }
             slides = parseSermon(fullText);
-            setup.style.display = 'none'; app.style.display = 'flex';
+            if(slides.length === 0) slides.push(newSlide('reflection'));
+            setupScreen.style.display = 'none';
+            editorScreen.style.display = 'flex';
             resizeWorkspace();
-            if(slides.length > 0) setSlide(0);
-        } catch(e) { console.error(e); alert("Erro ao ler PDF:\n" + e.message); }
+            setSlide(0);
+        } catch(e) {
+            alert('Erro ao ler PDF: ' + e.message);
+            document.getElementById('statusMsg').innerText = '';
+        }
     }
 
-    // --- Parser Engine ---
-    const BIB_REGEX = /(?:II?\s*Cr[oô]nicas|I?\s*Cr[oô]nicas|1\s*Cr[oô]nicas|2\s*Cr[oô]nicas|G[eê]nesis|[EÊ]xodo|Lev[ií]tico|N[uú]meros|Deuteron[oô]mio|Josu[eé]|Ju[ií]zes|Rute|1\s*Samuel|2\s*Samuel|1\s*Reis|2\s*Reis|Esdras|Neemias|Ester|J[oó]|Salmos?|Prov[eé]rbios?|Eclesiastes|C[aâ]nticos|Isa[ií]as|Jeremias|Lamenta[cç][oõ]es|Ezequiel|Daniel|Os[eé]ias|Joel|Am[oó]s|Obadias|Jonas|Miqu[eé]ias|Naum|Habacuque|Sofonias|Ageu|Zacarias|Malaquias|Mateus|Marcos|Lucas|Jo[aã]o|Atos|Romanos|1\s*Cor[ií]ntios|2\s*Cor[ií]ntios|G[aá]latas|Ef[eé]sios|Filipenses|Colossenses|1\s*Tessalonicenses|2\s*Tessalonicenses|1\s*Tim[oó]teo|2\s*Tim[oó]teo|Tito|Filemom|Hebreus|Tiago|1\s*Pedro|2\s*Pedro|1\s*Jo[aã]o|2\s*Jo[aã]o|3\s*Jo[aã]o|Judas|Apocalipse)\s+\d+:\d+(?:-\d+)?/i;
-    function isRef(l) { const m = l.match(BIB_REGEX); return m ? m[0] : null; }
-    function isPureRef(l) { const m = isRef(l); return m ? l.trim().length <= m.length+6 : false; }
-    function isHead(l) { const c = l.replace(/[^a-zA-ZÀ-ÿ\s]/g,'').trim(); return c.length>4 && (c.match(/[A-ZÀ-Ý]/g)||[]).length/c.length > 0.75; }
-    function fmtQuote(t) { let x=t.trim(); if(!x.startsWith('“')&&!x.startsWith('"')) x='“'+x; if(!x.endsWith('”')&&!x.endsWith('"')) x=x.replace(/[.]+$/,'')+'”'; return x; }
-    function genId() { return 'el_' + Math.random().toString(36).substr(2,9); }
+    function genId() { return 'el_' + Math.random().toString(36).substr(2, 9); }
 
-    function newSlide(type) { return { id:'s_'+genId(), bgImage:globalBgData, bgColor:'#000000', type:type, elements:[] }; }
-    function newTextEl(txt, isR, type) {
-        let fz=44, ff='Bahnschrift SemiBold Condensed', col='#ffffff', al='left', y=76, h=345, sh='dark', strk='none';
-        if(isR) { fz=40; ff='Bebas Neue'; col='#E8B859'; y=441; h=76; }
-        else if(type==='topic') { fz=72; ff='Bebas Neue'; al='center'; y=150; }
-        else if(type==='reflection') { al='center'; y=150; }
-        else if(type==='question_short') { fz=110; al='center'; y=150; }
-        else { if(txt.length<70) fz=54; else if(txt.length>160) fz=36; }
+    function newSlide(type = 'reflection') {
         return {
-            id: genId(), type: 'text', name: isR ? 'Referência' : 'Texto Principal', content: txt,
-            x:48, y:y, w:864, h:h, rotation:0, opacity:1, locked:false, hidden:false,
-            fontFace:ff, fontSize:fz, color:col, align:al, shadow:sh, stroke:strk, isRef:isR
+            id: 'sld_' + Math.random().toString(36).substr(2, 9),
+            type: type,
+            bgColor: '#121316',
+            bgImage: globalBgData,
+            elements: []
         };
     }
 
-    function parseSermon(raw) {
-        const lines = raw.split(/\r?\n/).map(l => l.replace(/^[⸻\-_\s]+/, '').trim());
-        const out = []; let i = 0;
-        const pushSld = (t, r, tp) => { const s = newSlide(tp); s.elements.push(newTextEl(fmtQuote(t), false, tp)); if(r) s.elements.push(newTextEl(r, true, tp)); out.push(s); };
-        const procBlk = (txt, ref) => {
-            const tp = ref ? 'verse' : 'reflection';
-            if(ref) {
-                const vs = txt.split(/(?=\b\d{1,3}\s+[A-ZÀ-Ý“"])/g).filter(x=>x.trim());
-                if(vs.length>0 && /^\d+/.test(vs[0].trim())) {
-                    const bc = ref.split(':')[0];
-                    vs.forEach(v => { const m = v.trim().match(/^(\d+)\s+(.*)$/s); if(m) pushSld(m[2], `${bc}:${m[1]}`, tp); else pushSld(v, ref, tp); });
-                    return;
-                }
-            }
-            if(txt.length>180) {
-                const sents = txt.replace(/([.?!]+["”]?)/g, "$1|").split("|").map(x=>x.trim()).filter(x=>x);
-                if(sents.length>1) {
-                    let cur=""; for(let s of sents) { if(!cur) cur=s; else if(cur.length+s.length<150) cur+=" "+s; else { pushSld(cur,ref,tp); cur=s; } }
-                    if(cur) pushSld(cur,ref,tp); return;
-                }
-            }
-            if(txt.trim()) pushSld(txt, ref, tp);
+    function newTextEl(text, isRef=false, type='reflection') {
+        const base = {
+            id: genId(), type: 'text', name: isRef ? 'Referência' : (type==='verse'?'Versículo':'Texto'),
+            content: text, isRef: isRef,
+            x: 80, y: 120, w: 800, h: 280, rotation: 0, opacity: 1,
+            fontFace: isRef ? 'Oswald' : 'Bebas Neue',
+            fontSize: isRef ? 26 : (type==='verse'? 54 : 48),
+            color: '#FFFFFF', align: 'center', shadow: 'dark', stroke: 'none',
+            locked: false, hidden: false
         };
+        if(isRef) { base.y = 420; base.h = 60; base.color = '#E8B859'; }
+        return base;
+    }
 
-        while(i<lines.length) {
-            let l=lines[i]; if(!l) {i++; continue;}
-            if(isHead(l)) { pushSld(l,'','topic'); i++; continue; }
-            if(l.endsWith('?')&&l.length<=35) { pushSld(l,'','question_short'); i++; continue; }
-            let j=i, bRef=null;
-            while(j<lines.length && lines[j] && !isHead(lines[j]) && !(lines[j].endsWith('?')&&lines[j].length<=35)) { if(isPureRef(lines[j])) { if(j>i) bRef=isRef(lines[j]); break; } j++; }
-            if(bRef) { procBlk(lines.slice(i,j).join(' '), bRef); i=j+1; continue; }
-            if(isPureRef(l)) {
-                const bR=isRef(l); i++; let top=[];
-                while(i<lines.length && lines[i] && !isPureRef(lines[i]) && !isHead(lines[i]) && !(lines[i].endsWith('?')&&lines[i].length<=35)) { const tR=isRef(lines[i]); if(tR && lines[i].length>tR.length+12 && !isPureRef(lines[i])) break; top.push(lines[i]); i++; }
-                if(top.length>0) procBlk(top.join(' '), bR); else pushSld('...', bR, 'verse');
-                continue;
+    function parseSermon(txt) {
+        const lines = txt.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        const out = [];
+        let curBg = globalBgData;
+
+        function pushSld(bodyText, refText, type) {
+            const s = newSlide(type); s.bgImage = curBg;
+            if(bodyText) {
+                const el = newTextEl(bodyText, false, type);
+                s.elements.push(el);
             }
-            const tR=isRef(l);
-            if(tR && l.length>tR.length+12 && !isPureRef(l)) { procBlk(l.replace(tR,'').trim(), tR); i++; continue; }
-            let refs=[];
-            while(i<lines.length && lines[i] && !isPureRef(lines[i]) && !isHead(lines[i]) && !(lines[i].endsWith('?')&&lines[i].length<=35)) { const txR=isRef(lines[i]); if(txR && lines[i].length>txR.length+12 && !isPureRef(lines[i])) break; refs.push(lines[i]); i++; }
-            if(refs.length>0) procBlk(refs.join(' '), '');
+            if(refText) {
+                const rEl = newTextEl(refText, true, type);
+                s.elements.push(rEl);
+            }
+            out.push(s);
+        }
+
+        const isRef = l => { const m = l.match(/(?:[123]\s*)?[A-ZÁÉÍÓÚÂÊÔÃÕ][a-záéíóúâêôãõ]+\s+\d+[:.]\d+(?:-\d+)?/); return m ? m[0] : null; };
+        
+        for(let i=0; i<lines.length; i++) {
+            const l = lines[i];
+            const ref = isRef(l);
+            if(ref) {
+                pushSld(l.replace(ref, '').trim() || '...', ref, 'verse');
+            } else if(l.length > 15) {
+                pushSld(l, '', 'reflection');
+            }
         }
         return out;
     }
 
-    // --- RENDER ---
+    // --- RENDER & CANVAS ---
     function resizeWorkspace() {
-        const w = canvasContainer.parentElement.clientWidth; const h = canvasContainer.parentElement.clientHeight;
-        const padding = w < 768 ? 16 : 80;
+        const parent = document.getElementById('canvas-area');
+        if(!parent) return;
+        const w = parent.clientWidth;
+        const h = parent.clientHeight;
+        const padding = w < 768 ? 16 : 60;
         const scale = Math.min((w - padding) / C_WIDTH, (h - padding) / C_HEIGHT);
-        canvasContainer.style.width = `${C_WIDTH * scale}px`; canvasContainer.style.height = `${C_HEIGHT * scale}px`;
+        canvasContainer.style.width = `${C_WIDTH * scale}px`;
+        canvasContainer.style.height = `${C_HEIGHT * scale}px`;
         slideCanvas.style.transform = `scale(${scale})`;
     }
     window.addEventListener('resize', resizeWorkspace);
 
     function setSlide(idx) {
-        commitText(); curSlideIdx = idx; selElId = null;
-        renderFilmstrip(); renderCanvas(); renderProps(); renderLayers();
+        commitText();
+        curSlideIdx = idx;
+        selElId = null;
+        renderFilmstrip();
+        renderCanvas();
+        renderProps();
+        renderLayers();
     }
 
     function buildMiniDOM(s) {
-        const scale = 128 / C_WIDTH;
+        const scale = 105 / C_WIDTH;
         let html = '';
         s.elements.forEach(el => {
             if(el.hidden) return;
@@ -496,7 +662,7 @@
             if(isText) {
                 const ff = el.fontFace.includes('Bebas') ? "'Bebas Neue', sans-serif" : "'Oswald', sans-serif";
                 extraStyle = `color:${el.color}; font-family:${ff}; font-size:${el.fontSize*PT_TO_PX*scale}px; text-align:${el.align};`;
-                content = el.content.substring(0,30) + '...';
+                content = el.content.substring(0,25) + '...';
             } else if (el.type==='image') {
                 content = `<img src="${el.content}" style="width:100%;height:100%;object-fit:cover;">`;
             }
@@ -508,83 +674,187 @@
     function renderFilmstrip() {
         thumbContainer.innerHTML = '';
         slides.forEach((s, i) => {
-            const wrap = document.createElement('div'); wrap.className = 'thumb-wrapper';
+            const wrap = document.createElement('div'); wrap.className = 'thumb-card';
             const d = document.createElement('div');
-            d.className = `thumb ${i===curSlideIdx?'active':''}`;
+            d.className = `thumb-preview ${i===curSlideIdx?'active':''}`;
             d.style.backgroundImage = s.bgImage ? `url(${s.bgImage})` : 'none';
             d.style.backgroundColor = s.bgColor;
             d.innerHTML = buildMiniDOM(s);
             d.onclick = () => setSlide(i);
-            const num = document.createElement('div'); num.className = 'thumb-num'; num.innerText = `Slide ${i+1}`;
+            const num = document.createElement('div'); num.className = 'thumb-badge'; num.innerText = `${i+1}`;
             wrap.appendChild(d); wrap.appendChild(num);
             thumbContainer.appendChild(wrap);
         });
     }
 
-    function getStyleString(el) {
-        if(el.type !== 'text') return '';
-        let s = `font-family:${el.fontFace.includes('Bebas')?"'Bebas Neue', sans-serif":"'Oswald', sans-serif"}; font-size:${el.fontSize*PT_TO_PX}px; color:${el.color}; text-align:${el.align};`;
-        if(el.stroke === 'black') s += ` -webkit-text-stroke: 1px black;`;
-        if(el.stroke === 'white') s += ` -webkit-text-stroke: 1px white;`;
-        return s;
-    }
-
-    function highlightKW(txt) {
-        const kw = /(não temas,?\s*crê somente|quem me tocou\??|não o faria\??|não o confirmaria\??|angústia de espírito|tendo-os feito sair|teu coração|não se apóie|os teus bens|os teus celeiros|transbordarão|talitá cumi|prostrou-se|um dos principais da sinagoga|despendido tudo quanto tinha|não ajunteis tesouros|ajuntai tesouros|honra ao senhor|confia no senhor)/gi;
-        return txt.replace(kw, '<span style="color:#E8B859;">$1</span>');
-    }
-
     function renderCanvas() {
-        if(curSlideIdx < 0) return; const s = slides[curSlideIdx];
-        slideCanvas.style.backgroundImage = s.bgImage ? `url(${s.bgImage})` : 'none'; slideCanvas.style.backgroundColor = s.bgColor;
-        Array.from(slideCanvas.children).forEach(c => { if(c.id !== 'transform-box' && !c.classList.contains('snap-guide')) c.remove(); });
+        if(curSlideIdx < 0) return;
+        const s = slides[curSlideIdx];
+        slideCanvas.style.backgroundImage = s.bgImage ? `url(${s.bgImage})` : 'none';
+        slideCanvas.style.backgroundColor = s.bgColor;
+
+        // Clear elements
+        const els = slideCanvas.querySelectorAll('.slide-el');
+        els.forEach(e => e.remove());
 
         s.elements.forEach(el => {
             if(el.hidden) return;
             const d = document.createElement('div');
-            d.className = 'slide-el'; d.id = `ui_${el.id}`;
-            d.style.left = el.x+'px'; d.style.top = el.y+'px'; d.style.width = el.w+'px'; d.style.height = el.h+'px';
-            d.style.transform = `rotate(${el.rotation||0}deg)`; d.style.opacity = el.opacity; d.style.zIndex = s.elements.indexOf(el);
+            d.id = `ui_${el.id}`;
+            d.className = `slide-el ${el.shadow==='dark'?'shadow-dark':''} ${el.shadow==='glow'?'shadow-glow':''}`;
+            d.style.left = el.x + 'px'; d.style.top = el.y + 'px';
+            d.style.width = el.w + 'px'; d.style.height = el.h + 'px';
+            d.style.transform = `rotate(${el.rotation||0}deg)`;
+            d.style.opacity = el.opacity;
 
             if(el.type === 'text') {
-                const t = document.createElement('div'); t.className = 'el-text'; t.contentEditable = !el.locked;
-                t.style.cssText = getStyleString(el);
-                if(el.shadow === 'dark') t.classList.add('shadow-dark'); else if(el.shadow === 'glow') t.classList.add('shadow-glow');
-                t.innerHTML = el.isRef ? el.content : highlightKW(el.content);
-                t.onmousedown = () => { if(el.locked) return; if(selElId !== el.id) { commitText(); selElId = el.id; updateSelection(); } };
-                t.onblur = () => { el.content = t.innerText; renderFilmstrip(); };
-                d.appendChild(t);
+                const ff = el.fontFace.includes('Bebas') ? "'Bebas Neue', sans-serif" : (el.fontFace.includes('Oswald') ? "'Oswald', sans-serif" : "'Inter', sans-serif");
+                d.innerHTML = `<div class="el-text" style="font-family:${ff}; font-size:${el.fontSize*PT_TO_PX}px; color:${el.color}; text-align:${el.align};">${el.content}</div>`;
+                
+                const onSelect = () => { if(!el.locked) { commitText(); selElId = el.id; updateSelection(); } };
+                d.onmousedown = onSelect;
+                d.ontouchstart = onSelect;
             } else if (el.type === 'shape') {
-                d.style.backgroundColor = el.color;
-                d.onmousedown = () => { if(!el.locked) { commitText(); selElId = el.id; updateSelection(); } };
+                d.innerHTML = `<div style="width:100%; height:100%; background:${el.color}; border-radius:4px;"></div>`;
+                const onSelect = () => { if(!el.locked) { commitText(); selElId = el.id; updateSelection(); } };
+                d.onmousedown = onSelect;
+                d.ontouchstart = onSelect;
             } else if (el.type === 'image') {
-                d.innerHTML = `<img src="${el.content}" class="el-img" draggable="false">`;
-                d.onmousedown = () => { if(!el.locked) { commitText(); selElId = el.id; updateSelection(); } };
+                d.innerHTML = `<img src="${el.content}" class="el-img">`;
+                const onSelect = () => { if(!el.locked) { commitText(); selElId = el.id; updateSelection(); } };
+                d.onmousedown = onSelect;
+                d.ontouchstart = onSelect;
             }
             slideCanvas.insertBefore(d, tfBox);
         });
         updateSelection();
     }
 
+    function updateSelection() {
+        if(!selElId || curSlideIdx < 0) {
+            tfBox.style.display = 'none';
+            renderProps();
+            return;
+        }
+        const s = slides[curSlideIdx];
+        const el = s.elements.find(x => x.id === selElId);
+        if(!el) { tfBox.style.display = 'none'; renderProps(); return; }
+
+        syncTfBox(el);
+        renderProps();
+        renderLayers();
+    }
+
+    function syncTfBox(el) {
+        tfBox.style.display = 'block';
+        tfBox.style.left = el.x + 'px'; tfBox.style.top = el.y + 'px';
+        tfBox.style.width = el.w + 'px'; tfBox.style.height = el.h + 'px';
+        tfBox.style.transform = `rotate(${el.rotation||0}deg)`;
+    }
+
+    function commitText() {
+        if(!selElId || curSlideIdx < 0) return;
+        const dom = document.getElementById(`ui_${selElId}`);
+        if(dom) {
+            const txt = dom.querySelector('.el-text');
+            if(txt && txt.isContentEditable) {
+                const el = slides[curSlideIdx].elements.find(x => x.id === selElId);
+                if(el) el.content = txt.innerText;
+                txt.contentEditable = false;
+            }
+        }
+    }
+
+    function renderProps() {
+        const noSel = document.getElementById('no-sel-msg');
+        const propsArea = document.getElementById('sel-props-area');
+        if(!selElId || curSlideIdx < 0) {
+            if(noSel) noSel.style.display = 'block';
+            if(propsArea) propsArea.style.display = 'none';
+            return;
+        }
+        const s = slides[curSlideIdx];
+        const el = s.elements.find(x => x.id === selElId);
+        if(!el) return;
+
+        if(noSel) noSel.style.display = 'none';
+        if(propsArea) propsArea.style.display = 'flex';
+
+        document.getElementById('elFontSize').value = el.fontSize || 40;
+        document.getElementById('elColor').value = el.color || '#FFFFFF';
+        document.getElementById('elFont').value = el.fontFace || 'Bebas Neue';
+        document.getElementById('elAlign').value = el.align || 'center';
+        document.getElementById('elShadow').value = el.shadow || 'none';
+        document.getElementById('elStroke').value = el.stroke || 'none';
+    }
+
     function renderLayers() {
-        layersList.innerHTML = ''; if(curSlideIdx < 0) return; const s = slides[curSlideIdx];
+        layersList.innerHTML = '';
+        if(curSlideIdx < 0) return;
+        const s = slides[curSlideIdx];
         for(let i = s.elements.length - 1; i >= 0; i--) {
             const el = s.elements[i];
             const div = document.createElement('div');
-            div.className = `layer-item ${selElId===el.id?'active':''} ${el.locked?'locked':''}`;
+            div.style.cssText = `background:#121318; padding:8px 12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid ${selElId===el.id?'var(--canva-cyan)':'var(--canva-border)'};`;
             div.innerHTML = `
-                <div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${el.name}</div>
-                <div class="icons">
-                    <button class="btn-icon" onclick="moveLayer('${el.id}', 1)" title="Subir">⬆️</button>
-                    <button class="btn-icon" onclick="moveLayer('${el.id}', -1)" title="Descer">⬇️</button>
-                    <button class="btn-icon" onclick="toggleProp('${el.id}','hidden')">${el.hidden?'👁️‍🗨️':'👁️'}</button>
-                    <button class="btn-icon" onclick="toggleProp('${el.id}','locked')">${el.locked?'🔒':'🔓'}</button>
+                <span style="font-size:12px; font-weight:600;">${el.name}</span>
+                <div style="display:flex; gap:4px;">
+                    <button class="canva-btn" style="padding:2px 6px;" onclick="moveLayer('${el.id}', 1)">⬆</button>
+                    <button class="canva-btn" style="padding:2px 6px;" onclick="moveLayer('${el.id}', -1)">⬇</button>
                 </div>
             `;
-            div.onclick = (e) => { if(e.target.tagName==='DIV') { commitText(); selElId=el.id; updateSelection(); } };
+            div.onclick = (e) => { if(e.target.tagName==='DIV' || e.target.tagName==='SPAN') { commitText(); selElId=el.id; updateSelection(); } };
             layersList.appendChild(div);
         }
     }
+
+    window.updateElProp = (prop, val) => {
+        if(!selElId || curSlideIdx < 0) return;
+        const el = slides[curSlideIdx].elements.find(x => x.id === selElId);
+        if(el) {
+            el[prop] = val;
+            renderCanvas();
+            renderFilmstrip();
+        }
+    };
+
+    window.updateSlideProp = (prop, val) => {
+        if(curSlideIdx < 0) return;
+        slides[curSlideIdx][prop] = val;
+        renderCanvas();
+        renderFilmstrip();
+    };
+
+    window.handleSlideBgUpload = (input) => {
+        const file = input.files[0];
+        if(!file || curSlideIdx < 0) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            slides[curSlideIdx].bgImage = e.target.result;
+            renderCanvas();
+            renderFilmstrip();
+        };
+        reader.readAsDataURL(file);
+    };
+
+    window.handleElImageUpload = (input) => {
+        const file = input.files[0];
+        if(!file || curSlideIdx < 0) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            const el = {
+                id: genId(), type: 'image', name: 'Imagem',
+                content: e.target.result,
+                x: C_WIDTH/2 - 150, y: C_HEIGHT/2 - 150, w: 300, h: 300,
+                rotation: 0, opacity: 1, locked: false, hidden: false
+            };
+            slides[curSlideIdx].elements.push(el);
+            selElId = el.id;
+            renderCanvas();
+            renderFilmstrip();
+        };
+        reader.readAsDataURL(file);
+    };
 
     window.moveLayer = (id, dir) => {
         const s = slides[curSlideIdx]; const idx = s.elements.findIndex(x=>x.id===id);
@@ -594,151 +864,160 @@
         renderCanvas(); renderLayers();
     };
 
-    function toggleProp(id, prop) { const el = slides[curSlideIdx].elements.find(x=>x.id===id); if(el) { el[prop] = !el[prop]; renderCanvas(); renderLayers(); } }
-
-    function renderProps() {
-        if(curSlideIdx < 0) return; const s = slides[curSlideIdx];
-        document.getElementById('slType').value = s.type; document.getElementById('slBgColor').value = s.bgColor;
-        if(!selElId) {
-            document.getElementById('panel-element').style.display = 'none';
-        } else {
-            document.getElementById('panel-element').style.display = 'flex';
-            const el = s.elements.find(x=>x.id===selElId);
-            document.getElementById('elX').value = Math.round(el.x); document.getElementById('elY').value = Math.round(el.y);
-            document.getElementById('elW').value = Math.round(el.w); document.getElementById('elH').value = Math.round(el.h);
-            document.getElementById('elOpacity').value = el.opacity;
-            
-            if(el.type === 'text') {
-                document.getElementById('text-props').style.display = 'flex'; document.getElementById('text-props').style.flexDirection = 'column'; document.getElementById('text-props').style.gap = '12px';
-                document.getElementById('elFont').value = el.fontFace; document.getElementById('elFontSize').value = el.fontSize;
-                document.getElementById('elColor').value = el.color; document.getElementById('elAlign').value = el.align;
-                document.getElementById('elShadow').value = el.shadow; document.getElementById('elStroke').value = el.stroke || 'none';
-            } else { document.getElementById('text-props').style.display = 'none'; }
-        }
-    }
-
-    window.updateSlideType = (val) => {
-        const s = slides[curSlideIdx]; s.type = val;
-        if(val === 'verse' && !s.elements.some(e => e.isRef)) s.elements.push(newTextEl('Nova Referência', true, 'verse'));
-        renderFilmstrip(); renderCanvas(); renderLayers();
-    };
-    window.updateSlideProp = (p, v) => { slides[curSlideIdx][p] = v; renderFilmstrip(); renderCanvas(); };
-    window.updateElProp = (p, v) => { 
-        const el = slides[curSlideIdx].elements.find(x=>x.id===selElId);
-        if(el) { el[p] = (p==='x'||p==='y'||p==='w'||p==='h'||p==='fontSize') ? Number(v) : v; renderCanvas(); updateSelection(); renderFilmstrip(); }
-    };
-    window.handleSlideBgUpload = (inp) => { const f = inp.files[0]; if(f) { const r = new FileReader(); r.onload=ev=>{ slides[curSlideIdx].bgImage = ev.target.result; renderCanvas(); renderFilmstrip(); }; r.readAsDataURL(f); } };
-    window.handleElImageUpload = (inp) => {
-        const f = inp.files[0]; if(!f || curSlideIdx<0) return;
-        const r = new FileReader(); r.onload=ev=>{ 
-            const img = new Image(); img.onload = () => {
-                let w = img.width; let h = img.height; const max = 300;
-                if(w>max||h>max) { const ratio = Math.min(max/w, max/h); w*=ratio; h*=ratio; }
-                const el = { id: genId(), type:'image', name:'Imagem Upload', content:ev.target.result, x: C_WIDTH/2 - w/2, y: C_HEIGHT/2 - h/2, w, h, rotation:0, opacity:1, locked:false, hidden:false };
-                slides[curSlideIdx].elements.push(el); selElId = el.id; renderCanvas(); renderFilmstrip();
-            }; img.src = ev.target.result;
-        }; r.readAsDataURL(f);
-    };
-
-    function commitText() {
-        if(selElId && curSlideIdx >= 0) {
-            const el = slides[curSlideIdx].elements.find(x=>x.id===selElId);
-            if(el && el.type === 'text') { const dom = document.getElementById(`ui_${el.id}`); if(dom) el.content = dom.querySelector('.el-text').innerText; }
-        }
-    }
-
-    // --- Transform ---
-    slideCanvas.onmousedown = (e) => { if(e.target === slideCanvas || e.target === tfBox) { commitText(); selElId = null; updateSelection(); } };
-    function updateSelection() {
-        renderProps(); renderLayers(); if(!selElId) { tfBox.style.display = 'none'; return; }
-        const el = slides[curSlideIdx].elements.find(x=>x.id===selElId);
-        if(!el || el.hidden || el.locked) { tfBox.style.display = 'none'; return; }
-        tfBox.style.display = 'block'; syncTfBox(el);
-    }
-    function syncTfBox(el) { tfBox.style.left = el.x+'px'; tfBox.style.top = el.y+'px'; tfBox.style.width = el.w+'px'; tfBox.style.height = el.h+'px'; tfBox.style.transform = `rotate(${el.rotation||0}deg)`; }
-
-    let isDrag=false, dragAct=null, stX, stY, oX, oY, oW, oH;
-    tfBox.onmousedown = (e) => {
-        if(e.target.classList.contains('handle')) dragAct = e.target.dataset.dir; else dragAct = 'move';
-        isDrag = true; stX = e.clientX; stY = e.clientY;
-        const el = slides[curSlideIdx].elements.find(x=>x.id===selElId);
+    // Global Drag / Touch Handler
+    let isDrag = false; let dragAct = null; let stX, stY, oX, oY, oW, oH;
+    
+    function startDrag(e, act) {
+        if(!selElId || curSlideIdx < 0) return;
+        isDrag = true; dragAct = act;
+        const pt = e.touches ? e.touches[0] : e;
+        stX = pt.clientX; stY = pt.clientY;
+        const el = slides[curSlideIdx].elements.find(x => x.id === selElId);
         oX = el.x; oY = el.y; oW = el.w; oH = el.h;
-        e.preventDefault(); document.addEventListener('mousemove', onDrag); document.addEventListener('mouseup', endDrag);
-    };
+
+        window.addEventListener('mousemove', onDrag);
+        window.addEventListener('mouseup', endDrag);
+        window.addEventListener('touchmove', onDrag, { passive: false });
+        window.addEventListener('touchend', endDrag);
+    }
+
+    tfBox.addEventListener('mousedown', e => {
+        if(e.target.classList.contains('handle')) startDrag(e, e.target.dataset.dir);
+        else startDrag(e, 'move');
+    });
+    tfBox.addEventListener('touchstart', e => {
+        if(e.target.classList.contains('handle')) startDrag(e, e.target.dataset.dir);
+        else startDrag(e, 'move');
+    });
+
+    // Double click to edit text inline
+    slideCanvas.addEventListener('dblclick', e => {
+        if(!selElId || curSlideIdx < 0) return;
+        const dom = document.getElementById(`ui_${selElId}`);
+        if(dom) {
+            const txt = dom.querySelector('.el-text');
+            if(txt) { txt.contentEditable = true; txt.focus(); }
+        }
+    });
+
     function onDrag(e) {
         if(!isDrag || !selElId) return;
+        if(e.preventDefault) e.preventDefault();
+        const pt = e.touches ? e.touches[0] : e;
         const scale = slideCanvas.getBoundingClientRect().width / C_WIDTH;
-        const dx = (e.clientX - stX)/scale; const dy = (e.clientY - stY)/scale;
-        const el = slides[curSlideIdx].elements.find(x=>x.id===selElId);
+        const dx = (pt.clientX - stX) / scale;
+        const dy = (pt.clientY - stY) / scale;
+        const el = slides[curSlideIdx].elements.find(x => x.id === selElId);
+
         if(dragAct === 'move') {
-            el.x = oX + dx; el.y = oY + dy; snapV.style.display = 'none'; snapH.style.display = 'none';
-            const cx = el.x + el.w/2; const cy = el.y + el.h/2;
-            if(Math.abs(cx - C_WIDTH/2) < 10) { el.x = C_WIDTH/2 - el.w/2; snapV.style.display = 'block'; snapV.style.left = (C_WIDTH/2)+'px'; }
-            if(Math.abs(cy - C_HEIGHT/2) < 10) { el.y = C_HEIGHT/2 - el.h/2; snapH.style.display = 'block'; snapH.style.top = (C_HEIGHT/2)+'px'; }
+            el.x = oX + dx; el.y = oY + dy;
         } else if (dragAct === 'rot') {
-            const rect = tfBox.getBoundingClientRect(); const cx = rect.left + rect.width/2; const cy = rect.top + rect.height/2;
-            const ang = Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI; el.rotation = ang + 90;
-            if(Math.abs(el.rotation % 45) < 5) el.rotation = Math.round(el.rotation/45)*45;
+            const rect = tfBox.getBoundingClientRect();
+            const cx = rect.left + rect.width/2; const cy = rect.top + rect.height/2;
+            const ang = Math.atan2(pt.clientY - cy, pt.clientX - cx) * 180 / Math.PI;
+            el.rotation = ang + 90;
         } else {
-            if(dragAct.includes('e')) el.w = Math.max(20, oW + dx); if(dragAct.includes('s')) el.h = Math.max(20, oH + dy);
+            if(dragAct.includes('e')) el.w = Math.max(20, oW + dx);
+            if(dragAct.includes('s')) el.h = Math.max(20, oH + dy);
             if(dragAct.includes('w')) { const nw = Math.max(20, oW - dx); el.x = oX + (oW - nw); el.w = nw; }
             if(dragAct.includes('n')) { const nh = Math.max(20, oH - dy); el.y = oY + (oH - nh); el.h = nh; }
         }
-        syncTfBox(el); const dom = document.getElementById(`ui_${el.id}`);
-        if(dom) { dom.style.left = el.x+'px'; dom.style.top = el.y+'px'; dom.style.width = el.w+'px'; dom.style.height = el.h+'px'; dom.style.transform = `rotate(${el.rotation||0}deg)`; }
-        renderProps();
+        syncTfBox(el);
+        const dom = document.getElementById(`ui_${el.id}`);
+        if(dom) {
+            dom.style.left = el.x+'px'; dom.style.top = el.y+'px';
+            dom.style.width = el.w+'px'; dom.style.height = el.h+'px';
+            dom.style.transform = `rotate(${el.rotation||0}deg)`;
+        }
     }
-    function endDrag() { isDrag = false; dragAct = null; snapV.style.display = 'none'; snapH.style.display = 'none'; document.removeEventListener('mousemove', onDrag); document.removeEventListener('mouseup', endDrag); renderFilmstrip(); }
+
+    function endDrag() {
+        isDrag = false; dragAct = null;
+        window.removeEventListener('mousemove', onDrag);
+        window.removeEventListener('mouseup', endDrag);
+        window.removeEventListener('touchmove', onDrag);
+        window.removeEventListener('touchend', endDrag);
+        renderFilmstrip();
+    }
 
     window.addElement = (type) => {
-        if(curSlideIdx<0) return; let el;
-        if(type==='text') { el = newTextEl("Novo Texto", false, 'reflection'); el.x = C_WIDTH/2 - el.w/2; el.y = C_HEIGHT/2 - el.h/2; el.name = "Texto"; }
-        if(type==='shape') { el = { id: genId(), type: 'shape', name: 'Forma', x: C_WIDTH/2 - 50, y: C_HEIGHT/2 - 50, w: 100, h: 100, rotation: 0, opacity: 1, color: '#8b5cf6', locked:false, hidden:false }; }
-        slides[curSlideIdx].elements.push(el); selElId = el.id; renderCanvas(); renderFilmstrip();
-    };
-    window.addBlankSlide = () => { slides.push(newSlide('reflection')); setSlide(slides.length-1); };
-    window.deleteCurrentSlide = () => { if(slides.length<=1) return alert('Último slide.'); slides.splice(curSlideIdx, 1); setSlide(Math.max(0, curSlideIdx-1)); };
-    window.deleteSelectedElement = () => { if(!selElId) return; slides[curSlideIdx].elements = slides[curSlideIdx].elements.filter(x=>x.id!==selElId); selElId = null; renderCanvas(); renderFilmstrip(); };
-    window.cloneSelectedElement = () => {
-        if(!selElId) return; const s = slides[curSlideIdx]; const orig = s.elements.find(x=>x.id===selElId); if(!orig) return;
-        const clone = JSON.parse(JSON.stringify(orig)); clone.id = genId(); clone.name += " (Cópia)"; clone.x += 20; clone.y += 20;
-        s.elements.push(clone); selElId = clone.id; renderCanvas(); renderFilmstrip();
+        if(curSlideIdx < 0) return;
+        let el;
+        if(type === 'text') {
+            el = newTextEl("Novo Texto", false, 'reflection');
+            el.x = C_WIDTH/2 - el.w/2; el.y = C_HEIGHT/2 - el.h/2;
+        } else if(type === 'shape') {
+            el = { id: genId(), type: 'shape', name: 'Forma', x: C_WIDTH/2 - 100, y: C_HEIGHT/2 - 60, w: 200, h: 120, rotation: 0, opacity: 1, color: '#7d2ae8', locked: false, hidden: false };
+        }
+        slides[curSlideIdx].elements.push(el);
+        selElId = el.id;
+        renderCanvas();
+        renderFilmstrip();
+        openDrawer('drawer-element');
     };
 
-    // --- PPTX EXPORT ---
+    window.addBlankSlide = () => { slides.push(newSlide('reflection')); setSlide(slides.length-1); };
+    window.deleteCurrentSlide = () => {
+        if(slides.length <= 1) return alert('Você deve manter pelo menos 1 slide.');
+        slides.splice(curSlideIdx, 1);
+        setSlide(Math.max(0, curSlideIdx - 1));
+        closeAllDrawers();
+    };
+    window.deleteSelectedElement = () => {
+        if(!selElId) return;
+        slides[curSlideIdx].elements = slides[curSlideIdx].elements.filter(x => x.id !== selElId);
+        selElId = null;
+        renderCanvas();
+        renderFilmstrip();
+        closeAllDrawers();
+    };
+    window.cloneSelectedElement = () => {
+        if(!selElId) return;
+        const s = slides[curSlideIdx];
+        const orig = s.elements.find(x => x.id === selElId);
+        if(!orig) return;
+        const clone = JSON.parse(JSON.stringify(orig));
+        clone.id = genId(); clone.name += " (Cópia)"; clone.x += 20; clone.y += 20;
+        s.elements.push(clone);
+        selElId = clone.id;
+        renderCanvas();
+        renderFilmstrip();
+    };
+
+    // PPTX Export
     document.getElementById('btnExport').addEventListener('click', async () => {
-        commitText(); const btn = document.getElementById('btnExport'); btn.innerText = "⏳ PROCESSANDO...";
+        commitText();
+        const btn = document.getElementById('btnExport');
+        btn.innerText = "⏳ Gerando...";
         try {
-            const pptx = new PptxGenJS(); pptx.layout = 'LAYOUT_16x9';
+            const pptx = new PptxGenJS();
+            pptx.layout = 'LAYOUT_16x9';
             for(const s of slides) {
                 const slide = pptx.addSlide();
-                if(s.bgImage) slide.background = { data: s.bgImage }; else slide.background = { color: s.bgColor.replace('#','') };
+                if(s.bgImage) slide.background = { data: s.bgImage };
+                else slide.background = { color: s.bgColor.replace('#','') };
+                
                 for(const el of s.elements) {
                     if(el.hidden) continue;
                     const opts = { x: el.x/96, y: el.y/96, w: el.w/96, h: el.h/96, rotate: el.rotation || 0, transparency: (1 - el.opacity) * 100 };
-                    if(el.type === 'shape') { opts.fill = { color: el.color.replace('#','') }; slide.addShape(pptx.ShapeType.rect, opts); } 
-                    else if(el.type === 'image') { opts.data = el.content; slide.addImage(opts); }
-                    else if(el.type === 'text') {
+                    if(el.type === 'shape') {
+                        opts.fill = { color: el.color.replace('#','') };
+                        slide.addShape(pptx.ShapeType.rect, opts);
+                    } else if(el.type === 'image') {
+                        opts.data = el.content;
+                        slide.addImage(opts);
+                    } else if(el.type === 'text') {
                         opts.valign = 'top'; opts.align = el.align; opts.margin = 0; opts.wrap = true;
-                        if(el.shadow === 'dark') opts.shadow = { type: 'outer', angle: 90, blur: 4, offset: 3, opacity: 0.8, color: '000000' };
-                        else if(el.shadow === 'glow') opts.shadow = { type: 'outer', angle: 0, blur: 15, offset: 0, opacity: 0.9, color: 'FFFFFF' };
-                        if(el.stroke && el.stroke !== 'none') opts.outline = { size: 1.5, color: el.stroke === 'white' ? 'FFFFFF' : '000000' };
-                        
-                        const ff = el.fontFace.includes('Oswald') || el.fontFace.includes('Bahnschrift') ? 'Bahnschrift SemiBold Condensed' : 'Bebas Neue';
-                        const kw = /(não temas,?\s*crê somente|quem me tocou\??|não o faria\??|não o confirmaria\??|angústia de espírito|tendo-os feito sair|teu coração|não se apóie|os teus bens|os teus celeiros|transbordarão|talitá cumi|prostrou-se|um dos principais da sinagoga|despendido tudo quanto tinha|não ajunteis tesouros|ajuntai tesouros|honra ao senhor|confia no senhor)/gi;
-                        const runs = []; let lx=0; let m;
-                        if(!el.isRef) { while((m = kw.exec(el.content)) !== null) { if(m.index>lx) runs.push({ text: el.content.substring(lx, m.index), highlight: false }); runs.push({ text: m[0], highlight: true }); lx = m.index + m[0].length; } }
-                        if(lx < el.content.length) runs.push({ text: el.content.substring(lx), highlight: false });
-                        if(runs.length === 0) runs.push({ text: el.content, highlight: false });
-
-                        const pptRuns = runs.map(r => ({ text: r.text, options: { fontFace: ff, fontSize: el.fontSize, color: r.highlight ? 'E8B859' : el.color.replace('#','') } }));
-                        slide.addText(pptRuns, opts);
+                        const ff = el.fontFace.includes('Oswald') ? 'Oswald' : (el.fontFace.includes('Inter') ? 'Inter' : 'Bebas Neue');
+                        slide.addText(el.content, { ...opts, fontFace: ff, fontSize: el.fontSize, color: el.color.replace('#','') });
                     }
                 }
             }
-            await pptx.writeFile({ fileName: document.getElementById('outFileName').value });
-        } catch(e) { alert("Erro: "+e.message); }
-        btn.innerText = "💾 EXPORTAR PPTX";
+            await pptx.writeFile({ fileName: 'Apresentacao_Sermon.pptx' });
+        } catch(e) {
+            alert('Erro ao exportar: ' + e.message);
+        }
+        btn.innerText = "Exportar PPTX";
     });
 </script>
 </body>
