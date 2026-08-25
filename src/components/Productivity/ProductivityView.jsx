@@ -38,23 +38,6 @@ export default function ProductivityView({ darkMode }) {
       ],
       path: `${import.meta.env.BASE_URL}tools/planilhas/index.html`,
       iframeUrl: `${import.meta.env.BASE_URL}tools/planilhas/index.html`
-    },
-    {
-      id: 'jarvis',
-      title: 'JARVIS - Obsidian Neural AI Hub',
-      icon: Bot,
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-500/10',
-      borderColor: 'border-blue-500/30',
-      description: 'Assistente pessoal com ativação por voz ("Olá Jarvis") e Graph View interativo. (Nota: O servidor Iniciar_Jarvis.bat precisa estar rodando no seu PC).',
-      features: [
-        'Comandos de voz 100% mãos livres',
-        'Integração com tarefas e calendário',
-        'Navegação Graph View controlada por webcam',
-        'Design minimalista inspirado no Obsidian'
-      ],
-      path: 'http://localhost:3000',
-      iframeUrl: 'http://localhost:3000'
     }
   ];
 
@@ -90,17 +73,9 @@ export default function ProductivityView({ darkMode }) {
           </div>
         </div>
         
-        {tool.id === 'jarvis' && (
-          <div className="absolute top-16 left-0 right-0 z-0 flex justify-center pointer-events-none">
-             <div className="bg-yellow-500/20 border border-yellow-500/50 text-yellow-200 text-xs px-4 py-2 rounded-full backdrop-blur-md">
-                Lembre-se de dar 2 cliques no <b>iniciar_jarvis.bat</b> na sua área de trabalho para que o assistente funcione!
-             </div>
-          </div>
-        )}
-        
         <iframe 
           src={tool.iframeUrl} 
-          className={`flex-1 w-full h-full border-none relative z-1 ${tool.id === 'jarvis' ? 'bg-[#18181b]' : 'bg-white'}`}
+          className="flex-1 w-full h-full border-none relative z-1 bg-white"
           title={tool.title}
           allow="microphone; camera; display-capture"
         />

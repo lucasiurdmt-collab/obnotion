@@ -267,30 +267,64 @@ export default function SettingsView({
             </div>
           </div>
 
-          <div className="pt-4 border-t border-inherit">
+            <div className="pt-4 border-t border-inherit">
               <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-purple-400" />
                 Inteligência Artificial (JARVIS)
               </h4>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">
-                    Google Gemini API Key
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="AIzaSy..."
-                    value={data.settings?.geminiApiKey || ''}
-                    onChange={(e) => {
-                      const newSettings = { ...(data.settings || {}), geminiApiKey: e.target.value };
-                      updateSection('settings', newSettings);
-                    }}
-                    className={`w-full px-3 py-2 text-sm rounded-lg border ${darkMode ? 'bg-gray-900/50 border-gray-700 focus:border-purple-500' : 'bg-gray-50 border-gray-300 focus:border-purple-500'} outline-none`}
-                  />
-                  <p className="text-[10px] text-gray-500 mt-1">
-                    Sua chave é salva apenas localmente no seu navegador para alimentar o assistente de IA.
-                  </p>
-                </div>
+                {data.settings?.isAdminUnlocked ? (
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                      Google Gemini API Key
+                    </label>
+                    <input
+                      type="password"
+                      placeholder="Sua chave secreta..."
+                      value={data.settings?.geminiApiKey || ''}
+                      onChange={(e) => {
+                        const newSettings = { ...(data.settings || {}), geminiApiKey: e.target.value };
+                        updateSection('settings', newSettings);
+                      }}
+                      className={`w-full px-3 py-2 text-sm rounded-lg border ${darkMode ? 'bg-gray-900/50 border-gray-700 focus:border-purple-500' : 'bg-gray-50 border-gray-300 focus:border-purple-500'} outline-none`}
+                    />
+                    <p className="text-[10px] text-gray-500 mt-1">
+                      Cole sua chave aqui. Ela será salva de forma segura.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-4 bg-gray-900/50 border border-gray-800 rounded-xl flex flex-col gap-2">
+                    <p className="text-xs text-gray-400 mb-1">Acesso Restrito. Insira as credenciais para ver a chave da API.</p>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        id="adminUser"
+                        placeholder="Usuário" 
+                        className="flex-1 px-2 py-1.5 text-xs rounded bg-black/50 border border-gray-700 outline-none focus:border-purple-500 text-gray-200"
+                      />
+                      <input 
+                        type="password" 
+                        id="adminPass"
+                        placeholder="Senha" 
+                        className="flex-1 px-2 py-1.5 text-xs rounded bg-black/50 border border-gray-700 outline-none focus:border-purple-500 text-gray-200"
+                      />
+                      <button 
+                        onClick={() => {
+                          const u = document.getElementById('adminUser').value;
+                          const p = document.getElementById('adminPass').value;
+                          if (u === 'admin' && p === 'admin') {
+                             updateSection('settings', { ...(data.settings || {}), isAdminUnlocked: true });
+                          } else {
+                             alert('Credenciais incorretas!');
+                          }
+                        }}
+                        className="px-3 py-1.5 text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors"
+                      >
+                        Desbloquear
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

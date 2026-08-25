@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, X, Mic, Send, Loader2, Sparkles } from 'lucide-react';
+import { Orbit, X, Mic, Send, Loader2, Sparkles, BrainCircuit } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 
 export default function JarvisWidget({ data, updateSection, darkMode }) {
@@ -10,8 +10,11 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
   const [input, setInput] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef(null);
 
+  // A chave agora vem das configurações (via localStorage),
+  // pois o GitHub bloqueia chaves soltas no código (Push Protection).
   const apiKey = data?.settings?.geminiApiKey || '';
 
   // Setup Speech Recognition
@@ -72,6 +75,9 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
         utterance.lang = 'pt-BR';
         utterance.pitch = 0.9;
         utterance.rate = 1.1;
+        utterance.onstart = () => setIsSpeaking(true);
+        utterance.onend = () => setIsSpeaking(false);
+        utterance.onerror = () => setIsSpeaking(false);
         window.speechSynthesis.speak(utterance);
       }
     } catch (error) {
@@ -223,12 +229,20 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
   return (
     <>
       {/* Floating Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-500/30 hover:scale-105 transition-transform z-50 group"
-      >
-        <Bot className="w-7 h-7 group-hover:animate-pulse" />
-      </button>
+      <div className="fixed bottom-6 right-6 z-50 flex items-center justify-center">
+        {isSpeaking && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+             <div className="w-20 h-20 bg-indigo-500 rounded-full animate-ping opacity-30 absolute"></div>
+             <div className="w-24 h-24 bg-blue-500 rounded-full animate-ping opacity-20 absolute" style={{ animationDelay: '200ms' }}></div>
+          </div>
+        )}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-500/30 hover:scale-105 transition-all relative z-10 ${isSpeaking ? 'bg-gradient-to-tr from-cyan-500 to-blue-600 scale-110 shadow-cyan-500/50' : 'bg-gradient-to-tr from-blue-600 to-indigo-500'}`}
+        >
+          <BrainCircuit className={`w-7 h-7 ${isSpeaking ? 'animate-pulse text-cyan-100' : 'text-blue-100 group-hover:animate-pulse'}`} />
+        </button>
+      </div>
 
       {/* Chat Window */}
       {isOpen && (
