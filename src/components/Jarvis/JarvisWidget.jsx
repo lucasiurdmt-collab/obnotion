@@ -1,22 +1,48 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Orbit, X, Mic, Send, Loader2, Sparkles, BrainCircuit, Settings, Volume2, Check, Radio } from 'lucide-react';
+import {
+  BrainCircuit,
+  Mic,
+  Send,
+  X,
+  Volume2,
+  Settings,
+  Loader2,
+  Sparkles,
+  Radio,
+  Image as ImageIcon,
+  Paperclip,
+  Trash2
+} from 'lucide-react';
 
-export default function JarvisWidget({ data, updateSection, darkMode }) {
+export default function JarvisWidget({ 
+  data = {}, 
+  updateSection, 
+  darkMode, 
+  actionPrompt, 
+  onClearActionPrompt 
+}) {
   const [isOpen, setIsOpen] = useState(false);
-  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'model', text: 'Olá, Senhor. JARVIS totalmente integrado a todos os seus livros, notas, tarefas e finanças. Como posso ajudar?' }
+    {
+      role: 'model',
+      text: 'Olá, Senhor. JARVIS totalmente operacional e integrado a todos os seus sistemas: Contas a Pagar, Dívidas, Salário, Livros, Hábitos e Tarefas. Você pode me enviar mensagens, falar por voz ou me enviar fotos/prints de boletos e faturas!'
+    }
   ]);
   const [input, setInput] = useState('');
-  const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [handsFreeMode, setHandsFreeMode] = useState(false);
+  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
+  const [attachedImage, setAttachedImage] = useState(null); // { data: base64, mimeType: string, previewUrl: string }
+
+  // Speech & Voice Settings State
   const [availableVoices, setAvailableVoices] = useState([]);
   const [selectedVoiceURI, setSelectedVoiceURI] = useState(() => localStorage.getItem('jarvis_voice_uri') || '');
   const [voiceRate, setVoiceRate] = useState(() => Number(localStorage.getItem('jarvis_voice_rate')) || 1.35);
   const [voicePitch, setVoicePitch] = useState(() => Number(localStorage.getItem('jarvis_voice_pitch')) || 1.0);
-  
+  const [handsFreeMode, setHandsFreeMode] = useState(() => localStorage.getItem('jarvis_handsfree') === 'true');
+
+  const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const handsFreeRef = useRef(handsFreeMode);
@@ -30,6 +56,16 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
     try { return atob(DEFAULT_KEY_B64); } catch (e) { return ''; }
   };
   const apiKey = getActiveApiKey();
+
+  // Handle external action prompts (e.g. from FinanceView "Diagnóstico do JARVIS")
+  useEffect(() => {
+    if (actionPrompt) {
+      setIsOpen(true);
+      setInput('');
+      handleSend(actionPrompt);
+      if (onClearActionPrompt) onClearActionPrompt();
+    }
+  }, [actionPrompt]);
 
   // Web Audio Beep Sound Effect when Jarvis wakes up
   const playWakeSound = () => {
@@ -104,12 +140,10 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
 
       const combined = (finalTranscript || interimTranscript).toLowerCase();
 
-      // Detect Wake Word "Olá Jarvis", "Ola Jarvis", "Jarvis"
       if (combined.includes('olá jarvis') || combined.includes('ola jarvis') || combined.includes('jarvis') || combined.includes('ei jarvis')) {
         playWakeSound();
         setIsOpen(true);
         
-        // Extract command after wake word if any
         const match = combined.match(/(?:olá jarvis|ola jarvis|jarvis|ei jarvis)\s*,?\s*(.*)/i);
         const command = match && match[1] ? match[1].trim() : '';
 
@@ -126,26 +160,9 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
       }
     };
 
-    recog.onend = () => {
-      // If hands-free mode is on, auto-restart
-      if (handsFreeRef.current) {
-        try {
-          recog.start();
-        } catch (e) {}
-      } else {
-        setIsListening(false);
-      }
-    };
-
     if (handsFreeMode) {
       try {
         recog.start();
-        setIsListening(true);
-      } catch (e) {}
-    } else {
-      try {
-        recog.stop();
-        setIsListening(false);
       } catch (e) {}
     }
 
@@ -218,17 +235,35 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
     window.speechSynthesis.speak(utterance);
   };
 
-  const handleSend = async (textToProcess = input) => {
-    if (!textToProcess.trim()) return;
+  const handleImageSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const result = ev.target.result;
+      const base64Data = result.split(',')[1];
+      setAttachedImage({
+        data: base64Data,
+        mimeType: file.type || 'image/jpeg',
+        previewUrl: result
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSend = async (textToProcess = input, imgToSend = attachedImage) => {
+    if (!textToProcess.trim() && !imgToSend) return;
     if (!apiKey) {
-      alert('Por favor, configure sua Chave de API do Google Gemini (100% grátis) nas Configurações do Obnotion.');
+      alert('Chave de API do Google Gemini não encontrada.');
       return;
     }
 
-    const newUserMsg = { role: 'user', text: textToProcess };
+    const userText = textToProcess.trim() || (imgToSend ? 'Analise este comprovante / boleto / fatura e organize nas minhas contas.' : '');
+    const newUserMsg = { role: 'user', text: userText, image: imgToSend };
     const updatedMessages = [...messages, newUserMsg];
     setMessages(updatedMessages);
     setInput('');
+    setAttachedImage(null);
     setIsLoading(true);
 
     try {
@@ -247,10 +282,88 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
   const processWithGemini = async (chatHistory) => {
     const tools = [{
       functionDeclarations: [
+        // FINANCIAL MANAGEMENT (BILLS, DEBTS, SALARY, CARDS)
+        {
+          name: 'add_bill',
+          description: 'Adiciona uma conta ou boleto a pagar no controle financeiro do usuário.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              title: { type: 'STRING', description: 'Nome da conta (ex: Aluguel, Luz, Internet, Mercado)' },
+              amount: { type: 'NUMBER', description: 'Valor em reais (ex: 180.50)' },
+              dueDate: { type: 'STRING', description: 'Data de vencimento YYYY-MM-DD (ex: 2026-09-10)' },
+              category: { type: 'STRING', description: 'Moradia, Alimentação, Transporte, Saúde, Educação, Lazer, ou Outros' }
+            },
+            required: ['title', 'amount']
+          }
+        },
+        {
+          name: 'pay_bill',
+          description: 'Marca uma conta a pagar como quitada/paga.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              title: { type: 'STRING', description: 'Nome ou parte do nome da conta a ser marcada como paga' }
+            },
+            required: ['title']
+          }
+        },
+        {
+          name: 'add_debt',
+          description: 'Cadastra uma dívida, empréstimo bancário ou parcelamento com valor total e parcelas.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              title: { type: 'STRING', description: 'Nome do credor ou dívida (ex: Empréstimo Nubank, Cartão)' },
+              totalAmount: { type: 'NUMBER', description: 'Valor total da dívida' },
+              installmentAmount: { type: 'NUMBER', description: 'Valor da parcela mensal' },
+              totalInstallments: { type: 'NUMBER', description: 'Número total de parcelas' },
+              paidInstallments: { type: 'NUMBER', description: 'Número de parcelas já pagas' }
+            },
+            required: ['title', 'totalAmount']
+          }
+        },
+        {
+          name: 'pay_debt_installment',
+          description: 'Avança e registra o pagamento de 1 parcela de uma dívida.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              title: { type: 'STRING', description: 'Nome ou parte do nome da dívida' }
+            },
+            required: ['title']
+          }
+        },
+        {
+          name: 'update_salary',
+          description: 'Atualiza o salário líquido mensal e o dia do recebimento do usuário.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              monthlySalary: { type: 'NUMBER', description: 'Salário líquido mensal em reais' },
+              salaryDay: { type: 'NUMBER', description: 'Dia do mês do recebimento (1 a 31)' }
+            },
+            required: ['monthlySalary']
+          }
+        },
+        {
+          name: 'add_finance_transaction',
+          description: 'Registra uma entrada ou saída avulsa no extrato financeiro.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              description: { type: 'STRING', description: 'Descrição da transação' },
+              amount: { type: 'NUMBER', description: 'Valor numérico' },
+              type: { type: 'STRING', description: 'income (receita) ou expense (despesa)' },
+              category: { type: 'STRING', description: 'Categoria da transação' }
+            },
+            required: ['description', 'amount', 'type']
+          }
+        },
         // BOOKS
         {
           name: 'get_books',
-          description: 'Retorna a lista completa de livros da biblioteca (lendo, lidos, lista de desejos, páginas, progresso).',
+          description: 'Retorna a lista completa de livros da biblioteca.',
           parameters: { type: 'OBJECT', properties: {} }
         },
         {
@@ -263,7 +376,7 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
               author: { type: 'STRING', description: 'Autor do livro' },
               totalPages: { type: 'NUMBER', description: 'Total de páginas' },
               currentPage: { type: 'NUMBER', description: 'Página atual' },
-              status: { type: 'STRING', description: 'reading (lendo), completed (lido), ou wishlist (desejo)' },
+              status: { type: 'STRING', description: 'reading, completed, ou wishlist' },
               genre: { type: 'STRING', description: 'Gênero literário' }
             },
             required: ['title']
@@ -302,26 +415,6 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
             required: ['title']
           }
         },
-        // FINANCES
-        {
-          name: 'get_finances',
-          description: 'Retorna o histórico de finanças, receitas, despesas e saldo.',
-          parameters: { type: 'OBJECT', properties: {} }
-        },
-        {
-          name: 'add_finance_transaction',
-          description: 'Adiciona uma transação financeira (receita ou despesa).',
-          parameters: {
-            type: 'OBJECT',
-            properties: {
-              description: { type: 'STRING', description: 'Descrição do gasto ou ganho' },
-              amount: { type: 'NUMBER', description: 'Valor numérico' },
-              type: { type: 'STRING', description: 'income (receita) ou expense (despesa)' },
-              category: { type: 'STRING', description: 'Categoria da transação' }
-            },
-            required: ['description', 'amount', 'type']
-          }
-        },
         // NOTES
         {
           name: 'get_notes',
@@ -354,8 +447,8 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
             type: 'OBJECT',
             properties: {
               name: { type: 'STRING', description: 'Nome do hábito (ex: Beber 2L de Água, Meditar, Treinar)' },
-              icon: { type: 'STRING', description: 'Emoji representativo (ex: 💧, 🧘, 🏃, 📚, ✨)' },
-              color: { type: 'STRING', description: 'Cor hex (ex: #8b5cf6, #3b82f6, #10b981, #f59e0b)' }
+              icon: { type: 'STRING', description: 'Emoji representativo' },
+              color: { type: 'STRING', description: 'Cor hex' }
             },
             required: ['name']
           }
@@ -386,7 +479,7 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
             properties: {
               title: { type: 'STRING', description: 'Título do compromisso' },
               date: { type: 'STRING', description: 'Data YYYY-MM-DD' },
-              time: { type: 'STRING', description: 'Horário HH:MM (ex: 14:30)' },
+              time: { type: 'STRING', description: 'Horário HH:MM' },
               category: { type: 'STRING', description: 'work, personal, health, ou study' }
             },
             required: ['title', 'date']
@@ -395,41 +488,60 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
       ]
     }];
 
-    // Map history to Gemini API format (strictly starts with user)
+    // Build Gemini contents with Multimodal Image support
     const validHistory = chatHistory.filter((m, idx) => !(idx === 0 && m.role === 'model'));
-    const contents = validHistory.map(m => ({
-      role: m.role === 'model' ? 'model' : 'user',
-      parts: [{ text: m.text }]
-    }));
+    const contents = validHistory.map((m) => {
+      const parts = [];
+      if (m.image && m.image.data) {
+        parts.push({
+          inlineData: {
+            mimeType: m.image.mimeType || 'image/jpeg',
+            data: m.image.data
+          }
+        });
+      }
+      parts.push({ text: m.text });
+      return {
+        role: m.role === 'model' ? 'model' : 'user',
+        parts: parts
+      };
+    });
 
     const todayStr = new Date().toISOString().split('T')[0];
+    const profile = data?.financeProfile || { monthlySalary: 0, salaryDay: 5 };
+    const bills = data?.bills || [];
+    const debts = data?.debts || [];
+    const creditCards = data?.creditCards || [];
 
-    // Overview of current workspace data for instant context
+    const totalBills = bills.reduce((acc, b) => acc + (Number(b.amount) || 0), 0);
+    const totalDebtMonthly = debts.reduce((acc, d) => acc + (Number(d.installmentAmount) || 0), 0);
+    const totalCards = creditCards.reduce((acc, c) => acc + (Number(c.currentBill) || 0), 0);
+    const freeBalance = (Number(profile.monthlySalary) || 0) - (totalBills + totalDebtMonthly + totalCards);
+
     const workspaceContext = `
-Você é o JARVIS, assistente pessoal supremo e com controle e acesso total ao Obnotion.
-Você TEM PODER REAL para alterar e criar dados no aplicativo através das suas ferramentas (tools).
+Você é o JARVIS, assistente supremo e consultor financeiro de elite do usuário no sistema Obnotion.
+Você tem poder de visão computacional multimodal e ferramentas executáveis.
 
-REGRAS DE EXECUÇÃO OBRIGATÓRIAS:
-1. Se o usuário pedir para criar ou adicionar um hábito, VOCÊ DEVE OBRIGATORIAMENTE CHAMAR A FUNÇÃO 'add_habit'.
-2. Se o usuário disser que fez/cumpriu um hábito, VOCÊ DEVE CHAMAR A FUNÇÃO 'toggle_habit'.
-3. Se o usuário pedir para adicionar tarefa, VOCÊ DEVE CHAMAR 'add_task'.
-4. Se o usuário pedir para registrar gasto ou ganho, VOCÊ DEVE CHAMAR 'add_finance_transaction'.
-5. Se o usuário pedir para adicionar um livro ou atualizar página lida, VOCÊ DEVE CHAMAR 'add_book' ou 'update_book_progress'.
-6. Se o usuário pedir para criar uma nota, VOCÊ DEVE CHAMAR 'add_note'.
-7. Se o usuário pedir para agendar um compromisso, VOCÊ DEVE CHAMAR 'add_calendar_event'.
+RAIO-X FINANCEIRO DO USUÁRIO:
+- Salário Líquido: R$ ${(Number(profile.monthlySalary) || 0).toFixed(2)} (Recebimento estimado dia ${profile.salaryDay || 5})
+- Contas a Pagar / Boletos (${bills.length}): ${JSON.stringify(bills.map(b => ({ title: b.title, valor: b.amount, vencimento: b.dueDate, status: b.status })))}
+- Dívidas & Empréstimos (${debts.length}): ${JSON.stringify(debts.map(d => ({ title: d.title, total: d.totalAmount, parcela: d.installmentAmount, parcelasPagas: `${d.paidInstallments}/${d.totalInstallments}` })))}
+- Cartões de Crédito (${creditCards.length}): ${JSON.stringify(creditCards.map(c => ({ nome: c.name, fatura: c.currentBill, limite: c.limit })))}
+- Saldo Livre Real Projetado: R$ ${freeBalance.toFixed(2)}
+- Hábitos (${data.habits?.length || 0}): ${JSON.stringify((data.habits || []).map(h => ({ name: h.name, doneToday: !!h.history?.[todayStr] })))}
+- Livros (${data.books?.length || 0}): ${JSON.stringify((data.books || []).map(b => ({ title: b.title, progress: `${b.currentPage}/${b.totalPages}` })))}
+- Tarefas (${data.tasks?.length || 0}): ${JSON.stringify((data.tasks || []).slice(0, 5).map(t => ({ title: t.title, status: t.status })))}
 
-NUNCA diga que "não possui uma ferramenta dedicada" ou que "vai registrar mentalmente". Você POSSUI as ferramentas acima e DEVE usá-las na hora!
-
-ESTADO ATUAL DO WORKSPACE:
-- Hábitos Cadastrados (${data.habits?.length || 0}): ${JSON.stringify((data.habits || []).map(h => ({ name: h.name, icon: h.icon, doneToday: !!h.history?.[todayStr] })))}
-- Livros Cadastrados (${data.books?.length || 0}): ${JSON.stringify((data.books || []).map(b => ({ title: b.title, author: b.author, status: b.status, progress: `${b.currentPage}/${b.totalPages}` })))}
-- Tarefas (${data.tasks?.length || 0}): ${JSON.stringify((data.tasks || []).slice(0, 8).map(t => ({ title: t.title || t.text, status: t.status, priority: t.priority })))}
-- Finanças Recentes: ${JSON.stringify((data.transactions || []).slice(0, 5).map(tx => ({ desc: tx.description, val: tx.amount, type: tx.type })))}
-- Notas (${data.notes?.length || 0}): ${JSON.stringify((data.notes || []).map(n => ({ title: n.title, folder: n.folder })))}
-
-DIRETRIZES:
-1. Responda em português com tom educado, elegante, prestativo e dinâmico (estilo JARVIS).
-2. Seja conciso e confirme com naturalidade após executar a ação.
+REGRAS MANDATÓRIAS DE EXECUÇÃO:
+1. Se o usuário mandar FOTO/PRINT de boleto, fatura de cartão, comprovante ou documento:
+   - Analise com visão computacional o valor numérico, a data de vencimento e o credor/empresa.
+   - CHAME AUTOMATICAMENTE 'add_bill' para contas/boletos, ou 'add_debt' para empréstimos/parcelas, ou 'add_finance_transaction'!
+   - Confirme gentilmente que leu o documento e já cadastrou no sistema!
+2. Se o usuário pedir para adicionar conta/boleto: CHAME 'add_bill'.
+3. Se o usuário disser que pagou uma conta: CHAME 'pay_bill'.
+4. Se o usuário falar de empréstimo ou dívida: CHAME 'add_debt'.
+5. Se o usuário informar seu salário: CHAME 'update_salary'.
+6. Se o usuário pedir consultoria/dicas: Seja empático, claro, prático e objetivo, como um consultor financeiro amigo e genial (sem jargões difíceis).
 `;
 
     const modelsToTry = [
@@ -449,8 +561,8 @@ DIRETRIZES:
         },
         tools: tools,
         generationConfig: {
-          temperature: 0.6,
-          maxOutputTokens: 600
+          temperature: 0.5,
+          maxOutputTokens: 800
         }
       };
 
@@ -462,10 +574,7 @@ DIRETRIZES:
 
       if (!res.ok) {
         let errData = {};
-        try {
-          errData = await res.json();
-        } catch (e) {}
-        
+        try { errData = await res.json(); } catch (e) {}
         const errMsg = errData.error?.message || `HTTP ${res.status}`;
         if ((errMsg.includes('not found') || errMsg.includes('not supported') || res.status === 404) && modelIndex < modelsToTry.length - 1) {
           return callGeminiEndpoint(modelIndex + 1);
@@ -507,10 +616,86 @@ DIRETRIZES:
   };
 
   const handleFunctionCall = async (name, args) => {
-    // BOOKS
-    if (name === 'get_books') {
-      return { books: data.books || [] };
+    // 1. BILLS
+    if (name === 'add_bill') {
+      const newBill = {
+        id: 'bill-' + Date.now(),
+        title: args.title,
+        amount: Number(args.amount),
+        dueDate: args.dueDate || new Date().toISOString().split('T')[0],
+        category: args.category || 'Outros',
+        status: 'pending',
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+      const newBills = [newBill, ...(data.bills || [])];
+      updateSection('bills', newBills);
+      return { success: true, bill: newBill, message: `Conta ${args.title} no valor de R$ ${args.amount} cadastrada.` };
     }
+    if (name === 'pay_bill') {
+      const bills = [...(data.bills || [])];
+      const target = bills.find(b => b.title.toLowerCase().includes((args.title || '').toLowerCase()));
+      if (target) {
+        target.status = 'paid';
+        target.paidAt = new Date().toISOString().split('T')[0];
+        updateSection('bills', bills);
+        return { success: true, paidBill: target.title };
+      }
+      return { success: false, message: 'Conta não encontrada' };
+    }
+
+    // 2. DEBTS
+    if (name === 'add_debt') {
+      const newDebt = {
+        id: 'debt-' + Date.now(),
+        title: args.title,
+        totalAmount: Number(args.totalAmount),
+        installmentAmount: Number(args.installmentAmount) || (Number(args.totalAmount) / (Number(args.totalInstallments) || 1)),
+        totalInstallments: Number(args.totalInstallments) || 1,
+        paidInstallments: Number(args.paidInstallments) || 0,
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+      const newDebts = [newDebt, ...(data.debts || [])];
+      updateSection('debts', newDebts);
+      return { success: true, debt: newDebt };
+    }
+    if (name === 'pay_debt_installment') {
+      const debts = [...(data.debts || [])];
+      const target = debts.find(d => d.title.toLowerCase().includes((args.title || '').toLowerCase()));
+      if (target) {
+        target.paidInstallments = Math.min(target.totalInstallments, (target.paidInstallments || 0) + 1);
+        updateSection('debts', debts);
+        return { success: true, debt: target.title, paidNow: target.paidInstallments };
+      }
+      return { success: false, message: 'Dívida não encontrada' };
+    }
+
+    // 3. SALARY PROFILE
+    if (name === 'update_salary') {
+      const profile = {
+        monthlySalary: Number(args.monthlySalary),
+        salaryDay: Number(args.salaryDay) || (data.financeProfile?.salaryDay || 5)
+      };
+      updateSection('financeProfile', profile);
+      return { success: true, profile };
+    }
+
+    // 4. TRANSACTIONS
+    if (name === 'add_finance_transaction') {
+      const newTx = {
+        id: 'tx-' + Date.now(),
+        description: args.description,
+        amount: Number(args.amount),
+        type: args.type,
+        category: args.category || (args.type === 'income' ? 'Renda' : 'Outros'),
+        date: new Date().toISOString().split('T')[0]
+      };
+      const newTxs = [newTx, ...(data.transactions || [])];
+      updateSection('transactions', newTxs);
+      return { success: true, transaction: newTx };
+    }
+
+    // 5. BOOKS
+    if (name === 'get_books') return { books: data.books || [] };
     if (name === 'add_book') {
       const newBook = {
         id: 'book-' + Date.now(),
@@ -525,8 +710,7 @@ DIRETRIZES:
         cover: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80',
         review: ''
       };
-      const newBooks = [newBook, ...(data.books || [])];
-      updateSection('books', newBooks);
+      updateSection('books', [newBook, ...(data.books || [])]);
       return { success: true, book: newBook };
     }
     if (name === 'update_book_progress') {
@@ -542,10 +726,8 @@ DIRETRIZES:
       return { success: false, message: 'Livro não encontrado' };
     }
 
-    // TASKS
-    if (name === 'get_tasks') {
-      return { tasks: data.tasks || [] };
-    }
+    // 6. TASKS
+    if (name === 'get_tasks') return { tasks: data.tasks || [] };
     if (name === 'add_task') {
       const newTask = {
         id: 'task-' + Date.now(),
@@ -554,36 +736,14 @@ DIRETRIZES:
         priority: args.priority || 'medium',
         dueDate: args.dueDate || new Date().toISOString().split('T')[0],
         tags: ['JARVIS'],
-        notes: 'Criado via assistente de voz'
+        notes: 'Criado via assistente'
       };
-      const newTasks = [newTask, ...(data.tasks || [])];
-      updateSection('tasks', newTasks);
+      updateSection('tasks', [newTask, ...(data.tasks || [])]);
       return { success: true, task: newTask };
     }
 
-    // FINANCES
-    if (name === 'get_finances') {
-      return { transactions: data.transactions || [] };
-    }
-    if (name === 'add_finance_transaction') {
-      const newTx = {
-        id: 'tx-' + Date.now(),
-        description: args.description,
-        amount: Number(args.amount),
-        type: args.type,
-        category: args.category || (args.type === 'income' ? 'Renda' : 'Outros'),
-        date: new Date().toISOString().split('T')[0],
-        status: 'paid'
-      };
-      const newTxs = [newTx, ...(data.transactions || [])];
-      updateSection('transactions', newTxs);
-      return { success: true, transaction: newTx };
-    }
-
-    // NOTES
-    if (name === 'get_notes') {
-      return { notes: data.notes || [] };
-    }
+    // 7. NOTES
+    if (name === 'get_notes') return { notes: data.notes || [] };
     if (name === 'add_note') {
       const newNote = {
         id: 'note-' + Date.now(),
@@ -595,15 +755,12 @@ DIRETRIZES:
         createdAt: new Date().toISOString().split('T')[0],
         updatedAt: new Date().toISOString().split('T')[0]
       };
-      const newNotes = [newNote, ...(data.notes || [])];
-      updateSection('notes', newNotes);
+      updateSection('notes', [newNote, ...(data.notes || [])]);
       return { success: true, note: newNote };
     }
 
-    // HABITS
-    if (name === 'get_habits') {
-      return { habits: data.habits || [] };
-    }
+    // 8. HABITS
+    if (name === 'get_habits') return { habits: data.habits || [] };
     if (name === 'add_habit') {
       const today = new Date().toISOString().split('T')[0];
       const newHabit = {
@@ -613,8 +770,7 @@ DIRETRIZES:
         color: args.color || '#8b5cf6',
         history: { [today]: false }
       };
-      const newHabits = [newHabit, ...(data.habits || [])];
-      updateSection('habits', newHabits);
+      updateSection('habits', [newHabit, ...(data.habits || [])]);
       return { success: true, habit: newHabit };
     }
     if (name === 'toggle_habit') {
@@ -631,10 +787,8 @@ DIRETRIZES:
       return { success: false, message: 'Hábito não encontrado' };
     }
 
-    // CALENDAR
-    if (name === 'get_calendar_events') {
-      return { calendarEvents: data.calendarEvents || [] };
-    }
+    // 9. CALENDAR
+    if (name === 'get_calendar_events') return { calendarEvents: data.calendarEvents || [] };
     if (name === 'add_calendar_event') {
       const newEvent = {
         id: 'ev-' + Date.now(),
@@ -644,8 +798,7 @@ DIRETRIZES:
         category: args.category || 'work',
         color: '#8b5cf6'
       };
-      const newEvents = [newEvent, ...(data.calendarEvents || [])];
-      updateSection('calendarEvents', newEvents);
+      updateSection('calendarEvents', [newEvent, ...(data.calendarEvents || [])]);
       return { success: true, event: newEvent };
     }
 
@@ -680,7 +833,7 @@ DIRETRIZES:
 
       {/* Chat Window */}
       {isOpen && (
-        <div className={`fixed bottom-22 right-4 md:right-6 w-[92vw] md:w-[380px] h-[520px] rounded-2xl flex flex-col shadow-2xl z-50 overflow-hidden border backdrop-blur-2xl ${
+        <div className={`fixed bottom-22 right-4 md:right-6 w-[92vw] md:w-[390px] h-[540px] rounded-2xl flex flex-col shadow-2xl z-50 overflow-hidden border backdrop-blur-2xl ${
           darkMode ? 'bg-[#0f1017]/95 border-white/[0.1] text-zinc-100' : 'bg-white/95 border-zinc-200 text-zinc-800'
         }`}>
           {/* Header */}
@@ -698,7 +851,7 @@ DIRETRIZES:
                     </span>
                   )}
                 </div>
-                <p className="text-[10px] text-zinc-400 font-mono">Controle Executivo Obnotion</p>
+                <p className="text-[10px] text-zinc-400 font-mono">Controle Executivo & Multimodal</p>
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -824,14 +977,21 @@ DIRETRIZES:
           <div className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed ${
+                <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed space-y-2 ${
                   m.role === 'user' 
                     ? 'bg-violet-600 text-white rounded-br-xs shadow-sm font-medium' 
                     : (darkMode 
                       ? 'bg-white/[0.05] text-zinc-200 rounded-bl-xs border border-white/[0.08]' 
                       : 'bg-zinc-100 text-zinc-800 rounded-bl-xs shadow-sm')
                 }`}>
-                  {m.text}
+                  {m.image && m.image.previewUrl && (
+                    <img 
+                      src={m.image.previewUrl} 
+                      alt="Anexo enviado" 
+                      className="max-h-36 rounded-lg object-cover border border-white/[0.2]"
+                    />
+                  )}
+                  <p>{m.text}</p>
                 </div>
               </div>
             ))}
@@ -841,17 +1001,45 @@ DIRETRIZES:
                   darkMode ? 'bg-white/[0.04] border border-white/[0.06] text-zinc-400' : 'bg-zinc-100 text-zinc-500'
                 }`}>
                   <Loader2 className="w-3.5 h-3.5 animate-spin text-violet-400" />
-                  <span className="font-mono text-[11px]">Processando instrução...</span>
+                  <span className="font-mono text-[11px]">Processando documento e finanças...</span>
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
+          {/* Image Preview Bubble if selected */}
+          {attachedImage && (
+            <div className="px-3 py-2 bg-black/40 border-t border-white/[0.08] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <img src={attachedImage.previewUrl} alt="Preview" className="w-8 h-8 rounded object-cover border border-white/[0.2]" />
+                <span className="text-[11px] text-zinc-300 font-mono">Foto/Boleto pronto para envio</span>
+              </div>
+              <button onClick={() => setAttachedImage(null)} className="text-zinc-400 hover:text-rose-400">
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
           {/* Input Footer */}
           <div className={`p-2.5 border-t border-white/[0.08] flex items-center gap-2 ${
             darkMode ? 'bg-black/30' : 'bg-zinc-50'
           }`}>
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              onChange={handleImageSelect}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="p-2 rounded-xl bg-white/[0.05] text-zinc-400 hover:text-violet-300 hover:bg-white/[0.1] transition-all flex-shrink-0"
+              title="Enviar Foto de Boleto, Fatura ou Comprovante"
+            >
+              <ImageIcon className="w-4 h-4" />
+            </button>
+
             <button 
               onClick={toggleSingleListen}
               className={`p-2 rounded-xl flex-shrink-0 transition-all ${
@@ -863,18 +1051,20 @@ DIRETRIZES:
             >
               <Mic className="w-4 h-4" />
             </button>
+
             <input 
               type="text" 
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSend()}
-              placeholder={handsFreeMode ? 'Diga "Olá Jarvis" ou digite...' : 'Digite sua instrução...'}
+              placeholder={handsFreeMode ? 'Diga "Olá Jarvis" ou envie foto/texto...' : 'Digite ou envie foto de boleto...'}
               disabled={isLoading}
               className={`flex-1 bg-transparent border-none outline-none text-xs px-2 ${darkMode ? 'text-zinc-100 placeholder-zinc-500' : 'text-zinc-800'}`}
             />
+
             <button 
               onClick={() => handleSend()}
-              disabled={!input.trim() || isLoading}
+              disabled={(!input.trim() && !attachedImage) || isLoading}
               className="p-2 rounded-xl bg-violet-600 text-white flex-shrink-0 hover:bg-violet-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <Send className="w-3.5 h-3.5" />

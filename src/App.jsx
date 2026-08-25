@@ -49,6 +49,7 @@ export default function App() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [selectedNoteId, setSelectedNoteId] = useState(data.notes?.[0]?.id || null);
+  const [jarvisActionPrompt, setJarvisActionPrompt] = useState(null);
 
   // Global Pomodoro State
   const [isPomodoroOpen, setIsPomodoroOpen] = useState(false);
@@ -182,7 +183,12 @@ export default function App() {
             <FinanceView
               data={data}
               onUpdateTransactions={(txs) => updateSection('transactions', txs)}
+              onUpdateBills={(bills) => updateSection('bills', bills)}
+              onUpdateDebts={(debts) => updateSection('debts', debts)}
+              onUpdateCreditCards={(cards) => updateSection('creditCards', cards)}
+              onUpdateFinanceProfile={(profile) => updateSection('financeProfile', profile)}
               onUpdateGoals={(goals) => updateSection('financeGoals', goals)}
+              onAskJarvis={(prompt) => setJarvisActionPrompt(prompt)}
               darkMode={darkMode}
             />
           )}
@@ -253,7 +259,13 @@ export default function App() {
         </main>
       </div>
 
-      <JarvisWidget data={data} updateSection={updateSection} darkMode={darkMode} />
+      <JarvisWidget 
+        data={data} 
+        updateSection={updateSection} 
+        darkMode={darkMode} 
+        actionPrompt={jarvisActionPrompt}
+        onClearActionPrompt={() => setJarvisActionPrompt(null)}
+      />
 
       {/* Global Quick Search Spotlight Modal */}
       <QuickSearchModal

@@ -15,10 +15,17 @@ export const EMPTY_WORKSPACE_DATA = {
       pinned: true,
       createdAt: formatDate(today),
       updatedAt: formatDate(today),
-      content: '# Bem-vindo ao seu Obnotion! 🚀\n\nComece a escrever suas ideias aqui. Use `[[Nome de Outra Nota]]` para conectar pensamentos!'
+      content: '# Bem-vindo ao seu Obnotion!\n\nComece a registrar suas anotações, tarefas e finanças aqui.'
     }
   ],
   transactions: [],
+  bills: [],
+  debts: [],
+  creditCards: [],
+  financeProfile: {
+    monthlySalary: 0,
+    salaryDay: 5
+  },
   financeGoals: [],
   books: [],
   tasks: [],
