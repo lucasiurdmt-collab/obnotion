@@ -1,23 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Orbit, X, Mic, Send, Loader2, Sparkles, BrainCircuit } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
 
 export default function JarvisWidget({ data, updateSection, darkMode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'model', text: 'Olá, Senhor. Sou o JARVIS. Como posso ajudá-lo hoje?' }
+    { role: 'assistant', content: 'Olá, Senhor. Sou o JARVIS. Como posso ajudá-lo hoje?' }
   ]);
   const [input, setInput] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef(null);
+  
+  // Audio playback ref
+  const audioRef = useRef(null);
 
-  // A chave agora vem das configurações (via localStorage),
-  // pois o GitHub bloqueia chaves soltas no código (Push Protection).
-  const apiKey = data?.settings?.geminiApiKey || '';
+  // A chave agora vem das configurações (via localStorage)
+  const apiKey = data?.settings?.openAIApiKey || '';
 
-  // Setup Speech Recognition
+  // Setup Speech Recognition (Browser nativo para escutar)
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = SpeechRecognition ? new SpeechRecognition() : null;
 
@@ -36,6 +37,13 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
       alert('Reconhecimento de voz não suportado neste navegador.');
       return;
     }
+    
+    // Stop any current audio playing
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setIsSpeaking(false);
+    }
+
     if (isListening) {
       recognition.stop();
       setIsListening(false);
@@ -53,143 +61,198 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
     }
   };
 
-  const handleSend = async (textToProcess = input) => {
-    if (!textToProcess.trim()) return;
-    if (!apiKey) {
-      alert('Por favor, configure sua Chave de API do Gemini nas Configurações do Obnotion primeiro.');
-      return;
-    }
-
-    const newUserMsg = { role: 'user', text: textToProcess };
-    setMessages(prev => [...prev, newUserMsg]);
-    setInput('');
-    setIsLoading(true);
-
+  const playOpenAIVoice = async (text) => {
     try {
-      const response = await processWithGemini(textToProcess);
-      setMessages(prev => [...prev, { role: 'model', text: response }]);
+      setIsSpeaking(true);
+      const response = await fetch('https://api.openai.com/v1/audio/speech', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'tts-1',
+          input: text.replace(/\*/g, ''),
+          voice: 'onyx', // 'onyx' or 'echo' sound very cool/masculine like Jarvis
+          response_format: 'mp3'
+        })
+      });
+
+      if (!response.ok) throw new Error('Audio generation failed');
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audioRef.current = audio;
       
-      // Text-to-speech for Jarvis response
+      audio.onended = () => setIsSpeaking(false);
+      audio.onerror = () => setIsSpeaking(false);
+      
+      await audio.play();
+    } catch (err) {
+      console.error('TTS Error:', err);
+      setIsSpeaking(false);
+      // Fallback to native browser TTS
       if (window.speechSynthesis) {
-        const utterance = new SpeechSynthesisUtterance(response.replace(/\*/g, ''));
+        setIsSpeaking(true);
+        const utterance = new SpeechSynthesisUtterance(text.replace(/\*/g, ''));
         utterance.lang = 'pt-BR';
-        utterance.pitch = 0.9;
-        utterance.rate = 1.1;
-        utterance.onstart = () => setIsSpeaking(true);
         utterance.onend = () => setIsSpeaking(false);
         utterance.onerror = () => setIsSpeaking(false);
         window.speechSynthesis.speak(utterance);
       }
+    }
+  };
+
+  const handleSend = async (textToProcess = input) => {
+    if (!textToProcess.trim()) return;
+    if (!apiKey) {
+      alert('Por favor, configure sua Chave de API da OpenAI (ChatGPT) nas Configurações do Obnotion primeiro.');
+      return;
+    }
+
+    const newUserMsg = { role: 'user', content: textToProcess };
+    const updatedMessages = [...messages, newUserMsg];
+    setMessages(updatedMessages);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      const { textResponse, updatedMessages: newChatHistory } = await processWithOpenAI(updatedMessages);
+      setMessages(newChatHistory);
+      
+      // Stop previous audio before starting new one
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      
+      // Text-to-speech with OpenAI Voice API
+      playOpenAIVoice(textResponse);
+      
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { role: 'model', text: 'Desculpe, ocorreu um erro ao processar sua solicitação.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Desculpe, ocorreu um erro ao processar sua solicitação. Verifique sua chave da OpenAI.' }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const processWithGemini = async (userText) => {
-    const ai = new GoogleGenAI({ apiKey });
-    const tools = [{
-      functionDeclarations: [
-        {
+  const processWithOpenAI = async (chatHistory) => {
+    const tools = [
+      {
+        type: 'function',
+        function: {
           name: 'add_task',
           description: 'Adiciona uma nova tarefa na lista do usuário.',
           parameters: {
-            type: 'OBJECT',
+            type: 'object',
             properties: {
-              text: { type: 'STRING', description: 'Descrição da tarefa' },
-              priority: { type: 'STRING', description: 'Prioridade: alta, media, ou baixa' }
+              text: { type: 'string', description: 'Descrição da tarefa' },
+              priority: { type: 'string', description: 'Prioridade: alta, media, ou baixa' }
             },
             required: ['text']
           }
-        },
-        {
+        }
+      },
+      {
+        type: 'function',
+        function: {
           name: 'get_tasks',
           description: 'Retorna a lista de tarefas atuais do usuário.',
-        },
-        {
+        }
+      },
+      {
+        type: 'function',
+        function: {
           name: 'add_finance_transaction',
           description: 'Adiciona uma transação financeira (receita ou despesa).',
           parameters: {
-            type: 'OBJECT',
+            type: 'object',
             properties: {
-              description: { type: 'STRING', description: 'Descrição do gasto ou ganho' },
-              amount: { type: 'NUMBER', description: 'Valor numérico positivo' },
-              type: { type: 'STRING', description: 'income (receita) ou expense (despesa)' }
+              description: { type: 'string', description: 'Descrição do gasto ou ganho' },
+              amount: { type: 'number', description: 'Valor numérico positivo' },
+              type: { type: 'string', description: 'income (receita) ou expense (despesa)' }
             },
             required: ['description', 'amount', 'type']
           }
-        },
-        {
+        }
+      },
+      {
+        type: 'function',
+        function: {
           name: 'get_finances',
           description: 'Retorna o histórico de finanças do usuário.',
         }
-      ]
-    }];
-
-    // Build chat history
-    const history = messages.map(m => ({
-      role: m.role === 'model' ? 'model' : 'user',
-      parts: [{ text: m.text }]
-    }));
-    
-    // Attempt Pro first, fallback to Flash
-    let modelName = 'gemini-2.5-pro';
-    let chat;
-    
-    try {
-      chat = ai.chats.create({ 
-        model: modelName, 
-        config: { tools, systemInstruction: "Você é o JARVIS, assistente pessoal virtual estilo Iron Man. Você é direto, polido e eficiente. Responda em português." },
-        history
-      });
-    } catch (e) {
-      console.warn("Pro setup failed, trying Flash", e);
-      modelName = 'gemini-2.5-flash';
-      chat = ai.chats.create({ 
-        model: modelName, 
-        config: { tools, systemInstruction: "Você é o JARVIS, assistente pessoal virtual estilo Iron Man. Você é direto, polido e eficiente. Responda em português." },
-        history
-      });
-    }
-
-    let response;
-    try {
-      response = await chat.sendMessage({ message: userText });
-    } catch (e) {
-      if (e.status === 429 || e.message?.includes('429') || e.message?.includes('quota')) {
-        console.log("Gemini Pro limit reached. Falling back to Gemini Flash.");
-        chat = ai.chats.create({ 
-          model: 'gemini-2.5-flash', 
-          config: { tools, systemInstruction: "Você é o JARVIS, assistente pessoal virtual. Seja polido e eficiente. Responda em português." },
-          history
-        });
-        response = await chat.sendMessage({ message: userText });
-      } else {
-        throw e;
       }
-    }
+    ];
 
-    if (response.functionCalls && response.functionCalls.length > 0) {
-      let functionResponses = [];
-      for (const call of response.functionCalls) {
-        let result = await handleFunctionCall(call);
-        functionResponses.push({
-          name: call.name,
-          response: result
+    const systemPrompt = {
+      role: 'system',
+      content: 'Você é o JARVIS, um assistente pessoal virtual polido, rápido e altamente eficiente (inspirado no Homem de Ferro). Responda sempre em português. Seja direto nas respostas sem ser robótico.'
+    };
+
+    let currentHistory = [systemPrompt, ...chatHistory];
+
+    const callOpenAI = async (msgs) => {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: msgs,
+          tools: tools,
+          tool_choice: 'auto'
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error?.message || 'OpenAI API Error');
+      }
+      return res.json();
+    };
+
+    let response = await callOpenAI(currentHistory);
+    let message = response.choices[0].message;
+
+    // Handle Function Calling
+    if (message.tool_calls) {
+      currentHistory.push(message);
+      
+      for (const toolCall of message.tool_calls) {
+        const functionName = toolCall.function.name;
+        const args = JSON.parse(toolCall.function.arguments);
+        
+        let result = await handleFunctionCall(functionName, args);
+        
+        currentHistory.push({
+          role: 'tool',
+          tool_call_id: toolCall.id,
+          name: functionName,
+          content: JSON.stringify(result)
         });
       }
-      // Send the function execution results back to the model
-      response = await chat.sendMessage({ message: functionResponses });
+      
+      // Call again to get the final text response after tool execution
+      response = await callOpenAI(currentHistory);
+      message = response.choices[0].message;
     }
 
-    return response.text;
+    currentHistory.push({ role: 'assistant', content: message.content });
+
+    // Filter out system prompt and tool messages for UI rendering cleanly
+    const finalUIHistory = currentHistory.filter(m => m.role === 'user' || (m.role === 'assistant' && m.content));
+    
+    return {
+      textResponse: message.content,
+      updatedMessages: finalUIHistory
+    };
   };
 
-  const handleFunctionCall = async (call) => {
-    const { name, args } = call;
-    
+  const handleFunctionCall = async (name, args) => {
     if (name === 'get_tasks') {
       return { tasks: data.tasks || [] };
     }
@@ -222,7 +285,6 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
       updateSection('transactions', newTxs);
       return { success: true, transaction: newTx };
     }
-    
     return { error: 'Function not implemented' };
   };
 
@@ -251,8 +313,8 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-blue-200" />
               <div>
-                <h3 className="font-bold text-sm">JARVIS Cloud</h3>
-                <p className="text-[10px] text-blue-200">Alimentado por Gemini Pro</p>
+                <h3 className="font-bold text-sm">JARVIS OpenAI</h3>
+                <p className="text-[10px] text-blue-200">GPT-4o Mini + Neural Voice</p>
               </div>
             </div>
             <button onClick={() => setIsOpen(false)} className="hover:bg-white/20 p-1.5 rounded-lg transition-colors">
@@ -264,7 +326,7 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${m.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : (darkMode ? 'bg-gray-800 text-gray-200 rounded-bl-none' : 'bg-gray-100 text-gray-800 rounded-bl-none')}`}>
-                  {m.text}
+                  {m.content}
                 </div>
               </div>
             ))}
@@ -281,7 +343,7 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
 
           {!apiKey && (
             <div className="p-3 bg-red-500/10 border-t border-red-500/20 text-xs text-red-500 text-center">
-              Adicione a chave da API do Gemini em <b>Configurações</b> para usar o JARVIS.
+              Adicione a chave da <b>OpenAI (ChatGPT)</b> nas Configurações do Obnotion (senha: admin admin).
             </div>
           )}
 

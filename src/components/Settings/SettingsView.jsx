@@ -276,20 +276,20 @@ export default function SettingsView({
                 {data.settings?.isAdminUnlocked ? (
                   <div>
                     <label className="block text-xs font-medium text-gray-500 mb-1">
-                      Google Gemini API Key
+                      OpenAI API Key (ChatGPT)
                     </label>
                     <input
                       type="password"
-                      placeholder="Sua chave secreta..."
-                      value={data.settings?.geminiApiKey || ''}
+                      placeholder="sk-proj-..."
+                      value={data.settings?.openAIApiKey || ''}
                       onChange={(e) => {
-                        const newSettings = { ...(data.settings || {}), geminiApiKey: e.target.value };
+                        const newSettings = { ...(data.settings || {}), openAIApiKey: e.target.value };
                         updateSection('settings', newSettings);
                       }}
                       className={`w-full px-3 py-2 text-sm rounded-lg border ${darkMode ? 'bg-gray-900/50 border-gray-700 focus:border-purple-500' : 'bg-gray-50 border-gray-300 focus:border-purple-500'} outline-none`}
                     />
                     <p className="text-[10px] text-gray-500 mt-1">
-                      Cole sua chave aqui. Ela será salva de forma segura.
+                      Cole sua chave da OpenAI aqui (começa com sk-...).
                     </p>
                   </div>
                 ) : (
