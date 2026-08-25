@@ -44,7 +44,7 @@ export default function ProductivityView({ darkMode }) {
   if (activeTool) {
     const tool = tools.find(t => t.id === activeTool);
     return (
-      <div className="fixed inset-0 z-50 flex flex-col bg-black animate-fade-in">
+      <div className="flex-1 flex flex-col h-full animate-fade-in relative">
         <div className={`p-3 flex items-center justify-between border-b shadow-sm z-10 ${darkMode ? 'bg-[#15161e] border-gray-800' : 'bg-white border-gray-200'}`}>
           <div className="flex items-center gap-3">
             <div className={`p-1.5 rounded-lg ${tool.bgColor}`}>
