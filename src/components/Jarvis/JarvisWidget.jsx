@@ -177,7 +177,17 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
       parts: [{ text: m.text }]
     }));
 
-    const callGeminiEndpoint = async (model = 'gemini-2.5-flash') => {
+    const modelsToTry = [
+      'gemini-2.5-flash',
+      'gemini-2.0-flash',
+      'gemini-2.0-flash-lite',
+      'gemini-1.5-flash-latest',
+      'gemini-2.5-pro',
+      'gemini-pro'
+    ];
+
+    const callGeminiEndpoint = async (modelIndex = 0) => {
+      const model = modelsToTry[modelIndex] || 'gemini-2.0-flash';
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
       const payload = {
         contents: contents,
@@ -198,21 +208,26 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
       });
 
       if (!res.ok) {
-        const err = await res.json();
-        const errMsg = err.error?.message || `HTTP ${res.status}`;
+        let errData = {};
+        try {
+          errData = await res.json();
+        } catch (e) {}
         
-        // Fallback to gemini-1.5-flash if 2.5 is unavailable
-        if (model === 'gemini-2.5-flash') {
-          console.warn('Gemini 2.5 flash failed, falling back to 1.5 flash...', errMsg);
-          return callGeminiEndpoint('gemini-1.5-flash');
+        const errMsg = errData.error?.message || `HTTP ${res.status}`;
+        
+        // If model not found or unsupported, try next model in list
+        if ((errMsg.includes('not found') || errMsg.includes('not supported') || res.status === 404) && modelIndex < modelsToTry.length - 1) {
+          console.warn(`Model ${model} failed, trying next: ${modelsToTry[modelIndex + 1]}...`);
+          return callGeminiEndpoint(modelIndex + 1);
         }
+        
         throw new Error(errMsg);
       }
 
       return res.json();
     };
 
-    let dataRes = await callGeminiEndpoint('gemini-2.5-flash');
+    let dataRes = await callGeminiEndpoint(0);
     let candidate = dataRes.candidates?.[0]?.content;
     let parts = candidate?.parts || [];
 
@@ -235,7 +250,7 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
       });
 
       // Call Gemini again to get conversational reply
-      dataRes = await callGeminiEndpoint('gemini-2.5-flash');
+      dataRes = await callGeminiEndpoint(0);
       candidate = dataRes.candidates?.[0]?.content;
       parts = candidate?.parts || [];
     }
