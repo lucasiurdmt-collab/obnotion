@@ -23,8 +23,16 @@ export const EMPTY_WORKSPACE_DATA = {
   debts: [],
   creditCards: [],
   financeProfile: {
+    paymentFrequency: 'monthly', // 'monthly' | 'biweekly'
     monthlySalary: 0,
-    salaryDay: 5
+    salaryDay: 5,
+    firstPaymentAmount: 0,
+    firstPaymentDay: 20,
+    secondPaymentAmount: 0,
+    secondPaymentDay: 5,
+    grossSalary: 0,
+    hasDiscounts: false,
+    discounts: [] // [{ id, name, amount }]
   },
   financeGoals: [],
   books: [],

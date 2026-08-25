@@ -398,14 +398,19 @@ export default function JarvisWidget({
         },
         {
           name: 'update_salary',
-          description: 'Atualiza o salário líquido mensal e o dia do recebimento do usuário.',
+          description: 'Atualiza a configuração salarial do usuário (salário mensal ou quinzenal 2x ao mês, dias de recebimento e descontos em folha).',
           parameters: {
             type: 'OBJECT',
             properties: {
-              monthlySalary: { type: 'NUMBER', description: 'Salário líquido mensal em reais' },
-              salaryDay: { type: 'NUMBER', description: 'Dia do mês do recebimento (1 a 31)' }
-            },
-            required: ['monthlySalary']
+              paymentFrequency: { type: 'STRING', description: 'monthly (mensal) ou biweekly (quinzenal)' },
+              monthlySalary: { type: 'NUMBER', description: 'Salário líquido mensal total' },
+              salaryDay: { type: 'NUMBER', description: 'Dia do pagamento (1 a 31)' },
+              firstPaymentAmount: { type: 'NUMBER', description: 'Valor da 1ª quinzena / adiantamento' },
+              firstPaymentDay: { type: 'NUMBER', description: 'Dia da 1ª quinzena (ex: 20)' },
+              secondPaymentAmount: { type: 'NUMBER', description: 'Valor da 2ª quinzena / saldo final' },
+              secondPaymentDay: { type: 'NUMBER', description: 'Dia da 2ª quinzena (ex: 5)' },
+              grossSalary: { type: 'NUMBER', description: 'Salário bruto antes dos descontos' }
+            }
           }
         },
         {
@@ -756,12 +761,31 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
 
     // 4. SALARY PROFILE
     if (name === 'update_salary') {
-      const profile = {
-        monthlySalary: Number(args.monthlySalary),
-        salaryDay: Number(args.salaryDay) || (dataRef.current?.financeProfile?.salaryDay || 5)
+      const current = dataRef.current?.financeProfile || {};
+      const isBiweekly = args.paymentFrequency === 'biweekly' || (args.firstPaymentAmount && args.secondPaymentAmount);
+      
+      let computedNet = Number(args.monthlySalary) || current.monthlySalary || 0;
+      if (isBiweekly) {
+        const p1 = Number(args.firstPaymentAmount) || current.firstPaymentAmount || 0;
+        const p2 = Number(args.secondPaymentAmount) || current.secondPaymentAmount || 0;
+        computedNet = p1 + p2;
+      }
+
+      const updatedProfile = {
+        paymentFrequency: isBiweekly ? 'biweekly' : (args.paymentFrequency || current.paymentFrequency || 'monthly'),
+        monthlySalary: computedNet,
+        salaryDay: Number(args.salaryDay) || current.salaryDay || 5,
+        firstPaymentAmount: Number(args.firstPaymentAmount) || current.firstPaymentAmount || 0,
+        firstPaymentDay: Number(args.firstPaymentDay) || current.firstPaymentDay || 20,
+        secondPaymentAmount: Number(args.secondPaymentAmount) || current.secondPaymentAmount || 0,
+        secondPaymentDay: Number(args.secondPaymentDay) || current.secondPaymentDay || 5,
+        grossSalary: Number(args.grossSalary) || current.grossSalary || 0,
+        hasDiscounts: current.hasDiscounts || false,
+        discounts: current.discounts || []
       };
-      updateSection('financeProfile', profile);
-      return { success: true, profile };
+
+      updateSection('financeProfile', updatedProfile);
+      return { success: true, profile: updatedProfile, message: `Salário atualizado para R$ ${computedNet.toFixed(2)} (${updatedProfile.paymentFrequency === 'biweekly' ? 'Quinzenal' : 'Mensal'}).` };
     }
 
     // 5. TRANSACTIONS
