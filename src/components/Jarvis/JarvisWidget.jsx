@@ -10,7 +10,7 @@ import {
   Sparkles,
   Radio,
   Image as ImageIcon,
-  Paperclip,
+  Plus,
   Trash2
 } from 'lucide-react';
 
@@ -25,7 +25,7 @@ export default function JarvisWidget({
   const [messages, setMessages] = useState([
     {
       role: 'model',
-      text: 'Olá, Senhor. JARVIS totalmente operacional e integrado a todos os seus sistemas: Contas a Pagar, Dívidas, Salário, Livros, Hábitos e Tarefas. Você pode me enviar mensagens, falar por voz ou me enviar fotos/prints de boletos e faturas!'
+      text: 'Olá, Senhor. JARVIS totalmente operacional. Você pode me enviar mensagens de texto, falar por comando de voz ou me enviar MÚLTIPLAS fotos/prints de boletos, faturas e contas de uma só vez para eu analisar e organizar todo o seu mês!'
     }
   ]);
   const [input, setInput] = useState('');
@@ -33,7 +33,7 @@ export default function JarvisWidget({
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
-  const [attachedImage, setAttachedImage] = useState(null); // { data: base64, mimeType: string, previewUrl: string }
+  const [attachedImages, setAttachedImages] = useState([]); // [{ id, data: base64, mimeType: string, previewUrl: string, name: string }]
 
   // Speech & Voice Settings State
   const [availableVoices, setAvailableVoices] = useState([]);
@@ -62,7 +62,7 @@ export default function JarvisWidget({
     if (actionPrompt) {
       setIsOpen(true);
       setInput('');
-      handleSend(actionPrompt);
+      handleSend(actionPrompt, []);
       if (onClearActionPrompt) onClearActionPrompt();
     }
   }, [actionPrompt]);
@@ -235,35 +235,58 @@ export default function JarvisWidget({
     window.speechSynthesis.speak(utterance);
   };
 
+  // Handle Multi-image Selection
   const handleImageSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const result = ev.target.result;
-      const base64Data = result.split(',')[1];
-      setAttachedImage({
-        data: base64Data,
-        mimeType: file.type || 'image/jpeg',
-        previewUrl: result
-      });
-    };
-    reader.readAsDataURL(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const result = ev.target.result;
+        const base64Data = result.split(',')[1];
+        setAttachedImages(prev => [
+          ...prev,
+          {
+            id: 'img-' + Math.random().toString(36).substr(2, 9),
+            data: base64Data,
+            mimeType: file.type || 'image/jpeg',
+            previewUrl: result,
+            name: file.name
+          }
+        ]);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleSend = async (textToProcess = input, imgToSend = attachedImage) => {
-    if (!textToProcess.trim() && !imgToSend) return;
+  const removeAttachedImage = (idToRemove) => {
+    setAttachedImages(prev => prev.filter(img => img.id !== idToRemove));
+  };
+
+  const handleSend = async (textToProcess = input, imgsToSend = attachedImages) => {
+    if (!textToProcess.trim() && imgsToSend.length === 0) return;
     if (!apiKey) {
-      alert('Chave de API do Google Gemini não encontrada.');
+      alert('Chave de API do Google Gemini não configurada.');
       return;
     }
 
-    const userText = textToProcess.trim() || (imgToSend ? 'Analise este comprovante / boleto / fatura e organize nas minhas contas.' : '');
-    const newUserMsg = { role: 'user', text: userText, image: imgToSend };
+    const userText = textToProcess.trim() || (imgsToSend.length > 0 
+      ? `Por favor, analise todas as ${imgsToSend.length} fotos/boletos/faturas que anexei e organize cada uma delas no meu sistema financeiro.` 
+      : '');
+
+    const newUserMsg = { 
+      role: 'user', 
+      text: userText, 
+      images: imgsToSend.length > 0 ? [...imgsToSend] : [] 
+    };
+
     const updatedMessages = [...messages, newUserMsg];
     setMessages(updatedMessages);
     setInput('');
-    setAttachedImage(null);
+    setAttachedImages([]);
     setIsLoading(true);
 
     try {
@@ -289,7 +312,7 @@ export default function JarvisWidget({
           parameters: {
             type: 'OBJECT',
             properties: {
-              title: { type: 'STRING', description: 'Nome da conta (ex: Aluguel, Luz, Internet, Mercado)' },
+              title: { type: 'STRING', description: 'Nome da conta (ex: Aluguel, Luz Enel, Internet Claro, Academia)' },
               amount: { type: 'NUMBER', description: 'Valor em reais (ex: 180.50)' },
               dueDate: { type: 'STRING', description: 'Data de vencimento YYYY-MM-DD (ex: 2026-09-10)' },
               category: { type: 'STRING', description: 'Moradia, Alimentação, Transporte, Saúde, Educação, Lazer, ou Outros' }
@@ -488,18 +511,25 @@ export default function JarvisWidget({
       ]
     }];
 
-    // Build Gemini contents with Multimodal Image support
+    // Build Gemini contents with Multi-Image Multimodal support
     const validHistory = chatHistory.filter((m, idx) => !(idx === 0 && m.role === 'model'));
     const contents = validHistory.map((m) => {
       const parts = [];
-      if (m.image && m.image.data) {
-        parts.push({
-          inlineData: {
-            mimeType: m.image.mimeType || 'image/jpeg',
-            data: m.image.data
+      
+      // Inject all images if present in message
+      if (m.images && Array.isArray(m.images)) {
+        m.images.forEach(img => {
+          if (img.data) {
+            parts.push({
+              inlineData: {
+                mimeType: img.mimeType || 'image/jpeg',
+                data: img.data
+              }
+            });
           }
         });
       }
+
       parts.push({ text: m.text });
       return {
         role: m.role === 'model' ? 'model' : 'user',
@@ -520,7 +550,7 @@ export default function JarvisWidget({
 
     const workspaceContext = `
 Você é o JARVIS, assistente supremo e consultor financeiro de elite do usuário no sistema Obnotion.
-Você tem poder de visão computacional multimodal e ferramentas executáveis.
+Você tem poder de visão computacional multimodal avançada (capaz de analisar MÚLTIPLAS imagens enviadas simultaneamente) e ferramentas executáveis.
 
 RAIO-X FINANCEIRO DO USUÁRIO:
 - Salário Líquido: R$ ${(Number(profile.monthlySalary) || 0).toFixed(2)} (Recebimento estimado dia ${profile.salaryDay || 5})
@@ -533,10 +563,12 @@ RAIO-X FINANCEIRO DO USUÁRIO:
 - Tarefas (${data.tasks?.length || 0}): ${JSON.stringify((data.tasks || []).slice(0, 5).map(t => ({ title: t.title, status: t.status })))}
 
 REGRAS MANDATÓRIAS DE EXECUÇÃO:
-1. Se o usuário mandar FOTO/PRINT de boleto, fatura de cartão, comprovante ou documento:
-   - Analise com visão computacional o valor numérico, a data de vencimento e o credor/empresa.
-   - CHAME AUTOMATICAMENTE 'add_bill' para contas/boletos, ou 'add_debt' para empréstimos/parcelas, ou 'add_finance_transaction'!
-   - Confirme gentilmente que leu o documento e já cadastrou no sistema!
+1. Se o usuário enviar UMA OU VÁRIAS FOTOS/PRINTS (boletos, faturas de cartão, extratos, contas de consumo):
+   - Analise minuciosamente CADA imagem enviada.
+   - Para cada boleto ou conta encontrada, extraia o NOME DO CREDOR, o VALOR NUMÉRICO e a DATA DE VENCIMENTO.
+   - CHAME A FERRAMENTA 'add_bill' para CADA conta detectada nas fotos (você pode chamar múltiplas vezes para cada boleto).
+   - Se for um contrato de dívida/empréstimo, chame 'add_debt'.
+   - Resuma todas as contas identificadas em uma lista clara e mostre como isso impacta o saldo livre restante do salário dele!
 2. Se o usuário pedir para adicionar conta/boleto: CHAME 'add_bill'.
 3. Se o usuário disser que pagou uma conta: CHAME 'pay_bill'.
 4. Se o usuário falar de empréstimo ou dívida: CHAME 'add_debt'.
@@ -562,7 +594,7 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
         tools: tools,
         generationConfig: {
           temperature: 0.5,
-          maxOutputTokens: 800
+          maxOutputTokens: 1000
         }
       };
 
@@ -589,9 +621,9 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
     let candidate = dataRes.candidates?.[0]?.content;
     let parts = candidate?.parts || [];
 
-    // Check for function calls
-    let functionCallPart = parts.find(p => p.functionCall);
-    if (functionCallPart) {
+    // Handle sequential function calls if Gemini invokes multiple actions for multiple images
+    while (parts.some(p => p.functionCall)) {
+      const functionCallPart = parts.find(p => p.functionCall);
       const { name, args } = functionCallPart.functionCall;
       const fnResult = await handleFunctionCall(name, args || {});
 
@@ -619,7 +651,7 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
     // 1. BILLS
     if (name === 'add_bill') {
       const newBill = {
-        id: 'bill-' + Date.now(),
+        id: 'bill-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
         title: args.title,
         amount: Number(args.amount),
         dueDate: args.dueDate || new Date().toISOString().split('T')[0],
@@ -646,7 +678,7 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
     // 2. DEBTS
     if (name === 'add_debt') {
       const newDebt = {
-        id: 'debt-' + Date.now(),
+        id: 'debt-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
         title: args.title,
         totalAmount: Number(args.totalAmount),
         installmentAmount: Number(args.installmentAmount) || (Number(args.totalAmount) / (Number(args.totalInstallments) || 1)),
@@ -682,7 +714,7 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
     // 4. TRANSACTIONS
     if (name === 'add_finance_transaction') {
       const newTx = {
-        id: 'tx-' + Date.now(),
+        id: 'tx-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
         description: args.description,
         amount: Number(args.amount),
         type: args.type,
@@ -833,7 +865,7 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
 
       {/* Chat Window */}
       {isOpen && (
-        <div className={`fixed bottom-22 right-4 md:right-6 w-[92vw] md:w-[390px] h-[540px] rounded-2xl flex flex-col shadow-2xl z-50 overflow-hidden border backdrop-blur-2xl ${
+        <div className={`fixed bottom-22 right-4 md:right-6 w-[92vw] md:w-[410px] h-[550px] rounded-2xl flex flex-col shadow-2xl z-50 overflow-hidden border backdrop-blur-2xl ${
           darkMode ? 'bg-[#0f1017]/95 border-white/[0.1] text-zinc-100' : 'bg-white/95 border-zinc-200 text-zinc-800'
         }`}>
           {/* Header */}
@@ -851,7 +883,7 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
                     </span>
                   )}
                 </div>
-                <p className="text-[10px] text-zinc-400 font-mono">Controle Executivo & Multimodal</p>
+                <p className="text-[10px] text-zinc-400 font-mono">Multimodal • Multi-Fotos</p>
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -973,23 +1005,29 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
             </div>
           )}
 
-          {/* Messages */}
+          {/* Messages Container */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed space-y-2 ${
+                <div className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed space-y-2 ${
                   m.role === 'user' 
                     ? 'bg-violet-600 text-white rounded-br-xs shadow-sm font-medium' 
                     : (darkMode 
                       ? 'bg-white/[0.05] text-zinc-200 rounded-bl-xs border border-white/[0.08]' 
                       : 'bg-zinc-100 text-zinc-800 rounded-bl-xs shadow-sm')
                 }`}>
-                  {m.image && m.image.previewUrl && (
-                    <img 
-                      src={m.image.previewUrl} 
-                      alt="Anexo enviado" 
-                      className="max-h-36 rounded-lg object-cover border border-white/[0.2]"
-                    />
+                  {/* Render attached images grid if user uploaded multiple photos */}
+                  {m.images && m.images.length > 0 && (
+                    <div className={`grid gap-1.5 ${m.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                      {m.images.map((img, imgIdx) => (
+                        <img 
+                          key={imgIdx}
+                          src={img.previewUrl} 
+                          alt={`Anexo ${imgIdx + 1}`} 
+                          className="w-full h-24 rounded-lg object-cover border border-white/[0.2]"
+                        />
+                      ))}
+                    </div>
                   )}
                   <p>{m.text}</p>
                 </div>
@@ -1001,23 +1039,55 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
                   darkMode ? 'bg-white/[0.04] border border-white/[0.06] text-zinc-400' : 'bg-zinc-100 text-zinc-500'
                 }`}>
                   <Loader2 className="w-3.5 h-3.5 animate-spin text-violet-400" />
-                  <span className="font-mono text-[11px]">Processando documento e finanças...</span>
+                  <span className="font-mono text-[11px]">Processando {attachedImages.length > 0 ? `${attachedImages.length} documentos` : 'instrução'}...</span>
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Image Preview Bubble if selected */}
-          {attachedImage && (
-            <div className="px-3 py-2 bg-black/40 border-t border-white/[0.08] flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <img src={attachedImage.previewUrl} alt="Preview" className="w-8 h-8 rounded object-cover border border-white/[0.2]" />
-                <span className="text-[11px] text-zinc-300 font-mono">Foto/Boleto pronto para envio</span>
+          {/* Multi-Image Thumbnail Gallery Row */}
+          {attachedImages.length > 0 && (
+            <div className="px-3 py-2 bg-black/50 border-t border-white/[0.08] space-y-1.5">
+              <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400">
+                <span className="flex items-center gap-1 text-violet-300">
+                  <ImageIcon className="w-3 h-3" /> {attachedImages.length} foto(s) pronta(s) para análise
+                </span>
+                <button
+                  onClick={() => setAttachedImages([])}
+                  className="text-zinc-500 hover:text-rose-400 transition-colors"
+                >
+                  Limpar Todas
+                </button>
               </div>
-              <button onClick={() => setAttachedImage(null)} className="text-zinc-400 hover:text-rose-400">
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
+
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+                {attachedImages.map(img => (
+                  <div key={img.id} className="relative group flex-shrink-0">
+                    <img 
+                      src={img.previewUrl} 
+                      alt="Thumbnail" 
+                      className="w-12 h-12 rounded-lg object-cover border border-violet-500/40"
+                    />
+                    <button
+                      onClick={() => removeAttachedImage(img.id)}
+                      className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-rose-600 text-white flex items-center justify-center text-[10px] shadow-sm hover:bg-rose-500"
+                      title="Remover foto"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+
+                {/* Quick Add More Photos Button */}
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-12 h-12 rounded-lg border border-dashed border-white/[0.2] hover:border-violet-400 flex flex-col items-center justify-center text-zinc-400 hover:text-white transition-colors flex-shrink-0"
+                  title="Adicionar mais fotos"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
 
@@ -1027,6 +1097,7 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
           }`}>
             <input
               type="file"
+              multiple
               accept="image/*"
               ref={fileInputRef}
               style={{ display: 'none' }}
@@ -1034,10 +1105,15 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
             />
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="p-2 rounded-xl bg-white/[0.05] text-zinc-400 hover:text-violet-300 hover:bg-white/[0.1] transition-all flex-shrink-0"
-              title="Enviar Foto de Boleto, Fatura ou Comprovante"
+              className="p-2 rounded-xl bg-white/[0.05] text-zinc-400 hover:text-violet-300 hover:bg-white/[0.1] transition-all flex-shrink-0 relative"
+              title="Anexar Várias Fotos de Boletos / Faturas"
             >
               <ImageIcon className="w-4 h-4" />
+              {attachedImages.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-violet-600 text-white text-[9px] font-bold flex items-center justify-center">
+                  {attachedImages.length}
+                </span>
+              )}
             </button>
 
             <button 
@@ -1057,14 +1133,20 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSend()}
-              placeholder={handsFreeMode ? 'Diga "Olá Jarvis" ou envie foto/texto...' : 'Digite ou envie foto de boleto...'}
+              placeholder={
+                attachedImages.length > 0 
+                  ? `${attachedImages.length} foto(s) anexada(s)... Pressione Enter ou Enviar` 
+                  : handsFreeMode 
+                  ? 'Diga "Olá Jarvis" ou envie fotos...' 
+                  : 'Digite ou anexe fotos de boletos...'
+              }
               disabled={isLoading}
               className={`flex-1 bg-transparent border-none outline-none text-xs px-2 ${darkMode ? 'text-zinc-100 placeholder-zinc-500' : 'text-zinc-800'}`}
             />
 
             <button 
               onClick={() => handleSend()}
-              disabled={(!input.trim() && !attachedImage) || isLoading}
+              disabled={(input.trim().length === 0 && attachedImages.length === 0) || isLoading}
               className="p-2 rounded-xl bg-violet-600 text-white flex-shrink-0 hover:bg-violet-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <Send className="w-3.5 h-3.5" />
