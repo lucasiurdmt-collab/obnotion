@@ -171,8 +171,9 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
       ]
     }];
 
-    // Map history to Gemini API format
-    const contents = chatHistory.map(m => ({
+    // Map history to Gemini API format (Gemini requires starting with 'user')
+    const validHistory = chatHistory.filter((m, idx) => !(idx === 0 && m.role === 'model'));
+    const contents = validHistory.map(m => ({
       role: m.role === 'model' ? 'model' : 'user',
       parts: [{ text: m.text }]
     }));
@@ -180,9 +181,7 @@ export default function JarvisWidget({ data, updateSection, darkMode }) {
     const modelsToTry = [
       'gemini-3.6-flash',
       'gemini-3.7-flash',
-      'gemini-flash-latest',
-      'gemini-2.5-flash',
-      'gemini-2.5-pro'
+      'gemini-flash-latest'
     ];
 
     const callGeminiEndpoint = async (modelIndex = 0) => {
