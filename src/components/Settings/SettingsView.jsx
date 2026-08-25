@@ -277,29 +277,29 @@ export default function SettingsView({
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <label className="block text-xs font-medium text-gray-500">
-                        Groq API Key (100% Grátis & Ultra-Rápido)
+                        Google Gemini API Key (100% Grátis & Ultra-Rápido)
                       </label>
                       <a 
-                        href="https://console.groq.com/keys" 
+                        href="https://aistudio.google.com/app/apikey" 
                         target="_blank" 
                         rel="noreferrer"
                         className="text-[11px] text-purple-400 hover:underline flex items-center gap-1"
                       >
-                        Pegar chave grátis ↗
+                        Pegar chave grátis no AI Studio ↗
                       </a>
                     </div>
                     <input
                       type="password"
-                      placeholder="gsk_..."
-                      value={data.settings?.groqApiKey || ''}
+                      placeholder="AIzaSy..."
+                      value={data.settings?.geminiApiKey || ''}
                       onChange={(e) => {
-                        const newSettings = { ...(data.settings || {}), groqApiKey: e.target.value };
+                        const newSettings = { ...(data.settings || {}), geminiApiKey: e.target.value };
                         updateSection('settings', newSettings);
                       }}
                       className={`w-full px-3 py-2 text-sm rounded-lg border ${darkMode ? 'bg-gray-900/50 border-gray-700 focus:border-purple-500' : 'bg-gray-50 border-gray-300 focus:border-purple-500'} outline-none font-mono`}
                     />
                     <p className="text-[10px] text-gray-500 mt-1">
-                      O Groq é 100% gratuito, não pede cartão e é o mais rápido do mundo (Llama 3.3 70B).
+                      O Gemini Flash é 100% gratuito (1.500 msgs/dia) e não pede cartão de crédito.
                     </p>
                   </div>
                 ) : (
