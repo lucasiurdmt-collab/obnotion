@@ -40,7 +40,7 @@ export default function Sidebar({
   booksMonthCount
 }) {
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
+    { id: 'dashboard', label: 'Início (IA)', icon: LayoutDashboard, badge: null },
     { id: 'notes', label: 'Notas & Grafo', icon: FileText, badge: notesCount },
     { id: 'finance', label: 'Finanças', icon: DollarSign, badge: null },
     { id: 'books', label: 'Biblioteca', icon: BookOpen, badge: booksMonthCount > 0 ? `${booksMonthCount} este mês` : null, badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
