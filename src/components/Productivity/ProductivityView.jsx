@@ -21,8 +21,8 @@ export default function ProductivityView({ darkMode }) {
         'Varinha mágica, caneta vetorial e seleção de objetos',
         'Filtros profissionais e tipografia avançada'
       ],
-      path: 'Estúdio Gráfico Integrado',
-      iframeUrl: 'https://www.photopea.com#%7B%22environment%22:%7B%22theme%22:2,%22lang%22:%22pt%22%7D%7D'
+      path: `${import.meta.env.BASE_URL}tools/obnotion_studio.html`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/obnotion_studio.html`
     },
     {
       id: 'slides',
