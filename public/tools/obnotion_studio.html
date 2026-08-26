@@ -3,20 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Obnotion Studio Pro - Editor Gráfico Profissional</title>
+  <title>Obnotion Studio Pro - Photoshop Pessoal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Lobster&family=Montserrat:wght@400;600;800;900&family=Playfair+Display:ital,wght@0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;600;800&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     :root {
-      --bg-main: #0c0d14;
-      --bg-panel: #12131c;
-      --bg-subpanel: #181926;
-      --border-color: rgba(255, 255, 255, 0.08);
+      --bg-dark: #0a0b10;
+      --bg-panel: #11121c;
+      --bg-subpanel: #171826;
+      --border: rgba(255, 255, 255, 0.08);
       --accent: #8b5cf6;
-      --accent-hover: #7c3aed;
     }
     * {
       box-sizing: border-box;
@@ -24,88 +23,84 @@
     }
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: var(--bg-main);
-      color: #f3f4f6;
+      background-color: var(--bg-dark);
+      color: #e5e7eb;
       margin: 0;
       padding: 0;
       overflow: hidden;
       height: 100vh;
       width: 100vw;
     }
-    .font-mono {
-      font-family: 'JetBrains Mono', monospace;
-    }
-    /* Photoshop Canvas Workspace */
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    
+    /* Viewport Workspace */
     #canvas-viewport {
-      background-color: #08080c;
+      background-color: #07070b;
       background-image: 
         radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.03) 0%, transparent 80%),
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
       background-size: 100% 100%, 20px 20px, 20px 20px;
     }
+
     .transparent-pattern {
-      background-image: linear-gradient(45deg, #1c1d29 25%, transparent 25%), 
-                        linear-gradient(-45deg, #1c1d29 25%, transparent 25%), 
-                        linear-gradient(45deg, transparent 75%, #1c1d29 75%), 
-                        linear-gradient(-45deg, transparent 75%, #1c1d29 75%);
+      background-image: linear-gradient(45deg, #181924 25%, transparent 25%), 
+                        linear-gradient(-45deg, #181924 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #181924 75%), 
+                        linear-gradient(-45deg, transparent 75%, #181924 75%);
       background-size: 16px 16px;
       background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
-      background-color: #12131f;
+      background-color: #0f101a;
     }
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.2);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
+
     .tool-btn.active {
       background-color: rgba(139, 92, 246, 0.25);
       color: #c4b5fd;
       border-color: rgba(139, 92, 246, 0.5);
     }
-    .layer-item.active {
+    .layer-row.active {
       background-color: rgba(139, 92, 246, 0.2);
-      border-color: rgba(139, 92, 246, 0.4);
+      border-color: rgba(139, 92, 246, 0.45);
     }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
   </style>
 </head>
-<body class="flex flex-col h-screen w-screen text-xs">
+<body class="flex flex-col h-screen w-screen text-xs select-none">
 
-  <!-- 1. TOP MENU BAR (Photoshop Classic) -->
-  <header class="h-9 bg-[#10111a] border-b border-white/[0.08] flex items-center justify-between px-3 z-30 select-none">
+  <!-- 1. TOP EXECUTIVE MENU BAR -->
+  <header class="h-9 bg-[#0d0e17] border-b border-white/[0.08] flex items-center justify-between px-3 z-30">
     <div class="flex items-center gap-3">
       <!-- Obnotion Studio Logo Badge -->
       <div class="flex items-center gap-2 pr-3 border-r border-white/[0.08]">
-        <div class="w-5 h-5 rounded-md bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
+        <div class="w-5 h-5 rounded bg-gradient-to-br from-violet-500 via-purple-600 to-indigo-700 flex items-center justify-center font-bold text-[10px] text-white shadow">
           Ps
         </div>
-        <span class="font-bold text-white tracking-tight text-[11px]">Obnotion Studio</span>
+        <span class="font-bold text-white tracking-tight text-[11px]">Obnotion Studio Pro</span>
       </div>
 
       <!-- Menus dropdowns -->
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-0.5">
         <!-- Arquivo -->
         <div class="relative group">
-          <button class="px-2.5 py-1 rounded hover:bg-white/[0.06] text-zinc-300 hover:text-white transition-colors">Arquivo</button>
-          <div class="absolute left-0 top-full mt-0.5 w-48 bg-[#161724] border border-white/[0.1] rounded-lg shadow-2xl py-1 hidden group-hover:block z-50">
+          <button class="px-2 py-1 rounded hover:bg-white/[0.06] text-zinc-300 hover:text-white transition-colors">Arquivo</button>
+          <div class="absolute left-0 top-full mt-0.5 w-52 bg-[#141522] border border-white/[0.1] rounded-xl shadow-2xl py-1 hidden group-hover:block z-50">
             <button onclick="openNewModal()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white flex justify-between">
               <span>Novo Projeto</span>
               <span class="text-zinc-500 font-mono text-[10px]">Ctrl+N</span>
             </button>
             <label class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white flex justify-between cursor-pointer">
-              <span>Abrir Imagem...</span>
+              <span>Abrir Imagem / Arquivo...</span>
               <span class="text-zinc-500 font-mono text-[10px]">Ctrl+O</span>
               <input type="file" id="file-input-image" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+            </label>
+            <label class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white flex justify-between cursor-pointer">
+              <span>Abrir Projeto (.OBS)</span>
+              <input type="file" id="file-input-project" accept=".json,.obs" class="hidden" onchange="loadProjectJSON(event)">
             </label>
             <div class="h-px bg-white/[0.08] my-1"></div>
             <button onclick="exportImage('png')" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white flex justify-between">
@@ -117,21 +112,21 @@
               <span class="text-zinc-500 font-mono text-[10px]">JPG</span>
             </button>
             <button onclick="exportImage('webp')" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white flex justify-between">
-              <span>Exportar WebP</span>
+              <span>Exportar WebP (Web)</span>
               <span class="text-zinc-500 font-mono text-[10px]">WebP</span>
             </button>
             <div class="h-px bg-white/[0.08] my-1"></div>
-            <button onclick="saveProjectJSON()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white flex justify-between">
-              <span>Salvar Projeto Obnotion</span>
-              <span class="text-zinc-500 font-mono text-[10px]">.PSD/.OBS</span>
+            <button onclick="saveProjectJSON()" class="w-full px-3 py-1.5 text-left text-violet-300 hover:bg-violet-600/30 hover:text-white flex justify-between">
+              <span>Salvar Projeto Editável (.OBS)</span>
+              <span class="text-zinc-500 font-mono text-[10px]">Ctrl+S</span>
             </button>
           </div>
         </div>
 
         <!-- Editar -->
         <div class="relative group">
-          <button class="px-2.5 py-1 rounded hover:bg-white/[0.06] text-zinc-300 hover:text-white transition-colors">Editar</button>
-          <div class="absolute left-0 top-full mt-0.5 w-44 bg-[#161724] border border-white/[0.1] rounded-lg shadow-2xl py-1 hidden group-hover:block z-50">
+          <button class="px-2 py-1 rounded hover:bg-white/[0.06] text-zinc-300 hover:text-white transition-colors">Editar</button>
+          <div class="absolute left-0 top-full mt-0.5 w-48 bg-[#141522] border border-white/[0.1] rounded-xl shadow-2xl py-1 hidden group-hover:block z-50">
             <button onclick="undo()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white flex justify-between">
               <span>Desfazer</span>
               <span class="text-zinc-500 font-mono text-[10px]">Ctrl+Z</span>
@@ -141,8 +136,8 @@
               <span class="text-zinc-500 font-mono text-[10px]">Ctrl+Y</span>
             </button>
             <div class="h-px bg-white/[0.08] my-1"></div>
-            <button onclick="clearCurrentLayer()" class="w-full px-3 py-1.5 text-left text-rose-400 hover:bg-rose-600/20 flex justify-between">
-              <span>Limpar Camada</span>
+            <button onclick="clearActiveLayer()" class="w-full px-3 py-1.5 text-left text-rose-400 hover:bg-rose-600/20 flex justify-between">
+              <span>Limpar Conteúdo da Camada</span>
               <span class="text-zinc-500 font-mono text-[10px]">Del</span>
             </button>
           </div>
@@ -150,231 +145,264 @@
 
         <!-- Imagem & Ajustes -->
         <div class="relative group">
-          <button class="px-2.5 py-1 rounded hover:bg-white/[0.06] text-zinc-300 hover:text-white transition-colors">Imagem</button>
-          <div class="absolute left-0 top-full mt-0.5 w-52 bg-[#161724] border border-white/[0.1] rounded-lg shadow-2xl py-1 hidden group-hover:block z-50">
-            <button onclick="applyAutoContrast()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Auto Contraste & Tom</button>
-            <button onclick="applyInvertFilter()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Inverter Cores</button>
+          <button class="px-2 py-1 rounded hover:bg-white/[0.06] text-zinc-300 hover:text-white transition-colors">Imagem</button>
+          <div class="absolute left-0 top-full mt-0.5 w-56 bg-[#141522] border border-white/[0.1] rounded-xl shadow-2xl py-1 hidden group-hover:block z-50">
+            <button onclick="applyAutoLevels()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Auto Contraste & Níveis</button>
+            <button onclick="applyInvertFilter()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Inverter Cores (Negativo)</button>
             <button onclick="applyGrayscaleFilter()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Preto & Branco (Monocromático)</button>
-            <button onclick="applySepiaFilter()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Filtro Sépia Vintage</button>
+            <button onclick="applySepiaFilter()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Filtro Sépia Retrô</button>
             <div class="h-px bg-white/[0.08] my-1"></div>
-            <button onclick="flipHorizontal()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Virar Horizontalmente</button>
+            <button onclick="flipHorizontal()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Virar Horizontalmente (Espelhar)</button>
             <button onclick="flipVertical()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Virar Verticalmente</button>
-            <button onclick="rotate90()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Girar 90° Horário</button>
+            <button onclick="rotate90(true)" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Girar 90° no Sentido Horário</button>
+            <button onclick="rotate90(false)" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Girar 90° Anti-horário</button>
           </div>
         </div>
 
-        <!-- Camada -->
+        <!-- Camadas -->
         <div class="relative group">
-          <button class="px-2.5 py-1 rounded hover:bg-white/[0.06] text-zinc-300 hover:text-white transition-colors">Camada</button>
-          <div class="absolute left-0 top-full mt-0.5 w-48 bg-[#161724] border border-white/[0.1] rounded-lg shadow-2xl py-1 hidden group-hover:block z-50">
-            <button onclick="addNewLayer()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Nova Camada</button>
-            <button onclick="duplicateActiveLayer()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Duplicar Camada (Ctrl+J)</button>
+          <button class="px-2 py-1 rounded hover:bg-white/[0.06] text-zinc-300 hover:text-white transition-colors">Camada</button>
+          <div class="absolute left-0 top-full mt-0.5 w-52 bg-[#141522] border border-white/[0.1] rounded-xl shadow-2xl py-1 hidden group-hover:block z-50">
+            <button onclick="addNewLayer()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white flex justify-between">
+              <span>Nova Camada em Branco</span>
+              <span class="text-zinc-500 font-mono text-[10px]">Ctrl+Shift+N</span>
+            </button>
+            <button onclick="duplicateActiveLayer()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white flex justify-between">
+              <span>Duplicar Camada</span>
+              <span class="text-zinc-500 font-mono text-[10px]">Ctrl+J</span>
+            </button>
             <button onclick="deleteActiveLayer()" class="w-full px-3 py-1.5 text-left text-rose-400 hover:bg-rose-600/20">Excluir Camada</button>
             <div class="h-px bg-white/[0.08] my-1"></div>
-            <button onclick="mergeAllLayers()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Achatar Imagem (Mesclar)</button>
+            <button onclick="mergeDownLayer()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white flex justify-between">
+              <span>Mesclar com a de Baixo</span>
+              <span class="text-zinc-500 font-mono text-[10px]">Ctrl+E</span>
+            </button>
+            <button onclick="flattenImage()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Achatar Imagem (Mesclar Todas)</button>
           </div>
         </div>
 
         <!-- Filtros -->
         <div class="relative group">
-          <button class="px-2.5 py-1 rounded hover:bg-white/[0.06] text-zinc-300 hover:text-white transition-colors">Filtros</button>
-          <div class="absolute left-0 top-full mt-0.5 w-48 bg-[#161724] border border-white/[0.1] rounded-lg shadow-2xl py-1 hidden group-hover:block z-50">
-            <button onclick="applyBlurFilter(4)" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Desfoque Gaussiano Suave</button>
-            <button onclick="applyBlurFilter(12)" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Desfoque Intenso</button>
-            <button onclick="applySharpenFilter()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Nitidez / Realce de Bordas</button>
-            <button onclick="applyPixelateFilter(10)" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Pixel Art / Pixelar</button>
+          <button class="px-2 py-1 rounded hover:bg-white/[0.06] text-zinc-300 hover:text-white transition-colors">Filtros</button>
+          <div class="absolute left-0 top-full mt-0.5 w-52 bg-[#141522] border border-white/[0.1] rounded-xl shadow-2xl py-1 hidden group-hover:block z-50">
+            <button onclick="applyBlur(3)" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Desfoque Gaussiano Leve (3px)</button>
+            <button onclick="applyBlur(10)" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Desfoque Forte (10px)</button>
+            <button onclick="applySharpen()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Nitidez / Realce de Detalhes</button>
+            <button onclick="applyPixelate(12)" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Pixelizar (Mosaico 12px)</button>
+            <button onclick="applyVignette()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-violet-600/30 hover:text-white">Vinheta Escura (Bordas)</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Right Controls: Zoom & Quick Export -->
+    <!-- Right Controls: Zoom, Pan & Quick Actions -->
     <div class="flex items-center gap-2">
-      <div class="flex items-center gap-1 bg-black/40 px-2 py-0.5 rounded border border-white/[0.06] font-mono text-[11px] text-zinc-400">
-        <button onclick="zoomOut()" class="hover:text-white p-0.5">-</button>
-        <span id="zoom-text">100%</span>
-        <button onclick="zoomIn()" class="hover:text-white p-0.5">+</button>
-        <button onclick="zoomReset()" class="hover:text-violet-400 ml-1 text-[10px]" title="Ajustar à Tela">Ajustar</button>
+      <div class="flex items-center gap-1 bg-black/40 px-2 py-0.5 rounded-lg border border-white/[0.06] font-mono text-[11px] text-zinc-300">
+        <button onclick="zoomOut()" class="hover:text-white p-0.5 font-bold">-</button>
+        <span id="zoom-label">100%</span>
+        <button onclick="zoomIn()" class="hover:text-white p-0.5 font-bold">+</button>
+        <button onclick="zoomFit()" class="hover:text-violet-400 ml-1 text-[10px] uppercase font-semibold text-zinc-400" title="Ajustar à Janela">Ajustar</button>
       </div>
 
-      <button onclick="exportImage('png')" class="px-3 py-1 rounded bg-violet-600 hover:bg-violet-500 text-white font-semibold text-[11px] transition-all flex items-center gap-1.5 shadow-sm">
-        <i data-lucide="download" class="w-3 h-3"></i>
-        <span>Salvar Imagem</span>
+      <button onclick="exportImage('png')" class="px-3 py-1 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-semibold text-[11px] transition-all flex items-center gap-1.5 shadow-sm shadow-violet-600/30 active:scale-95">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+        <span>Exportar</span>
       </button>
     </div>
   </header>
 
-  <!-- 2. TOOL OPTIONS BAR (Photoshop Context Bar) -->
-  <div id="tool-options-bar" class="h-8 bg-[#13141f] border-b border-white/[0.06] flex items-center px-3 gap-4 text-zinc-300 select-none z-20">
-    <div class="flex items-center gap-1.5 font-semibold text-white">
-      <span id="active-tool-name">Pincel</span>
+  <!-- 2. CONTEXTUAL TOOL OPTIONS BAR (Photoshop Property Ribbon) -->
+  <div id="property-bar" class="h-8 bg-[#11121c] border-b border-white/[0.06] flex items-center px-3 gap-4 text-zinc-300 z-20">
+    <div class="flex items-center gap-1.5 font-bold text-white">
+      <span id="active-tool-label">Pincel</span>
     </div>
     <div class="h-3.5 w-px bg-white/[0.1]"></div>
 
-    <!-- Brush options -->
-    <div id="options-brush" class="flex items-center gap-3">
+    <!-- Pincel & Borracha Options -->
+    <div id="opts-brush" class="flex items-center gap-4">
       <div class="flex items-center gap-1.5">
         <span class="text-zinc-500">Tamanho:</span>
-        <input type="range" id="brush-size" min="1" max="150" value="15" class="w-20 accent-violet-500" oninput="updateBrushPreview()">
-        <span id="brush-size-val" class="font-mono w-6 text-right text-zinc-300">15px</span>
+        <input type="range" id="brush-size" min="1" max="250" value="20" class="w-24 accent-violet-500" oninput="updateBrushLabels()">
+        <span id="brush-size-label" class="font-mono w-8 text-right text-zinc-200">20px</span>
       </div>
       <div class="flex items-center gap-1.5">
         <span class="text-zinc-500">Opacidade:</span>
-        <input type="range" id="brush-opacity" min="1" max="100" value="100" class="w-16 accent-violet-500" oninput="updateBrushPreview()">
-        <span id="brush-opacity-val" class="font-mono w-7 text-right text-zinc-300">100%</span>
-      </div>
-      <div class="flex items-center gap-1.5">
-        <span class="text-zinc-500">Dureza:</span>
-        <input type="range" id="brush-hardness" min="0" max="100" value="100" class="w-16 accent-violet-500">
+        <input type="range" id="brush-opacity" min="1" max="100" value="100" class="w-20 accent-violet-500" oninput="updateBrushLabels()">
+        <span id="brush-opacity-label" class="font-mono w-8 text-right text-zinc-200">100%</span>
       </div>
     </div>
 
-    <!-- Text options -->
-    <div id="options-text" class="flex items-center gap-3 hidden">
+    <!-- Texto Options -->
+    <div id="opts-text" class="flex items-center gap-3 hidden">
       <div class="flex items-center gap-1.5">
         <span class="text-zinc-500">Fonte:</span>
-        <select id="text-font" class="bg-black/50 border border-white/[0.1] rounded px-1.5 py-0.5 text-white">
+        <select id="text-font-family" class="bg-black/60 border border-white/[0.1] rounded px-2 py-0.5 text-white">
           <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
-          <option value="Impact">Impact (Memes/Banners)</option>
-          <option value="Arial">Arial Standard</option>
-          <option value="Georgia">Georgia Serif</option>
-          <option value="JetBrains Mono">JetBrains Mono</option>
-          <option value="Trebuchet MS">Trebuchet Modern</option>
+          <option value="Montserrat">Montserrat Bold</option>
+          <option value="Poppins">Poppins</option>
+          <option value="Bebas Neue">Bebas Neue (Poster)</option>
+          <option value="Lobster">Lobster (Cursiva)</option>
+          <option value="Playfair Display">Playfair Display (Serif)</option>
+          <option value="JetBrains Mono">JetBrains Mono (Código)</option>
+          <option value="Impact">Impact</option>
+          <option value="Arial">Arial</option>
         </select>
       </div>
       <div class="flex items-center gap-1.5">
         <span class="text-zinc-500">Tamanho:</span>
-        <input type="number" id="text-size" min="8" max="300" value="48" class="w-14 bg-black/50 border border-white/[0.1] rounded px-1.5 py-0.5 text-white font-mono">
+        <input type="number" id="text-font-size" min="8" max="400" value="54" class="w-14 bg-black/60 border border-white/[0.1] rounded px-1.5 py-0.5 text-white font-mono">
       </div>
       <div class="flex items-center gap-1">
-        <button onclick="toggleTextWeight()" id="btn-text-bold" class="px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] font-bold">B</button>
+        <button id="btn-bold" onclick="toggleTextStyle('bold')" class="px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] font-bold">B</button>
+        <button id="btn-italic" onclick="toggleTextStyle('italic')" class="px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] italic">I</button>
       </div>
     </div>
 
-    <!-- Shape options -->
-    <div id="options-shape" class="flex items-center gap-3 hidden">
+    <!-- Formas Options -->
+    <div id="opts-shape" class="flex items-center gap-3 hidden">
       <div class="flex items-center gap-1.5">
-        <span class="text-zinc-500">Tipo:</span>
-        <select id="shape-type" class="bg-black/50 border border-white/[0.1] rounded px-1.5 py-0.5 text-white">
-          <option value="rect">Retângulo</option>
+        <span class="text-zinc-500">Forma:</span>
+        <select id="shape-type" class="bg-black/60 border border-white/[0.1] rounded px-2 py-0.5 text-white">
+          <option value="rectangle">Retângulo</option>
+          <option value="rounded-rect">Retângulo Arredondado</option>
           <option value="circle">Círculo / Elipse</option>
-          <option value="line">Linha Reta</option>
+          <option value="line">Linha</option>
+          <option value="arrow">Seta</option>
           <option value="star">Estrela</option>
         </select>
       </div>
       <div class="flex items-center gap-1.5">
         <span class="text-zinc-500">Preenchimento:</span>
-        <input type="checkbox" id="shape-fill" checked class="accent-violet-500">
+        <input type="checkbox" id="shape-filled" checked class="accent-violet-500">
       </div>
       <div class="flex items-center gap-1.5">
-        <span class="text-zinc-500">Contorno:</span>
-        <input type="number" id="shape-stroke-width" min="0" max="50" value="0" class="w-12 bg-black/50 border border-white/[0.1] rounded px-1.5 py-0.5 text-white font-mono">
+        <span class="text-zinc-500">Borda:</span>
+        <input type="number" id="shape-stroke" min="0" max="50" value="0" class="w-12 bg-black/60 border border-white/[0.1] rounded px-1.5 py-0.5 text-white font-mono">
       </div>
+    </div>
+
+    <!-- Gradiente Options -->
+    <div id="opts-gradient" class="flex items-center gap-3 hidden">
+      <span class="text-zinc-500">Tipo de Gradiente:</span>
+      <select id="grad-type" class="bg-black/60 border border-white/[0.1] rounded px-2 py-0.5 text-white">
+        <option value="linear">Linear (Direcional)</option>
+        <option value="radial">Radial (Circular)</option>
+      </select>
     </div>
   </div>
 
-  <!-- 3. MAIN WORKSPACE (Photoshop Split Grid) -->
+  <!-- 3. WORKSPACE CORE -->
   <div class="flex-1 flex overflow-hidden relative">
 
-    <!-- LEFT TOOLBAR (Classic Vertical Bar) -->
-    <aside class="w-11 bg-[#10111a] border-r border-white/[0.08] flex flex-col items-center py-2 gap-1 z-20 select-none">
-      <!-- 1. Move Tool -->
-      <button onclick="setTool('move')" id="tool-move" class="tool-btn w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-all border border-transparent" title="Mover (V)">
+    <!-- LEFT FLOATING TOOLBAR (Photoshop Essential Tools) -->
+    <aside class="w-12 bg-[#0e0f18] border-r border-white/[0.08] flex flex-col items-center py-2 gap-1 z-20">
+      
+      <!-- Move Tool (V) -->
+      <button onclick="setTool('move')" id="tool-move" class="tool-btn w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all border border-transparent" title="Mover Camada / Elemento (V)">
         <i data-lucide="move" class="w-4 h-4"></i>
       </button>
 
-      <!-- 2. Select Rect -->
-      <button onclick="setTool('select')" id="tool-select" class="tool-btn w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-all border border-transparent" title="Seleção Retangular (M)">
-        <i data-lucide="scan" class="w-4 h-4"></i>
+      <!-- Selection Rect (M) -->
+      <button onclick="setTool('select')" id="tool-select" class="tool-btn w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all border border-transparent" title="Seleção Retangular (M)">
+        <i data-lucide="crop" class="w-4 h-4"></i>
       </button>
 
-      <!-- 3. Brush Tool -->
-      <button onclick="setTool('brush')" id="tool-brush" class="tool-btn active w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-all border border-transparent" title="Pincel (B)">
+      <!-- Brush Tool (B) -->
+      <button onclick="setTool('brush')" id="tool-brush" class="tool-btn active w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all border border-transparent" title="Pincel Artístico (B)">
         <i data-lucide="paintbrush" class="w-4 h-4"></i>
       </button>
 
-      <!-- 4. Eraser Tool -->
-      <button onclick="setTool('eraser')" id="tool-eraser" class="tool-btn w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-all border border-transparent" title="Borracha (E)">
+      <!-- Eraser Tool (E) -->
+      <button onclick="setTool('eraser')" id="tool-eraser" class="tool-btn w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all border border-transparent" title="Borracha (E)">
         <i data-lucide="eraser" class="w-4 h-4"></i>
       </button>
 
-      <!-- 5. Paint Bucket -->
-      <button onclick="setTool('bucket')" id="tool-bucket" class="tool-btn w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-all border border-transparent" title="Balde de Tinta / Preenchimento (G)">
+      <!-- Bucket Tool (G) -->
+      <button onclick="setTool('bucket')" id="tool-bucket" class="tool-btn w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all border border-transparent" title="Balde de Preenchimento (G)">
         <i data-lucide="paint-bucket" class="w-4 h-4"></i>
       </button>
 
-      <!-- 6. Text Tool -->
-      <button onclick="setTool('text')" id="tool-text" class="tool-btn w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-all border border-transparent" title="Texto (T)">
+      <!-- Gradient Tool -->
+      <button onclick="setTool('gradient')" id="tool-gradient" class="tool-btn w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all border border-transparent" title="Degradê / Gradiente">
+        <i data-lucide="blend" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Text Tool (T) -->
+      <button onclick="setTool('text')" id="tool-text" class="tool-btn w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all border border-transparent" title="Texto Tipográfico (T)">
         <i data-lucide="type" class="w-4 h-4"></i>
       </button>
 
-      <!-- 7. Shape Tool -->
-      <button onclick="setTool('shape')" id="tool-shape" class="tool-btn w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-all border border-transparent" title="Formas Geométricas (U)">
+      <!-- Shape Tool (U) -->
+      <button onclick="setTool('shape')" id="tool-shape" class="tool-btn w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all border border-transparent" title="Formas Geométricas (U)">
         <i data-lucide="square" class="w-4 h-4"></i>
       </button>
 
-      <!-- 8. Eyedropper Tool -->
-      <button onclick="setTool('eyedropper')" id="tool-eyedropper" class="tool-btn w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-all border border-transparent" title="Conta-Gotas / Seletor (I)">
+      <!-- Eyedropper Tool (I) -->
+      <button onclick="setTool('eyedropper')" id="tool-eyedropper" class="tool-btn w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all border border-transparent" title="Conta-Gotas / Seletor (I)">
         <i data-lucide="pipette" class="w-4 h-4"></i>
       </button>
 
-      <div class="w-6 h-px bg-white/[0.08] my-1"></div>
+      <div class="w-6 h-px bg-white/[0.08] my-2"></div>
 
-      <!-- Photoshop Dual Color Palette -->
-      <div class="relative w-8 h-8 mt-2">
+      <!-- Color Palette (Primary / Secondary) -->
+      <div class="relative w-8 h-8 mt-1">
         <input type="color" id="primary-color" value="#ffffff" class="w-5 h-5 absolute top-0 left-0 rounded cursor-pointer border border-white/40 p-0 bg-transparent" title="Cor Principal (Foreground)">
         <input type="color" id="secondary-color" value="#8b5cf6" class="w-5 h-5 absolute bottom-0 right-0 rounded cursor-pointer border border-white/40 p-0 bg-transparent" title="Cor Secundária (Background)">
-        <button onclick="swapColors()" class="absolute -top-1 -right-1 text-zinc-500 hover:text-white text-[8px]" title="Alternar Cores (X)">⇄</button>
+        <button onclick="swapColors()" class="absolute -top-1.5 -right-1.5 text-zinc-500 hover:text-white text-[9px] font-bold" title="Inverter Cores (X)">⇄</button>
       </div>
     </aside>
 
-    <!-- CENTER CANVAS VIEWPORT -->
-    <main id="canvas-viewport" class="flex-1 flex items-center justify-center overflow-auto relative p-8">
-      <div id="canvas-wrapper" class="relative shadow-2xl transition-transform duration-75 origin-center">
-        <!-- Canvas stack rendered here dynamically -->
+    <!-- CENTER DYNAMIC CANVAS VIEWPORT -->
+    <main id="canvas-viewport" class="flex-1 flex items-center justify-center overflow-auto relative p-12">
+      <!-- Container for canvas layers and interactive overlay -->
+      <div id="canvas-container" class="relative shadow-2xl transition-transform duration-75 origin-center select-none" style="cursor: crosshair;">
+        <!-- Canvas Layers will be dynamically stacked here -->
       </div>
     </main>
 
-    <!-- RIGHT DOCKED PANELS (Layers, Adjustments, Properties) -->
-    <aside class="w-72 bg-[#10111a] border-l border-white/[0.08] flex flex-col z-20 select-none">
+    <!-- RIGHT DOCKED DOCK (Layers & Adjustments) -->
+    <aside class="w-72 bg-[#0e0f18] border-l border-white/[0.08] flex flex-col z-20">
       
-      <!-- Panel Tabs -->
-      <div class="h-8 bg-[#13141f] border-b border-white/[0.06] flex items-center px-2">
-        <button class="px-3 py-1 border-b-2 border-violet-500 text-white font-semibold text-[11px]">Camadas</button>
-        <button class="px-3 py-1 text-zinc-400 hover:text-zinc-200 text-[11px]" onclick="toggleTab('adjustments')">Ajustes</button>
+      <!-- Tab Headers -->
+      <div class="h-8 bg-[#11121c] border-b border-white/[0.06] flex items-center px-2">
+        <button id="tab-btn-layers" onclick="switchRightTab('layers')" class="px-3 py-1 border-b-2 border-violet-500 text-white font-bold text-[11px]">Camadas</button>
+        <button id="tab-btn-adjustments" onclick="switchRightTab('adjustments')" class="px-3 py-1 text-zinc-400 hover:text-zinc-200 text-[11px]">Ajustes</button>
+        <button id="tab-btn-history" onclick="switchRightTab('history')" class="px-3 py-1 text-zinc-400 hover:text-zinc-200 text-[11px]">Histórico</button>
       </div>
 
-      <!-- 1. LAYERS PANEL -->
-      <div id="panel-layers" class="flex-1 flex flex-col p-3 overflow-hidden">
-        <!-- Layer Opacity & Blend Mode -->
+      <!-- 1. TAB: LAYERS -->
+      <div id="tab-layers" class="flex-1 flex flex-col p-3 overflow-hidden">
+        
+        <!-- Blend Mode & Opacity -->
         <div class="space-y-2 pb-3 border-b border-white/[0.06]">
           <div class="flex items-center justify-between">
             <span class="text-zinc-400 text-[10px] uppercase font-mono">Modo de Mesclagem</span>
-            <select id="layer-blend-mode" onchange="updateActiveLayerBlend()" class="bg-black/50 border border-white/[0.1] rounded px-2 py-0.5 text-white text-[11px]">
+            <select id="layer-blend-select" onchange="updateLayerBlendMode()" class="bg-black/60 border border-white/[0.1] rounded px-2 py-0.5 text-white text-[11px]">
               <option value="source-over">Normal</option>
-              <option value="multiply">Multiplicação (Multiply)</option>
+              <option value="multiply">Multiplicar (Multiply)</option>
               <option value="screen">Divisão (Screen)</option>
-              <option value="overlay">Sobreposição (Overlay)</option>
-              <option value="darken">Escurecer (Darken)</option>
-              <option value="lighten">Clarear (Lighten)</option>
+              <option value="overlay">Sobrepor (Overlay)</option>
+              <option value="darken">Escurecer</option>
+              <option value="lighten">Clarear</option>
               <option value="difference">Diferença</option>
+              <option value="hard-light">Luz Direta</option>
             </select>
           </div>
           <div class="flex items-center justify-between">
             <span class="text-zinc-400 text-[10px] uppercase font-mono">Opacidade</span>
             <div class="flex items-center gap-1.5">
-              <input type="range" id="layer-opacity-slider" min="0" max="100" value="100" oninput="updateActiveLayerOpacity()" class="w-20 accent-violet-500">
-              <span id="layer-opacity-val" class="font-mono text-zinc-300 text-[10px] w-7 text-right">100%</span>
+              <input type="range" id="layer-opacity-slider" min="0" max="100" value="100" oninput="updateLayerOpacity()" class="w-20 accent-violet-500">
+              <span id="layer-opacity-label" class="font-mono text-zinc-300 text-[10px] w-7 text-right">100%</span>
             </div>
           </div>
         </div>
 
-        <!-- Layers List -->
+        <!-- Layers List View -->
         <div id="layers-list" class="flex-1 overflow-y-auto py-2 space-y-1.5">
-          <!-- Layer items injected here -->
+          <!-- Dynamic layer items injected here -->
         </div>
 
-        <!-- Layers Bottom Toolbar (Add, Duplicate, Delete) -->
+        <!-- Layers Bottom Action Bar -->
         <div class="pt-2 border-t border-white/[0.06] flex items-center justify-between">
           <div class="flex items-center gap-1">
             <button onclick="addNewLayer()" class="p-1.5 rounded hover:bg-white/[0.08] text-zinc-400 hover:text-white" title="Nova Camada">
@@ -396,105 +424,121 @@
         </div>
       </div>
 
-      <!-- 2. ADJUSTMENTS PANEL (Real-time Sliders) -->
-      <div id="panel-adjustments" class="flex-1 p-4 space-y-4 overflow-y-auto hidden">
-        <h4 class="font-bold text-white text-xs">Ajustes de Imagem em Tempo Real</h4>
-        
+      <!-- 2. TAB: ADJUSTMENTS (Live Filters) -->
+      <div id="tab-adjustments" class="flex-1 p-4 space-y-4 overflow-y-auto hidden">
+        <h4 class="font-bold text-white text-xs">Ajustes & Correção de Cor</h4>
+
         <div class="space-y-1.5">
           <div class="flex justify-between text-[11px] text-zinc-400">
             <span>Brilho</span>
-            <span id="adj-brightness-val" class="font-mono text-zinc-300">0</span>
+            <span id="val-brightness" class="font-mono text-zinc-300">0</span>
           </div>
-          <input type="range" id="adj-brightness" min="-100" max="100" value="0" class="w-full accent-violet-500" oninput="applyLiveAdjustments()">
+          <input type="range" id="slider-brightness" min="-100" max="100" value="0" class="w-full accent-violet-500" oninput="previewAdjustments()">
         </div>
 
         <div class="space-y-1.5">
           <div class="flex justify-between text-[11px] text-zinc-400">
             <span>Contraste</span>
-            <span id="adj-contrast-val" class="font-mono text-zinc-300">0</span>
+            <span id="val-contrast" class="font-mono text-zinc-300">0</span>
           </div>
-          <input type="range" id="adj-contrast" min="-100" max="100" value="0" class="w-full accent-violet-500" oninput="applyLiveAdjustments()">
+          <input type="range" id="slider-contrast" min="-100" max="100" value="0" class="w-full accent-violet-500" oninput="previewAdjustments()">
         </div>
 
         <div class="space-y-1.5">
           <div class="flex justify-between text-[11px] text-zinc-400">
             <span>Saturação</span>
-            <span id="adj-saturation-val" class="font-mono text-zinc-300">0</span>
+            <span id="val-saturation" class="font-mono text-zinc-300">0</span>
           </div>
-          <input type="range" id="adj-saturation" min="-100" max="100" value="0" class="w-full accent-violet-500" oninput="applyLiveAdjustments()">
+          <input type="range" id="slider-saturation" min="-100" max="100" value="0" class="w-full accent-violet-500" oninput="previewAdjustments()">
         </div>
 
         <div class="space-y-1.5">
           <div class="flex justify-between text-[11px] text-zinc-400">
-            <span>Desfoque (Blur)</span>
-            <span id="adj-blur-val" class="font-mono text-zinc-300">0px</span>
+            <span>Matiz / Tom (Hue)</span>
+            <span id="val-hue" class="font-mono text-zinc-300">0°</span>
           </div>
-          <input type="range" id="adj-blur" min="0" max="20" value="0" class="w-full accent-violet-500" oninput="applyLiveAdjustments()">
+          <input type="range" id="slider-hue" min="-180" max="180" value="0" class="w-full accent-violet-500" oninput="previewAdjustments()">
+        </div>
+
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-[11px] text-zinc-400">
+            <span>Desfoque Suave</span>
+            <span id="val-blur" class="font-mono text-zinc-300">0px</span>
+          </div>
+          <input type="range" id="slider-blur" min="0" max="25" value="0" class="w-full accent-violet-500" oninput="previewAdjustments()">
         </div>
 
         <div class="pt-3 border-t border-white/[0.06] flex gap-2">
-          <button onclick="commitAdjustments()" class="flex-1 py-2 rounded bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs">Aplicar na Camada</button>
-          <button onclick="resetAdjustments()" class="px-3 py-2 rounded bg-white/[0.05] text-zinc-400 hover:text-white text-xs">Reset</button>
+          <button onclick="commitAdjustments()" class="flex-1 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs">Aplicar na Camada</button>
+          <button onclick="resetAdjustmentSliders()" class="px-3 py-2 rounded-lg bg-white/[0.05] text-zinc-400 hover:text-white text-xs">Reset</button>
+        </div>
+      </div>
+
+      <!-- 3. TAB: HISTORY -->
+      <div id="tab-history" class="flex-1 p-3 overflow-y-auto hidden">
+        <h4 class="font-bold text-white text-xs mb-2">Painel de Histórico</h4>
+        <div id="history-list" class="space-y-1">
+          <!-- Dynamic history steps -->
         </div>
       </div>
     </aside>
   </div>
 
-  <!-- MODAL: NOVO DOCUMENTO (Presets Photoshop) -->
-  <div id="modal-new" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+  <!-- MODAL: NOVO PROJETO (Presets Rápidos) -->
+  <div id="modal-new-doc" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="w-full max-w-xl bg-[#141522] border border-white/[0.1] rounded-2xl p-6 shadow-2xl space-y-5">
       <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
         <h3 class="text-sm font-bold text-white flex items-center gap-2">
           <i data-lucide="plus-circle" class="w-4 h-4 text-violet-400"></i>
-          Novo Documento Photoshop
+          Novo Projeto Photoshop
         </h3>
         <button onclick="closeNewModal()" class="text-zinc-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
 
       <!-- Presets Grid -->
       <div class="space-y-2">
-        <label class="block text-zinc-400 font-mono text-[11px]">Formatos & Modelos Rápidos:</label>
+        <label class="block text-zinc-400 font-mono text-[11px]">Modelos Rápidos:</label>
         <div class="grid grid-cols-3 gap-2">
-          <button onclick="setPreset(1080, 1080, 'Instagram Feed')" class="p-2.5 rounded-xl bg-black/40 border border-white/[0.06] hover:border-violet-500/40 text-left transition-all">
+          <button onclick="setDocDimensions(1080, 1080)" class="p-2.5 rounded-xl bg-black/40 border border-white/[0.06] hover:border-violet-500/40 text-left transition-all">
             <p class="font-bold text-white text-xs">Post Instagram</p>
             <p class="text-[10px] font-mono text-zinc-500">1080 x 1080 (1:1)</p>
           </button>
-          <button onclick="setPreset(1080, 1920, 'Story / Reels')" class="p-2.5 rounded-xl bg-black/40 border border-white/[0.06] hover:border-violet-500/40 text-left transition-all">
+          <button onclick="setDocDimensions(1080, 1920)" class="p-2.5 rounded-xl bg-black/40 border border-white/[0.06] hover:border-violet-500/40 text-left transition-all">
             <p class="font-bold text-white text-xs">Story / Reels</p>
             <p class="text-[10px] font-mono text-zinc-500">1080 x 1920 (9:16)</p>
           </button>
-          <button onclick="setPreset(1280, 720, 'YouTube Thumbnail')" class="p-2.5 rounded-xl bg-black/40 border border-white/[0.06] hover:border-violet-500/40 text-left transition-all">
+          <button onclick="setDocDimensions(1280, 720)" class="p-2.5 rounded-xl bg-black/40 border border-white/[0.06] hover:border-violet-500/40 text-left transition-all">
             <p class="font-bold text-white text-xs">Thumbnail YouTube</p>
             <p class="text-[10px] font-mono text-zinc-500">1280 x 720 (16:9)</p>
           </button>
-          <button onclick="setPreset(1920, 1080, 'Full HD Wallpaper')" class="p-2.5 rounded-xl bg-black/40 border border-white/[0.06] hover:border-violet-500/40 text-left transition-all">
+          <button onclick="setDocDimensions(1920, 1080)" class="p-2.5 rounded-xl bg-black/40 border border-white/[0.06] hover:border-violet-500/40 text-left transition-all">
             <p class="font-bold text-white text-xs">Banner Full HD</p>
             <p class="text-[10px] font-mono text-zinc-500">1920 x 1080</p>
           </button>
-          <button onclick="setPreset(1500, 500, 'Twitter Header')" class="p-2.5 rounded-xl bg-black/40 border border-white/[0.06] hover:border-violet-500/40 text-left transition-all">
+          <button onclick="setDocDimensions(1500, 500)" class="p-2.5 rounded-xl bg-black/40 border border-white/[0.06] hover:border-violet-500/40 text-left transition-all">
             <p class="font-bold text-white text-xs">Capa Twitter / X</p>
             <p class="text-[10px] font-mono text-zinc-500">1500 x 500</p>
           </button>
-          <button onclick="setPreset(800, 800, 'Quadrado HD')" class="p-2.5 rounded-xl bg-black/40 border border-white/[0.06] hover:border-violet-500/40 text-left transition-all">
-            <p class="font-bold text-white text-xs">Quadrado Padrão</p>
+          <button onclick="setDocDimensions(800, 800)" class="p-2.5 rounded-xl bg-black/40 border border-white/[0.06] hover:border-violet-500/40 text-left transition-all">
+            <p class="font-bold text-white text-xs">Quadrado 800</p>
             <p class="text-[10px] font-mono text-zinc-500">800 x 800</p>
           </button>
         </div>
       </div>
 
-      <!-- Custom Dimensions -->
+      <!-- Dimensions Inputs -->
       <div class="grid grid-cols-3 gap-3">
         <div>
           <label class="block text-zinc-400 font-mono text-[10px] mb-1">Largura (px):</label>
-          <input type="number" id="new-doc-w" value="1080" class="w-full p-2 rounded-lg bg-black/50 border border-white/[0.1] text-white font-mono">
+          <input type="number" id="input-doc-w" value="1080" class="w-full p-2 rounded-lg bg-black/50 border border-white/[0.1] text-white font-mono">
         </div>
         <div>
           <label class="block text-zinc-400 font-mono text-[10px] mb-1">Altura (px):</label>
-          <input type="number" id="new-doc-h" value="1080" class="w-full p-2 rounded-lg bg-black/50 border border-white/[0.1] text-white font-mono">
+          <input type="number" id="input-doc-h" value="1080" class="w-full p-2 rounded-lg bg-black/50 border border-white/[0.1] text-white font-mono">
         </div>
         <div>
           <label class="block text-zinc-400 font-mono text-[10px] mb-1">Fundo Inicial:</label>
-          <select id="new-doc-bg" class="w-full p-2 rounded-lg bg-black/50 border border-white/[0.1] text-white">
+          <select id="input-doc-bg" class="w-full p-2 rounded-lg bg-black/50 border border-white/[0.1] text-white">
             <option value="transparent">Transparente</option>
             <option value="#ffffff">Branco (#fff)</option>
             <option value="#0c0d14">Escuro (#0c0d14)</option>
@@ -502,148 +546,174 @@
         </div>
       </div>
 
-      <button onclick="createNewProject()" class="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold tracking-wide shadow-lg shadow-violet-600/30 transition-all">
+      <button onclick="createDocumentFromModal()" class="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold tracking-wide shadow-lg shadow-violet-600/30 transition-all">
         Criar Novo Canvas
       </button>
     </div>
   </div>
 
-  <!-- JAVASCRIPT ENGINE (Multi-Layer Photoshop Engine) -->
+  <!-- JAVASCRIPT CORE ENGINE -->
   <script>
-    // State
-    let projectWidth = 1080;
-    let projectHeight = 1080;
-    let zoomLevel = 0.6; // Default viewport scale
-    let currentTool = 'brush';
+    // State variables
+    let docWidth = 1080;
+    let docHeight = 1080;
+    let zoom = 0.55;
+    let currentTool = 'brush'; // 'brush' | 'eraser' | 'move' | 'select' | 'bucket' | 'gradient' | 'text' | 'shape' | 'eyedropper'
     let isDrawing = false;
-    let lastX = 0;
-    let lastY = 0;
+    let startX = 0, startY = 0;
+    let lastX = 0, lastY = 0;
+    let moveOffsetX = 0, moveOffsetY = 0;
+
     let layers = [];
     let activeLayerId = null;
-    let historyStack = [];
+    let history = [];
+    let historyIndex = -1;
 
-    const wrapper = document.getElementById('canvas-wrapper');
+    let isBold = true;
+    let isItalic = false;
+
+    const container = document.getElementById('canvas-container');
     const primaryColorInput = document.getElementById('primary-color');
     const secondaryColorInput = document.getElementById('secondary-color');
 
-    // Initialize Photoshop Project
-    function init() {
+    // Startup
+    window.onload = () => {
       lucide.createIcons();
-      createNewProject(1080, 1080, '#ffffff');
-      window.addEventListener('keydown', handleGlobalKeydown);
-    }
+      createDocument(1080, 1080, '#ffffff');
+      window.addEventListener('keydown', handleShortcuts);
+      setupDragAndDrop();
+    };
 
-    function createNewProject(w, h, bg) {
-      projectWidth = w || parseInt(document.getElementById('new-doc-w').value) || 1080;
-      projectHeight = h || parseInt(document.getElementById('new-doc-h').value) || 1080;
-      const initialBg = bg || document.getElementById('new-doc-bg').value;
-
-      wrapper.style.width = `${projectWidth}px`;
-      wrapper.style.height = `${projectHeight}px`;
-      wrapper.innerHTML = '';
-      wrapper.className = `relative shadow-2xl origin-center ${initialBg === 'transparent' ? 'transparent-pattern' : ''}`;
+    // Document Creation
+    function createDocument(w, h, bg = '#ffffff') {
+      docWidth = w;
+      docHeight = h;
+      container.style.width = `${docWidth}px`;
+      container.style.height = `${docHeight}px`;
+      container.innerHTML = '';
+      container.className = `relative shadow-2xl origin-center ${bg === 'transparent' ? 'transparent-pattern' : ''}`;
 
       layers = [];
       activeLayerId = null;
+      history = [];
+      historyIndex = -1;
 
-      // Layer 1: Background or Initial Layer
-      addNewLayer(initialBg === 'transparent' ? 'Camada 1' : 'Plano de Fundo', initialBg);
-      closeNewModal();
-      fitCanvasToScreen();
+      // Add Background Layer
+      addNewLayer(bg === 'transparent' ? 'Camada 1' : 'Plano de Fundo', bg);
+      pushHistory('Novo Projeto');
+      zoomFit();
     }
 
+    function createDocumentFromModal() {
+      const w = parseInt(document.getElementById('input-doc-w').value) || 1080;
+      const h = parseInt(document.getElementById('input-doc-h').value) || 1080;
+      const bg = document.getElementById('input-doc-bg').value;
+      createDocument(w, h, bg);
+      closeNewModal();
+    }
+
+    function setDocDimensions(w, h) {
+      document.getElementById('input-doc-w').value = w;
+      document.getElementById('input-doc-h').value = h;
+    }
+
+    function openNewModal() { document.getElementById('modal-new-doc').classList.remove('hidden'); }
+    function closeNewModal() { document.getElementById('modal-new-doc').classList.add('hidden'); }
+
+    // Layers System
     function addNewLayer(name, fillColor = null) {
-      const layerId = 'layer-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+      const id = 'layer-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
       const canvas = document.createElement('canvas');
-      canvas.width = projectWidth;
-      canvas.height = projectHeight;
-      canvas.id = layerId;
+      canvas.width = docWidth;
+      canvas.height = docHeight;
+      canvas.id = id;
       canvas.className = 'absolute inset-0 pointer-events-none';
       canvas.style.opacity = '1';
-      
+
       const ctx = canvas.getContext('2d');
       if (fillColor && fillColor !== 'transparent') {
         ctx.fillStyle = fillColor;
-        ctx.fillRect(0, 0, projectWidth, projectHeight);
+        ctx.fillRect(0, 0, docWidth, docHeight);
       }
 
-      wrapper.appendChild(canvas);
+      container.appendChild(canvas);
 
-      const newLayer = {
-        id: layerId,
+      const layerObj = {
+        id: id,
         name: name || `Camada ${layers.length + 1}`,
         canvas: canvas,
         ctx: ctx,
         visible: true,
         opacity: 1,
-        blendMode: 'source-over'
+        blendMode: 'source-over',
+        offsetX: 0,
+        offsetY: 0
       };
 
-      layers.unshift(newLayer); // Add to top
-      setActiveLayer(layerId);
-      renderLayersList();
-      saveHistoryState();
+      layers.unshift(layerObj);
+      setActiveLayer(id);
+      renderLayers();
     }
 
     function setActiveLayer(id) {
       activeLayerId = id;
-      const activeObj = layers.find(l => l.id === id);
-      if (activeObj) {
-        document.getElementById('layer-blend-mode').value = activeObj.blendMode || 'source-over';
-        document.getElementById('layer-opacity-slider').value = Math.round(activeObj.opacity * 100);
-        document.getElementById('layer-opacity-val').innerText = Math.round(activeObj.opacity * 100) + '%';
+      const l = getActiveLayer();
+      if (l) {
+        document.getElementById('layer-blend-select').value = l.blendMode || 'source-over';
+        document.getElementById('layer-opacity-slider').value = Math.round(l.opacity * 100);
+        document.getElementById('layer-opacity-label').innerText = Math.round(l.opacity * 100) + '%';
       }
-      renderLayersList();
+      renderLayers();
     }
 
     function getActiveLayer() {
       return layers.find(l => l.id === activeLayerId) || layers[0];
     }
 
-    function renderLayersList() {
-      const container = document.getElementById('layers-list');
-      container.innerHTML = '';
+    function renderLayers() {
+      const list = document.getElementById('layers-list');
+      list.innerHTML = '';
 
-      layers.forEach((layer, idx) => {
+      layers.forEach((layer) => {
         const item = document.createElement('div');
-        item.className = `layer-item p-2 rounded-lg border flex items-center justify-between transition-all cursor-pointer ${
+        item.className = `layer-row p-2 rounded-lg border flex items-center justify-between transition-all cursor-pointer ${
           layer.id === activeLayerId 
-            ? 'active bg-violet-600/20 border-violet-500/40 text-white font-semibold' 
-            : 'bg-black/30 border-white/[0.05] text-zinc-400 hover:bg-white/[0.03]'
+            ? 'active bg-violet-600/20 border-violet-500/50 text-white font-semibold' 
+            : 'bg-black/40 border-white/[0.05] text-zinc-400 hover:bg-white/[0.04]'
         }`;
         item.onclick = () => setActiveLayer(layer.id);
 
         item.innerHTML = `
           <div class="flex items-center gap-2 flex-1 truncate">
-            <button onclick="toggleLayerVisibility('${layer.id}', event)" class="p-1 text-zinc-400 hover:text-white">
+            <button onclick="toggleVisibility('${layer.id}', event)" class="p-1 text-zinc-400 hover:text-white">
               <i data-lucide="${layer.visible ? 'eye' : 'eye-off'}" class="w-3.5 h-3.5"></i>
             </button>
-            <div class="w-6 h-6 rounded bg-black/40 border border-white/[0.1] flex items-center justify-center overflow-hidden">
+            <div class="w-6 h-6 rounded bg-black/50 border border-white/[0.1] flex items-center justify-center overflow-hidden">
               <i data-lucide="image" class="w-3 h-3 text-zinc-500"></i>
             </div>
             <span class="text-xs truncate">${layer.name}</span>
           </div>
           <span class="text-[10px] font-mono text-zinc-500">${Math.round(layer.opacity * 100)}%</span>
         `;
-        container.appendChild(item);
+        list.appendChild(item);
       });
 
       lucide.createIcons();
     }
 
-    function toggleLayerVisibility(id, e) {
+    function toggleVisibility(id, e) {
       if (e) e.stopPropagation();
       const l = layers.find(l => l.id === id);
       if (l) {
         l.visible = !l.visible;
         l.canvas.style.display = l.visible ? 'block' : 'none';
-        renderLayersList();
+        renderLayers();
       }
     }
 
-    function updateActiveLayerOpacity() {
+    function updateLayerOpacity() {
       const val = parseInt(document.getElementById('layer-opacity-slider').value) / 100;
-      document.getElementById('layer-opacity-val').innerText = Math.round(val * 100) + '%';
+      document.getElementById('layer-opacity-label').innerText = Math.round(val * 100) + '%';
       const l = getActiveLayer();
       if (l) {
         l.opacity = val;
@@ -651,8 +721,8 @@
       }
     }
 
-    function updateActiveLayerBlend() {
-      const mode = document.getElementById('layer-blend-mode').value;
+    function updateLayerBlendMode() {
+      const mode = document.getElementById('layer-blend-select').value;
       const l = getActiveLayer();
       if (l) {
         l.blendMode = mode;
@@ -661,43 +731,118 @@
     }
 
     function duplicateActiveLayer() {
-      const source = getActiveLayer();
-      if (!source) return;
-      addNewLayer(source.name + ' (Cópia)');
+      const src = getActiveLayer();
+      if (!src) return;
+      addNewLayer(src.name + ' (Cópia)');
       const dest = getActiveLayer();
-      dest.ctx.drawImage(source.canvas, 0, 0);
-      dest.opacity = source.opacity;
-      dest.blendMode = source.blendMode;
-      dest.canvas.style.opacity = source.opacity;
-      dest.canvas.style.mixBlendMode = source.blendMode;
+      dest.ctx.drawImage(src.canvas, 0, 0);
+      dest.opacity = src.opacity;
+      dest.blendMode = src.blendMode;
+      dest.canvas.style.opacity = src.opacity;
+      dest.canvas.style.mixBlendMode = src.blendMode;
+      pushHistory('Duplicar Camada');
     }
 
     function deleteActiveLayer() {
-      if (layers.length <= 1) return alert('Você deve manter pelo menos uma camada!');
-      const index = layers.findIndex(l => l.id === activeLayerId);
-      if (index !== -1) {
-        const removed = layers.splice(index, 1)[0];
+      if (layers.length <= 1) return alert('Você deve manter ao menos uma camada!');
+      const idx = layers.findIndex(l => l.id === activeLayerId);
+      if (idx !== -1) {
+        const removed = layers.splice(idx, 1)[0];
         removed.canvas.remove();
         setActiveLayer(layers[0].id);
-        saveHistoryState();
+        pushHistory('Excluir Camada');
       }
     }
 
-    function clearCurrentLayer() {
+    function moveLayerUp() {
+      const idx = layers.findIndex(l => l.id === activeLayerId);
+      if (idx > 0) {
+        const temp = layers[idx];
+        layers[idx] = layers[idx - 1];
+        layers[idx - 1] = temp;
+        reorderDomCanvases();
+        renderLayers();
+        pushHistory('Reordenar Camadas');
+      }
+    }
+
+    function moveLayerDown() {
+      const idx = layers.findIndex(l => l.id === activeLayerId);
+      if (idx < layers.length - 1 && idx !== -1) {
+        const temp = layers[idx];
+        layers[idx] = layers[idx + 1];
+        layers[idx + 1] = temp;
+        reorderDomCanvases();
+        renderLayers();
+        pushHistory('Reordenar Camadas');
+      }
+    }
+
+    function reorderDomCanvases() {
+      // Re-append in reverse order (bottom layer first)
+      const reversed = [...layers].reverse();
+      reversed.forEach(l => container.appendChild(l.canvas));
+    }
+
+    function clearActiveLayer() {
       const l = getActiveLayer();
       if (l) {
-        l.ctx.clearRect(0, 0, projectWidth, projectHeight);
-        saveHistoryState();
+        l.ctx.clearRect(0, 0, docWidth, docHeight);
+        pushHistory('Limpar Camada');
       }
     }
 
-    // DRAWING & CANVAS INTERACTION
-    wrapper.addEventListener('mousedown', (e) => {
+    function mergeDownLayer() {
+      const idx = layers.findIndex(l => l.id === activeLayerId);
+      if (idx >= layers.length - 1) return alert('Não há camada abaixo para mesclar!');
+      const top = layers[idx];
+      const bottom = layers[idx + 1];
+
+      bottom.ctx.globalAlpha = top.opacity;
+      bottom.ctx.globalCompositeOperation = top.blendMode || 'source-over';
+      bottom.ctx.drawImage(top.canvas, 0, 0);
+      bottom.ctx.globalAlpha = 1;
+      bottom.ctx.globalCompositeOperation = 'source-over';
+
+      top.canvas.remove();
+      layers.splice(idx, 1);
+      setActiveLayer(bottom.id);
+      pushHistory('Mesclar Camada');
+    }
+
+    function flattenImage() {
+      const flatCanvas = document.createElement('canvas');
+      flatCanvas.width = docWidth;
+      flatCanvas.height = docHeight;
+      const ctx = flatCanvas.getContext('2d');
+
+      const rev = [...layers].reverse();
+      rev.forEach(l => {
+        if (l.visible) {
+          ctx.globalAlpha = l.opacity;
+          ctx.globalCompositeOperation = l.blendMode || 'source-over';
+          ctx.drawImage(l.canvas, 0, 0);
+        }
+      });
+
+      // Clear all and make 1
+      layers.forEach(l => l.canvas.remove());
+      layers = [];
+      addNewLayer('Imagem Achatada');
+      const single = getActiveLayer();
+      single.ctx.drawImage(flatCanvas, 0, 0);
+      pushHistory('Achatar Imagem');
+    }
+
+    // CANVAS INTERACTIONS (Drawing, Text, Shapes, Bucket, Eyedropper)
+    container.addEventListener('mousedown', (e) => {
       isDrawing = true;
-      const rect = wrapper.getBoundingClientRect();
-      const scale = rect.width / projectWidth;
-      lastX = (e.clientX - rect.left) / scale;
-      lastY = (e.clientY - rect.top) / scale;
+      const rect = container.getBoundingClientRect();
+      const scale = rect.width / docWidth;
+      startX = (e.clientX - rect.left) / scale;
+      startY = (e.clientY - rect.top) / scale;
+      lastX = startX;
+      lastY = startY;
 
       const layer = getActiveLayer();
       if (!layer || !layer.visible) return;
@@ -716,39 +861,49 @@
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.beginPath();
-        ctx.arc(lastX, lastY, size / 2, 0, Math.PI * 2);
+        ctx.arc(startX, startY, size / 2, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
-        ctx.moveTo(lastX, lastY);
+        ctx.moveTo(startX, startY);
       } else if (currentTool === 'eraser') {
         ctx.save();
         ctx.globalCompositeOperation = 'destination-out';
         ctx.lineWidth = size;
         ctx.lineCap = 'round';
         ctx.beginPath();
-        ctx.arc(lastX, lastY, size / 2, 0, Math.PI * 2);
+        ctx.arc(startX, startY, size / 2, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
-        ctx.moveTo(lastX, lastY);
+        ctx.moveTo(startX, startY);
       } else if (currentTool === 'bucket') {
         ctx.fillStyle = color;
-        ctx.fillRect(0, 0, projectWidth, projectHeight);
+        ctx.fillRect(0, 0, docWidth, docHeight);
         isDrawing = false;
-        saveHistoryState();
+        pushHistory('Balde de Tinta');
       } else if (currentTool === 'text') {
-        const text = prompt('Digite o texto a ser inserido:', 'Seu Texto Aqui');
+        const text = prompt('Digite o texto a ser inserido no canvas:', 'Obnotion Studio');
         if (text) {
-          const fontSize = parseInt(document.getElementById('text-size').value) || 48;
-          const font = document.getElementById('text-font').value || 'Plus Jakarta Sans';
+          const fontSize = parseInt(document.getElementById('text-font-size').value) || 54;
+          const font = document.getElementById('text-font-family').value || 'Plus Jakarta Sans';
           ctx.fillStyle = color;
-          ctx.font = `bold ${fontSize}px ${font}`;
-          ctx.fillText(text, lastX, lastY);
-          saveHistoryState();
+          ctx.font = `${isBold ? 'bold' : 'normal'} ${isItalic ? 'italic' : 'normal'} ${fontSize}px "${font}"`;
+          ctx.fillText(text, startX, startY);
+          pushHistory('Adicionar Texto');
         }
         isDrawing = false;
       } else if (currentTool === 'eyedropper') {
-        // Sample color from canvas
-        const p = ctx.getImageData(lastX, lastY, 1, 1).data;
+        // Sample exact composite pixel
+        const tempC = document.createElement('canvas');
+        tempC.width = docWidth;
+        tempC.height = docHeight;
+        const tCtx = tempC.getContext('2d');
+        [...layers].reverse().forEach(l => {
+          if (l.visible) {
+            tCtx.globalAlpha = l.opacity;
+            tCtx.drawImage(l.canvas, 0, 0);
+          }
+        });
+        const p = tCtx.getImageData(Math.round(startX), Math.round(startY), 1, 1).data;
         const hex = "#" + ((1 << 24) + (p[0] << 16) + (p[1] << 8) + p[2]).toString(16).slice(1);
         primaryColorInput.value = hex;
         isDrawing = false;
@@ -757,8 +912,8 @@
 
     window.addEventListener('mousemove', (e) => {
       if (!isDrawing) return;
-      const rect = wrapper.getBoundingClientRect();
-      const scale = rect.width / projectWidth;
+      const rect = container.getBoundingClientRect();
+      const scale = rect.width / docWidth;
       const curX = (e.clientX - rect.left) / scale;
       const curY = (e.clientY - rect.top) / scale;
 
@@ -775,12 +930,62 @@
       lastY = curY;
     });
 
-    window.addEventListener('mouseup', () => {
-      if (isDrawing) {
-        isDrawing = false;
-        const layer = getActiveLayer();
-        if (layer) layer.ctx.restore();
-        saveHistoryState();
+    window.addEventListener('mouseup', (e) => {
+      if (!isDrawing) return;
+      isDrawing = false;
+
+      const layer = getActiveLayer();
+      if (!layer) return;
+      const ctx = layer.ctx;
+
+      if (currentTool === 'brush' || currentTool === 'eraser') {
+        ctx.restore();
+        pushHistory(currentTool === 'brush' ? 'Pincel' : 'Borracha');
+      } else if (currentTool === 'shape') {
+        const shapeType = document.getElementById('shape-type').value;
+        const isFilled = document.getElementById('shape-filled').checked;
+        const strokeW = parseInt(document.getElementById('shape-stroke').value) || 0;
+        const color = primaryColorInput.value;
+        const secColor = secondaryColorInput.value;
+
+        ctx.save();
+        ctx.fillStyle = color;
+        ctx.strokeStyle = secColor;
+        ctx.lineWidth = strokeW;
+
+        const w = lastX - startX;
+        const h = lastY - startY;
+
+        ctx.beginPath();
+        if (shapeType === 'rectangle') {
+          ctx.rect(startX, startY, w, h);
+        } else if (shapeType === 'rounded-rect') {
+          ctx.roundRect(startX, startY, w, h, 20);
+        } else if (shapeType === 'circle') {
+          ctx.ellipse(startX + w/2, startY + h/2, Math.abs(w/2), Math.abs(h/2), 0, 0, Math.PI * 2);
+        } else if (shapeType === 'line') {
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(lastX, lastY);
+        }
+
+        if (isFilled) ctx.fill();
+        if (strokeW > 0) ctx.stroke();
+        ctx.restore();
+        pushHistory('Forma ' + shapeType);
+      } else if (currentTool === 'gradient') {
+        const gradType = document.getElementById('grad-type').value;
+        let grad;
+        if (gradType === 'linear') {
+          grad = ctx.createLinearGradient(startX, startY, lastX, lastY);
+        } else {
+          const r = Math.hypot(lastX - startX, lastY - startY);
+          grad = ctx.createRadialGradient(startX, startY, 5, startX, startY, r);
+        }
+        grad.addColorStop(0, primaryColorInput.value);
+        grad.addColorStop(1, secondaryColorInput.value);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, docWidth, docHeight);
+        pushHistory('Gradiente');
       }
     });
 
@@ -791,52 +996,322 @@
       const activeBtn = document.getElementById(`tool-${toolName}`);
       if (activeBtn) activeBtn.classList.add('active');
 
-      document.getElementById('options-brush').classList.add('hidden');
-      document.getElementById('options-text').classList.add('hidden');
-      document.getElementById('options-shape').classList.add('hidden');
+      document.getElementById('opts-brush').classList.add('hidden');
+      document.getElementById('opts-text').classList.add('hidden');
+      document.getElementById('opts-shape').classList.add('hidden');
+      document.getElementById('opts-gradient').classList.add('hidden');
 
       if (toolName === 'brush' || toolName === 'eraser') {
-        document.getElementById('options-brush').classList.remove('hidden');
-        document.getElementById('active-tool-name').innerText = toolName === 'brush' ? 'Pincel' : 'Borracha';
+        document.getElementById('opts-brush').classList.remove('hidden');
+        document.getElementById('active-tool-label').innerText = toolName === 'brush' ? 'Pincel' : 'Borracha';
+        container.style.cursor = 'crosshair';
       } else if (toolName === 'text') {
-        document.getElementById('options-text').classList.remove('hidden');
-        document.getElementById('active-tool-name').innerText = 'Texto';
+        document.getElementById('opts-text').classList.remove('hidden');
+        document.getElementById('active-tool-label').innerText = 'Texto Tipográfico';
+        container.style.cursor = 'text';
       } else if (toolName === 'shape') {
-        document.getElementById('options-shape').classList.remove('hidden');
-        document.getElementById('active-tool-name').innerText = 'Formas';
+        document.getElementById('opts-shape').classList.remove('hidden');
+        document.getElementById('active-tool-label').innerText = 'Formas Geométricas';
+        container.style.cursor = 'crosshair';
+      } else if (toolName === 'gradient') {
+        document.getElementById('opts-gradient').classList.remove('hidden');
+        document.getElementById('active-tool-label').innerText = 'Degradê / Gradiente';
+        container.style.cursor = 'crosshair';
+      } else if (toolName === 'move') {
+        document.getElementById('active-tool-label').innerText = 'Mover Camada';
+        container.style.cursor = 'move';
       } else {
-        document.getElementById('active-tool-name').innerText = toolName.toUpperCase();
+        document.getElementById('active-tool-label').innerText = toolName.toUpperCase();
+        container.style.cursor = 'default';
       }
     }
 
-    // Image Upload (Open File)
+    // Image Upload & Drag-and-Drop
     function handleImageUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
+      loadImageFile(file);
+    }
+
+    function loadImageFile(file) {
       const reader = new FileReader();
       reader.onload = (event) => {
         const img = new Image();
         img.onload = () => {
           addNewLayer(file.name.replace(/\.[^/.]+$/, ""));
           const layer = getActiveLayer();
-          layer.ctx.drawImage(img, 0, 0, projectWidth, projectHeight);
-          saveHistoryState();
+          // Draw centered / fitted
+          layer.ctx.drawImage(img, 0, 0, docWidth, docHeight);
+          pushHistory('Importar Imagem');
         };
         img.src = event.target.result;
       };
       reader.readAsDataURL(file);
     }
 
-    // Export Flattened Image (PNG / JPG / WebP)
-    function exportImage(format = 'png') {
-      const exportCanvas = document.createElement('canvas');
-      exportCanvas.width = projectWidth;
-      exportCanvas.height = projectHeight;
-      const ctx = exportCanvas.getContext('2d');
+    function setupDragAndDrop() {
+      window.addEventListener('dragover', (e) => e.preventDefault());
+      window.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          loadImageFile(e.dataTransfer.files[0]);
+        }
+      });
+    }
 
-      // Draw all visible layers from bottom to top
-      const reversed = [...layers].reverse();
-      reversed.forEach(l => {
+    // Image Transformations (Flip, Rotate)
+    function flipHorizontal() {
+      const l = getActiveLayer();
+      if (!l) return;
+      const temp = document.createElement('canvas');
+      temp.width = docWidth; temp.height = docHeight;
+      temp.getContext('2d').drawImage(l.canvas, 0, 0);
+
+      l.ctx.clearRect(0, 0, docWidth, docHeight);
+      l.ctx.save();
+      l.ctx.translate(docWidth, 0);
+      l.ctx.scale(-1, 1);
+      l.ctx.drawImage(temp, 0, 0);
+      l.ctx.restore();
+      pushHistory('Espelhar Horizontal');
+    }
+
+    function flipVertical() {
+      const l = getActiveLayer();
+      if (!l) return;
+      const temp = document.createElement('canvas');
+      temp.width = docWidth; temp.height = docHeight;
+      temp.getContext('2d').drawImage(l.canvas, 0, 0);
+
+      l.ctx.clearRect(0, 0, docWidth, docHeight);
+      l.ctx.save();
+      l.ctx.translate(0, docHeight);
+      l.ctx.scale(1, -1);
+      l.ctx.drawImage(temp, 0, 0);
+      l.ctx.restore();
+      pushHistory('Espelhar Vertical');
+    }
+
+    function rotate90(clockwise = true) {
+      const l = getActiveLayer();
+      if (!l) return;
+      const temp = document.createElement('canvas');
+      temp.width = docWidth; temp.height = docHeight;
+      temp.getContext('2d').drawImage(l.canvas, 0, 0);
+
+      l.ctx.clearRect(0, 0, docWidth, docHeight);
+      l.ctx.save();
+      l.ctx.translate(docWidth / 2, docHeight / 2);
+      l.ctx.rotate(clockwise ? Math.PI / 2 : -Math.PI / 2);
+      l.ctx.drawImage(temp, -docWidth / 2, -docHeight / 2);
+      l.ctx.restore();
+      pushHistory('Girar 90°');
+    }
+
+    // Filter Algorithms (Grayscale, Invert, Sepia, Blur, Sharpen, Vignette)
+    function applyGrayscaleFilter() {
+      const l = getActiveLayer();
+      if (!l) return;
+      const imgData = l.ctx.getImageData(0, 0, docWidth, docHeight);
+      const d = imgData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const v = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+        d[i] = v; d[i+1] = v; d[i+2] = v;
+      }
+      l.ctx.putImageData(imgData, 0, 0);
+      pushHistory('Preto e Branco');
+    }
+
+    function applyInvertFilter() {
+      const l = getActiveLayer();
+      if (!l) return;
+      const imgData = l.ctx.getImageData(0, 0, docWidth, docHeight);
+      const d = imgData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        d[i] = 255 - d[i];
+        d[i+1] = 255 - d[i+1];
+        d[i+2] = 255 - d[i+2];
+      }
+      l.ctx.putImageData(imgData, 0, 0);
+      pushHistory('Inverter Cores');
+    }
+
+    function applySepiaFilter() {
+      const l = getActiveLayer();
+      if (!l) return;
+      const imgData = l.ctx.getImageData(0, 0, docWidth, docHeight);
+      const d = imgData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const r = d[i], g = d[i+1], b = d[i+2];
+        d[i] = Math.min(255, (r * 0.393) + (g * 0.769) + (b * 0.189));
+        d[i+1] = Math.min(255, (r * 0.349) + (g * 0.686) + (b * 0.168));
+        d[i+2] = Math.min(255, (r * 0.272) + (g * 0.534) + (b * 0.131));
+      }
+      l.ctx.putImageData(imgData, 0, 0);
+      pushHistory('Filtro Sépia');
+    }
+
+    function applyBlur(px = 4) {
+      const l = getActiveLayer();
+      if (!l) return;
+      l.ctx.filter = `blur(${px}px)`;
+      l.ctx.drawImage(l.canvas, 0, 0);
+      l.ctx.filter = 'none';
+      pushHistory(`Desfoque ${px}px`);
+    }
+
+    function applySharpen() {
+      const l = getActiveLayer();
+      if (!l) return;
+      // Simple 3x3 Sharpen Kernel convolution
+      const imgData = l.ctx.getImageData(0, 0, docWidth, docHeight);
+      const weights = [0, -1, 0, -1, 5, -1, 0, -1, 0];
+      const side = Math.round(Math.sqrt(weights.length));
+      const halfSide = Math.floor(side / 2);
+      const src = imgData.data;
+      const output = l.ctx.createImageData(docWidth, docHeight);
+      const dst = output.data;
+
+      for (let y = 0; y < docHeight; y++) {
+        for (let x = 0; x < docWidth; x++) {
+          const dstOff = (y * docWidth + x) * 4;
+          let r = 0, g = 0, b = 0;
+          for (let cy = 0; cy < side; cy++) {
+            for (let cx = 0; cx < side; cx++) {
+              const scy = y + cy - halfSide;
+              const scx = x + cx - halfSide;
+              if (scy >= 0 && scy < docHeight && scx >= 0 && scx < docWidth) {
+                const srcOff = (scy * docWidth + scx) * 4;
+                const wt = weights[cy * side + cx];
+                r += src[srcOff] * wt;
+                g += src[srcOff + 1] * wt;
+                b += src[srcOff + 2] * wt;
+              }
+            }
+          }
+          dst[dstOff] = Math.min(255, Math.max(0, r));
+          dst[dstOff + 1] = Math.min(255, Math.max(0, g));
+          dst[dstOff + 2] = Math.min(255, Math.max(0, b));
+          dst[dstOff + 3] = src[dstOff + 3];
+        }
+      }
+      l.ctx.putImageData(output, 0, 0);
+      pushHistory('Nitidez');
+    }
+
+    function applyPixelate(size = 12) {
+      const l = getActiveLayer();
+      if (!l) return;
+      const temp = document.createElement('canvas');
+      const w = Math.ceil(docWidth / size);
+      const h = Math.ceil(docHeight / size);
+      temp.width = w; temp.height = h;
+      const tCtx = temp.getContext('2d');
+      tCtx.drawImage(l.canvas, 0, 0, w, h);
+
+      l.ctx.imageSmoothingEnabled = false;
+      l.ctx.clearRect(0, 0, docWidth, docHeight);
+      l.ctx.drawImage(temp, 0, 0, docWidth, docHeight);
+      l.ctx.imageSmoothingEnabled = true;
+      pushHistory('Pixelizar');
+    }
+
+    function applyVignette() {
+      const l = getActiveLayer();
+      if (!l) return;
+      const grad = l.ctx.createRadialGradient(docWidth/2, docHeight/2, docWidth/4, docWidth/2, docHeight/2, docWidth/1.4);
+      grad.addColorStop(0, 'rgba(0,0,0,0)');
+      grad.addColorStop(1, 'rgba(0,0,0,0.75)');
+      l.ctx.fillStyle = grad;
+      l.ctx.fillRect(0, 0, docWidth, docHeight);
+      pushHistory('Vinheta');
+    }
+
+    function applyAutoLevels() {
+      const l = getActiveLayer();
+      if (!l) return;
+      const imgData = l.ctx.getImageData(0, 0, docWidth, docHeight);
+      const d = imgData.data;
+      let min = 255, max = 0;
+      for (let i = 0; i < d.length; i += 4) {
+        const v = (d[i] + d[i+1] + d[i+2]) / 3;
+        if (v < min) min = v;
+        if (v > max) max = v;
+      }
+      const range = max - min || 1;
+      for (let i = 0; i < d.length; i += 4) {
+        d[i] = ((d[i] - min) / range) * 255;
+        d[i+1] = ((d[i+1] - min) / range) * 255;
+        d[i+2] = ((d[i+2] - min) / range) * 255;
+      }
+      l.ctx.putImageData(imgData, 0, 0);
+      pushHistory('Auto Níveis');
+    }
+
+    // Live Adjustments Sliders
+    function previewAdjustments() {
+      const b = parseInt(document.getElementById('slider-brightness').value);
+      const c = parseInt(document.getElementById('slider-contrast').value);
+      const s = parseInt(document.getElementById('slider-saturation').value);
+      const h = parseInt(document.getElementById('slider-hue').value);
+      const bl = parseInt(document.getElementById('slider-blur').value);
+
+      document.getElementById('val-brightness').innerText = b;
+      document.getElementById('val-contrast').innerText = c;
+      document.getElementById('val-saturation').innerText = s;
+      document.getElementById('val-hue').innerText = h + '°';
+      document.getElementById('val-blur').innerText = bl + 'px';
+
+      const l = getActiveLayer();
+      if (l) {
+        l.canvas.style.filter = `brightness(${100 + b}%) contrast(${100 + c}%) saturate(${100 + s}%) hue-rotate(${h}deg) blur(${bl}px)`;
+      }
+    }
+
+    function commitAdjustments() {
+      const l = getActiveLayer();
+      if (!l) return;
+      const filterStr = l.canvas.style.filter;
+      if (!filterStr || filterStr === 'none') return;
+
+      const temp = document.createElement('canvas');
+      temp.width = docWidth; temp.height = docHeight;
+      const tCtx = temp.getContext('2d');
+      tCtx.filter = filterStr;
+      tCtx.drawImage(l.canvas, 0, 0);
+
+      l.ctx.clearRect(0, 0, docWidth, docHeight);
+      l.ctx.drawImage(temp, 0, 0);
+      l.canvas.style.filter = 'none';
+      resetAdjustmentSliders();
+      pushHistory('Ajuste de Cores');
+    }
+
+    function resetAdjustmentSliders() {
+      document.getElementById('slider-brightness').value = 0;
+      document.getElementById('slider-contrast').value = 0;
+      document.getElementById('slider-saturation').value = 0;
+      document.getElementById('slider-hue').value = 0;
+      document.getElementById('slider-blur').value = 0;
+      document.getElementById('val-brightness').innerText = '0';
+      document.getElementById('val-contrast').innerText = '0';
+      document.getElementById('val-saturation').innerText = '0';
+      document.getElementById('val-hue').innerText = '0°';
+      document.getElementById('val-blur').innerText = '0px';
+
+      const l = getActiveLayer();
+      if (l) l.canvas.style.filter = 'none';
+    }
+
+    // Export Images (PNG, JPG, WebP)
+    function exportImage(format = 'png') {
+      const flatCanvas = document.createElement('canvas');
+      flatCanvas.width = docWidth;
+      flatCanvas.height = docHeight;
+      const ctx = flatCanvas.getContext('2d');
+
+      const rev = [...layers].reverse();
+      rev.forEach(l => {
         if (l.visible) {
           ctx.globalAlpha = l.opacity;
           ctx.globalCompositeOperation = l.blendMode || 'source-over';
@@ -845,141 +1320,220 @@
       });
 
       const mimeType = format === 'jpeg' ? 'image/jpeg' : (format === 'webp' ? 'image/webp' : 'image/png');
-      const dataURL = exportCanvas.toDataURL(mimeType, 0.95);
+      const dataURL = flatCanvas.toDataURL(mimeType, 0.95);
       const link = document.createElement('a');
-      link.download = `obnotion-art-${Date.now()}.${format === 'jpeg' ? 'jpg' : format}`;
+      link.download = `obnotion-design-${Date.now()}.${format === 'jpeg' ? 'jpg' : format}`;
       link.href = dataURL;
       link.click();
     }
 
-    // Filters (Grayscale, Invert, Blur, Sepia)
-    function applyGrayscaleFilter() {
-      const layer = getActiveLayer();
-      if (!layer) return;
-      const imgData = layer.ctx.getImageData(0, 0, projectWidth, projectHeight);
-      const d = imgData.data;
-      for (let i = 0; i < d.length; i += 4) {
-        const v = 0.3 * d[i] + 0.59 * d[i+1] + 0.11 * d[i+2];
-        d[i] = v; d[i+1] = v; d[i+2] = v;
+    // Save & Load Editable Obnotion Project (.OBS JSON)
+    function saveProjectJSON() {
+      const projectData = {
+        version: '1.0',
+        width: docWidth,
+        height: docHeight,
+        layers: layers.map(l => ({
+          name: l.name,
+          visible: l.visible,
+          opacity: l.opacity,
+          blendMode: l.blendMode,
+          dataURL: l.canvas.toDataURL('image/png')
+        }))
+      };
+
+      const jsonStr = JSON.stringify(projectData);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.download = `projeto-obnotion-${Date.now()}.obs`;
+      link.href = URL.createObjectURL(blob);
+      link.click();
+    }
+
+    function loadProjectJSON(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target.result);
+          if (data.width && data.height && data.layers) {
+            createDocument(data.width, data.height, 'transparent');
+            layers.forEach(l => l.canvas.remove());
+            layers = [];
+
+            let loadedCount = 0;
+            data.layers.forEach((lData) => {
+              addNewLayer(lData.name);
+              const layer = getActiveLayer();
+              layer.visible = lData.visible;
+              layer.opacity = lData.opacity;
+              layer.blendMode = lData.blendMode;
+              layer.canvas.style.opacity = lData.opacity;
+              layer.canvas.style.mixBlendMode = lData.blendMode;
+              layer.canvas.style.display = lData.visible ? 'block' : 'none';
+
+              const img = new Image();
+              img.onload = () => {
+                layer.ctx.drawImage(img, 0, 0);
+                loadedCount++;
+                if (loadedCount === data.layers.length) {
+                  renderLayers();
+                  pushHistory('Carregar Projeto OBS');
+                }
+              };
+              img.src = lData.dataURL;
+            });
+          }
+        } catch (err) {
+          alert('Erro ao carregar o arquivo do projeto!');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Zoom & Pan Engine
+    function setZoom(newZoom) {
+      zoom = Math.min(3.5, Math.max(0.1, newZoom));
+      container.style.transform = `scale(${zoom})`;
+      document.getElementById('zoom-label').innerText = `${Math.round(zoom * 100)}%`;
+    }
+    function zoomIn() { setZoom(zoom + 0.15); }
+    function zoomOut() { setZoom(zoom - 0.15); }
+    function zoomFit() {
+      const vp = document.getElementById('canvas-viewport');
+      const maxW = vp.clientWidth - 100;
+      const maxH = vp.clientHeight - 100;
+      const scaleX = maxW / docWidth;
+      const scaleY = maxH / docHeight;
+      setZoom(Math.min(scaleX, scaleY, 0.9));
+    }
+
+    // History (Undo & Redo)
+    function pushHistory(actionName) {
+      // Save canvas snapshot state
+      const snapshot = {
+        action: actionName,
+        layers: layers.map(l => ({
+          id: l.id,
+          name: l.name,
+          visible: l.visible,
+          opacity: l.opacity,
+          blendMode: l.blendMode,
+          data: l.ctx.getImageData(0, 0, docWidth, docHeight)
+        }))
+      };
+
+      history = history.slice(0, historyIndex + 1);
+      history.push(snapshot);
+      if (history.length > 30) history.shift();
+      historyIndex = history.length - 1;
+      renderHistoryList();
+    }
+
+    function undo() {
+      if (historyIndex > 0) {
+        historyIndex--;
+        restoreHistoryState(history[historyIndex]);
       }
-      layer.ctx.putImageData(imgData, 0, 0);
-      saveHistoryState();
     }
 
-    function applyInvertFilter() {
-      const layer = getActiveLayer();
-      if (!layer) return;
-      const imgData = layer.ctx.getImageData(0, 0, projectWidth, projectHeight);
-      const d = imgData.data;
-      for (let i = 0; i < d.length; i += 4) {
-        d[i] = 255 - d[i];
-        d[i+1] = 255 - d[i+1];
-        d[i+2] = 255 - d[i+2];
+    function redo() {
+      if (historyIndex < history.length - 1) {
+        historyIndex++;
+        restoreHistoryState(history[historyIndex]);
       }
-      layer.ctx.putImageData(imgData, 0, 0);
-      saveHistoryState();
     }
 
-    function applySepiaFilter() {
-      const layer = getActiveLayer();
-      if (!layer) return;
-      const imgData = layer.ctx.getImageData(0, 0, projectWidth, projectHeight);
-      const d = imgData.data;
-      for (let i = 0; i < d.length; i += 4) {
-        const r = d[i], g = d[i+1], b = d[i+2];
-        d[i] = Math.min(255, (r * 0.393) + (g * 0.769) + (b * 0.189));
-        d[i+1] = Math.min(255, (r * 0.349) + (g * 0.686) + (b * 0.168));
-        d[i+2] = Math.min(255, (r * 0.272) + (g * 0.534) + (b * 0.131));
-      }
-      layer.ctx.putImageData(imgData, 0, 0);
-      saveHistoryState();
+    function restoreHistoryState(state) {
+      if (!state) return;
+      state.layers.forEach(sLayer => {
+        const l = layers.find(layer => layer.id === sLayer.id);
+        if (l) {
+          l.ctx.putImageData(sLayer.data, 0, 0);
+          l.visible = sLayer.visible;
+          l.opacity = sLayer.opacity;
+          l.blendMode = sLayer.blendMode;
+          l.canvas.style.opacity = sLayer.opacity;
+          l.canvas.style.mixBlendMode = sLayer.blendMode;
+          l.canvas.style.display = sLayer.visible ? 'block' : 'none';
+        }
+      });
+      renderLayers();
+      renderHistoryList();
     }
 
-    function applyBlurFilter(amount = 4) {
-      const layer = getActiveLayer();
-      if (!layer) return;
-      layer.ctx.filter = `blur(${amount}px)`;
-      layer.ctx.drawImage(layer.canvas, 0, 0);
-      layer.ctx.filter = 'none';
-      saveHistoryState();
+    function renderHistoryList() {
+      const list = document.getElementById('history-list');
+      list.innerHTML = '';
+      history.forEach((step, idx) => {
+        const row = document.createElement('div');
+        row.className = `p-1.5 rounded text-xs flex items-center gap-2 cursor-pointer ${
+          idx === historyIndex ? 'bg-violet-600/30 text-white font-bold' : 'text-zinc-400 hover:bg-white/[0.04]'
+        }`;
+        row.innerHTML = `<i data-lucide="history" class="w-3 h-3"></i><span>${step.action}</span>`;
+        row.onclick = () => {
+          historyIndex = idx;
+          restoreHistoryState(history[idx]);
+        };
+        list.appendChild(row);
+      });
+      lucide.createIcons();
     }
 
-    // Zoom & Pan
-    function updateZoom() {
-      wrapper.style.transform = `scale(${zoomLevel})`;
-      document.getElementById('zoom-text').innerText = `${Math.round(zoomLevel * 100)}%`;
-    }
-    function zoomIn() { zoomLevel = Math.min(3.0, zoomLevel + 0.15); updateZoom(); }
-    function zoomOut() { zoomLevel = Math.max(0.1, zoomLevel - 0.15); updateZoom(); }
-    function zoomReset() { fitCanvasToScreen(); }
-
-    function fitCanvasToScreen() {
-      const viewport = document.getElementById('canvas-viewport');
-      const maxW = viewport.clientWidth - 80;
-      const maxH = viewport.clientHeight - 80;
-      const scaleX = maxW / projectWidth;
-      const scaleY = maxH / projectHeight;
-      zoomLevel = Math.min(scaleX, scaleY, 1.0);
-      updateZoom();
+    // UI Helpers
+    function updateBrushLabels() {
+      const sz = document.getElementById('brush-size').value;
+      const op = document.getElementById('brush-opacity').value;
+      document.getElementById('brush-size-label').innerText = `${sz}px`;
+      document.getElementById('brush-opacity-label').innerText = `${op}%`;
     }
 
-    // History (Undo / Redo)
-    function saveHistoryState() {
-      // Keep up to 20 steps
-      const currentLayer = getActiveLayer();
-      if (!currentLayer) return;
-      // In real implementation, save layer states
-    }
-
-    function undo() { /* Undo last stroke */ }
-    function redo() { /* Redo */ }
-
-    // Helpers
     function swapColors() {
-      const temp = primaryColorInput.value;
+      const t = primaryColorInput.value;
       primaryColorInput.value = secondaryColorInput.value;
-      secondaryColorInput.value = temp;
+      secondaryColorInput.value = t;
     }
 
-    function updateBrushPreview() {
-      const size = document.getElementById('brush-size').value;
-      const opacity = document.getElementById('brush-opacity').value;
-      document.getElementById('brush-size-val').innerText = `${size}px`;
-      document.getElementById('brush-opacity-val').innerText = `${opacity}%`;
-    }
-
-    function openNewModal() { document.getElementById('modal-new').classList.remove('hidden'); }
-    function closeNewModal() { document.getElementById('modal-new').classList.add('hidden'); }
-    function setPreset(w, h, name) {
-      document.getElementById('new-doc-w').value = w;
-      document.getElementById('new-doc-h').value = h;
-    }
-
-    function toggleTab(tab) {
-      if (tab === 'adjustments') {
-        document.getElementById('panel-layers').classList.add('hidden');
-        document.getElementById('panel-adjustments').classList.remove('hidden');
+    function toggleTextStyle(type) {
+      if (type === 'bold') {
+        isBold = !isBold;
+        document.getElementById('btn-bold').classList.toggle('bg-violet-600', isBold);
       } else {
-        document.getElementById('panel-layers').classList.remove('hidden');
-        document.getElementById('panel-adjustments').classList.add('hidden');
+        isItalic = !isItalic;
+        document.getElementById('btn-italic').classList.toggle('bg-violet-600', isItalic);
       }
     }
 
-    function handleGlobalKeydown(e) {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-      if (e.key.toLowerCase() === 'b') setTool('brush');
-      if (e.key.toLowerCase() === 'e') setTool('eraser');
-      if (e.key.toLowerCase() === 'v') setTool('move');
-      if (e.key.toLowerCase() === 't') setTool('text');
-      if (e.key.toLowerCase() === 'g') setTool('bucket');
-      if (e.key.toLowerCase() === 'i') setTool('eyedropper');
-      if (e.key.toLowerCase() === 'x') swapColors();
-      if (e.ctrlKey && e.key.toLowerCase() === 'z') undo();
-      if (e.ctrlKey && e.key.toLowerCase() === 'y') redo();
+    function switchRightTab(tab) {
+      document.getElementById('tab-layers').classList.toggle('hidden', tab !== 'layers');
+      document.getElementById('tab-adjustments').classList.toggle('hidden', tab !== 'adjustments');
+      document.getElementById('tab-history').classList.toggle('hidden', tab !== 'history');
+
+      document.getElementById('tab-btn-layers').className = tab === 'layers' ? 'px-3 py-1 border-b-2 border-violet-500 text-white font-bold text-[11px]' : 'px-3 py-1 text-zinc-400 hover:text-zinc-200 text-[11px]';
+      document.getElementById('tab-btn-adjustments').className = tab === 'adjustments' ? 'px-3 py-1 border-b-2 border-violet-500 text-white font-bold text-[11px]' : 'px-3 py-1 text-zinc-400 hover:text-zinc-200 text-[11px]';
+      document.getElementById('tab-btn-history').className = tab === 'history' ? 'px-3 py-1 border-b-2 border-violet-500 text-white font-bold text-[11px]' : 'px-3 py-1 text-zinc-400 hover:text-zinc-200 text-[11px]';
     }
 
-    // Run on load
-    window.onload = init;
+    function handleShortcuts(e) {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+      const key = e.key.toLowerCase();
+
+      if (e.ctrlKey && key === 'z') { e.preventDefault(); undo(); }
+      else if (e.ctrlKey && key === 'y') { e.preventDefault(); redo(); }
+      else if (e.ctrlKey && key === 's') { e.preventDefault(); saveProjectJSON(); }
+      else if (e.ctrlKey && key === 'j') { e.preventDefault(); duplicateActiveLayer(); }
+      else if (e.ctrlKey && key === 'n') { e.preventDefault(); openNewModal(); }
+      else if (key === 'b') setTool('brush');
+      else if (key === 'e') setTool('eraser');
+      else if (key === 'v') setTool('move');
+      else if (key === 't') setTool('text');
+      else if (key === 'g') setTool('bucket');
+      else if (key === 'u') setTool('shape');
+      else if (key === 'i') setTool('eyedropper');
+      else if (key === 'x') swapColors();
+      else if (key === 'delete' || key === 'backspace') clearActiveLayer();
+    }
   </script>
 </body>
 </html>
