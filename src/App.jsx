@@ -303,6 +303,7 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+        onAskJarvis={(prompt) => setJarvisActionPrompt(prompt)}
         darkMode={darkMode}
         notesCount={(data.notes || []).length}
         tasksPendingCount={pendingTasksCount}

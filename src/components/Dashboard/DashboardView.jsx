@@ -1,14 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
-  BrainCircuit,
+  Sparkles,
+  ArrowUp,
   Mic,
   MicOff,
-  Send,
-  Sparkles,
-  ArrowRight,
+  Plus,
+  Calendar,
+  FileText,
+  BarChart3,
+  Bot,
+  CheckSquare,
+  BookOpen,
+  DollarSign,
+  ChevronRight,
+  TrendingUp,
+  X,
   Clock,
   Compass,
-  Lightbulb
+  Lightbulb,
+  ArrowRight
 } from 'lucide-react';
 
 export default function DashboardView({
@@ -26,6 +36,7 @@ export default function DashboardView({
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [feedbackToast, setFeedbackToast] = useState(null);
+  const [isRadarModalOpen, setIsRadarModalOpen] = useState(false);
   const recognitionRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -51,6 +62,9 @@ export default function DashboardView({
   const calendarEvents = data?.calendarEvents || [];
   const books = data?.books || [];
   const bills = data?.bills || [];
+  const profile = data?.financeProfile || { monthlySalary: 0, salaryDay: 5 };
+  const debts = data?.debts || [];
+  const creditCards = data?.creditCards || [];
 
   // Filter Tasks
   const pendingTasks = tasks.filter(t => t.status !== 'done');
@@ -64,7 +78,13 @@ export default function DashboardView({
   const currentBook = books.find(b => b.status === 'reading');
   const urgentBills = bills.filter(b => b.status === 'pending' && b.dueDate && b.dueDate <= todayStr);
 
-  // 1. RADAR DO DIA - Intelligent Intensity & Context Analysis
+  // Financial Balance Estimation
+  const totalBills = bills.reduce((acc, b) => acc + (Number(b.amount) || 0), 0);
+  const totalDebtMonthly = debts.reduce((acc, d) => acc + (Number(d.installmentAmount) || 0), 0);
+  const totalCards = creditCards.reduce((acc, c) => acc + (Number(c.currentBill) || 0), 0);
+  const freeBalance = (Number(profile.monthlySalary) || 0) - (totalBills + totalDebtMonthly + totalCards);
+
+  // 1. RADAR DO DIA - Intelligent Intensity Analysis
   const intensityScore = 
     (overdueTasks.length * 2.5) +
     (todayEvents.length * 2.0) +
@@ -114,10 +134,8 @@ export default function DashboardView({
     }
   }
 
-  // 2. SE EU FOSSE VOCÊ - Top 3 Contextual Priorities
+  // 2. SE EU FOSSE VOCÊ - Top Priorities
   const recommendations = [];
-
-  // Priority 1: Overdue Task or Most Urgent Task
   if (overdueTasks.length > 0) {
     const topOverdue = overdueTasks[0];
     recommendations.push({
@@ -125,7 +143,7 @@ export default function DashboardView({
       tag: 'Atrasada',
       tagColor: 'bg-rose-500/20 text-rose-300 border-rose-500/30',
       title: topOverdue.title,
-      subtitle: `Venceu em ${topOverdue.dueDate?.split('-').reverse().slice(0, 2).join('/')} • Recomendo resolver antes de tudo`,
+      subtitle: `Venceu em ${topOverdue.dueDate?.split('-').reverse().slice(0, 2).join('/')} • Resolver primeiro`,
       type: 'task',
       targetId: topOverdue.id,
       actionText: 'Concluir',
@@ -138,7 +156,7 @@ export default function DashboardView({
       tag: 'Alta Prioridade',
       tagColor: 'bg-violet-500/20 text-violet-300 border-violet-500/30',
       title: topHigh.title,
-      subtitle: `Prazo: ${topHigh.dueDate ? topHigh.dueDate.split('-').reverse().slice(0, 2).join('/') : 'Hoje'} • Maior impacto no seu dia`,
+      subtitle: `Prazo: ${topHigh.dueDate ? topHigh.dueDate.split('-').reverse().slice(0, 2).join('/') : 'Hoje'} • Maior impacto`,
       type: 'task',
       targetId: topHigh.id,
       actionText: 'Concluir',
@@ -170,131 +188,13 @@ export default function DashboardView({
     });
   }
 
-  // Priority 2: Urgent Bill / Calendar Event / Second Task
-  if (urgentBills.length > 0) {
-    const topBill = urgentBills[0];
-    recommendations.push({
-      id: 'rec-2',
-      tag: 'Financeiro',
-      tagColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-      title: `Pagar ${topBill.title} (R$ ${Number(topBill.amount).toFixed(2)})`,
-      subtitle: `Vencimento: ${topBill.dueDate?.split('-').reverse().slice(0, 2).join('/')} • Evite juros e atrasos`,
-      type: 'bill',
-      targetId: topBill.id,
-      actionText: 'Ver Finanças',
-      actionTab: 'finance'
-    });
-  } else if (todayEvents.length > 0) {
-    const topEvent = todayEvents[0];
-    recommendations.push({
-      id: 'rec-2',
-      tag: 'Compromisso',
-      tagColor: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
-      title: topEvent.title,
-      subtitle: `Horário: ${topEvent.time || 'Durante o dia'} • Prepare-se com antecedência`,
-      type: 'event',
-      actionText: 'Ver Agenda',
-      actionTab: 'calendar'
-    });
-  } else if (pendingTasks.length > 1) {
-    const secondTask = pendingTasks.find(t => t.id !== recommendations[0]?.targetId) || pendingTasks[1];
-    recommendations.push({
-      id: 'rec-2',
-      tag: 'Próxima Ação',
-      tagColor: 'bg-violet-500/20 text-violet-300 border-violet-500/30',
-      title: secondTask.title,
-      subtitle: `Categoria: ${secondTask.tags?.[0] || 'Geral'}`,
-      type: 'task',
-      targetId: secondTask.id,
-      actionText: 'Concluir',
-      actionTab: 'tasks'
-    });
-  } else {
-    recommendations.push({
-      id: 'rec-2',
-      tag: 'Estudo & Reflexão',
-      tagColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
-      title: 'Anotar ideias ou estudos',
-      subtitle: 'Registre insights no bloco de notas para estruturar novos projetos.',
-      type: 'custom',
-      actionText: 'Abrir Notas',
-      actionTab: 'notes'
-    });
-  }
-
-  // Priority 3: Habit / Reading / Health
-  if (habitsPendingToday.length > 0) {
-    const topHabit = habitsPendingToday[0];
-    recommendations.push({
-      id: 'rec-3',
-      tag: 'Hábito do Dia',
-      tagColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
-      title: `${topHabit.icon || '⚡'} ${topHabit.name}`,
-      subtitle: 'Mantenha a sua sequência de consistência diária',
-      type: 'habit',
-      targetId: topHabit.id,
-      actionText: 'Marcar Feito',
-      actionTab: 'habits'
-    });
-  } else if (currentBook) {
-    recommendations.push({
-      id: 'rec-3',
-      tag: 'Leitura',
-      tagColor: 'bg-teal-500/20 text-teal-300 border-teal-500/30',
-      title: `Ler 20 min de "${currentBook.title}"`,
-      subtitle: `Pág. ${currentBook.currentPage || 0} de ${currentBook.totalPages || 100}`,
-      type: 'book',
-      targetId: currentBook.id,
-      actionText: 'Abrir Livro',
-      actionTab: 'books'
-    });
-  } else {
-    recommendations.push({
-      id: 'rec-3',
-      tag: 'Foco',
-      tagColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-      title: 'Sessão de Foco Pomodoro',
-      subtitle: '25 minutos de imersão total sem distrações',
-      type: 'pomodoro',
-      actionText: 'Iniciar',
-      actionTab: 'pomodoro'
-    });
-  }
-
-  // Handle recommendation action
-  const handleRecAction = (rec) => {
-    if (rec.type === 'task' && rec.targetId) {
-      if (onUpdateTasks) {
-        onUpdateTasks(tasks.map(t => t.id === rec.targetId ? { ...t, status: 'done' } : t));
-        showToast('✓ Tarefa concluída com sucesso!');
-      }
-    } else if (rec.type === 'habit' && rec.targetId) {
-      if (onUpdateHabits) {
-        onUpdateHabits(habits.map(h => {
-          if (h.id === rec.targetId) {
-            return {
-              ...h,
-              history: { ...(h.history || {}), [todayStr]: true }
-            };
-          }
-          return h;
-        }));
-        showToast('✓ Hábito registrado para hoje!');
-      }
-    } else if (rec.actionTab === 'pomodoro') {
-      if (onOpenPomodoro) onOpenPomodoro();
-    } else if (rec.actionTab && onNavigate) {
-      onNavigate(rec.actionTab);
-    }
-  };
-
   // Toast notification helper
   const showToast = (message) => {
     setFeedbackToast(message);
     setTimeout(() => setFeedbackToast(null), 4000);
   };
 
-  // 3. UNIVERSAL CAPTURE - Speech Recognition
+  // Speech Recognition
   const toggleListening = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -326,7 +226,7 @@ export default function DashboardView({
     }
   };
 
-  // 4. UNIVERSAL CAPTURE - Intelligent Natural Language Processing
+  // Dispatch Universal Capture through JARVIS
   const processUniversalCapture = async (textToProcess = universalInput) => {
     const text = textToProcess.trim();
     if (!text) return;
@@ -337,7 +237,7 @@ export default function DashboardView({
     try {
       if (onAskJarvis) {
         onAskJarvis(text);
-        showToast(`⚡ JARVIS processando: "${text.length > 40 ? text.slice(0, 37) + '...' : text}"`);
+        showToast(`⚡ JARVIS processando: "${text.length > 35 ? text.slice(0, 32) + '...' : text}"`);
       } else {
         const newTask = {
           id: 'task-' + Date.now(),
@@ -358,205 +258,422 @@ export default function DashboardView({
     }
   };
 
-  // Helper to calculate target day of week
-  const getNextDayOfWeek = (dayOfWeek) => {
-    const d = new Date();
-    const result = new Date(d.getTime());
-    result.setDate(d.getDate() + ((7 + dayOfWeek - d.getDay()) % 7 || 7));
-    return result.toISOString().split('T')[0];
+  const handleRecAction = (rec) => {
+    if (rec.type === 'task' && rec.targetId) {
+      if (onUpdateTasks) {
+        onUpdateTasks(tasks.map(t => t.id === rec.targetId ? { ...t, status: 'done' } : t));
+        showToast('✓ Tarefa concluída!');
+      }
+    } else if (rec.actionTab && onNavigate) {
+      onNavigate(rec.actionTab);
+    }
   };
 
+  // Quick Action Buttons
+  const quickActions = [
+    {
+      id: 'task',
+      label: 'Criar tarefa',
+      icon: Plus,
+      color: 'text-violet-400',
+      bg: 'bg-violet-500/10 border-violet-500/20',
+      action: () => {
+        setUniversalInput('Nova tarefa: ');
+        inputRef.current?.focus();
+      }
+    },
+    {
+      id: 'event',
+      label: 'Agendar compromisso',
+      icon: Calendar,
+      color: 'text-amber-400',
+      bg: 'bg-amber-500/10 border-amber-500/20',
+      action: () => {
+        setUniversalInput('Agendar compromisso para ');
+        inputRef.current?.focus();
+      }
+    },
+    {
+      id: 'note',
+      label: 'Nova anotação',
+      icon: FileText,
+      color: 'text-yellow-400',
+      bg: 'bg-yellow-500/10 border-yellow-500/20',
+      action: () => {
+        setUniversalInput('Anotar insight: ');
+        inputRef.current?.focus();
+      }
+    },
+    {
+      id: 'summary',
+      label: 'Ver resumo do dia',
+      icon: BarChart3,
+      color: 'text-cyan-400',
+      bg: 'bg-cyan-500/10 border-cyan-500/20',
+      action: () => setIsRadarModalOpen(true)
+    }
+  ];
+
+  // 6 Apple-style Quick Access Cards
+  const accessCards = [
+    {
+      id: 'ia',
+      title: 'IA Integrada',
+      subtitle: 'Compreende, aprende e ajuda você.',
+      icon: Bot,
+      color: 'text-violet-400',
+      bg: 'bg-violet-500/15 border-violet-500/25',
+      onClick: () => onAskJarvis && onAskJarvis('Olá JARVIS! O que você me recomenda focar hoje?')
+    },
+    {
+      id: 'tasks',
+      title: 'Tarefas',
+      subtitle: 'Organize, priorize e realize mais.',
+      icon: CheckSquare,
+      color: 'text-amber-400',
+      bg: 'bg-amber-500/15 border-amber-500/25',
+      onClick: () => onNavigate && onNavigate('tasks')
+    },
+    {
+      id: 'calendar',
+      title: 'Agenda',
+      subtitle: 'Todos os seus compromissos em um só lugar.',
+      icon: Calendar,
+      color: 'text-purple-400',
+      bg: 'bg-purple-500/15 border-purple-500/25',
+      onClick: () => onNavigate && onNavigate('calendar')
+    },
+    {
+      id: 'notes',
+      title: 'Anotações',
+      subtitle: 'Capture ideias e tenha tudo à mão.',
+      icon: FileText,
+      color: 'text-yellow-400',
+      bg: 'bg-yellow-500/15 border-yellow-500/25',
+      onClick: () => onNavigate && onNavigate('notes')
+    },
+    {
+      id: 'books',
+      title: 'Livros',
+      subtitle: 'Acompanhe suas leituras e aprendizados.',
+      icon: BookOpen,
+      color: 'text-emerald-400',
+      bg: 'bg-emerald-500/15 border-emerald-500/25',
+      onClick: () => onNavigate && onNavigate('books')
+    },
+    {
+      id: 'finance',
+      title: 'Finanças',
+      subtitle: 'Tenha clareza e controle total.',
+      icon: DollarSign,
+      color: 'text-rose-400',
+      bg: 'bg-rose-500/15 border-rose-500/25',
+      onClick: () => onNavigate && onNavigate('finance')
+    }
+  ];
+
   return (
-    <div className="min-h-full flex flex-col items-center justify-start px-4 py-8 md:py-12 max-w-4xl mx-auto space-y-10 selection:bg-violet-500/30">
+    <div className="w-full min-h-screen bg-[#07080d] text-white flex flex-col items-center px-4 md:px-8 py-6 md:py-8 relative overflow-hidden select-none">
+      {/* Subtle Background Glows */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-violet-600/10 via-cyan-500/10 to-pink-600/10 rounded-full blur-[120px] pointer-events-none -z-10" />
+
       {/* Toast Notification */}
       {feedbackToast && (
-        <div className="fixed top-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-violet-600/95 text-white font-medium shadow-2xl backdrop-blur-md border border-violet-400/40 text-xs animate-fade-in">
-          <Sparkles className="w-4 h-4 text-cyan-200" />
-          <span>{feedbackToast}</span>
+        <div className="fixed top-5 z-50 animate-bounce-in">
+          <div className="px-4 py-2.5 rounded-2xl bg-[#141522]/95 border border-violet-500/40 text-xs text-white shadow-2xl backdrop-blur-xl flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-violet-400 animate-spin" />
+            <span>{feedbackToast}</span>
+          </div>
         </div>
       )}
 
-      {/* 1. CENTRAL AI HERO ORB */}
-      <div className="flex flex-col items-center text-center space-y-5">
-        <div className="relative group cursor-pointer" onClick={() => onAskJarvis ? onAskJarvis("Olá JARVIS! Como está meu dia e o que você me recomenda fazer agora?") : null}>
-          {/* Animated Atmospheric Rings */}
-          <div className="absolute -inset-4 bg-gradient-to-r from-violet-600/30 via-cyan-500/30 to-purple-600/30 rounded-full blur-2xl opacity-70 group-hover:opacity-100 transition-all duration-700 animate-pulse"></div>
-          <div className="absolute -inset-1 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-full blur-md opacity-40 group-hover:opacity-75 transition-all duration-500"></div>
-
-          {/* Core AI Orb */}
-          <div className={`w-28 h-28 md:w-32 md:h-32 rounded-full flex items-center justify-center relative z-10 border backdrop-blur-2xl transition-all duration-500 transform group-hover:scale-105 shadow-2xl ${
-            darkMode 
-              ? 'bg-gradient-to-b from-[#181926] via-[#10111a] to-[#0a0b12] border-white/[0.15] shadow-violet-950/60' 
-              : 'bg-gradient-to-b from-white via-zinc-50 to-zinc-100 border-zinc-300 shadow-violet-200/60'
-          }`}>
-            <BrainCircuit className="w-12 h-12 md:w-14 md:h-14 text-transparent bg-clip-text bg-gradient-to-tr from-violet-400 via-cyan-300 to-indigo-300 animate-pulse" />
-            
-            {/* Ambient Inner Orbit */}
-            <div className="absolute inset-2 rounded-full border border-violet-400/20 border-dashed animate-spin" style={{ animationDuration: '25s' }}></div>
-          </div>
-        </div>
-
-        <div className="space-y-1.5 max-w-md">
-          <p className="text-xs font-mono uppercase tracking-widest text-violet-400 font-semibold">
-            {userName ? `${greeting}, ${userName}` : greeting}
-          </p>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
-            O que você precisa hoje?
-          </h1>
-          <p className="text-xs text-zinc-400">
-            Fale ou escreva abaixo. O Obnotion entende, organiza e cuida de tudo.
-          </p>
-        </div>
-      </div>
-
-      {/* 2. UNIVERSAL CAPTURE OMNIBAR */}
-      <div className="w-full max-w-2xl">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            processUniversalCapture();
-          }}
-          className={`relative flex items-center rounded-2xl border transition-all duration-300 shadow-2xl backdrop-blur-2xl ${
-            isListening 
-              ? 'ring-2 ring-violet-500 border-violet-400 bg-violet-950/20' 
-              : darkMode 
-                ? 'bg-[#12131d]/85 border-white/[0.12] focus-within:border-violet-500/60 focus-within:bg-[#151624]' 
-                : 'bg-white/95 border-zinc-200 focus-within:border-violet-500'
-          }`}
+      {/* Top Header Row (Radar do Dia Pill on Left) */}
+      <div className="w-full max-w-4xl flex items-center justify-between mb-6 md:mb-8">
+        <button
+          onClick={() => setIsRadarModalOpen(true)}
+          className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#12131e]/90 hover:bg-[#1a1c2c] border border-white/[0.08] hover:border-violet-500/40 text-xs text-zinc-300 font-medium transition-all shadow-lg backdrop-blur-xl group"
         >
-          <input
-            ref={inputRef}
-            type="text"
-            value={universalInput}
-            onChange={(e) => setUniversalInput(e.target.value)}
-            placeholder={isListening ? "Ouvindo sua voz..." : "Jogue qualquer coisa aqui... (ex: Ligar para João amanhã, Comprar cabo, Estudar Romanos 8)"}
-            className="w-full px-5 py-4 bg-transparent text-sm md:text-base outline-none text-zinc-100 placeholder:text-zinc-500 font-medium"
-            disabled={isProcessing}
-          />
-
-          <div className="flex items-center gap-1.5 pr-3">
-            <button
-              type="button"
-              onClick={toggleListening}
-              className={`p-2.5 rounded-xl transition-all duration-200 ${
-                isListening 
-                  ? 'bg-rose-500 text-white animate-pulse shadow-lg shadow-rose-500/40' 
-                  : 'text-zinc-400 hover:text-violet-300 hover:bg-white/[0.08]'
-              }`}
-              title={isListening ? "Parar de ouvir" : "Falar por voz"}
-            >
-              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-            </button>
-
-            <button
-              type="submit"
-              disabled={!universalInput.trim() && !isProcessing}
-              className={`p-2.5 rounded-xl transition-all duration-200 ${
-                universalInput.trim()
-                  ? 'bg-gradient-to-r from-violet-600 to-cyan-600 text-white shadow-lg shadow-violet-500/30 hover:scale-105'
-                  : 'text-zinc-600 cursor-not-allowed'
-              }`}
-              title="Organizar pela IA"
-            >
-              <Send className="w-4 h-4" />
-            </button>
-          </div>
-        </form>
-
-        {/* Quick Suggestion Pills */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mt-3 text-[11px] text-zinc-400">
-          <span className="text-zinc-500 font-mono">Sugestões:</span>
-          <button
-            type="button"
-            onClick={() => onAskJarvis && onAskJarvis("Qual o raio-x financeiro e tarefas prioritárias de hoje?")}
-            className="px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-zinc-300 transition-colors"
-          >
-            📊 Resumo do Meu Dia
-          </button>
-          <button
-            type="button"
-            onClick={() => onAskJarvis && onAskJarvis("Quais contas vencem essa semana e como está meu saldo?")}
-            className="px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-zinc-300 transition-colors"
-          >
-            💰 Contas da Semana
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setUniversalInput("Estudar e resumir ");
-              inputRef.current?.focus();
-            }}
-            className="px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-zinc-300 transition-colors"
-          >
-            📖 Novo Estudo/Insight
-          </button>
-        </div>
+          <span className={`w-2 h-2 rounded-full ${radarDotColor} animate-pulse`} />
+          <span>Radar do dia</span>
+          <ChevronRight className="w-3.5 h-3.5 text-zinc-500 group-hover:text-zinc-300 group-hover:translate-x-0.5 transition-all" />
+        </button>
       </div>
 
-      {/* 3. RADAR DO DIA & 4. SE EU FOSSE VOCÊ */}
-      <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* RADAR DO DIA CARD */}
-        <div className={`p-6 rounded-3xl border flex flex-col justify-between transition-all duration-300 ${
-          darkMode ? 'bg-[#11121c]/80 border-white/[0.08] backdrop-blur-xl' : 'bg-white border-zinc-200'
-        }`}>
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Compass className="w-4 h-4 text-violet-400" />
-                <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 font-semibold">
-                  Radar do Dia
+      {/* Main Hero Container */}
+      <div className="w-full max-w-2xl flex flex-col items-center text-center space-y-6 md:space-y-8">
+        {/* Apple-style Greeting Headline */}
+        <div className="space-y-1">
+          <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-white">
+            {greeting}
+            {userName ? (
+              <>
+                ,{' '}
+                <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent font-extrabold">
+                  {userName}.
                 </span>
-              </div>
-              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold font-mono tracking-wide ${radarBadgeBg}`}>
-                <span className={`w-2 h-2 rounded-full ${radarDotColor} animate-pulse`}></span>
-                <span>{radarTitle}</span>
-              </div>
+              </>
+            ) : '.'}
+          </h1>
+          <p className="text-lg md:text-2xl font-medium text-zinc-300 tracking-tight">
+            Como posso te ajudar hoje?
+          </p>
+        </div>
+
+        {/* Luminous Siri Intelligence Orb */}
+        <div
+          onClick={() => onAskJarvis ? onAskJarvis('Olá JARVIS! Como está meu dia e o que devo priorizar agora?') : toggleListening()}
+          className="siri-orb-outer my-2 group"
+          title="Clique para falar ou conversar com o JARVIS"
+        >
+          <div className="siri-glow-bg" />
+          <div className="siri-sphere">
+            <div className="siri-fluid-layer" />
+            <div className="siri-inner-core" />
+          </div>
+        </div>
+
+        {/* Apple-style Omnibar Pill */}
+        <div className="w-full">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              processUniversalCapture();
+            }}
+            className={`relative flex items-center rounded-full border transition-all duration-300 shadow-2xl backdrop-blur-2xl px-2 py-1.5 ${
+              isListening
+                ? 'ring-2 ring-violet-500 border-violet-400 bg-violet-950/40'
+                : 'bg-[#10111a]/85 border-white/[0.12] hover:border-white/[0.2] focus-within:border-violet-500/70 focus-within:bg-[#141524]'
+            }`}
+          >
+            {/* Sparkle or Voice Wave Icon */}
+            <div className="pl-3.5 pr-2 text-zinc-400">
+              <Sparkles className="w-5 h-5 text-zinc-300" />
             </div>
 
-            <p className="text-sm text-zinc-200 leading-relaxed font-normal">
-              {radarSummary}
-            </p>
-          </div>
+            <input
+              ref={inputRef}
+              type="text"
+              value={universalInput}
+              onChange={(e) => setUniversalInput(e.target.value)}
+              placeholder={isListening ? 'Ouvindo sua voz...' : 'Fale ou escreva qualquer coisa...'}
+              className="w-full py-2.5 bg-transparent text-sm md:text-base outline-none text-zinc-100 placeholder:text-zinc-500 font-normal"
+              disabled={isProcessing}
+            />
 
-          <div className="pt-5 mt-5 border-t border-white/[0.06] flex items-center justify-between text-xs text-zinc-400 font-mono">
-            <span className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-zinc-500" /> {today.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
-            </span>
-            <button
-              onClick={() => onAskJarvis && onAskJarvis("Faça uma análise profunda da minha semana e sugira um plano de ação.")}
-              className="text-violet-400 hover:text-violet-300 font-sans font-medium flex items-center gap-1"
-            >
-              Pedir conselho à IA <ArrowRight className="w-3 h-3" />
-            </button>
+            {/* Voice & Submit Buttons */}
+            <div className="flex items-center gap-1.5 pr-1">
+              <button
+                type="button"
+                onClick={toggleListening}
+                className={`p-2 rounded-full transition-all duration-200 ${
+                  isListening
+                    ? 'bg-rose-500 text-white animate-pulse shadow-lg shadow-rose-500/40'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/[0.08]'
+                }`}
+                title={isListening ? 'Parar' : 'Falar por voz'}
+              >
+                {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              </button>
+
+              <button
+                type="submit"
+                disabled={!universalInput.trim() && !isProcessing}
+                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ${
+                  universalInput.trim()
+                    ? 'bg-gradient-to-tr from-violet-600 to-indigo-500 text-white shadow-lg shadow-violet-500/40 hover:scale-105 active:scale-95'
+                    : 'bg-violet-600/30 text-violet-300/40 cursor-not-allowed'
+                }`}
+                title="Enviar para o JARVIS"
+              >
+                <ArrowUp className="w-4 h-4 stroke-[2.5]" />
+              </button>
+            </div>
+          </form>
+
+          {/* Quick Action 4 Rounded Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4">
+            {quickActions.map((qa) => {
+              const Icon = qa.icon;
+              return (
+                <button
+                  key={qa.id}
+                  onClick={qa.action}
+                  className="flex items-center gap-2.5 p-3 rounded-2xl bg-[#10111a]/70 hover:bg-[#151624] border border-white/[0.06] hover:border-white/[0.15] text-xs text-zinc-300 font-medium transition-all shadow-sm group text-left"
+                >
+                  <div className={`w-8 h-8 rounded-xl ${qa.bg} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform`}>
+                    <Icon className={`w-4 h-4 ${qa.color}`} />
+                  </div>
+                  <span className="truncate leading-tight text-[11px] md:text-xs">
+                    {qa.label}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
+      </div>
 
-        {/* SE EU FOSSE VOCÊ CARD */}
-        <div className={`p-6 rounded-3xl border flex flex-col justify-between transition-all duration-300 ${
-          darkMode ? 'bg-[#11121c]/80 border-white/[0.08] backdrop-blur-xl' : 'bg-white border-zinc-200'
-        }`}>
-          <div>
-            <div className="flex items-center justify-between mb-4">
+      {/* Grid: Acesso Rápido (6 Cards) */}
+      <div className="w-full max-w-4xl mt-12 md:mt-16 space-y-3">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-xs font-semibold text-zinc-400 tracking-wider">
+            Acesso rápido
+          </h2>
+          <button
+            onClick={() => onNavigate && onNavigate('settings')}
+            className="text-[11px] text-violet-400 hover:text-violet-300 transition-colors"
+          >
+            Editar
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          {accessCards.map((card) => {
+            const CardIcon = card.icon;
+            return (
+              <div
+                key={card.id}
+                onClick={card.onClick}
+                className="p-4 rounded-2xl bg-[#0f1018]/80 hover:bg-[#141522] border border-white/[0.06] hover:border-white/[0.14] cursor-pointer transition-all duration-200 shadow-md flex items-start gap-3.5 group"
+              >
+                <div className={`w-10 h-10 rounded-xl ${card.bg} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform`}>
+                  <CardIcon className={`w-5 h-5 ${card.color}`} />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-white tracking-tight group-hover:text-violet-300 transition-colors">
+                    {card.title}
+                  </h3>
+                  <p className="text-xs text-zinc-400 mt-0.5 leading-snug">
+                    {card.subtitle}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Grid: Seu dia, resumido */}
+      <div className="w-full max-w-4xl mt-8 space-y-3 pb-16">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-xs font-semibold text-zinc-400 tracking-wider">
+            Seu dia, resumido
+          </h2>
+          <button
+            onClick={() => onNavigate && onNavigate('productivity')}
+            className="text-[11px] text-violet-400 hover:text-violet-300 transition-colors"
+          >
+            Ver tudo
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Tarefas Card with Progress Ring */}
+          <div
+            onClick={() => onNavigate && onNavigate('tasks')}
+            className="p-4 rounded-2xl bg-[#0f1018]/80 hover:bg-[#141522] border border-white/[0.06] hover:border-white/[0.14] transition-all cursor-pointer flex items-center gap-4"
+          >
+            <div className="w-11 h-11 rounded-full border-4 border-cyan-500/30 border-t-cyan-400 flex items-center justify-center shrink-0">
+              <span className="text-xs font-bold font-mono text-cyan-300">
+                {pendingTasks.length}
+              </span>
+            </div>
+            <div>
+              <div className="text-sm font-bold text-white">
+                {pendingTasks.length} Tarefas
+              </div>
+              <div className="text-xs text-zinc-400">
+                {todayTasks.length} para hoje
+              </div>
+            </div>
+          </div>
+
+          {/* Agenda Card */}
+          <div
+            onClick={() => onNavigate && onNavigate('calendar')}
+            className="p-4 rounded-2xl bg-[#0f1018]/80 hover:bg-[#141522] border border-white/[0.06] hover:border-white/[0.14] transition-all cursor-pointer flex items-center gap-4"
+          >
+            <div className="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-500/25 flex items-center justify-center shrink-0 text-purple-400">
+              <Calendar className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-sm font-bold text-white">
+                {todayEvents.length} Compromissos
+              </div>
+              <div className="text-xs text-zinc-400">
+                agendados hoje
+              </div>
+            </div>
+          </div>
+
+          {/* Finanças Card */}
+          <div
+            onClick={() => onNavigate && onNavigate('finance')}
+            className="p-4 rounded-2xl bg-[#0f1018]/80 hover:bg-[#141522] border border-white/[0.06] hover:border-white/[0.14] transition-all cursor-pointer flex items-center gap-4"
+          >
+            <div className="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shrink-0 text-emerald-400">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-sm font-bold text-white">
+                R$ {freeBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
+              <div className="text-xs text-emerald-400 flex items-center gap-1">
+                <span>Saldo livre projetado</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* RADAR DO DIA MODAL (DETAILED DIAGNOSTIC & SE EU FOSSE VOCÊ) */}
+      {isRadarModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="w-full max-w-xl bg-[#11121d] border border-white/[0.1] rounded-3xl p-6 shadow-2xl space-y-5 relative">
+            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+              <div className="flex items-center gap-2">
+                <Compass className="w-5 h-5 text-violet-400" />
+                <h3 className="text-base font-bold text-white">
+                  Radar do Dia & Recomendações
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsRadarModalOpen(false)}
+                className="text-zinc-400 hover:text-white p-1 rounded-xl hover:bg-white/[0.08]"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Radar Intensity Badge & Narrative */}
+            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 font-semibold">
+                  Intensidade do Dia:
+                </span>
+                <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold font-mono tracking-wide ${radarBadgeBg}`}>
+                  <span className={`w-2 h-2 rounded-full ${radarDotColor} animate-pulse`} />
+                  <span>{radarTitle}</span>
+                </div>
+              </div>
+              <p className="text-xs md:text-sm text-zinc-200 leading-relaxed">
+                {radarSummary}
+              </p>
+            </div>
+
+            {/* Se Eu Fosse Você */}
+            <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Lightbulb className="w-4 h-4 text-amber-400" />
                 <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 font-semibold">
-                  Se Eu Fosse Você
+                  Se Eu Fosse Você (Prioridades)
                 </span>
               </div>
-              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
-                Próximas Ações
-              </span>
-            </div>
 
-            <div className="space-y-3">
               {recommendations.map((rec, index) => (
                 <div
                   key={rec.id}
-                  className={`p-3 rounded-2xl border flex items-center justify-between gap-3 transition-all duration-200 ${
-                    darkMode 
-                      ? 'bg-black/30 border-white/[0.05] hover:border-violet-500/30 hover:bg-white/[0.02]' 
-                      : 'bg-zinc-50 border-zinc-200 hover:border-zinc-300'
-                  }`}
+                  className="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.05] flex items-center justify-between gap-3"
                 >
                   <div className="flex items-start gap-2.5 min-w-0">
                     <span className="w-5 h-5 rounded-full bg-white/[0.06] text-zinc-400 font-mono text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
@@ -578,7 +695,10 @@ export default function DashboardView({
                   </div>
 
                   <button
-                    onClick={() => handleRecAction(rec)}
+                    onClick={() => {
+                      handleRecAction(rec);
+                      setIsRadarModalOpen(false);
+                    }}
                     className="px-2.5 py-1 rounded-xl bg-violet-600/20 hover:bg-violet-600 text-violet-300 hover:text-white border border-violet-500/30 text-[11px] font-medium transition-all shrink-0"
                   >
                     {rec.actionText}
@@ -586,21 +706,21 @@ export default function DashboardView({
                 </div>
               ))}
             </div>
-          </div>
 
-          <div className="pt-4 mt-4 border-t border-white/[0.06] flex items-center justify-between text-xs text-zinc-400">
-            <span className="text-[11px] text-zinc-500">
-              {pendingTasks.length} tarefas pendentes • {habitsPendingToday.length} hábitos restantes
-            </span>
-            <button
-              onClick={() => onNavigate && onNavigate('tasks')}
-              className="text-zinc-400 hover:text-zinc-200 text-[11px] flex items-center gap-1 font-mono"
-            >
-              Ver todas <ArrowRight className="w-3 h-3" />
-            </button>
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => {
+                  setIsRadarModalOpen(false);
+                  if (onAskJarvis) onAskJarvis('Faça uma análise profunda da minha semana e me dê conselhos estratégicos.');
+                }}
+                className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold shadow-lg shadow-violet-600/30 transition-all flex items-center gap-1.5"
+              >
+                Pedir Conselho ao JARVIS <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
