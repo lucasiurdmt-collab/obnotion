@@ -224,56 +224,68 @@ export default function JarvisWidget({
     }
   };
 
+  const utteranceQueueRef = useRef([]);
+
   const stopSpeaking = () => {
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
-    if (currentAudioRef.current) {
-      try {
-        currentAudioRef.current.pause();
-        currentAudioRef.current.src = '';
-      } catch (e) {}
-      currentAudioRef.current = null;
-    }
-    audioQueueRef.current = [];
+    utteranceQueueRef.current = [];
     setIsSpeaking(false);
   };
 
-  const playNextAudioChunk = () => {
-    if (audioQueueRef.current.length === 0) {
+  const playNextUtterance = () => {
+    if (!window.speechSynthesis || utteranceQueueRef.current.length === 0) {
       setIsSpeaking(false);
-      currentAudioRef.current = null;
       return;
     }
 
-    const chunk = audioQueueRef.current.shift();
-    const encoded = encodeURIComponent(chunk);
-    const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=pt-BR&client=tw-ob&q=${encoded}`;
+    const chunk = utteranceQueueRef.current.shift();
+    if (!chunk || !chunk.trim()) {
+      playNextUtterance();
+      return;
+    }
 
-    const audio = new Audio(url);
-    currentAudioRef.current = audio;
-    audio.playbackRate = Math.min(2.0, Math.max(0.5, voiceRate));
+    const utterance = new SpeechSynthesisUtterance(chunk.trim());
 
-    audio.onended = () => {
-      playNextAudioChunk();
+    if (selectedVoiceURI) {
+      const chosen = availableVoices.find(v => v.voiceURI === selectedVoiceURI);
+      if (chosen) utterance.voice = chosen;
+    } else if (availableVoices.length > 0) {
+      // Auto pick best neural voice
+      const best = availableVoices.find(v => 
+        v.name.includes('Natural') || 
+        v.name.includes('Online') || 
+        v.name.includes('Google') || 
+        v.name.includes('Francisca') || 
+        v.name.includes('Antonio') ||
+        v.name.includes('Luciana')
+      ) || availableVoices[0];
+      if (best) utterance.voice = best;
+    }
+
+    utterance.lang = 'pt-BR';
+    utterance.rate = voiceRate;
+    utterance.pitch = voicePitch;
+
+    utterance.onend = () => {
+      playNextUtterance();
     };
 
-    audio.onerror = () => {
-      playNextAudioChunk();
+    utterance.onerror = (err) => {
+      console.warn('Speech synthesis chunk error:', err);
+      playNextUtterance();
     };
 
-    audio.play().catch(e => {
-      console.warn('Audio stream error, falling back to next or browser synth:', e);
-      playNextAudioChunk();
-    });
+    window.speechSynthesis.speak(utterance);
   };
 
   const speakText = (text) => {
     stopSpeaking();
-    if (!text) return;
+    if (!text || !window.speechSynthesis) return;
 
-    // Clean text: strip code blocks, markdown symbols, asterisks, urls, emojis for clear human-like pronunciation
-    let cleanText = text
+    // Clean markdown, emojis, asterisks, brackets, URLs
+    const cleanText = text
       .replace(/```[\s\S]*?```/g, '')
       .replace(/`.*?`/g, '')
       .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
@@ -284,52 +296,13 @@ export default function JarvisWidget({
 
     if (!cleanText) return;
 
-    if (voiceEngine === 'google-neural') {
-      setIsSpeaking(true);
-      // Split into small, naturally punctuated sentences of <= 140 characters
-      const chunks = [];
-      const sentences = cleanText.split(/(?<=[.?!;:\n])\s+/);
-      
-      sentences.forEach(s => {
-        let trimmed = s.trim();
-        if (!trimmed) return;
-        while (trimmed.length > 140) {
-          let splitIdx = trimmed.lastIndexOf(' ', 140);
-          if (splitIdx === -1) splitIdx = 140;
-          chunks.push(trimmed.slice(0, splitIdx));
-          trimmed = trimmed.slice(splitIdx).trim();
-        }
-        if (trimmed) chunks.push(trimmed);
-      });
+    setIsSpeaking(true);
 
-      if (chunks.length === 0) {
-        setIsSpeaking(false);
-        return;
-      }
+    // Split text into natural conversational sentences by punctuation
+    const sentences = cleanText.split(/(?<=[.?!;:\n])\s+/).filter(s => s.trim().length > 0);
+    utteranceQueueRef.current = sentences.length > 0 ? sentences : [cleanText];
 
-      audioQueueRef.current = chunks;
-      playNextAudioChunk();
-    } else {
-      // Fallback: Browser High Definition Speech Synthesis
-      if (!window.speechSynthesis) return;
-      setIsSpeaking(true);
-
-      const utterance = new SpeechSynthesisUtterance(cleanText);
-
-      if (selectedVoiceURI) {
-        const chosen = availableVoices.find(v => v.voiceURI === selectedVoiceURI);
-        if (chosen) utterance.voice = chosen;
-      }
-
-      utterance.lang = 'pt-BR';
-      utterance.rate = voiceRate;
-      utterance.pitch = voicePitch;
-
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-
-      window.speechSynthesis.speak(utterance);
-    }
+    playNextUtterance();
   };
 
   // Handle Multi-image Selection
@@ -1073,67 +1046,55 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
                 </button>
               </div>
 
-              {/* Voice Engine Selector */}
               <div>
-                <label className="block text-[10px] text-zinc-400 uppercase font-mono mb-1">Motor de Voz (IA):</label>
-                <div className="grid grid-cols-2 gap-2 mb-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setVoiceEngine('google-neural');
-                      localStorage.setItem('jarvis_voice_engine', 'google-neural');
-                    }}
-                    className={`p-2 rounded-lg border text-left transition-all ${
-                      voiceEngine === 'google-neural'
-                        ? 'bg-violet-600/20 border-violet-500/50 text-white font-semibold'
-                        : 'bg-black/40 border-white/[0.06] text-zinc-400 hover:bg-white/[0.04]'
-                    }`}
-                  >
-                    <p className="text-[11px] text-violet-300 font-bold flex items-center gap-1">
-                      <span>✨ Google Neural HD</span>
-                    </p>
-                    <p className="text-[9px] text-zinc-400 mt-0.5">Voz humana ultra-natural (Recomendada)</p>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setVoiceEngine('browser-system');
-                      localStorage.setItem('jarvis_voice_engine', 'browser-system');
-                    }}
-                    className={`p-2 rounded-lg border text-left transition-all ${
-                      voiceEngine === 'browser-system'
-                        ? 'bg-violet-600/20 border-violet-500/50 text-white font-semibold'
-                        : 'bg-black/40 border-white/[0.06] text-zinc-400 hover:bg-white/[0.04]'
-                    }`}
-                  >
-                    <p className="text-[11px] text-zinc-200 font-bold">🎙️ Voz do Sistema</p>
-                    <p className="text-[9px] text-zinc-400 mt-0.5">Edge / Chrome sintetizador</p>
-                  </button>
-                </div>
-              </div>
-
-              {voiceEngine === 'browser-system' && (
-                <div>
-                  <label className="block text-[10px] text-zinc-400 uppercase font-mono mb-1">Selecionar Voz do Sistema:</label>
-                  <select
-                    value={selectedVoiceURI}
-                    onChange={(e) => {
-                      setSelectedVoiceURI(e.target.value);
-                      localStorage.setItem('jarvis_voice_uri', e.target.value);
-                    }}
-                    className={`w-full p-1.5 rounded-lg border text-xs outline-none ${
-                      darkMode ? 'bg-black/50 border-white/[0.1] text-white' : 'bg-white border-zinc-300 text-zinc-800'
-                    }`}
-                  >
-                    {availableVoices.map((v, i) => (
-                      <option key={i} value={v.voiceURI}>
+                <label className="block text-[10px] text-zinc-400 uppercase font-mono mb-1">Selecionar Voz:</label>
+                <select
+                  value={selectedVoiceURI}
+                  onChange={(e) => {
+                    setSelectedVoiceURI(e.target.value);
+                    localStorage.setItem('jarvis_voice_uri', e.target.value);
+                  }}
+                  className={`w-full p-2 rounded-lg border text-xs outline-none font-medium ${
+                    darkMode ? 'bg-black/50 border-white/[0.1] text-white' : 'bg-white border-zinc-300 text-zinc-800'
+                  }`}
+                >
+                  <optgroup label="🌟 Vozes Neurais HD (Ultra-Realistas / Naturais)">
+                    {availableVoices.filter(v => 
+                      v.name.includes('Natural') || 
+                      v.name.includes('Online') || 
+                      v.name.includes('Google') || 
+                      v.name.includes('Francisca') || 
+                      v.name.includes('Antonio') ||
+                      v.name.includes('Luciana') ||
+                      v.name.includes('Thalita') ||
+                      v.name.includes('Donato')
+                    ).map((v, i) => (
+                      <option key={'neural-' + i} value={v.voiceURI}>
+                        ✨ {v.name} ({v.lang})
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="🤖 Outras Vozes do Sistema">
+                    {availableVoices.filter(v => 
+                      !v.name.includes('Natural') && 
+                      !v.name.includes('Online') && 
+                      !v.name.includes('Google') && 
+                      !v.name.includes('Francisca') && 
+                      !v.name.includes('Antonio') &&
+                      !v.name.includes('Luciana') &&
+                      !v.name.includes('Thalita') &&
+                      !v.name.includes('Donato')
+                    ).map((v, i) => (
+                      <option key={'std-' + i} value={v.voiceURI}>
                         {v.name} ({v.lang})
                       </option>
                     ))}
-                  </select>
-                </div>
-              )}
+                  </optgroup>
+                </select>
+                <p className="text-[9px] text-zinc-400 mt-1 font-mono">
+                  Dica: No Edge/Chrome, as vozes <strong>Francisca (Natural)</strong> ou <strong>Antonio (Natural)</strong> oferecem a máxima fluidez humana.
+                </p>
+              </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
