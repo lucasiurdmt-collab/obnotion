@@ -19,6 +19,7 @@ import JournalView from './components/Journal/JournalView';
 import SettingsView from './components/Settings/SettingsView';
 import ProductivityView from './components/Productivity/ProductivityView';
 import JarvisWidget from './components/Jarvis/JarvisWidget';
+import ReminderManager from './components/Notifications/ReminderManager';
 
 export default function App() {
   const {
@@ -321,6 +322,15 @@ export default function App() {
         logout={logout}
         resetPassword={resetPassword}
         syncToCloudNow={syncToCloudNow}
+        darkMode={darkMode}
+      />
+
+      {/* Global Proactive Reminders & Apple Chime Alarm */}
+      <ReminderManager
+        data={data}
+        onNavigate={(tab) => setActiveTab(tab)}
+        onUpdateTasks={(tasks) => updateSection('tasks', tasks)}
+        onUpdateEvents={(events) => updateSection('calendarEvents', events)}
         darkMode={darkMode}
       />
     </div>
