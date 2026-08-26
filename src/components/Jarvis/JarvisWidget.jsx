@@ -35,10 +35,9 @@ export default function JarvisWidget({
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   const [attachedImages, setAttachedImages] = useState([]); // [{ id, data: base64, mimeType: string, previewUrl: string, name: string }]
 
-  // Speech & Voice Settings State
-  const [availableVoices, setAvailableVoices] = useState([]);
+  const [voiceSource, setVoiceSource] = useState(() => localStorage.getItem('jarvis_voice_source') || 'cloud'); // 'cloud' | 'browser'
+  const [cloudVoice, setCloudVoice] = useState(() => localStorage.getItem('jarvis_cloud_voice') || 'Camila'); // 'Camila', 'Ricardo', 'Vitoria', 'Cristiano', 'Ines'
   const [selectedVoiceURI, setSelectedVoiceURI] = useState(() => localStorage.getItem('jarvis_voice_uri') || '');
-  const [voiceEngine, setVoiceEngine] = useState(() => localStorage.getItem('jarvis_voice_engine') || 'google-neural');
   const [voiceRate, setVoiceRate] = useState(() => Number(localStorage.getItem('jarvis_voice_rate')) || 1.15);
   const [voicePitch, setVoicePitch] = useState(() => Number(localStorage.getItem('jarvis_voice_pitch')) || 1.0);
   const [handsFreeMode, setHandsFreeMode] = useState(() => localStorage.getItem('jarvis_handsfree') === 'true');
@@ -48,6 +47,7 @@ export default function JarvisWidget({
   const recognitionRef = useRef(null);
   const currentAudioRef = useRef(null);
   const audioQueueRef = useRef([]);
+  const utteranceQueueRef = useRef([]);
   const handsFreeRef = useRef(handsFreeMode);
   handsFreeRef.current = handsFreeMode;
 
@@ -224,14 +224,65 @@ export default function JarvisWidget({
     }
   };
 
-  const utteranceQueueRef = useRef([]);
-
   const stopSpeaking = () => {
     if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
+      try { window.speechSynthesis.cancel(); } catch (e) {}
     }
+    if (currentAudioRef.current) {
+      try {
+        currentAudioRef.current.pause();
+        currentAudioRef.current.src = '';
+      } catch (e) {}
+      currentAudioRef.current = null;
+    }
+    audioQueueRef.current = [];
     utteranceQueueRef.current = [];
     setIsSpeaking(false);
+  };
+
+  const playNextCloudChunk = () => {
+    if (audioQueueRef.current.length === 0) {
+      setIsSpeaking(false);
+      currentAudioRef.current = null;
+      return;
+    }
+
+    const chunk = audioQueueRef.current.shift();
+    if (!chunk || !chunk.trim()) {
+      playNextCloudChunk();
+      return;
+    }
+
+    const encoded = encodeURIComponent(chunk.trim());
+    const voiceToUse = cloudVoice || 'Camila';
+    const url = `https://api.streamelements.com/kappa/v2/speech?voice=${voiceToUse}&text=${encoded}`;
+
+    const audio = new Audio(url);
+    currentAudioRef.current = audio;
+    audio.playbackRate = Math.min(2.0, Math.max(0.5, voiceRate));
+
+    audio.onended = () => {
+      playNextCloudChunk();
+    };
+
+    audio.onerror = (e) => {
+      console.warn('Cloud audio stream error, falling back to next chunk or browser synth:', e);
+      if (window.speechSynthesis) {
+        const u = new SpeechSynthesisUtterance(chunk.trim());
+        u.lang = 'pt-BR';
+        u.rate = voiceRate;
+        u.onend = () => playNextCloudChunk();
+        u.onerror = () => playNextCloudChunk();
+        window.speechSynthesis.speak(u);
+      } else {
+        playNextCloudChunk();
+      }
+    };
+
+    audio.play().catch(e => {
+      console.warn('Autoplay error:', e);
+      playNextCloudChunk();
+    });
   };
 
   const playNextUtterance = () => {
@@ -252,7 +303,6 @@ export default function JarvisWidget({
       const chosen = availableVoices.find(v => v.voiceURI === selectedVoiceURI);
       if (chosen) utterance.voice = chosen;
     } else if (availableVoices.length > 0) {
-      // Auto pick best neural voice
       const best = availableVoices.find(v => 
         v.name.includes('Natural') || 
         v.name.includes('Online') || 
@@ -282,7 +332,7 @@ export default function JarvisWidget({
 
   const speakText = (text) => {
     stopSpeaking();
-    if (!text || !window.speechSynthesis) return;
+    if (!text) return;
 
     // Clean markdown, emojis, asterisks, brackets, URLs
     const cleanText = text
@@ -298,11 +348,35 @@ export default function JarvisWidget({
 
     setIsSpeaking(true);
 
-    // Split text into natural conversational sentences by punctuation
-    const sentences = cleanText.split(/(?<=[.?!;:\n])\s+/).filter(s => s.trim().length > 0);
-    utteranceQueueRef.current = sentences.length > 0 ? sentences : [cleanText];
+    if (voiceSource === 'cloud') {
+      // Split into natural sentences for cloud audio (max 200 chars per sentence)
+      const chunks = [];
+      const sentences = cleanText.split(/(?<=[.?!;:\n])\s+/);
+      sentences.forEach(s => {
+        let trimmed = s.trim();
+        if (!trimmed) return;
+        while (trimmed.length > 200) {
+          let splitIdx = trimmed.lastIndexOf(' ', 200);
+          if (splitIdx === -1) splitIdx = 200;
+          chunks.push(trimmed.slice(0, splitIdx));
+          trimmed = trimmed.slice(splitIdx).trim();
+        }
+        if (trimmed) chunks.push(trimmed);
+      });
 
-    playNextUtterance();
+      if (chunks.length === 0) {
+        setIsSpeaking(false);
+        return;
+      }
+
+      audioQueueRef.current = chunks;
+      playNextCloudChunk();
+    } else {
+      // Browser Speech Synthesis
+      const sentences = cleanText.split(/(?<=[.?!;:\n])\s+/).filter(s => s.trim().length > 0);
+      utteranceQueueRef.current = sentences.length > 0 ? sentences : [cleanText];
+      playNextUtterance();
+    }
   };
 
   // Handle Multi-image Selection
@@ -1046,55 +1120,118 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
                 </button>
               </div>
 
+              {/* Voice Source Selector */}
               <div>
-                <label className="block text-[10px] text-zinc-400 uppercase font-mono mb-1">Selecionar Voz:</label>
-                <select
-                  value={selectedVoiceURI}
-                  onChange={(e) => {
-                    setSelectedVoiceURI(e.target.value);
-                    localStorage.setItem('jarvis_voice_uri', e.target.value);
-                  }}
-                  className={`w-full p-2 rounded-lg border text-xs outline-none font-medium ${
-                    darkMode ? 'bg-black/50 border-white/[0.1] text-white' : 'bg-white border-zinc-300 text-zinc-800'
-                  }`}
-                >
-                  <optgroup label="🌟 Vozes Neurais HD (Ultra-Realistas / Naturais)">
-                    {availableVoices.filter(v => 
-                      v.name.includes('Natural') || 
-                      v.name.includes('Online') || 
-                      v.name.includes('Google') || 
-                      v.name.includes('Francisca') || 
-                      v.name.includes('Antonio') ||
-                      v.name.includes('Luciana') ||
-                      v.name.includes('Thalita') ||
-                      v.name.includes('Donato')
-                    ).map((v, i) => (
-                      <option key={'neural-' + i} value={v.voiceURI}>
-                        ✨ {v.name} ({v.lang})
-                      </option>
-                    ))}
-                  </optgroup>
-                  <optgroup label="🤖 Outras Vozes do Sistema">
-                    {availableVoices.filter(v => 
-                      !v.name.includes('Natural') && 
-                      !v.name.includes('Online') && 
-                      !v.name.includes('Google') && 
-                      !v.name.includes('Francisca') && 
-                      !v.name.includes('Antonio') &&
-                      !v.name.includes('Luciana') &&
-                      !v.name.includes('Thalita') &&
-                      !v.name.includes('Donato')
-                    ).map((v, i) => (
-                      <option key={'std-' + i} value={v.voiceURI}>
-                        {v.name} ({v.lang})
-                      </option>
-                    ))}
-                  </optgroup>
-                </select>
-                <p className="text-[9px] text-zinc-400 mt-1 font-mono">
-                  Dica: No Edge/Chrome, as vozes <strong>Francisca (Natural)</strong> ou <strong>Antonio (Natural)</strong> oferecem a máxima fluidez humana.
-                </p>
+                <label className="block text-[10px] text-zinc-400 uppercase font-mono mb-1">Origem do Áudio:</label>
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVoiceSource('cloud');
+                      localStorage.setItem('jarvis_voice_source', 'cloud');
+                    }}
+                    className={`p-2 rounded-lg border text-left transition-all ${
+                      voiceSource === 'cloud'
+                        ? 'bg-violet-600/25 border-violet-500/60 text-white shadow-lg'
+                        : 'bg-black/30 border-white/[0.06] text-zinc-400 hover:bg-white/[0.04]'
+                    }`}
+                  >
+                    <p className="text-[11px] text-violet-300 font-bold flex items-center gap-1">
+                      <span>🌐 Voz da Internet (Nuvem)</span>
+                    </p>
+                    <p className="text-[9px] text-zinc-400 mt-0.5">Polly Neural • Ultra-humana (Grátis)</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVoiceSource('browser');
+                      localStorage.setItem('jarvis_voice_source', 'browser');
+                    }}
+                    className={`p-2 rounded-lg border text-left transition-all ${
+                      voiceSource === 'browser'
+                        ? 'bg-violet-600/25 border-violet-500/60 text-white shadow-lg'
+                        : 'bg-black/30 border-white/[0.06] text-zinc-400 hover:bg-white/[0.04]'
+                    }`}
+                  >
+                    <p className="text-[11px] text-zinc-200 font-bold">💻 Voz do Dispositivo</p>
+                    <p className="text-[9px] text-zinc-400 mt-0.5">Sintetizador do Navegador</p>
+                  </button>
+                </div>
               </div>
+
+              {/* Cloud Voice Dropdown */}
+              {voiceSource === 'cloud' ? (
+                <div>
+                  <label className="block text-[10px] text-zinc-400 uppercase font-mono mb-1">Voz Online da Nuvem:</label>
+                  <select
+                    value={cloudVoice}
+                    onChange={(e) => {
+                      setCloudVoice(e.target.value);
+                      localStorage.setItem('jarvis_cloud_voice', e.target.value);
+                    }}
+                    className={`w-full p-2 rounded-lg border text-xs outline-none font-medium ${
+                      darkMode ? 'bg-black/50 border-white/[0.1] text-white' : 'bg-white border-zinc-300 text-zinc-800'
+                    }`}
+                  >
+                    <option value="Camila">🌟 Camila (Feminina Fluida & Natural - Brasil)</option>
+                    <option value="Ricardo">🌟 Ricardo (Masculina Executiva & Firme - Brasil)</option>
+                    <option value="Vitoria">🌟 Vitória (Feminina Jovem - Brasil)</option>
+                    <option value="Cristiano">🌟 Cristiano (Masculina - Portugal)</option>
+                    <option value="Ines">🌟 Inês (Feminina - Portugal)</option>
+                  </select>
+                  <p className="text-[9px] text-emerald-400/80 mt-1 font-mono flex items-center gap-1">
+                    <span>✓</span> Áudio de estúdio de alta fidelidade transmitido pela internet sem limite.
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-[10px] text-zinc-400 uppercase font-mono mb-1">Selecionar Voz do Sistema:</label>
+                  <select
+                    value={selectedVoiceURI}
+                    onChange={(e) => {
+                      setSelectedVoiceURI(e.target.value);
+                      localStorage.setItem('jarvis_voice_uri', e.target.value);
+                    }}
+                    className={`w-full p-2 rounded-lg border text-xs outline-none font-medium ${
+                      darkMode ? 'bg-black/50 border-white/[0.1] text-white' : 'bg-white border-zinc-300 text-zinc-800'
+                    }`}
+                  >
+                    <optgroup label="🌟 Vozes Neurais HD (Naturais)">
+                      {availableVoices.filter(v => 
+                        v.name.includes('Natural') || 
+                        v.name.includes('Online') || 
+                        v.name.includes('Google') || 
+                        v.name.includes('Francisca') || 
+                        v.name.includes('Antonio') ||
+                        v.name.includes('Luciana') ||
+                        v.name.includes('Thalita') ||
+                        v.name.includes('Donato')
+                      ).map((v, i) => (
+                        <option key={'neural-' + i} value={v.voiceURI}>
+                          ✨ {v.name} ({v.lang})
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="🤖 Outras Vozes do Sistema">
+                      {availableVoices.filter(v => 
+                        !v.name.includes('Natural') && 
+                        !v.name.includes('Online') && 
+                        !v.name.includes('Google') && 
+                        !v.name.includes('Francisca') && 
+                        !v.name.includes('Antonio') &&
+                        !v.name.includes('Luciana') &&
+                        !v.name.includes('Thalita') &&
+                        !v.name.includes('Donato')
+                      ).map((v, i) => (
+                        <option key={'std-' + i} value={v.voiceURI}>
+                          {v.name} ({v.lang})
+                        </option>
+                      ))}
+                    </optgroup>
+                  </select>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
