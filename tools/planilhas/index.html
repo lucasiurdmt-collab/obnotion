@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Central de Automação de Relatórios e Planilhas</title>
+  
+  <!-- SheetJS Library for Reading and Writing Excel -->
+  <script src="lib/xlsx.full.min.js"></script>
+  <!-- Church & Region Database Mapping -->
+  <script src="lib/database.js"></script>
+
+  <style>
+    :root {
+      --primary: #0b2d5b;
+      --primary-dark: #071c3a;
+      --primary-light: #1e4b82;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --socio-primary: #0d5c75;
+      --socio-accent: #0284c7;
+      --bg-main: #f8fafc;
+      --card-bg: #ffffff;
+      --border-color: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP MAIN HEADER */
+    .app-header {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      color: #ffffff;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(11, 45, 91, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .app-title-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .app-logo-badge {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+    .app-title-box h1 {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+    .app-title-box span {
+      font-size: 11.5px;
+      color: #94a3b8;
+    }
+
+    /* MODULE SWITCH TABS */
+    .module-nav-tabs {
+      display: flex;
+      background: #ffffff;
+      border-bottom: 2px solid var(--border-color);
+      padding: 0 24px;
+      gap: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .module-tab {
+      padding: 14px 20px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .module-tab:hover {
+      color: var(--accent);
+      background-color: #f1f5f9;
+    }
+    .module-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .module-tab.active.socio-tab {
+      color: var(--socio-primary);
+      border-bottom-color: var(--socio-primary);
+    }
+
+    .badge-pill {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 12px;
+      background: #e2e8f0;
+      color: #475569;
+      font-weight: 700;
+    }
+    .module-tab.active .badge-pill {
+      background: var(--primary);
+      color: #ffffff;
+    }
+    .module-tab.active.socio-tab .badge-pill {
+      background: var(--socio-primary);
+      color: #ffffff;
+    }
+
+    /* MAIN CONTAINER */
+    .app-container {
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background-color: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    }
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    .btn-socio {
+      background-color: var(--socio-primary);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(13, 92, 117, 0.25);
+    }
+    .btn-socio:hover {
+      background-color: #094356;
+      transform: translateY(-1px);
+    }
+    .btn-success {
+      background-color: #059669;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+    }
+    .btn-success:hover {
+      background-color: #047857;
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.12);
+      color: #ffffff;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+    .btn-danger-sm {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fca5a5;
+      padding: 3px 8px;
+      font-size: 11px;
+      border-radius: 4px;
+    }
+    .btn-danger-sm:hover {
+      background: #fecaca;
+    }
+
+    /* UPLOAD DROP ZONE */
+    .upload-card {
+      background: #ffffff;
+      border: 2px dashed #94a3b8;
+      border-radius: 12px;
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+    }
+    .upload-card:hover, .upload-card.drag-over {
+      border-color: var(--accent);
+      background-color: #eff6ff;
+    }
+    .upload-icon {
+      font-size: 38px;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .upload-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    .upload-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .file-input { display: none; }
+
+    /* TOOLBAR & FILTERS */
+    .control-panel {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 220px;
+    }
+    .input-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+    .form-control {
+      width: 100%;
+      padding: 7px 11px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 12.5px;
+      outline: none;
+      transition: border 0.2s ease;
+    }
+    .form-control:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+    }
+
+    /* MODULE 2: SOCIOEDUCATIVO STYLES */
+    .socio-intro-card {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border: 1px solid #bae6fd;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .socio-intro-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--socio-primary);
+      margin-bottom: 4px;
+    }
+    .socio-intro-desc {
+      font-size: 12.5px;
+      color: #0369a1;
+    }
+
+    .socio-grid-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .textarea-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .wa-textarea {
+      width: 100%;
+      height: 180px;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-family: monospace;
+      line-height: 1.4;
+      outline: none;
+      resize: vertical;
+      margin-bottom: 12px;
+      background: #fdfdfd;
+    }
+    .wa-textarea:focus {
+      border-color: var(--socio-accent);
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+    }
+
+    .actions-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* EDITABLE TABLE */
+    .table-container {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+    .socio-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+      min-width: 1100px;
+    }
+    .socio-table thead tr {
+      background: var(--socio-primary);
+      color: #ffffff;
+    }
+    .socio-table th {
+      padding: 8px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: left;
+      border-right: 1px solid rgba(255,255,255,0.15);
+      white-space: nowrap;
+    }
+    .socio-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #e2e8f0;
+      border-right: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    .socio-table tr:hover {
+      background-color: #f8fafc;
+    }
+    .socio-table input, .socio-table select {
+      width: 100%;
+      padding: 4px 6px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      font-size: 11px;
+      outline: none;
+    }
+    .socio-table input:focus, .socio-table select:focus {
+      border-color: var(--socio-accent);
+      background-color: #ffffff;
+    }
+    .cell-warning {
+      background-color: #fef3c7 !important;
+      border-color: #f59e0b !important;
+    }
+
+    /* DOCUMENT PREVIEW AREA (MODULE 1) */
+    .document-preview-wrapper {
+      background: #e2e8f0;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .a4-landscape-page {
+      background: #ffffff;
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto 20px auto;
+      padding: 28px 32px;
+      border-radius: 4px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      position: relative;
+    }
+
+    /* COVER PAGE STYLES */
+    .cover-header {
+      text-align: center;
+      margin-bottom: 12px;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 8px;
+    }
+    .super-badge {
+      display: inline-block;
+      background-color: var(--primary);
+      color: #ffffff;
+      font-size: 8.5px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      padding: 2.5px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .cover-main-title {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--primary);
+      margin: 0 0 4px 0;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .cover-meta-info {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .kpi-card {
+      background: linear-gradient(145deg, #f8fafc 0%, #edf2f7 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px 12px;
+      border-left: 4px solid var(--primary);
+    }
+    .kpi-label {
+      font-size: 8px;
+      font-weight: 800;
+      color: var(--text-muted);
+      letter-spacing: 0.6px;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+    }
+    .kpi-val {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--primary);
+      line-height: 1.1;
+    }
+    .kpi-sub {
+      font-size: 8px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5px;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .summary-table thead tr {
+      background: var(--primary);
+      color: #ffffff;
+    }
+    .summary-table th {
+      padding: 4px 8px;
+      font-size: 8px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      border-right: 1px solid rgba(255,255,255,0.15);
+    }
+    .summary-table td {
+      padding: 3px 8px;
+      border-bottom: 1px solid #e2e8f0;
+      border-right: 1px solid #f1f5f9;
+    }
+    .summary-table tr:nth-child(even) { background-color: #f8fafc; }
+    .summary-table tfoot tr {
+      background-color: #e2e8f0;
+      border-top: 2px solid var(--primary);
+    }
+    .summary-table tfoot th {
+      color: var(--primary);
+      padding: 5px 8px;
+      font-size: 9px;
+      font-weight: 900;
+    }
+
+    /* BLOCK DETAIL STYLES */
+    .header-container {
+      margin-bottom: 10px;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 6px;
+    }
+    .doc-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 5px;
+    }
+    .doc-project {
+      font-size: 8.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .doc-main-title {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      color: var(--primary);
+      text-transform: uppercase;
+      margin: 0;
+    }
+    .doc-meta-right {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .period-pill {
+      font-size: 8.5px;
+      background-color: #f1f5f9;
+      color: var(--text-muted);
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      font-weight: 600;
+    }
+    .block-index-pill {
+      font-size: 8.5px;
+      background-color: var(--primary);
+      color: #ffffff;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .block-banner {
+      background: linear-gradient(135deg, #0b2d5b 0%, #17365d 60%, #1e4b82 100%);
+      color: #ffffff;
+      padding: 7px 12px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .block-name {
+      font-size: 13.5px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+    .block-badge-group {
+      display: flex;
+      gap: 8px;
+    }
+    .badge {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 2.5px 8px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+    .badge strong {
+      font-size: 11px;
+      color: #ffffff;
+    }
+
+    .content-grid {
+      column-gap: 14px;
+      margin-top: 8px;
+    }
+    .grid-2-col { column-count: 2; }
+    .grid-3-col { column-count: 3; }
+
+    .region-card {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .region-header {
+      background-color: #f1f5f9;
+      border-bottom: 1px solid var(--border-color);
+      padding: 4px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .region-title {
+      font-size: 9.5px;
+      font-weight: 800;
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+    .reg-prefix {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .region-summary {
+      font-size: 8.5px;
+      color: var(--text-muted);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9px;
+    }
+    .data-table thead tr {
+      background-color: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .data-table th {
+      padding: 3px 8px;
+      font-size: 8px;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+    }
+    .data-table td {
+      padding: 3px 8px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .data-table tr:nth-child(even) { background-color: #ffffff; }
+    .data-table tr:nth-child(odd) { background-color: #f8fafc; }
+    .church-name { font-weight: 500; color: #1e293b; }
+    .church-count {
+      text-align: right;
+      font-weight: 700;
+      color: var(--primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .col-center { text-align: center; }
+    .col-num { text-align: right; font-variant-numeric: tabular-nums; }
+    .idx-col { color: var(--text-muted); font-weight: 600; }
+    .highlight-num { font-weight: 800; color: var(--primary); }
+
+    /* FOOTER */
+    .app-footer {
+      text-align: center;
+      padding: 14px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      background: #ffffff;
+      margin-top: auto;
+    }
+
+    /* PRINT RULES */
+    @media print {
+      body { background: #ffffff !important; color: #000000 !important; }
+      .app-header, .module-nav-tabs, .upload-card, .control-panel, .app-footer, .no-print, .socio-section {
+        display: none !important;
+      }
+      .app-container, .document-preview-wrapper {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        background: transparent !important;
+        box-shadow: none !important;
+      }
+      .a4-landscape-page {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        page-break-before: always;
+        break-before: page;
+      }
+      .a4-landscape-page:first-child {
+        page-break-before: avoid !important;
+        break-before: avoid !important;
+      }
+      @page {
+        size: A4 landscape;
+        margin: 12mm 14mm 14mm 14mm;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- APP HEADER -->
+  <header class="app-header">
+    <div class="app-title-box">
+      <div class="app-logo-badge">⚡ CENTRAL AUTOMÁTICA</div>
+      <div>
+        <h1>Central de Relatórios & Planilhas</h1>
+        <span>Módulo de Usuários Ativos e Assistente Socioeducativo / EBI</span>
+      </div>
+    </div>
+    <div class="app-actions">
+      <button class="btn btn-secondary" onclick="triggerMainFile()">
+        📂 Carregar Arquivo
+      </button>
+      <button class="btn btn-success" id="btn-print" onclick="window.print()" disabled>
+        🖨️ Imprimir / Salvar em PDF
+      </button>
+    </div>
+  </header>
+
+  <!-- MODULE NAV TABS -->
+  <nav class="module-nav-tabs">
+    <div class="module-tab active" id="tab-module1" onclick="switchModule('module1')">
+      📊 Relatório de Usuários por Bloco
+      <span class="badge-pill">PDF Consolidado</span>
+    </div>
+    <div class="module-tab socio-tab" id="tab-module2" onclick="switchModule('module2')">
+      🕊️ Assistente Socioeducativo & EBI
+      <span class="badge-pill" style="background:#0284c7; color:#fff;">WhatsApp ➔ Excel</span>
+    </div>
+  </nav>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="app-container">
+
+    <!-- ======================================================== -->
+    <!-- MODULE 1: RELATÓRIO DE USUÁRIOS ATIVOS (PDF CONSOLIDADO) -->
+    <!-- ======================================================== -->
+    <section id="module1-view">
+      <!-- UPLOAD DROP ZONE -->
+      <div class="upload-card" id="drop-zone" onclick="triggerFileInput()">
+        <div class="upload-icon">📊</div>
+        <div class="upload-title">Arraste e solte o arquivo Excel (.xlsx / .xls) aqui</div>
+        <div class="upload-desc">Ou clique para selecionar a planilha de Usuários Ativos</div>
+        <button class="btn btn-primary" type="button">Selecionar Planilha</button>
+        <input type="file" id="file-input" class="file-input" accept=".xlsx, .xls, .csv" onchange="handleFileSelect(event)">
+      </div>
+
+      <!-- CONTROL PANEL & METADATA -->
+      <div class="control-panel" id="control-panel" style="display: none;">
+        <div class="input-group">
+          <span class="input-label">Título do Projeto:</span>
+          <input type="text" id="input-title" class="form-control" value="Vencendo o Divórcio" oninput="updateDocumentTitles()">
+        </div>
+        <div class="input-group">
+          <span class="input-label">Período:</span>
+          <input type="text" id="input-period" class="form-control" value="Consolidado" oninput="updateDocumentTitles()">
+        </div>
+        <div class="input-group" style="max-width: 320px;">
+          <span class="input-label">Filtrar:</span>
+          <input type="text" id="input-search" class="form-control" placeholder="Buscar igreja, região ou bloco..." oninput="filterContent(this.value)">
+        </div>
+      </div>
+
+      <!-- DOCUMENT PREVIEW CONTAINER -->
+      <div class="document-preview-wrapper" id="preview-wrapper" style="display: none;">
+        <div id="pages-container"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- MODULE 2: ASSISTENTE SOCIOEDUCATIVO & EBI (WHATSAPP ➔ EXCEL) -->
+    <!-- ======================================================== -->
+    <section id="module2-view" class="socio-section" style="display: none;">
+      
+      <div class="socio-intro-card">
+        <div>
+          <div class="socio-intro-title">Preenchedor Automático de Relatórios Semanais</div>
+          <div class="socio-intro-desc">
+            Cole as mensagens de WhatsApp dos responsáveis pelas unidades. O sistema extrai automaticamente todos os dados (voluntários, adolescentes, agentes, folha, livros, alimentos) e preenche diretamente a planilha oficial do Excel nas abas corretas!
+          </div>
+        </div>
+        <div>
+          <button class="btn btn-outline" onclick="loadSampleWhatsAppMessages()">
+            💡 Carregar Mensagens de Exemplo
+          </button>
+        </div>
+      </div>
+
+      <div class="socio-grid-layout">
+        
+        <!-- TEXTAREA CARD -->
+        <div class="textarea-card">
+          <div class="card-title-row">
+            <span class="card-title">1. Cole as Mensagens de WhatsApp Aqui</span>
+            <span style="font-size: 11.5px; color: var(--text-muted);">Pode colar várias mensagens consecutivas</span>
+          </div>
+
+          <textarea id="wa-input" class="wa-textarea" placeholder="Cole aqui o texto copiado do grupo de WhatsApp...
+Exemplo:
+📍Relatorio Unidade: Dom Bosco 
+🔷Data: 06/07/2026   
+20 horas         
+🔷Quant de Voluntarios: 2         
+🔷 Quem fez a reunião: João e Sr celson 
+🔷Quant de Adolescentes:44
+🔷 Quant de agentes: 9
+🔷Atividade Realizada: oração e palavra 
+🔷 Folha Universal: 0
+🔷 Bíblia e Revista: 1 biblia
+🔷Quant alimento doado: 0"></textarea>
+
+          <div class="actions-bar">
+            <button class="btn btn-socio" onclick="processWhatsAppInput()">
+              ⚡ Extrair Dados das Mensagens
+            </button>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-outline" onclick="document.getElementById('wa-input').value = ''">
+                🗑️ Limpar Texto
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXTRACTED TABLE CARD -->
+        <div class="table-container" id="socio-table-container" style="display: none;">
+          <div class="card-title-row" style="margin-bottom: 14px;">
+            <div>
+              <span class="card-title">2. Conferência dos Registros Extraídos (<span id="records-count">0</span>)</span>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                Revise os campos abaixo. Linhas ou unidades não identificadas automaticamente ficam destacadas para você escolher.
+              </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-outline" onclick="addNewSocioRow()">
+                ➕ Adicionar Registro
+              </button>
+              <button class="btn btn-success" onclick="exportToSocioExcel()">
+                📥 Preencher e Baixar Planilha Excel (.xlsx)
+              </button>
+            </div>
+          </div>
+
+          <table class="socio-table" id="socio-table">
+            <thead>
+              <tr>
+                <th style="width: 140px;">Bloco / Aba Excel</th>
+                <th style="width: 150px;">Unidade</th>
+                <th style="width: 130px;">Data / Horário</th>
+                <th style="width: 150px;">Quem Fez a Reunião</th>
+                <th style="width: 70px;">Volunt.</th>
+                <th style="width: 70px;">Adolesc.</th>
+                <th style="width: 70px;">Agentes</th>
+                <th style="width: 120px;">Atividade</th>
+                <th style="width: 70px;">Folha</th>
+                <th style="width: 110px;">Bíblia / Livros</th>
+                <th style="width: 140px;">Alimentos / Doações</th>
+                <th style="width: 50px;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="socio-tbody">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+
+          <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+            <button class="btn btn-success" style="font-size: 14px; padding: 10px 20px;" onclick="exportToSocioExcel()">
+              📥 Preencher e Baixar Planilha Excel (.xlsx)
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    Central Automática de Relatórios &bull; 100% Local, Seguro e Privado
+  </footer>
+
+  <script>
+    // ==========================================
+    // MODULE SWITCHING LOGIC
+    // ==========================================
+    let currentModule = 'module1';
+
+    function switchModule(mod) {
+      currentModule = mod;
+      document.querySelectorAll('.module-tab').forEach(t => t.classList.remove('active'));
+      
+      if (mod === 'module1') {
+        document.getElementById('tab-module1').classList.add('active');
+        document.getElementById('module1-view').style.display = 'block';
+        document.getElementById('module2-view').style.display = 'none';
+        document.getElementById('btn-print').style.display = 'inline-flex';
+      } else {
+        document.getElementById('tab-module2').classList.add('active');
+        document.getElementById('module1-view').style.display = 'none';
+        document.getElementById('module2-view').style.display = 'block';
+        document.getElementById('btn-print').style.display = 'none';
+      }
+    }
+
+    function triggerMainFile() {
+      if (currentModule === 'module1') {
+        triggerFileInput();
+      } else {
+        document.getElementById('wa-input').focus();
+      }
+    }
+
+    // ==========================================
+    // MODULE 1: USUÁRIOS ATIVOS (PDF CONSOLIDADO)
+    // ==========================================
+    let currentProcessedBlocks = null;
+    let currentMeta = {
+      projectTitle: "Vencendo o Divórcio",
+      period: "Consolidado",
+      totalGeralExcel: 0
+    };
+
+    function formatNumber(num) {
+      return Number(num || 0).toLocaleString('pt-BR');
+    }
+
+    function triggerFileInput() {
+      document.getElementById('file-input').click();
+    }
+
+    const dropZone = document.getElementById('drop-zone');
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+      }, false);
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files.length > 0) {
+        processExcelFile(files[0]);
+      }
+    });
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        processExcelFile(file);
+      }
+    }
+
+    function processExcelFile(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+          parseAndOrganizeData(rows, file.name);
+        } catch (err) {
+          alert("Erro ao ler o arquivo Excel: " + err.message);
+          console.error(err);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function parseAndOrganizeData(rows, fileName) {
+      const baseHierarchy = window.CHURCH_DATABASE.hierarchy;
+      const churchAliases = window.CHURCH_DATABASE.aliases;
+
+      const churchIndex = {};
+      for (const [blockName, blockObj] of Object.entries(baseHierarchy)) {
+        for (const [regionName, churches] of Object.entries(blockObj.regions)) {
+          for (const ch of churches) {
+            const key = ch.toLowerCase().trim();
+            churchIndex[key] = { block: blockName, region: regionName, name: ch };
+            const stripped = key.replace(/[-_ ]/g, '');
+            if (!churchIndex[stripped]) {
+              churchIndex[stripped] = { block: blockName, region: regionName, name: ch };
+            }
+          }
+        }
+      }
+
+      let startReading = false;
+      const processedBlocks = {};
+      let metaProjectTitle = "Vencendo o Divórcio";
+      let metaPeriod = "";
+      let totalGeralExcel = 0;
+
+      for (const [blockName, blockObj] of Object.entries(baseHierarchy)) {
+        if (blockName === 'SEM_CORRESPONDENCIA') continue;
+        processedBlocks[blockName] = {
+          name: blockObj.name,
+          regions: {}
+        };
+        for (const regionName of Object.keys(blockObj.regions)) {
+          processedBlocks[blockName].regions[regionName] = [];
+        }
+      }
+
+      if (!processedBlocks['GRUPOS SANTUÁRIO'].regions['FTU']) {
+        processedBlocks['GRUPOS SANTUÁRIO'].regions['FTU'] = [];
+      }
+      if (!processedBlocks['GRUPOS SANTUÁRIO'].regions['SOCIOEDUCATIVO']) {
+        processedBlocks['GRUPOS SANTUÁRIO'].regions['SOCIOEDUCATIVO'] = [];
+      }
+
+      const semCorrespondencia = [];
+
+      for (let r = 0; r < rows.length; r++) {
+        const row = rows[r];
+        if (!row || row.length === 0) continue;
+
+        if (row[0] && String(row[0]).startsWith('#')) {
+          const line = String(row[0]).replace(/^#\s*/, '').trim();
+          if (line.includes('Vencendo')) metaProjectTitle = line;
+          if (/\d{8}-\d{8}/.test(line)) {
+            const parts = line.split('-');
+            if (parts.length === 2 && parts[0].length === 8 && parts[1].length === 8) {
+              const d1 = `${parts[0].substring(6,8)}/${parts[0].substring(4,6)}/${parts[0].substring(0,4)}`;
+              const d2 = `${parts[1].substring(6,8)}/${parts[1].substring(4,6)}/${parts[1].substring(0,4)}`;
+              metaPeriod = `${d1} a ${d2}`;
+            } else {
+              metaPeriod = line;
+            }
+          }
+          continue;
+        }
+
+        if (row[0] === 'igreja' || (row[1] && String(row[1]).includes('Usuários'))) {
+          startReading = true;
+          continue;
+        }
+
+        if (startReading) {
+          if (row[2] === 'Total geral' || row[0] === 'Total geral' || (!row[0] && row[1])) {
+            totalGeralExcel = Number(row[1]) || totalGeralExcel;
+            continue;
+          }
+          const rawName = row[0] ? String(row[0]).trim() : '';
+          const count = Number(row[1]) || 0;
+          if (!rawName) continue;
+
+          let cleanKey = rawName.toLowerCase().trim();
+          if (cleanKey.includes('http')) {
+            cleanKey = cleanKey.split('http')[0].trim().replace(/[^a-z0-9_]/g, '');
+          }
+          cleanKey = cleanKey.replace(/\*+/g, '').replace(/👌.*/g, '').trim();
+
+          let loc = churchAliases[cleanKey] || churchIndex[cleanKey] || churchIndex[cleanKey.replace(/[-_ ]/g, '')];
+
+          if (loc && loc.block !== 'SEM_CORRESPONDENCIA') {
+            if (!processedBlocks[loc.block]) {
+              processedBlocks[loc.block] = { name: loc.block, regions: {} };
+            }
+            if (!processedBlocks[loc.block].regions[loc.region]) {
+              processedBlocks[loc.block].regions[loc.region] = [];
+            }
+            const existing = processedBlocks[loc.block].regions[loc.region].find(c => c.church.toLowerCase() === rawName.toLowerCase());
+            if (existing) {
+              existing.count += count;
+            } else {
+              processedBlocks[loc.block].regions[loc.region].push({ church: rawName, count });
+            }
+          } else {
+            semCorrespondencia.push({ church: rawName, count });
+          }
+        }
+      }
+
+      if (semCorrespondencia.length > 0) {
+        processedBlocks['SEM_CORRESPONDENCIA'] = {
+          name: 'REGISTROS SEM CORRESPONDÊNCIA',
+          regions: {
+            'REGISTROS SEM CORRESPONDÊNCIA': semCorrespondencia
+          }
+        };
+      }
+
+      currentProcessedBlocks = processedBlocks;
+      currentMeta = {
+        projectTitle: metaProjectTitle,
+        period: metaPeriod || "Consolidado",
+        totalGeralExcel
+      };
+
+      document.getElementById('input-title').value = currentMeta.projectTitle;
+      document.getElementById('input-period').value = currentMeta.period;
+
+      document.getElementById('control-panel').style.display = 'flex';
+      document.getElementById('preview-wrapper').style.display = 'block';
+      document.getElementById('btn-print').disabled = false;
+
+      renderAllPages();
+    }
+
+    function renderAllPages() {
+      if (!currentProcessedBlocks) return;
+
+      const container = document.getElementById('pages-container');
+      container.innerHTML = '';
+
+      let grandTotalUsers = 0;
+      let grandTotalChurches = 0;
+      let grandTotalRegions = 0;
+      let summaryRows = [];
+      let blockIndex = 1;
+      const blockList = [];
+
+      for (let [blockKey, blockData] of Object.entries(currentProcessedBlocks)) {
+        const rawName = blockData.name || blockKey;
+        let bChurches = 0;
+        let bUsers = 0;
+        const regKeys = Object.keys(blockData.regions);
+        const bRegions = regKeys.length;
+
+        for (let churches of Object.values(blockData.regions)) {
+          bChurches += churches.length;
+          bUsers += churches.reduce((s, c) => s + c.count, 0);
+        }
+
+        grandTotalUsers += bUsers;
+        grandTotalChurches += bChurches;
+        grandTotalRegions += bRegions;
+
+        blockList.push({
+          index: blockIndex,
+          key: blockKey,
+          name: rawName,
+          data: blockData,
+          regionsCount: bRegions,
+          churchesCount: bChurches,
+          usersCount: bUsers
+        });
+
+        summaryRows.push(`
+          <tr>
+            <td class="col-center idx-col">${blockIndex}</td>
+            <td><strong>${rawName}</strong></td>
+            <td class="col-num">${bRegions}</td>
+            <td class="col-num">${bChurches}</td>
+            <td class="col-num highlight-num">${formatNumber(bUsers)}</td>
+          </tr>
+        `);
+
+        blockIndex++;
+      }
+
+      // 1. Cover Page
+      const coverPageEl = document.createElement('div');
+      coverPageEl.className = 'a4-landscape-page cover-page';
+      coverPageEl.innerHTML = `
+        <div class="cover-header">
+          <div class="super-badge">RELATÓRIO CONSOLIDADO ESTADUAL</div>
+          <h2 class="cover-main-title dynamic-project-title">${currentMeta.projectTitle}</h2>
+          <div class="cover-meta-info">
+            <span><strong>Período:</strong> <span class="dynamic-period-text">${currentMeta.period}</span></span> &bull;
+            <span><strong>Total de Blocos:</strong> ${blockList.length}</span> &bull;
+            <span><strong>Total de Regiões:</strong> ${grandTotalRegions}</span> &bull;
+            <span><strong>Total de Igrejas / Registros:</strong> ${formatNumber(grandTotalChurches)}</span>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">TOTAL DE USUÁRIOS ATIVOS</div>
+            <div class="kpi-val">${formatNumber(grandTotalUsers)}</div>
+            <div class="kpi-sub">${formatNumber(currentMeta.totalGeralExcel || grandTotalUsers)} únicos no período</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">TOTAL DE BLOCOS</div>
+            <div class="kpi-val">${blockList.length}</div>
+            <div class="kpi-sub">incluindo Grupos e Registros</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">REGIÕES ATIVAS</div>
+            <div class="kpi-val">${grandTotalRegions}</div>
+            <div class="kpi-sub">distribuídas no estado</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">IGREJAS / PONTOS</div>
+            <div class="kpi-val">${formatNumber(grandTotalChurches)}</div>
+            <div class="kpi-sub">com registros cadastrados</div>
+          </div>
+        </div>
+
+        <div class="summary-table-container">
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th class="col-center" style="width: 40px;">#</th>
+                <th>Bloco / Seção</th>
+                <th class="col-num" style="width: 90px;">Regiões</th>
+                <th class="col-num" style="width: 110px;">Igrejas / Itens</th>
+                <th class="col-num" style="width: 140px;">Usuários Ativos</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${summaryRows.join('')}
+            </tbody>
+            <tfoot>
+              <tr>
+                <th colspan="2" style="text-align: left;">TOTAL CONSOLIDADO GERAL</th>
+                <th class="col-num">${grandTotalRegions}</th>
+                <th class="col-num">${formatNumber(grandTotalChurches)}</th>
+                <th class="col-num" style="font-size: 11px;">${formatNumber(grandTotalUsers)}</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      `;
+      container.appendChild(coverPageEl);
+
+      // 2. Detail Pages
+      for (const b of blockList) {
+        let regionsHtml = '';
+
+        for (let [regName, churches] of Object.entries(b.data.regions)) {
+          const regTotal = churches.reduce((s, c) => s + c.count, 0);
+          const sorted = [...churches].sort((x, y) => y.count - x.count);
+
+          let rowsHtml = sorted.map((c, idx) => `
+            <tr class="church-row" data-search="${c.church.toLowerCase()} ${regName.toLowerCase()} ${b.name.toLowerCase()}">
+              <td class="church-name">${c.church}</td>
+              <td class="church-count">${formatNumber(c.count)}</td>
+            </tr>
+          `).join('');
+
+          regionsHtml += `
+            <div class="region-card" data-region="${regName.toLowerCase()}">
+              <div class="region-header">
+                <div class="region-title"><span class="reg-prefix">Região:</span> ${regName}</div>
+                <div class="region-summary">${churches.length} ${churches.length === 1 ? 'igreja' : 'igrejas'} &bull; <strong>${formatNumber(regTotal)}</strong> ativos</div>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="text-align: left;">Igreja / Registro</th>
+                    <th style="text-align: right;">Usuários Ativos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rowsHtml}
+                </tbody>
+              </table>
+            </div>
+          `;
+        }
+
+        const isSpecial = b.key.startsWith('SEM_');
+        const headerTitle = isSpecial ? b.name : `BLOCO: ${b.name}`;
+
+        const blockPageEl = document.createElement('div');
+        blockPageEl.className = 'a4-landscape-page detail-page';
+        blockPageEl.setAttribute('data-block-name', b.name.toLowerCase());
+        blockPageEl.innerHTML = `
+          <div class="header-container">
+            <div class="doc-top-bar">
+              <div>
+                <span class="doc-project dynamic-project-title">${currentMeta.projectTitle}</span>
+                <h2 class="doc-main-title">Relatório de Usuários Ativos</h2>
+              </div>
+              <div class="doc-meta-right">
+                <span class="period-pill">Período: <span class="dynamic-period-text">${currentMeta.period}</span></span>
+                <span class="block-index-pill">Bloco ${b.index} de ${blockList.length}</span>
+              </div>
+            </div>
+            
+            <div class="block-banner">
+              <div class="block-name">${headerTitle}</div>
+              <div class="block-badge-group">
+                <div class="badge">Regiões: <strong>${b.regionsCount}</strong></div>
+                <div class="badge">Igrejas / Itens: <strong>${formatNumber(b.churchesCount)}</strong></div>
+                <div class="badge">Total Usuários Ativos: <strong>${formatNumber(b.usersCount)}</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-grid ${b.regionsCount > 8 ? 'grid-3-col' : 'grid-2-col'}">
+            ${regionsHtml}
+          </div>
+        `;
+        container.appendChild(blockPageEl);
+      }
+    }
+
+    function updateDocumentTitles() {
+      const title = document.getElementById('input-title').value;
+      const period = document.getElementById('input-period').value;
+
+      document.querySelectorAll('.dynamic-project-title').forEach(el => el.textContent = title);
+      document.querySelectorAll('.dynamic-period-text').forEach(el => el.textContent = period);
+    }
+
+    function filterContent(query) {
+      const q = query.trim().toLowerCase();
+      const rows = document.querySelectorAll('.church-row');
+      const regions = document.querySelectorAll('.region-card');
+      const blockPages = document.querySelectorAll('.detail-page');
+
+      if (!q) {
+        rows.forEach(r => r.style.display = '');
+        regions.forEach(reg => reg.style.display = '');
+        blockPages.forEach(p => p.style.display = '');
+        return;
+      }
+
+      rows.forEach(r => {
+        const text = r.getAttribute('data-search') || '';
+        if (text.includes(q)) {
+          r.style.display = '';
+        } else {
+          r.style.display = 'none';
+        }
+      });
+
+      regions.forEach(reg => {
+        const visibleRows = reg.querySelectorAll('.church-row:not([style*="display: none"])');
+        if (visibleRows.length > 0 || reg.getAttribute('data-region').includes(q)) {
+          reg.style.display = '';
+        } else {
+          reg.style.display = 'none';
+        }
+      });
+
+      blockPages.forEach(page => {
+        const visibleRegions = page.querySelectorAll('.region-card:not([style*="display: none"])');
+        if (visibleRegions.length > 0 || page.getAttribute('data-block-name').includes(q)) {
+          page.style.display = '';
+        } else {
+          page.style.display = 'none';
+        }
+      });
+    }
+
+    // ========================================================
+    // MODULE 2: ASSISTENTE SOCIOEDUCATIVO & EBI (WHATSAPP ➔ EXCEL)
+    // ========================================================
+
+    const ALL_BLOCK_SHEETS = [
+      'BELO HORIZONTE',
+      'ELDORADO',
+      'SETE LAGOAS ',
+      'VENDA NOVA',
+      'TEOFILO OTONI',
+      'MONTES CLAROS',
+      'UBERABA',
+      'JUIZ DE FORA',
+      'UBERLANDIA',
+      'GOVERNADOR VALADARES'
+    ];
+
+    const UNIT_TO_BLOCK_MAP = {
+      'dom bosco': 'BELO HORIZONTE',
+      'horto': 'BELO HORIZONTE',
+      'sao jeronimo': 'BELO HORIZONTE',
+      'são jerônimo': 'BELO HORIZONTE',
+      'santa helena': 'BELO HORIZONTE',
+      'cia': 'BELO HORIZONTE',
+      'santa clara': 'BELO HORIZONTE',
+      'sao benedito': 'BELO HORIZONTE',
+      'justinopolis': 'VENDA NOVA',
+      'dom pedro': 'VENDA NOVA',
+      'ceip': 'SETE LAGOAS ',
+      'cse': 'SETE LAGOAS ',
+      'sete lagoas': 'SETE LAGOAS ',
+      'montes claros': 'MONTES CLAROS',
+      'pirapora': 'MONTES CLAROS',
+      'uberaba': 'UBERABA',
+      'santa luzia': 'JUIZ DE FORA',
+      'juiz de fora': 'JUIZ DE FORA',
+      'uberlandia': 'UBERLANDIA',
+      'unai': 'UBERLANDIA',
+      'semiliberdade uberlandia': 'UBERLANDIA',
+      'chute certo': 'UBERLANDIA',
+      'governador valadares': 'GOVERNADOR VALADARES',
+      'ipatinga': 'GOVERNADOR VALADARES',
+      'semiliberdade ipatinga': 'GOVERNADOR VALADARES',
+      'eldorado': 'ELDORADO',
+      'teofilo otoni': 'TEOFILO OTONI'
+    };
+
+    let extractedSocioRecords = [];
+
+    function loadSampleWhatsAppMessages() {
+      document.getElementById('wa-input').value = `[09/08, 17:45] Minha Princesa: 📍Relatorio Unidade: Dom Bosco 
+🔷Data: 06/07/2026   
+20 horas         
+🔷Quant de Voluntarios: 2         
+🔷 Quem fez a reunião:  João e Sr celson 
+🔷Quant de Adolescentes:44
+🔷 Quant de agentes: 9
+🔷Atividade Realizada: oração e palavra 
+🔷 Folha Universal: 0
+🔷 Bíblia e Revista: 1 biblia
+🔷Quant alimento doado:  0
+[09/08, 17:45] Minha Princesa: 📍Relatorio Unidade: Horto 
+🔷Data: 05/07/2026 
+      15 horas           
+🔷Quant de Voluntarios: 5         
+🔷 Quem fez a reunião:  João 
+🔷Quant de Adolescentes:11
+🔷 Quant de agentes: 18
+🔷Atividade Realizada: oração e palavra 
+🔷 Folha Universal: 20
+🔷 Bíblia e Revista: 7 livros
+🔷Quant alimento doado:  1 bolo,2 pacotes de pão de forma,1 requeijão,1 rosca,1 iorgte,1 refrigerante,2 sucos
+[09/08, 17:45] Minha Princesa: 📍Relatório  Unidade: 
+SÃO JERÔNIMO 
+🔷Data: 05/07/2026            
+🔷Quant de Voluntarios:    02      
+🔷 Quem fez a reunião: Obr Jéssica Custódio e Graziele
+🔷Quant de Adolescentes: 01
+🔷 Quant de agentes: 0
+🔷Atividade Realizada: oração e palavra 
+🔷 Folha Universal: 00
+🔷 Bíblia e Revista: 00
+🔷Quant alimento doado:00
+[09/08, 17:45] Minha Princesa: 📍Relatório  Unidade: 
+🔷Data: 05/07/2026            
+🔷Quant de Voluntarios:    02      
+🔷 Quem fez a reunião: Simone
+🔷Quant de Adolescentes: 04
+🔷 Quant de agentes: 01
+🔷Atividade Realizada: oração e palavra 
+🔷 Folha Universal: 00
+🔷 Bíblia e Revista: 00
+🔷Quant alimento doado:00`;
+      
+      processWhatsAppInput();
+    }
+
+    function processWhatsAppInput() {
+      const rawText = document.getElementById('wa-input').value;
+      if (!rawText.trim()) {
+        alert("Por favor, cole as mensagens de WhatsApp na caixa de texto.");
+        return;
+      }
+
+      // Split rawText into individual report chunks and filter out empty headers
+      const rawReports = rawText
+        .split(/(?=📍|Relat[oó]rio\s+Unidade)/gi)
+        .map(t => t.trim())
+        .filter(t => t.length > 20 && (t.includes('🔷') || t.toLowerCase().includes('data:')));
+      extractedSocioRecords = [];
+
+      for (let raw of rawReports) {
+        let unidade = "";
+        let data = "";
+        let horario = "";
+        let voluntarios = "";
+        let quemFez = "";
+        let adolescentes = "";
+        let agentes = "";
+        let atividade = "";
+        let folhaUniversal = "";
+        let bibliaRevista = "";
+        let alimento = "";
+
+        // Unidade extraction
+        const unidadeMatch = raw.match(/Unidade:\s*([^\n\r🔷]+)/i);
+        if (unidadeMatch && unidadeMatch[1].trim()) {
+          unidade = unidadeMatch[1].trim();
+        } else {
+          const lines = raw.split('\n');
+          for (let i = 0; i < lines.length; i++) {
+            if (lines[i].toLowerCase().includes('unidade:') && i + 1 < lines.length && !lines[i+1].includes('🔷')) {
+              unidade = lines[i+1].trim();
+              break;
+            }
+          }
+        }
+
+        // Data extraction
+        const dataMatch = raw.match(/Data:\s*([^\n\r🔷]+)/i);
+        if (dataMatch) data = dataMatch[1].trim();
+
+        // Horario extraction
+        const rawHora = raw.match(/Data:[^\n\r]+\n\s*([0-9]{1,2}(?::[0-9]{2})?\s*(?:horas|h)?)/i);
+        if (rawHora) horario = rawHora[1].trim();
+
+        // Voluntarios
+        const volMatch = raw.match(/Volunt[aá]rios:\s*([^\n\r🔷]+)/i);
+        if (volMatch) voluntarios = volMatch[1].trim();
+
+        // Quem fez
+        const quemMatch = raw.match(/Quem fez a reuni[aã]o:\s*([^\n\r🔷]+)/i);
+        if (quemMatch) quemFez = quemMatch[1].trim();
+
+        // Adolescentes
+        const adolMatch = raw.match(/Adolescentes:\s*([^\n\r🔷]+)/i);
+        if (adolMatch) adolescentes = adolMatch[1].trim();
+
+        // Agentes
+        const agentMatch = raw.match(/agentes:\s*([^\n\r🔷]+)/i);
+        if (agentMatch) agentes = agentMatch[1].trim();
+
+        // Atividade
+        const ativMatch = raw.match(/Atividade Realizada:\s*([^\n\r🔷]+)/i);
+        if (ativMatch) atividade = ativMatch[1].trim();
+
+        // Folha
+        const folhaMatch = raw.match(/Folha Universal:\s*([^\n\r🔷]+)/i);
+        if (folhaMatch) folhaUniversal = folhaMatch[1].trim();
+
+        // Biblia/Livro
+        const bibMatch = raw.match(/B[íi]blia e Revista:\s*([^\n\r🔷]+)/i);
+        if (bibMatch) bibliaRevista = bibMatch[1].trim();
+
+        // Alimento
+        const alimMatch = raw.match(/alimento doado:\s*([^\n\r🔷]+)/i);
+        if (alimMatch) alimento = alimMatch[1].trim();
+
+        // Identify matching Block Sheet
+        let matchedSheet = 'BELO HORIZONTE';
+        if (unidade) {
+          const uKey = unidade.toLowerCase().trim();
+          for (const [k, sheet] of Object.entries(UNIT_TO_BLOCK_MAP)) {
+            if (uKey.includes(k) || k.includes(uKey)) {
+              matchedSheet = sheet;
+              break;
+            }
+          }
+        }
+
+        const dataHoraCompleta = [data, horario].filter(Boolean).join(' ');
+
+        extractedSocioRecords.push({
+          bloco: matchedSheet,
+          unidade: unidade,
+          dataHora: dataHoraCompleta,
+          quemFez: quemFez,
+          voluntarios: voluntarios,
+          adolescentes: adolescentes,
+          agentes: agentes,
+          atividade: atividade || "Oração e Palavra",
+          folhaUniversal: folhaUniversal,
+          bibliaRevista: bibliaRevista,
+          alimento: alimento
+        });
+      }
+
+      renderSocioTable();
+    }
+
+    function renderSocioTable() {
+      const tbody = document.getElementById('socio-tbody');
+      tbody.innerHTML = '';
+
+      document.getElementById('records-count').textContent = extractedSocioRecords.length;
+      document.getElementById('socio-table-container').style.display = 'block';
+
+      extractedSocioRecords.forEach((rec, idx) => {
+        const tr = document.createElement('tr');
+
+        // Block options
+        const blockOptions = ALL_BLOCK_SHEETS.map(b => 
+          `<option value="${b}" ${b === rec.bloco ? 'selected' : ''}>${b}</option>`
+        ).join('');
+
+        const isUnidadeEmpty = !rec.unidade;
+
+        tr.innerHTML = `
+          <td>
+            <select onchange="updateSocioRecord(${idx}, 'bloco', this.value)">
+              ${blockOptions}
+            </select>
+          </td>
+          <td>
+            <input type="text" class="${isUnidadeEmpty ? 'cell-warning' : ''}" value="${rec.unidade || ''}" placeholder="⚠️ Digite a unidade..." oninput="updateSocioRecord(${idx}, 'unidade', this.value)">
+          </td>
+          <td>
+            <input type="text" value="${rec.dataHora || ''}" placeholder="Data / Horário" oninput="updateSocioRecord(${idx}, 'dataHora', this.value)">
+          </td>
+          <td>
+            <input type="text" value="${rec.quemFez || ''}" placeholder="Quem realizou" oninput="updateSocioRecord(${idx}, 'quemFez', this.value)">
+          </td>
+          <td>
+            <input type="text" style="text-align: center;" value="${rec.voluntarios || ''}" oninput="updateSocioRecord(${idx}, 'voluntarios', this.value)">
+          </td>
+          <td>
+            <input type="text" style="text-align: center; font-weight: bold; color: var(--primary);" value="${rec.adolescentes || ''}" oninput="updateSocioRecord(${idx}, 'adolescentes', this.value)">
+          </td>
+          <td>
+            <input type="text" style="text-align: center;" value="${rec.agentes || ''}" oninput="updateSocioRecord(${idx}, 'agentes', this.value)">
+          </td>
+          <td>
+            <input type="text" value="${rec.atividade || ''}" oninput="updateSocioRecord(${idx}, 'atividade', this.value)">
+          </td>
+          <td>
+            <input type="text" style="text-align: center;" value="${rec.folhaUniversal || ''}" oninput="updateSocioRecord(${idx}, 'folhaUniversal', this.value)">
+          </td>
+          <td>
+            <input type="text" value="${rec.bibliaRevista || ''}" oninput="updateSocioRecord(${idx}, 'bibliaRevista', this.value)">
+          </td>
+          <td>
+            <input type="text" value="${rec.alimento || ''}" oninput="updateSocioRecord(${idx}, 'alimento', this.value)">
+          </td>
+          <td style="text-align: center;">
+            <button class="btn-danger-sm" onclick="removeSocioRow(${idx})">✕</button>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateSocioRecord(index, field, value) {
+      if (extractedSocioRecords[index]) {
+        extractedSocioRecords[index][field] = value;
+      }
+    }
+
+    function addNewSocioRow() {
+      extractedSocioRecords.push({
+        bloco: 'BELO HORIZONTE',
+        unidade: '',
+        dataHora: new Date().toLocaleDateString('pt-BR'),
+        quemFez: '',
+        voluntarios: '2',
+        adolescentes: '0',
+        agentes: '0',
+        atividade: 'Oração e Palavra',
+        folhaUniversal: '0',
+        bibliaRevista: '0',
+        alimento: '0'
+      });
+      renderSocioTable();
+    }
+
+    function removeSocioRow(index) {
+      extractedSocioRecords.splice(index, 1);
+      renderSocioTable();
+    }
+
+    async function exportToSocioExcel() {
+      if (extractedSocioRecords.length === 0) {
+        alert("Nenhum registro para exportar.");
+        return;
+      }
+
+      try {
+        // Fetch local template
+        const response = await fetch('lib/template_socioeducativo.xlsx');
+        const arrayBuffer = await response.arrayBuffer();
+        const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
+
+        // Group extracted records by block sheet
+        const recordsBySheet = {};
+        for (const rec of extractedSocioRecords) {
+          const sheetName = rec.bloco || 'BELO HORIZONTE';
+          if (!recordsBySheet[sheetName]) recordsBySheet[sheetName] = [];
+          recordsBySheet[sheetName].push(rec);
+        }
+
+        // Append records to each sheet
+        for (const [sheetName, list] of Object.entries(recordsBySheet)) {
+          let sheet = workbook.Sheets[sheetName];
+          if (!sheet) {
+            // If sheet doesn't exist, create it
+            sheet = XLSX.utils.aoa_to_sheet([['Unidades', '', 'Dia / Data / Horário', '', '', '', 'Quem fez a Reunião', '', 'Quantos Voluntários', '', 'Quantos adolescentes', '', '', 'Agentes', 'Atividade', 'Folha', 'Bíblia', 'Alimentos']]);
+            workbook.Sheets[sheetName] = sheet;
+            workbook.SheetNames.push(sheetName);
+          }
+
+          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+          for (const item of list) {
+            const newRow = new Array(20).fill('');
+            newRow[1] = item.unidade.toUpperCase();
+            newRow[3] = item.dataHora;
+            newRow[6] = item.quemFez;
+            newRow[8] = Number(item.voluntarios) || item.voluntarios || 0;
+            newRow[10] = Number(item.adolescentes) || item.adolescentes || 0;
+            newRow[13] = Number(item.agentes) || item.agentes || 0;
+            newRow[14] = item.atividade || 'Oração e Palavra';
+            newRow[15] = item.folhaUniversal || 0;
+            newRow[16] = item.bibliaRevista || 0;
+            newRow[17] = item.alimento || 0;
+            newRow[18] = '';
+            newRow[19] = 'Preenchido Automaticamente via WhatsApp';
+
+            rows.push(newRow);
+          }
+
+          workbook.Sheets[sheetName] = XLSX.utils.aoa_to_sheet(rows);
+        }
+
+        // Generate download
+        const timestamp = new Date().toISOString().slice(0, 10);
+        const fileName = `RELATORIO_SOCIOEDUCATIVO_PREENCHIDO_${timestamp}.xlsx`;
+        XLSX.writeFile(workbook, fileName);
+
+        alert(`Sucesso! A planilha "${fileName}" com os ${extractedSocioRecords.length} registros foi gerada e baixada!`);
+      } catch (err) {
+        alert("Erro ao gerar planilha Excel: " + err.message);
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
