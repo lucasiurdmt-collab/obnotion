@@ -38,13 +38,16 @@ export default function JarvisWidget({
   // Speech & Voice Settings State
   const [availableVoices, setAvailableVoices] = useState([]);
   const [selectedVoiceURI, setSelectedVoiceURI] = useState(() => localStorage.getItem('jarvis_voice_uri') || '');
-  const [voiceRate, setVoiceRate] = useState(() => Number(localStorage.getItem('jarvis_voice_rate')) || 1.35);
+  const [voiceEngine, setVoiceEngine] = useState(() => localStorage.getItem('jarvis_voice_engine') || 'google-neural');
+  const [voiceRate, setVoiceRate] = useState(() => Number(localStorage.getItem('jarvis_voice_rate')) || 1.15);
   const [voicePitch, setVoicePitch] = useState(() => Number(localStorage.getItem('jarvis_voice_pitch')) || 1.0);
   const [handsFreeMode, setHandsFreeMode] = useState(() => localStorage.getItem('jarvis_handsfree') === 'true');
 
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
+  const currentAudioRef = useRef(null);
+  const audioQueueRef = useRef([]);
   const handsFreeRef = useRef(handsFreeMode);
   handsFreeRef.current = handsFreeMode;
 
@@ -221,28 +224,112 @@ export default function JarvisWidget({
     }
   };
 
-  const speakText = (text) => {
-    if (!window.speechSynthesis) return;
+  const stopSpeaking = () => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    if (currentAudioRef.current) {
+      try {
+        currentAudioRef.current.pause();
+        currentAudioRef.current.src = '';
+      } catch (e) {}
+      currentAudioRef.current = null;
+    }
+    audioQueueRef.current = [];
+    setIsSpeaking(false);
+  };
 
-    window.speechSynthesis.cancel();
-    setIsSpeaking(true);
-
-    const cleanText = text.replace(/[*_#`]/g, '').trim();
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-
-    if (selectedVoiceURI) {
-      const chosen = availableVoices.find(v => v.voiceURI === selectedVoiceURI);
-      if (chosen) utterance.voice = chosen;
+  const playNextAudioChunk = () => {
+    if (audioQueueRef.current.length === 0) {
+      setIsSpeaking(false);
+      currentAudioRef.current = null;
+      return;
     }
 
-    utterance.lang = 'pt-BR';
-    utterance.rate = voiceRate;
-    utterance.pitch = voicePitch;
+    const chunk = audioQueueRef.current.shift();
+    const encoded = encodeURIComponent(chunk);
+    const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=pt-BR&client=tw-ob&q=${encoded}`;
 
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+    const audio = new Audio(url);
+    currentAudioRef.current = audio;
+    audio.playbackRate = Math.min(2.0, Math.max(0.5, voiceRate));
 
-    window.speechSynthesis.speak(utterance);
+    audio.onended = () => {
+      playNextAudioChunk();
+    };
+
+    audio.onerror = () => {
+      playNextAudioChunk();
+    };
+
+    audio.play().catch(e => {
+      console.warn('Audio stream error, falling back to next or browser synth:', e);
+      playNextAudioChunk();
+    });
+  };
+
+  const speakText = (text) => {
+    stopSpeaking();
+    if (!text) return;
+
+    // Clean text: strip code blocks, markdown symbols, asterisks, urls, emojis for clear human-like pronunciation
+    let cleanText = text
+      .replace(/```[\s\S]*?```/g, '')
+      .replace(/`.*?`/g, '')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .replace(/[*_#~>]/g, '')
+      .replace(/[\u{1F600}-\u{1F64F}|\u{1F300}-\u{1F5FF}|\u{1F680}-\u{1F6FF}|\u{1F1E0}-\u{1F1FF}|\u{2600}-\u{26FF}|\u{2700}-\u{27BF}]/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (!cleanText) return;
+
+    if (voiceEngine === 'google-neural') {
+      setIsSpeaking(true);
+      // Split into small, naturally punctuated sentences of <= 140 characters
+      const chunks = [];
+      const sentences = cleanText.split(/(?<=[.?!;:\n])\s+/);
+      
+      sentences.forEach(s => {
+        let trimmed = s.trim();
+        if (!trimmed) return;
+        while (trimmed.length > 140) {
+          let splitIdx = trimmed.lastIndexOf(' ', 140);
+          if (splitIdx === -1) splitIdx = 140;
+          chunks.push(trimmed.slice(0, splitIdx));
+          trimmed = trimmed.slice(splitIdx).trim();
+        }
+        if (trimmed) chunks.push(trimmed);
+      });
+
+      if (chunks.length === 0) {
+        setIsSpeaking(false);
+        return;
+      }
+
+      audioQueueRef.current = chunks;
+      playNextAudioChunk();
+    } else {
+      // Fallback: Browser High Definition Speech Synthesis
+      if (!window.speechSynthesis) return;
+      setIsSpeaking(true);
+
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+
+      if (selectedVoiceURI) {
+        const chosen = availableVoices.find(v => v.voiceURI === selectedVoiceURI);
+        if (chosen) utterance.voice = chosen;
+      }
+
+      utterance.lang = 'pt-BR';
+      utterance.rate = voiceRate;
+      utterance.pitch = voicePitch;
+
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+
+      window.speechSynthesis.speak(utterance);
+    }
   };
 
   // Handle Multi-image Selection
@@ -986,25 +1073,67 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
                 </button>
               </div>
 
+              {/* Voice Engine Selector */}
               <div>
-                <label className="block text-[10px] text-zinc-400 uppercase font-mono mb-1">Selecionar Voz:</label>
-                <select
-                  value={selectedVoiceURI}
-                  onChange={(e) => {
-                    setSelectedVoiceURI(e.target.value);
-                    localStorage.setItem('jarvis_voice_uri', e.target.value);
-                  }}
-                  className={`w-full p-1.5 rounded-lg border text-xs outline-none ${
-                    darkMode ? 'bg-black/50 border-white/[0.1] text-white' : 'bg-white border-zinc-300 text-zinc-800'
-                  }`}
-                >
-                  {availableVoices.map((v, i) => (
-                    <option key={i} value={v.voiceURI}>
-                      {v.name} ({v.lang})
-                    </option>
-                  ))}
-                </select>
+                <label className="block text-[10px] text-zinc-400 uppercase font-mono mb-1">Motor de Voz (IA):</label>
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVoiceEngine('google-neural');
+                      localStorage.setItem('jarvis_voice_engine', 'google-neural');
+                    }}
+                    className={`p-2 rounded-lg border text-left transition-all ${
+                      voiceEngine === 'google-neural'
+                        ? 'bg-violet-600/20 border-violet-500/50 text-white font-semibold'
+                        : 'bg-black/40 border-white/[0.06] text-zinc-400 hover:bg-white/[0.04]'
+                    }`}
+                  >
+                    <p className="text-[11px] text-violet-300 font-bold flex items-center gap-1">
+                      <span>✨ Google Neural HD</span>
+                    </p>
+                    <p className="text-[9px] text-zinc-400 mt-0.5">Voz humana ultra-natural (Recomendada)</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVoiceEngine('browser-system');
+                      localStorage.setItem('jarvis_voice_engine', 'browser-system');
+                    }}
+                    className={`p-2 rounded-lg border text-left transition-all ${
+                      voiceEngine === 'browser-system'
+                        ? 'bg-violet-600/20 border-violet-500/50 text-white font-semibold'
+                        : 'bg-black/40 border-white/[0.06] text-zinc-400 hover:bg-white/[0.04]'
+                    }`}
+                  >
+                    <p className="text-[11px] text-zinc-200 font-bold">🎙️ Voz do Sistema</p>
+                    <p className="text-[9px] text-zinc-400 mt-0.5">Edge / Chrome sintetizador</p>
+                  </button>
+                </div>
               </div>
+
+              {voiceEngine === 'browser-system' && (
+                <div>
+                  <label className="block text-[10px] text-zinc-400 uppercase font-mono mb-1">Selecionar Voz do Sistema:</label>
+                  <select
+                    value={selectedVoiceURI}
+                    onChange={(e) => {
+                      setSelectedVoiceURI(e.target.value);
+                      localStorage.setItem('jarvis_voice_uri', e.target.value);
+                    }}
+                    className={`w-full p-1.5 rounded-lg border text-xs outline-none ${
+                      darkMode ? 'bg-black/50 border-white/[0.1] text-white' : 'bg-white border-zinc-300 text-zinc-800'
+                    }`}
+                  >
+                    {availableVoices.map((v, i) => (
+                      <option key={i} value={v.voiceURI}>
+                        {v.name} ({v.lang})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
