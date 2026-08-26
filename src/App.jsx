@@ -164,6 +164,8 @@ export default function App() {
               onNavigate={(tab) => setActiveTab(tab)}
               onUpdateTasks={(tasks) => updateSection('tasks', tasks)}
               onUpdateHabits={(habits) => updateSection('habits', habits)}
+              onUpdateSection={updateSection}
+              onAskJarvis={(prompt) => setJarvisActionPrompt(prompt)}
               onOpenPomodoro={() => setIsPomodoroOpen(true)}
               darkMode={darkMode}
             />
