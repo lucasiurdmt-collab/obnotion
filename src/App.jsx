@@ -161,6 +161,7 @@ export default function App() {
           {activeTab === 'dashboard' && (
             <DashboardView
               data={data}
+              user={user}
               onNavigate={(tab) => setActiveTab(tab)}
               onUpdateTasks={(tasks) => updateSection('tasks', tasks)}
               onUpdateHabits={(habits) => updateSection('habits', habits)}

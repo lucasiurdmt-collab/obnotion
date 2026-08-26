@@ -13,6 +13,7 @@ import {
 
 export default function DashboardView({
   data = {},
+  user,
   onNavigate,
   onUpdateTasks,
   onUpdateHabits,
@@ -32,9 +33,16 @@ export default function DashboardView({
   const todayStr = today.toISOString().split('T')[0];
   const currentHour = today.getHours();
 
-  // Greeting
+  // Dynamic Greeting based on time and logged-in user
   const greeting = currentHour < 12 ? 'Bom dia' : currentHour < 18 ? 'Boa tarde' : 'Boa noite';
-  const userName = data?.profile?.name || data?.settings?.userName || 'Lucas';
+  const getDisplayName = () => {
+    if (user?.displayName && user.displayName.trim()) return user.displayName.trim().split(' ')[0];
+    if (user?.email && user.email.trim()) return user.email.trim().split('@')[0];
+    if (data?.profile?.name && data.profile.name.trim()) return data.profile.name.trim().split(' ')[0];
+    if (data?.settings?.userName && data.settings.userName.trim()) return data.settings.userName.trim().split(' ')[0];
+    return '';
+  };
+  const userName = getDisplayName();
 
   // Workspace Data Extraction
   const tasks = data?.tasks || [];
@@ -444,7 +452,7 @@ export default function DashboardView({
 
         <div className="space-y-1.5 max-w-md">
           <p className="text-xs font-mono uppercase tracking-widest text-violet-400 font-semibold">
-            {greeting}, {userName}
+            {userName ? `${greeting}, ${userName}` : greeting}
           </p>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
             O que você precisa hoje?
