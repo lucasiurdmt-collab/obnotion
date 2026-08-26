@@ -334,75 +334,21 @@ export default function DashboardView({
     setIsProcessing(true);
     setUniversalInput('');
 
-    const lower = text.toLowerCase();
-
     try {
-      // Local Smart Dispatcher based on clear natural language patterns
-      if (lower.includes('lembra que') || lower.includes('ideia:') || lower.includes('anotar:') || lower.includes('estudar sobre') || lower.includes('pregação') || lower.includes('sermão')) {
-        // Create Note
-        const newNote = {
-          id: 'note-' + Date.now(),
-          title: text.length > 50 ? text.slice(0, 47) + '...' : text,
-          content: text,
-          folder: lower.includes('pregação') || lower.includes('sermão') ? 'Estudos Bíblicos' : 'Ideias & Insights',
-          tags: ['Captura Rápida', 'IA'],
-          pinned: false,
-          createdAt: todayStr,
-          updatedAt: todayStr
-        };
-        if (onUpdateSection) {
-          onUpdateSection('notes', [newNote, ...(data.notes || [])]);
-        }
-        showToast(`✓ Anotado em Notas: "${newNote.title}"`);
-      } else if (lower.includes('comprar') || lower.includes('preciso ligar') || lower.includes('fazer') || lower.includes('tarefa') || lower.includes('terminar') || lower.includes('enviar') || lower.includes('pagar conta')) {
-        // Create Task
-        let dueDate = todayStr;
-        if (lower.includes('amanhã')) {
-          const tm = new Date();
-          tm.setDate(tm.getDate() + 1);
-          dueDate = tm.toISOString().split('T')[0];
-        } else if (lower.includes('quinta') || lower.includes('quinta-feira')) {
-          dueDate = getNextDayOfWeek(4);
-        } else if (lower.includes('sexta') || lower.includes('sexta-feira')) {
-          dueDate = getNextDayOfWeek(5);
-        } else if (lower.includes('domingo')) {
-          dueDate = getNextDayOfWeek(0);
-        } else if (lower.includes('segunda') || lower.includes('segunda-feira')) {
-          dueDate = getNextDayOfWeek(1);
-        }
-
+      if (onAskJarvis) {
+        onAskJarvis(text);
+        showToast(`⚡ JARVIS processando: "${text.length > 40 ? text.slice(0, 37) + '...' : text}"`);
+      } else {
         const newTask = {
           id: 'task-' + Date.now(),
           title: text,
           status: 'todo',
-          priority: lower.includes('urgente') || lower.includes('importante') ? 'high' : 'medium',
-          dueDate: dueDate,
-          tags: lower.includes('comprar') ? ['Compras'] : ['Captura IA'],
-          notes: 'Criado via Captura Universal'
+          priority: 'medium',
+          dueDate: todayStr,
+          tags: ['Captura Universal']
         };
-
-        if (onUpdateTasks) {
-          onUpdateTasks([newTask, ...(data.tasks || [])]);
-        }
-        showToast(`✓ Tarefa criada: "${newTask.title}" (Data: ${dueDate.split('-').reverse().slice(0, 2).join('/')})`);
-      } else {
-        // Delegate to JARVIS AI to parse multimodal/complex intent
-        if (onAskJarvis) {
-          onAskJarvis(text);
-          showToast(`⚡ Enviado para o JARVIS processar e organizar...`);
-        } else {
-          // Fallback create task
-          const newTask = {
-            id: 'task-' + Date.now(),
-            title: text,
-            status: 'todo',
-            priority: 'medium',
-            dueDate: todayStr,
-            tags: ['Captura Universal']
-          };
-          if (onUpdateTasks) onUpdateTasks([newTask, ...(data.tasks || [])]);
-          showToast(`✓ Item salvo com sucesso!`);
-        }
+        if (onUpdateTasks) onUpdateTasks([newTask, ...(data.tasks || [])]);
+        showToast(`✓ Item salvo com sucesso!`);
       }
     } catch (e) {
       console.error(e);

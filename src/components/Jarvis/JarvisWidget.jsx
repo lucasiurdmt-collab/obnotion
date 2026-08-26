@@ -717,7 +717,28 @@ export default function JarvisWidget({
       };
     });
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+    const currentDay = String(now.getDate()).padStart(2, '0');
+    const todayStr = `${currentYear}-${currentMonth}-${currentDay}`;
+    const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const weekdayNames = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+    const currentWeekday = weekdayNames[now.getDay()];
+
+    // Generate accurate reference anchor for next 7 days
+    const upcomingDays = [];
+    for (let i = 0; i <= 7; i++) {
+      const d = new Date(now);
+      d.setDate(d.getDate() + i);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const dayNum = String(d.getDate()).padStart(2, '0');
+      const dStr = `${y}-${m}-${dayNum}`;
+      const wName = weekdayNames[d.getDay()];
+      upcomingDays.push(`${i === 0 ? 'HOJE' : i === 1 ? 'AMANHÃ' : wName}: ${dStr} (${wName})`);
+    }
+
     const profile = dataRef.current?.financeProfile || { monthlySalary: 0, salaryDay: 5 };
     const bills = dataRef.current?.bills || [];
     const debts = dataRef.current?.debts || [];
@@ -729,8 +750,26 @@ export default function JarvisWidget({
     const freeBalance = (Number(profile.monthlySalary) || 0) - (totalBills + totalDebtMonthly + totalCards);
 
     const workspaceContext = `
-Você é o JARVIS, assistente supremo e consultor financeiro de elite do usuário no sistema Obnotion.
-Você tem poder de visão computacional multimodal avançada (capaz de analisar MÚLTIPLAS imagens enviadas simultaneamente) e ferramentas executáveis.
+Você é o JARVIS, assistente supremo, copiloto diário e consultor executivo do usuário no sistema Obnotion.
+Você tem poder de visão computacional multimodal e ferramentas executáveis para Tarefas, Calendário, Notas, Hábitos e Finanças.
+
+=======================================================
+CALENDÁRIO & TEMPO REAL ATUAL (MANDATÓRIO):
+- DATA DE HOJE: ${todayStr} (${currentWeekday})
+- HORA ATUAL: ${currentTimeStr}
+- ANO CORRENTE: ${currentYear}
+- TABELA DE REFERÊNCIA TEMPORAL (USE EXATAMENTE ESTAS DATAS):
+${upcomingDays.map(u => `  • ${u}`).join('\n')}
+=======================================================
+
+DIRETRIZES MANDATÓRIAS DE DATAS E HORÁRIOS:
+1. O ANO ATUAL É ${currentYear}. NUNCA, SOB NENHUMA HIPÓTESE, USE ANOS PASSADOS (como 2018, 2020, 2023, 2024)!
+2. Quando o usuário mencionar "amanhã", "quinta", "sexta", "domingo", "semana que vem", "dia 15", consulte a TABELA DE REFERÊNCIA acima e use o ano ${currentYear} (ou ${currentYear + 1} se for no futuro).
+3. Se o usuário falar um horário (ex: "às 14h", "15:30", "de manhã às 9h", "ao meio dia"), formate o campo 'time' estritamente como 'HH:MM' (ex: '14:00', '15:30', '09:00', '12:00').
+4. Quando o usuário ditar uma tarefa com data (ex: "Preciso ligar para o João quinta-feira"), CHAME IMEDIATAMENTE a ferramenta 'add_task' com a data calculada (YYYY-MM-DD).
+5. Quando o usuário ditar um evento/compromisso com data e/ou hora (ex: "Reunião de alinhamento amanhã às 15h"), CHAME 'add_calendar_event' com data 'YYYY-MM-DD' e time 'HH:MM'.
+6. Quando o usuário quiser anotar uma reflexão, estudo ou ideia (ex: "Lembra que eu quero estudar mais sobre prudência para a próxima pregação"), CHAME 'add_note'.
+7. Se uma única frase tiver múltiplos afazeres (ex: "Ligar para João amanhã e marcar consulta sexta às 10h"), chame as ferramentas necessárias para cada item.
 
 RAIO-X FINANCEIRO ATUAL:
 - Salário Líquido: R$ ${(Number(profile.monthlySalary) || 0).toFixed(2)} (Recebimento estimado dia ${profile.salaryDay || 5})
@@ -738,18 +777,6 @@ RAIO-X FINANCEIRO ATUAL:
 - Dívidas & Empréstimos (${debts.length}): ${JSON.stringify(debts.map(d => ({ title: d.title, total: d.totalAmount, parcela: d.installmentAmount, parcelasPagas: `${d.paidInstallments}/${d.totalInstallments}` })))}
 - Cartões de Crédito (${creditCards.length}): ${JSON.stringify(creditCards.map(c => ({ nome: c.name, fatura: c.currentBill, limite: c.limit })))}
 - Saldo Livre Real Projetado: R$ ${freeBalance.toFixed(2)}
-
-REGRAS MANDATÓRIAS DE EXECUÇÃO:
-1. Se o usuário enviar UMA OU VÁRIAS FOTOS/PRINTS (boletos, faturas de cartão parceladas, extratos de meses futuros como 2026, 2027, etc.):
-   - Analise minuciosamente CADA imagem enviada.
-   - Extraia TODAS as contas e faturas de cada mês visível (ex: fatura de 14/12/2026, 14/01/2027, 14/02/2027, 14/03/2027, 14/04/2027, 14/05/2027, etc.).
-   - USE A FERRAMENTA 'add_multiple_bills' passando TODAS as contas em um array com a data exata de cada vencimento YYYY-MM-DD!
-   - NÃO DEIXE NENHUMA FATURA DE FORA! Se houver 6 faturas nas fotos, cadastre as 6 faturas com suas respectivas datas em 2026 e 2027!
-   - Novas contas SEMPRE devem ser cadastradas com status 'pending' (pendente).
-   - Ao final, faça um resumo mês a mês (ex: Dezembro/2026: R$ 264,48, Janeiro/2027: R$ 264,50, Fevereiro/2027: R$ 229,29...).
-2. Se for um contrato de dívida/empréstimo consolidado: CHAME 'add_debt'.
-3. Se o usuário pedir para pagar conta: CHAME 'pay_bill'.
-4. Se o usuário informar seu salário: CHAME 'update_salary'.
 `;
 
     const modelsToTry = [
@@ -825,6 +852,45 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
     return textPart?.text || 'Ação executada com sucesso, Senhor!';
   };
 
+  const sanitizeDate = (dateStr) => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    if (!dateStr || typeof dateStr !== 'string') {
+      return now.toISOString().split('T')[0];
+    }
+    const clean = dateStr.trim();
+    const parts = clean.split('-');
+    if (parts.length === 3) {
+      let y = parseInt(parts[0], 10);
+      let m = parseInt(parts[1], 10);
+      let d = parseInt(parts[2], 10);
+      if (isNaN(y) || y < currentYear) {
+        y = currentYear;
+      }
+      if (isNaN(m) || m < 1 || m > 12) m = now.getMonth() + 1;
+      if (isNaN(d) || d < 1 || d > 31) d = now.getDate();
+      return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    }
+    return now.toISOString().split('T')[0];
+  };
+
+  const sanitizeTime = (timeStr) => {
+    if (!timeStr || typeof timeStr !== 'string') return '09:00';
+    const cleaned = timeStr.toLowerCase().replace(/h/g, ':').replace(/[^0-9:]/g, '').trim();
+    const parts = cleaned.split(':').filter(Boolean);
+    if (parts.length === 1) {
+      const h = parseInt(parts[0], 10);
+      if (!isNaN(h) && h >= 0 && h <= 23) return `${String(h).padStart(2, '0')}:00`;
+    } else if (parts.length >= 2) {
+      const h = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10) || 0;
+      if (!isNaN(h) && h >= 0 && h <= 23) {
+        return `${String(h).padStart(2, '0')}:${String(Math.min(59, Math.max(0, m))).padStart(2, '0')}`;
+      }
+    }
+    return '09:00';
+  };
+
   const handleFunctionCall = async (name, args) => {
     // 1. MULTIPLE BILLS BATCH
     if (name === 'add_multiple_bills') {
@@ -832,7 +898,7 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
         id: 'bill-' + Date.now() + '-' + idx + '-' + Math.random().toString(36).substr(2, 5),
         title: b.title,
         amount: Number(b.amount),
-        dueDate: b.dueDate || new Date().toISOString().split('T')[0],
+        dueDate: sanitizeDate(b.dueDate),
         category: b.category || 'Cartão de Crédito',
         status: 'pending',
         createdAt: new Date().toISOString().split('T')[0]
@@ -848,7 +914,7 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
         id: 'bill-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
         title: args.title,
         amount: Number(args.amount),
-        dueDate: args.dueDate || new Date().toISOString().split('T')[0],
+        dueDate: sanitizeDate(args.dueDate),
         category: args.category || 'Outros',
         status: 'pending',
         createdAt: new Date().toISOString().split('T')[0]
@@ -967,7 +1033,7 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
         title: args.title,
         status: args.status || 'todo',
         priority: args.priority || 'medium',
-        dueDate: args.dueDate || new Date().toISOString().split('T')[0],
+        dueDate: sanitizeDate(args.dueDate),
         tags: ['JARVIS'],
         notes: 'Criado via assistente'
       };
@@ -1026,8 +1092,8 @@ REGRAS MANDATÓRIAS DE EXECUÇÃO:
       const newEvent = {
         id: 'ev-' + Date.now(),
         title: args.title,
-        date: args.date,
-        time: args.time || '12:00',
+        date: sanitizeDate(args.date),
+        time: sanitizeTime(args.time),
         category: args.category || 'work',
         color: '#8b5cf6'
       };
