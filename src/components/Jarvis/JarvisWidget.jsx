@@ -35,6 +35,8 @@ export default function JarvisWidget({
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   const [attachedImages, setAttachedImages] = useState([]); // [{ id, data: base64, mimeType: string, previewUrl: string, name: string }]
 
+  // Speech & Voice Settings State
+  const [availableVoices, setAvailableVoices] = useState([]);
   const [voiceSource, setVoiceSource] = useState(() => localStorage.getItem('jarvis_voice_source') || 'cloud'); // 'cloud' | 'browser'
   const [cloudVoice, setCloudVoice] = useState(() => localStorage.getItem('jarvis_cloud_voice') || 'Camila'); // 'Camila', 'Ricardo', 'Vitoria', 'Cristiano', 'Ines'
   const [selectedVoiceURI, setSelectedVoiceURI] = useState(() => localStorage.getItem('jarvis_voice_uri') || '');
