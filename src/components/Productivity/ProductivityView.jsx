@@ -7,22 +7,22 @@ export default function ProductivityView({ darkMode }) {
   const tools = [
     {
       id: 'biblia',
-      title: 'Bíblia Interlinear & Lexicografia (Hebraico & Grego)',
+      title: 'Bíblia de Estudo Exegética (Léxico, Pais da Igreja & Prática)',
       icon: BookMarked,
       color: 'text-amber-400',
       bgColor: 'bg-amber-500/10',
       borderColor: 'border-amber-500/30',
-      tag: 'NOVO • EXEGESE & IDIOMAS',
+      tag: 'NOVO • EXEGESE & PATRÍSTICA',
       tagColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
-      description: 'Léxico e Manuscritos Originais Interlineares. Analise morfologia palavra por palavra, raízes triconsonantais, números Strong e faça exegese profunda com IA para sermões e estudos bíblicos.',
+      description: 'Texto bíblico fluido em português com consulta interativa palavra por palavra. Ao clicar, revela o original em hebraico/grego, comentários dos antigos Pais da Igreja e aplicação prática evangélica.',
       features: [
-        'Texto Massorético Hebraico (Tanakh) e Grego (Textus Receptus)',
-        'Dicionário Strong, raízes etimológicas e análise morfológica',
-        'Gaveta lateral interativa de lexicografia profunda',
-        'Assistente de exegese sintática e teológica com IA'
+        'Leitura limpa e contínua do texto bíblico em português (ARA)',
+        'Clique em qualquer palavra para abrir o Hebraico/Grego e Strong',
+        'Comentários dos Pais da Igreja (Agostinho, Crisóstomo) e Reformadores',
+        'Aplicação prática para a vida cristã e exegese pastoral com IA'
       ],
-      path: `${import.meta.env.BASE_URL}tools/biblia_interlinear.html`,
-      iframeUrl: `${import.meta.env.BASE_URL}tools/biblia_interlinear.html`
+      path: `${import.meta.env.BASE_URL}tools/biblia_interlinear.html?v=exegetica`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/biblia_interlinear.html?v=exegetica`
     },
     {
       id: 'photoshop',
