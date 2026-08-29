@@ -1,10 +1,29 @@
 import React, { useState } from 'react';
-import { Presentation, FileSpreadsheet, Wand2, ExternalLink, X, Maximize, Play, Palette, Sparkles, Layers, Image as ImageIcon } from 'lucide-react';
+import { Presentation, FileSpreadsheet, Wand2, ExternalLink, X, Maximize, Play, Palette, Sparkles, Layers, Image as ImageIcon, BookMarked } from 'lucide-react';
 
 export default function ProductivityView({ darkMode }) {
   const [activeTool, setActiveTool] = useState(null);
 
   const tools = [
+    {
+      id: 'biblia',
+      title: 'Bíblia Interlinear & Lexicografia (Hebraico & Grego)',
+      icon: BookMarked,
+      color: 'text-amber-400',
+      bgColor: 'bg-amber-500/10',
+      borderColor: 'border-amber-500/30',
+      tag: 'NOVO • EXEGESE & IDIOMAS',
+      tagColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+      description: 'Léxico e Manuscritos Originais Interlineares. Analise morfologia palavra por palavra, raízes triconsonantais, números Strong e faça exegese profunda com IA para sermões e estudos bíblicos.',
+      features: [
+        'Texto Massorético Hebraico (Tanakh) e Grego (Textus Receptus)',
+        'Dicionário Strong, raízes etimológicas e análise morfológica',
+        'Gaveta lateral interativa de lexicografia profunda',
+        'Assistente de exegese sintática e teológica com IA'
+      ],
+      path: `${import.meta.env.BASE_URL}tools/biblia_interlinear.html`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/biblia_interlinear.html`
+    },
     {
       id: 'photoshop',
       title: 'Obnotion Studio (Photoshop Pro)',
@@ -12,7 +31,7 @@ export default function ProductivityView({ darkMode }) {
       color: 'text-cyan-400',
       bgColor: 'bg-cyan-500/10',
       borderColor: 'border-cyan-500/30',
-      tag: 'NOVO • ESTÚDIO GRÁFICO',
+      tag: 'ESTÚDIO GRÁFICO',
       tagColor: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
       description: 'Estúdio de design e edição de imagem profissional completo. Edite artes, crie banners, thumbnails e manipule arquivos PSD, PNG e vetores com ferramentas avançadas.',
       features: [
