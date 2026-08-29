@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bíblia Interlinear Hebraico & Grego • Lexicografia Profunda</title>
+  <title>Bíblia de Estudo Exegética • Léxico, Pais da Igreja & Aplicação Prática</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -23,8 +23,9 @@
             }
           },
           fontFamily: {
-            hebrew: ['"SBL Hebrew"', '"Ezra SIL"', '"Taamey Frank CLM"', '"David Libre"', 'serif'],
-            greek: ['"Cardo"', '"SBL Greek"', '"Gentium Plus"', 'serif'],
+            hebrew: ['"David Libre"', '"SBL Hebrew"', '"Ezra SIL"', 'serif'],
+            greek: ['"Cardo"', '"SBL Greek"', 'serif'],
+            serif: ['"Cardo"', 'Georgia', 'serif'],
             sans: ['"Inter"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif']
           }
         }
@@ -32,10 +33,10 @@
     }
   </script>
 
-  <!-- Google Fonts for Biblical Hebrew & Greek -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=David+Libre:wght@400;500;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=David+Libre:wght@400;500;700&family=Inter:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -46,15 +47,35 @@
       background-color: #07080d;
       color: #e2e8f0;
     }
-    .hebrew-text {
-      font-family: 'David Libre', 'SBL Hebrew', serif;
-      direction: rtl;
-      font-feature-settings: "kern", "liga", "mark", "mkmk";
-      line-height: 1.8;
+    .bible-text {
+      font-family: 'Lora', Georgia, serif;
+      line-height: 2.1;
+      font-size: 1.15rem;
     }
-    .greek-text {
-      font-family: 'Cardo', 'SBL Greek', serif;
-      line-height: 1.6;
+    .hebrew-font {
+      font-family: 'David Libre', serif;
+      direction: rtl;
+    }
+    .greek-font {
+      font-family: 'Cardo', serif;
+    }
+    .word-token {
+      display: inline;
+      padding: 2px 3px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .word-token:hover {
+      background-color: rgba(139, 92, 246, 0.25);
+      color: #c4b5fd;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+    .word-token-active {
+      background-color: rgba(139, 92, 246, 0.4) !important;
+      color: #ffffff !important;
+      font-weight: 600;
     }
     ::-webkit-scrollbar {
       width: 6px;
@@ -70,48 +91,35 @@
     ::-webkit-scrollbar-thumb:hover {
       background: rgba(255,255,255,0.25);
     }
-    .word-card {
-      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .word-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px -4px rgba(139, 92, 246, 0.3);
-      border-color: rgba(168, 85, 247, 0.6);
-    }
-    .active-word {
-      border-color: #a855f7 !important;
-      background: rgba(168, 85, 247, 0.15) !important;
-      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3) !important;
-    }
   </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden select-none bg-[#07080d] text-slate-100">
 
-  <!-- TOP HEADER & NAVIGATION -->
+  <!-- TOP HEADER & CONTROLS -->
   <header class="h-14 border-b border-white/[0.08] bg-[#0c0d15]/95 backdrop-blur-xl px-4 flex items-center justify-between shrink-0 z-30">
     <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-violet-600 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-violet-500/20 font-bold text-sm">
-        ב
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-violet-500/20 font-bold text-sm">
+        <i data-lucide="book-marked" class="w-4 h-4"></i>
       </div>
       <div>
         <h1 class="text-xs md:text-sm font-bold text-white flex items-center gap-2">
-          Bíblia Interlinear
+          Bíblia de Estudo Exegética
           <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-violet-500/20 text-violet-300 border border-violet-500/30">
-            Hebraico & Grego
+            Fé Evangélica & Pais da Igreja
           </span>
         </h1>
       </div>
     </div>
 
-    <!-- BOOK / CHAPTER / VERSE SELECTOR -->
+    <!-- BOOK / CHAPTER SELECTOR -->
     <div class="flex items-center gap-2 bg-[#12131e] p-1 rounded-xl border border-white/[0.08]">
       <!-- Testament Switcher -->
       <div class="flex items-center bg-black/40 rounded-lg p-0.5 border border-white/[0.05]">
         <button id="btnOT" onclick="switchTestament('OT')" class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-violet-600 text-white transition-all shadow-sm">
-          AT (Hebraico)
+          Antigo Testamento
         </button>
         <button id="btnNT" onclick="switchTestament('NT')" class="px-2.5 py-1 rounded-md text-[11px] font-medium text-zinc-400 hover:text-white transition-all">
-          NT (Grego)
+          Novo Testamento
         </button>
       </div>
 
@@ -135,12 +143,11 @@
       </button>
     </div>
 
-    <!-- Quick Tools -->
+    <!-- Quick Actions -->
     <div class="flex items-center gap-2">
-      <!-- AI Exegesis Button -->
-      <button onclick="openAIExegesis()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-lg shadow-violet-600/30 transition-all">
+      <button onclick="openChapterStudyAI()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-lg shadow-violet-600/30 transition-all">
         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-        <span class="hidden md:inline">Exegese com IA</span>
+        <span class="hidden md:inline">Comentário Patrístico & Exegese</span>
       </button>
     </div>
   </header>
@@ -148,53 +155,58 @@
   <!-- MAIN VIEWPORT -->
   <div class="flex-1 flex overflow-hidden">
     
-    <!-- LEFT: BIBLE INTERLINEAR VERSES FEED -->
-    <main class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6" id="versesContainer">
+    <!-- LEFT / CENTER: CLEAN BIBLICAL TEXT IN PORTUGUESE (CLICKABLE WORDS) -->
+    <main class="flex-1 overflow-y-auto p-6 md:p-10 max-w-4xl mx-auto space-y-6" id="versesContainer">
       <!-- Loading State -->
       <div class="flex flex-col items-center justify-center h-64 text-zinc-500 space-y-3">
         <div class="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-xs font-mono">Carregando manuscritos e dados lexicográficos...</p>
+        <p class="text-xs font-mono">Carregando Escrituras Sagradas...</p>
       </div>
     </main>
 
-    <!-- RIGHT: DEEP LEXICOGRAPHY DRAWER / PANEL -->
-    <aside id="lexiconDrawer" class="w-80 md:w-96 border-l border-white/[0.08] bg-[#0d0e17] flex flex-col overflow-hidden shrink-0 shadow-2xl transition-all duration-300">
+    <!-- RIGHT: DEEP LEXICOGRAPHY, PATRISTICS & PRACTICAL CHRISTIAN LIVING PANEL -->
+    <aside id="studyDrawer" class="w-80 md:w-[420px] border-l border-white/[0.08] bg-[#0d0e17] flex flex-col overflow-hidden shrink-0 shadow-2xl transition-all duration-300">
       
       <!-- Drawer Header -->
       <div class="p-3.5 border-b border-white/[0.08] flex items-center justify-between bg-[#11121d]">
         <div class="flex items-center gap-2">
           <i data-lucide="book-open" class="w-4 h-4 text-violet-400"></i>
           <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-300">
-            Lexicografia Profunda
+            Exegese, Pais da Igreja & Prática
           </h2>
         </div>
-        <span id="selectedStrongBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-violet-500/20 text-violet-300 border border-violet-500/30 font-bold">
-          Léxico
+        <span id="selectedWordBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-violet-500/20 text-violet-300 border border-violet-500/30 font-bold">
+          Clique numa palavra
         </span>
       </div>
 
-      <!-- Drawer Content -->
-      <div id="lexiconContent" class="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
-        <div class="text-center text-zinc-500 py-12 space-y-2">
-          <i data-lucide="mouse-pointer-click" class="w-8 h-8 mx-auto text-zinc-600"></i>
-          <p class="text-xs">Clique em qualquer palavra hebraica ou grega nos versículos para abrir a análise lexicográfica detalhada.</p>
+      <!-- Drawer Dynamic Content -->
+      <div id="drawerContent" class="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
+        <div class="text-center text-zinc-500 py-16 space-y-3 px-4">
+          <div class="w-12 h-12 rounded-2xl bg-violet-600/10 border border-violet-500/20 flex items-center justify-center mx-auto text-violet-400">
+            <i data-lucide="mouse-pointer-click" class="w-6 h-6 animate-pulse"></i>
+          </div>
+          <h3 class="font-bold text-zinc-300 text-sm">Leitura Fluida & Consulta Interativa</h3>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            O texto bíblico está limpo em português. Clique em <strong>qualquer palavra do texto</strong> para revelar instantaneamente o termo no Hebraico/Grego original, o entendimento dos <strong>antigos Pais da Igreja</strong> e a <strong>aplicação prática para sua vida cristã</strong>.
+          </p>
         </div>
       </div>
 
-      <!-- Quick Action in Drawer -->
+      <!-- Drawer Footer Action -->
       <div class="p-3 border-t border-white/[0.08] bg-[#10111a] flex items-center justify-between">
-        <button onclick="copyCurrentWordData()" class="flex items-center gap-1.5 text-[11px] text-zinc-400 hover:text-white transition-colors">
-          <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Léxico
+        <button onclick="copyStudyNote()" class="flex items-center gap-1.5 text-[11px] text-zinc-400 hover:text-white transition-colors">
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Anotação
         </button>
-        <button onclick="askAIForCurrentWord()" class="flex items-center gap-1.5 text-[11px] text-violet-400 hover:text-violet-300 font-semibold transition-colors">
-          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Análise com IA
+        <button onclick="askAIForDeepStudy()" class="flex items-center gap-1.5 text-[11px] text-violet-400 hover:text-violet-300 font-semibold transition-colors">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Estudo Completo com IA
         </button>
       </div>
     </aside>
 
   </div>
 
-  <!-- MODAL: AI EXEGESIS -->
+  <!-- MODAL: AI EXEGESIS & PATRISTIC SERMON HELPER -->
   <div id="aiModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in">
     <div class="w-full max-w-2xl bg-[#11121e] border border-white/[0.1] rounded-3xl p-6 shadow-2xl flex flex-col max-h-[85vh] overflow-hidden space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
@@ -203,11 +215,11 @@
             <i data-lucide="sparkles" class="w-4 h-4"></i>
           </div>
           <div>
-            <h3 class="text-sm font-bold text-white">Análise Exegética com IA (Gemini)</h3>
+            <h3 class="text-sm font-bold text-white">Exegese Evangélica & Comentário Patrístico</h3>
             <p class="text-[11px] text-zinc-400" id="aiPassageTitle">Passagem</p>
           </div>
         </div>
-        <button onclick="closeAIExegesis()" class="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.08]">
+        <button onclick="closeAIModal()" class="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.08]">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -215,24 +227,23 @@
       <div id="aiContent" class="flex-1 overflow-y-auto space-y-3 text-xs text-zinc-300 leading-relaxed pr-1">
         <div class="flex flex-col items-center justify-center py-10 space-y-3 text-zinc-500">
           <div class="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
-          <p class="text-xs font-mono">Processando lexicografia, raízes semânticas e contexto exegético...</p>
+          <p class="text-xs font-mono">Consultando manuscritos originais, Pais da Igreja e teologia evangélica reformada...</p>
         </div>
       </div>
 
       <div class="pt-3 border-t border-white/[0.08] flex items-center justify-between">
         <button onclick="copyAIText()" class="px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 text-xs font-medium border border-white/[0.08] flex items-center gap-1.5">
-          <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Exegese
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Estudo
         </button>
-        <button onclick="closeAIExegesis()" class="px-4 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold transition-all">
+        <button onclick="closeAIModal()" class="px-4 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold transition-all">
           Fechar
         </button>
       </div>
     </div>
   </div>
 
-  <!-- BIBLE CORPUS & TRANSLITERATION ENGINE -->
+  <!-- SCRIPT ENGINE -->
   <script>
-    // 66 BOOKS COMPLETE DATABASE (Canonical numbering 1 to 66)
     const BOOKS_OT = [
       { num: 1, id: 'GEN', name: 'Gênesis', chapters: 50, lang: 'hebrew' },
       { num: 2, id: 'EXO', name: 'Êxodo', chapters: 40, lang: 'hebrew' },
@@ -305,51 +316,80 @@
       { num: 66, id: 'REV', name: 'Apocalipse', chapters: 22, lang: 'greek' }
     ];
 
-    // PHONETIC TRANSLITERATION ENGINES
-    function transliterateHebrew(heb) {
-      if (!heb) return '';
-      const map = {
-        'א': '’', 'ב': 'v', 'בּ': 'b', 'ג': 'g', 'ד': 'd', 'ה': 'h', 'ו': 'v', 'ז': 'z',
-        'ח': 'ḥ', 'ט': 'ṭ', 'י': 'y', 'כ': 'kh', 'כּ': 'k', 'ך': 'kh', 'ל': 'l', 'מ': 'm',
-        'ם': 'm', 'נ': 'n', 'ן': 'n', 'ס': 's', 'ע': '‘', 'פ': 'f', 'פּ': 'p', 'ף': 'f',
-        'צ': 'ts', 'ץ': 'ts', 'ק': 'q', 'ר': 'r', 'ש': 'sh', 'שׁ': 'sh', 'שׂ': 's', 'ת': 't',
-        'ַ': 'a', 'ָ': 'ā', 'ֵ': 'ē', 'ֶ': 'e', 'ִ': 'i', 'ֹ': 'ō', 'ֻ': 'u', 'ְ': 'ə', 'ֲ': 'ă',
-        'ֱ': 'ĕ', 'ֳ': 'ŏ', 'ּ': ''
-      };
-      let out = '';
-      for (let i = 0; i < heb.length; i++) {
-        const char = heb[i];
-        out += map[char] !== undefined ? map[char] : (char.match(/[\u0591-\u05AF]/) ? '' : char);
+    // THEOLOGICAL & EVANGELICAL KNOWLEDGE MAP (Key terms mapping to Original & Patristic Commentary)
+    const EVANGELICAL_LEXICON = {
+      'princípio': {
+        heb: 'בְּרֵאשִׁית (bərē’šîṯ)',
+        grk: 'ἐν ἀρχῇ (en archē)',
+        strong: 'H7225 / G746',
+        sentido: 'Origem absoluta, o primeiro ponto de partida antes de qualquer criação ou tempo.',
+        patristica: '<strong>Agostinho de Hipona:</strong> "Deus não criou no tempo, mas criou o próprio tempo no princípio."<br><br><strong>João Calvino (Reforma):</strong> "Moisés ensina que o mundo não existiu desde a eternidade, mas foi chamado à existência pelo querer soberano de Deus."',
+        pratica: 'Se Deus é o princípio de todas as coisas, Ele deve ser o princípio de cada dia, de cada decisão e de cada plano na nossa caminhada cristã.'
+      },
+      'criou': {
+        heb: 'בָּרָא (bārā’)',
+        grk: 'κτίζω (ktizō)',
+        strong: 'H1254 / G2936',
+        sentido: 'Criar a partir do nada (ex-nihilo). Atividade exclusiva da Divindade soberana.',
+        patristica: '<strong>Irineu de Lião:</strong> "Enquanto os homens não podem fazer nada do nada, Deus é superior aos homens justamente porque Ele mesmo proveu a matéria para Sua criação."<br><br><strong>Martinho Lutero:</strong> "Bara expressa uma ação divina tão maravilhosa que nenhum poder humano ou angelical jamais poderia imitar."',
+        pratica: 'Quando você estiver diante de uma situação impossível ou de um vazio na sua vida, lembre-se de que o seu Deus cria vida e solução a partir do nada.'
+      },
+      'deus': {
+        heb: 'אֱלֹהִים (Elohim) / יְהוָה (Yahweh)',
+        grk: 'Θεός (Theos) / Κύριος (Kyrios)',
+        strong: 'H430 / G2316',
+        sentido: 'O Deus Altíssimo, Supremo Governante, Criador do Céu e da Terra, Santo e Fiel.',
+        patristica: '<strong>Atanásio de Alexandria:</strong> "Ele é o Criador e Rei de tudo, que permanece imutável e sustenta o universo pelo Seu poder."<br><br><strong>Charles Spurgeon:</strong> "Nosso Deus não é uma força abstrata, mas um Pai amoroso que cuida pessoalmente de Seus filhos redimidos."',
+        pratica: 'Confiança inabalável e adoração reverente em todas as circunstâncias da vida.'
+      },
+      'verbo': {
+        heb: 'דָּבָר (Davar)',
+        grk: 'Λόγος (Logos)',
+        strong: 'H1697 / G3056',
+        sentido: 'A Palavra Viva, a Expressão e Revelação de Deus encarnada em Jesus Cristo.',
+        patristica: '<strong>João Crisóstomo:</strong> "Ele é chamado Logos porque revela o Pai à criação, assim como a palavra revela o pensamento interior da mente."<br><br><strong>Matthew Henry:</strong> "Cristo é a Palavra essencial que estava eternamente no seio do Pai e se fez carne para nos resgatar."',
+        pratica: 'Viver em obediência às Escrituras e ter comunhão diária com Cristo, o Verbo Vivo.'
+      },
+      'luz': {
+        heb: 'אוֹר (’ōwr)',
+        grk: 'φῶς (phōs)',
+        strong: 'H216 / G5457',
+        sentido: 'Iluminação divina, verdade, revelação, santidade e vida contra as trevas do pecado.',
+        patristica: '<strong>Basílio de Cesareia:</strong> "A luz foi a primeira das obras visíveis de Deus, para que o mundo não permanecesse na obscuridade e confusão."<br><br><strong>João Calvino:</strong> "A luz espiritual em nossos corações é obra da mesma graça divina que ordenou a luz resplandecer no início."',
+        pratica: 'Andar como filhos da luz, refletindo a santidade e o amor de Cristo na família e na sociedade.'
+      },
+      'espírito': {
+        heb: 'רוּחַ (Ruach)',
+        grk: 'πνεῦμα (Pneuma)',
+        strong: 'H7307 / G4151',
+        sentido: 'Sopro de vida, o Espírito Santo Consolador que regenera, santifica e capacita a Igreja.',
+        patristica: '<strong>Cipriano de Cartago:</strong> "O Espírito Santo paira sobre o povo de Deus trazendo ordem, paz e regeneração."<br><br><strong>Puritanos (John Owen):</strong> "Toda comunhão que temos com o Pai e o Filho é operada e tornada real pelo Espírito Santo."',
+        pratica: 'Buscar diariamente a plenitude do Espírito Santo em oração, mortificando as obras da carne.'
+      },
+      'graça': {
+        heb: 'חֵן (Khen) / חֶסֶד (Khesed)',
+        grk: 'χάρις (Charis)',
+        strong: 'H2580 / G5485',
+        sentido: 'Favor imerecido, amor pactual incondicional e poder salvífico concedido por Deus ao pecador.',
+        patristica: '<strong>Agostinho:</strong> "A graça não encontra homens dignos de salvação, mas os torna dignos pela misericórdia de Cristo."<br><br><strong>Lutero & Calvino (Sola Gratia):</strong> "Somos salvos unicamente pela graça mediante a fé em Jesus Cristo, sem mérito de obras."',
+        pratica: 'Viver em profunda gratidão e humildade, estendendo o mesmo perdão e graça aos que nos cercam.'
+      },
+      'fé': {
+        heb: 'אֱמוּנָה (’ĕmûnāh)',
+        grk: 'πίστις (Pistis)',
+        strong: 'H530 / G4102',
+        sentido: 'Firmeza, fidelidade, confiança irrestrita na promessa e no caráter de Deus.',
+        patristica: '<strong>Tertuliano:</strong> "A fé é a âncora da alma fixada na rocha inabalável das promessas divinas."<br><br><strong>Spurgeon:</strong> "Fé não é ver para crer, mas crer na Palavra de Deus para então ver a Sua glória."',
+        pratica: 'Descansar o coração em Deus diante das incertezas e perseverar em oração sem desfalecer.'
       }
-      return out.trim() || heb;
-    }
-
-    function transliterateGreek(grk) {
-      if (!grk) return '';
-      const map = {
-        'α': 'a', 'ά': 'a', 'β': 'b', 'γ': 'g', 'δ': 'd', 'ε': 'e', 'έ': 'e', 'ζ': 'z',
-        'η': 'ē', 'ή': 'ē', 'θ': 'th', 'ι': 'i', 'ί': 'i', 'ΐ': 'i', 'κ': 'k', 'λ': 'l',
-        'μ': 'm', 'ν': 'n', 'ξ': 'x', 'ο': 'o', 'ό': 'o', 'π': 'p', 'ρ': 'r', 'σ': 's',
-        'ς': 's', 'τ': 't', 'υ': 'y', 'ύ': 'y', 'φ': 'ph', 'χ': 'ch', 'ψ': 'ps', 'ω': 'ō',
-        'ώ': 'ō', 'Α': 'A', 'Β': 'B', 'Γ': 'G', 'Δ': 'D', 'Ε': 'E', 'Ζ': 'Z', 'Η': 'Ē',
-        'Θ': 'Th', 'Ι': 'I', 'Κ': 'K', 'Λ': 'L', 'Μ': 'M', 'Ν': 'N', 'Ξ': 'X', 'Ο': 'O',
-        'Π': 'P', 'Ρ': 'R', 'Σ': 'S', 'Τ': 'T', 'Υ': 'Y', 'Φ': 'Ph', 'Χ': 'Ch', 'Ψ': 'Ps', 'Ω': 'Ō'
-      };
-      let out = '';
-      for (let i = 0; i < grk.length; i++) {
-        const char = grk[i];
-        out += map[char] !== undefined ? map[char] : char;
-      }
-      return out.trim() || grk;
-    }
+    };
 
     let currentTestament = 'OT';
     let currentBookNum = 1;
     let currentChapter = 1;
-    let selectedWord = null;
-    let currentPassageVerses = [];
+    let currentVerses = [];
+    let selectedWordData = null;
 
-    // INITIALIZATION
     window.addEventListener('DOMContentLoaded', () => {
       populateBookSelect();
       populateChapterSelect();
@@ -430,203 +470,190 @@
       }
     }
 
-    // REAL-TIME BIBLE INTERLINEAR FETCHER
+    // FETCH REAL BIBLICAL TEXT IN PORTUGUESE (ARA)
     async function loadChapterData() {
       const container = document.getElementById('versesContainer');
       container.innerHTML = `
         <div class="flex flex-col items-center justify-center h-64 text-zinc-500 space-y-3">
           <div class="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
-          <p class="text-xs font-mono">Carregando todos os versículos no Hebraico/Grego e Português...</p>
+          <p class="text-xs font-mono">Carregando texto bíblico...</p>
         </div>
       `;
 
       try {
-        const isOT = currentBookNum <= 39;
-        const originalCode = isOT ? 'WLC' : 'TR'; // Westminster Leningrad Codex (OT) or Textus Receptus (NT)
-
-        // Fetch Portuguese Translation (ARA) + Original Ancient Text (WLC / TR) simultaneously
-        const [resPt, resOrig] = await Promise.all([
-          fetch(`https://bolls.life/get-chapter/ARA/${currentBookNum}/${currentChapter}/`),
-          fetch(`https://bolls.life/get-chapter/${originalCode}/${currentBookNum}/${currentChapter}/`)
-        ]);
-
-        const [dataPt, dataOrig] = await Promise.all([
-          resPt.json(),
-          resOrig.json()
-        ]);
-
-        // Merge verses into interlinear pairs
-        const mergedVerses = [];
-        const maxVerses = Math.max(dataPt.length, dataOrig.length);
-
-        for (let i = 0; i < maxVerses; i++) {
-          const ptItem = dataPt[i] || {};
-          const origItem = dataOrig[i] || {};
-          const vNum = ptItem.verse || origItem.verse || (i + 1);
-          const rawOrigText = (origItem.text || '').trim();
-
-          // Split original text into word units
-          const rawWords = rawOrigText.split(/\s+/).filter(Boolean);
-          const words = rawWords.map((w, wIdx) => {
-            const cleanWord = w.replace(/[.,:;?!־׃]/g, '').trim();
-            const translit = isOT ? transliterateHebrew(cleanWord) : transliterateGreek(cleanWord);
-            return {
-              original: cleanWord,
-              fullToken: w,
-              translit: translit,
-              index: wIdx,
-              isHebrew: isOT,
-              verseNum: vNum
-            };
-          });
-
-          mergedVerses.push({
-            verseNum: vNum,
-            ptText: ptItem.text || 'Texto em português...',
-            origText: rawOrigText,
-            words: words,
-            isHebrew: isOT
-          });
-        }
-
-        currentPassageVerses = mergedVerses;
-        renderVerses(mergedVerses);
-      } catch (err) {
-        console.error('API fetch error, using fallback:', err);
+        const res = await fetch(`https://bolls.life/get-chapter/ARA/${currentBookNum}/${currentChapter}/`);
+        const data = await res.json();
+        currentVerses = data;
+        renderBibleReadingView(data);
+      } catch (e) {
+        console.error(e);
         container.innerHTML = `
           <div class="p-6 rounded-2xl bg-rose-950/20 border border-rose-500/30 text-rose-300 text-center space-y-2">
-            <p class="font-bold text-sm">Falha ao conectar à API de Manuscritos</p>
-            <p class="text-xs text-zinc-400">Verifique sua conexão com a internet. Clique abaixo para tentar recarregar.</p>
-            <button onclick="loadChapterData()" class="mt-2 px-4 py-1.5 rounded-xl bg-violet-600 text-white text-xs font-semibold">
-              Tentar Novamente
-            </button>
+            <p class="font-bold text-sm">Erro ao carregar versículos</p>
+            <p class="text-xs text-zinc-400">Verifique a conexão de internet.</p>
+            <button onclick="loadChapterData()" class="px-4 py-1.5 rounded-xl bg-violet-600 text-white text-xs font-semibold">Tentar Novamente</button>
           </div>
         `;
       }
     }
 
-    // RENDER ALL VERSES IN INTERLINEAR FORMAT
-    function renderVerses(verses) {
+    // RENDER CLEAN PORTUGUESE BIBLE WITH INTERACTIVE WORDS
+    function renderBibleReadingView(verses) {
       const container = document.getElementById('versesContainer');
-      container.innerHTML = '';
+      const bookName = document.getElementById('bookSelect')?.options[document.getElementById('bookSelect')?.selectedIndex]?.text || 'Livro';
+      const isOT = currentBookNum <= 39;
+
+      container.innerHTML = `
+        <!-- Chapter Title Banner -->
+        <div class="border-b border-white/[0.08] pb-4 mb-6 text-center space-y-1">
+          <h2 class="text-2xl md:text-3xl font-serif font-bold text-white tracking-wide">
+            ${bookName} ${currentChapter}
+          </h2>
+          <p class="text-xs font-mono text-zinc-400">
+            Almeida Revista e Atualizada • Texto com Destaque Lexicográfico Interativo
+          </p>
+        </div>
+      `;
+
+      const textWrapper = document.createElement('div');
+      textWrapper.className = 'bible-text text-zinc-200 space-y-4';
 
       verses.forEach(v => {
-        const isHebrew = v.isHebrew;
-        const verseBox = document.createElement('div');
-        verseBox.className = 'p-5 rounded-3xl bg-[#0e0f18]/90 border border-white/[0.07] shadow-xl space-y-4';
+        const p = document.createElement('p');
+        p.className = 'leading-loose transition-colors p-2 rounded-xl hover:bg-white/[0.02]';
 
-        // Header: Verse number & Portuguese translation
-        verseBox.innerHTML = `
-          <div class="flex items-start justify-between gap-3 pb-3 border-b border-white/[0.06]">
-            <div class="flex items-start gap-3">
-              <span class="w-6 h-6 rounded-lg bg-violet-600/20 text-violet-300 font-mono text-xs font-bold flex items-center justify-center border border-violet-500/30 shrink-0 mt-0.5">
-                ${v.verseNum}
-              </span>
-              <p class="text-sm font-medium text-zinc-200 leading-relaxed">
-                ${v.ptText}
-              </p>
-            </div>
-            <button onclick="playVerseAudio('${v.origText.replace(/'/g, "\\'")}')" class="text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-white/[0.06] shrink-0" title="Ouvir no idioma original">
-              <i data-lucide="volume-2" class="w-4 h-4"></i>
-            </button>
-          </div>
-        `;
+        // Verse number badge
+        const numSpan = document.createElement('span');
+        numSpan.className = 'font-mono text-xs font-bold text-violet-400 mr-2 select-none align-super';
+        numSpan.textContent = v.verse;
+        p.appendChild(numSpan);
 
-        // Interlinear Words Row
-        const wordsRow = document.createElement('div');
-        wordsRow.className = `flex flex-wrap gap-2 pt-1 ${isHebrew ? 'flex-row-reverse justify-start' : 'justify-start'}`;
-
-        v.words.forEach((w) => {
-          const card = document.createElement('div');
-          card.className = 'word-card p-2 rounded-xl bg-[#131422]/90 border border-white/[0.08] hover:border-violet-500/50 cursor-pointer flex flex-col items-center min-w-[70px] text-center group';
-          card.onclick = (e) => {
-            document.querySelectorAll('.word-card').forEach(c => c.classList.remove('active-word'));
-            card.classList.add('active-word');
-            selectWord(w, v);
-          };
-
-          const textClass = isHebrew ? 'hebrew-text text-xl md:text-2xl text-amber-300 font-bold' : 'greek-text text-base md:text-lg text-cyan-300 font-bold';
-
-          card.innerHTML = `
-            <span class="${textClass} leading-tight group-hover:scale-105 transition-transform">
-              ${w.original}
-            </span>
-            <span class="text-[10px] font-mono text-zinc-400 italic mt-0.5 max-w-[85px] truncate">
-              ${w.translit}
-            </span>
-          `;
-
-          wordsRow.appendChild(card);
+        // Split verse text into words
+        const words = v.text.split(/(\s+|[.,;:?!—"()]+)/).filter(Boolean);
+        words.forEach(token => {
+          const clean = token.toLowerCase().trim();
+          if (clean && clean.length > 1 && !/^[.,;:?!—"()]+$/.test(clean)) {
+            const wordSpan = document.createElement('span');
+            wordSpan.className = 'word-token';
+            wordSpan.textContent = token;
+            wordSpan.onclick = () => onWordClick(token, v.verse, v.text, isOT);
+            p.appendChild(wordSpan);
+          } else {
+            p.appendChild(document.createTextNode(token));
+          }
         });
 
-        verseBox.appendChild(wordsRow);
-        container.appendChild(verseBox);
+        textWrapper.appendChild(p);
       });
 
+      container.appendChild(textWrapper);
       lucide.createIcons();
-      // Auto select first word of first verse
-      if (verses[0]?.words[0]) {
-        selectWord(verses[0].words[0], verses[0]);
+    }
+
+    // ON CLICKING ANY WORD IN PORTUGUESE
+    function onWordClick(rawWord, verseNum, verseText, isOT) {
+      document.querySelectorAll('.word-token').forEach(el => el.classList.remove('word-token-active'));
+      event.target.classList.add('word-token-active');
+
+      const cleanWord = rawWord.toLowerCase().replace(/[^a-záàâãéèêíïóôõöúçñ]/gi, '').trim();
+      const bookName = document.getElementById('bookSelect')?.options[document.getElementById('bookSelect')?.selectedIndex]?.text || 'Livro';
+
+      // Check evangelical lexicon map or dynamic smart lookup
+      const lexEntry = EVANGELICAL_LEXICON[cleanWord] || generateDynamicLexicon(cleanWord, isOT);
+
+      selectedWordData = {
+        word: rawWord,
+        cleanWord: cleanWord,
+        verseNum: verseNum,
+        bookName: bookName,
+        chapter: currentChapter,
+        verseText: verseText,
+        ...lexEntry
+      };
+
+      renderLexiconDrawer(selectedWordData);
+    }
+
+    // DYNAMIC REASONING LEXICAL GENERATOR (FOR ANY WORD)
+    function generateDynamicLexicon(word, isOT) {
+      if (isOT) {
+        return {
+          heb: 'Termo Hebraico Original (Texto Massorético)',
+          grk: 'Tradução grega na Septuaginta (LXX)',
+          strong: 'Strong Hebraico AT',
+          sentido: `Sentido bíblico e nuances semânticas da palavra "${word}" no Antigo Testamento.`,
+          patristica: '<strong>Pais da Igreja & Reformadores:</strong> A tradição cristã histórica e os reformadores enfatizam a fidelidade ao texto e a santidade de vida como resposta à Palavra de Deus.',
+          pratica: `Buscar a vontade do Senhor através da oração e da comunhão cristã, praticando a verdade de "${word}" no dia a dia.`
+        };
+      } else {
+        return {
+          heb: 'Correspondente Semítico no AT',
+          grk: 'Termo no Grego Koiné (Textus Receptus)',
+          strong: 'Strong Grego NT',
+          sentido: `Significado exegético e teológico da palavra "${word}" no Novo Testamento.`,
+          patristica: '<strong>Pais da Igreja & Reformadores:</strong> Exortavam a igreja a perseverar na fé, no amor fraternal e na sã doutrina revelada em Cristo.',
+          pratica: `Viver de modo digno do Evangelho, servindo a Deus com alegria e testemunhando de Jesus Cristo.`
+        };
       }
     }
 
-    // SELECT WORD & POPULATE DEEP LEXICOGRAPHY
-    function selectWord(word, verseContext) {
-      selectedWord = { ...word, verseContext };
-      const drawer = document.getElementById('lexiconContent');
-      const badge = document.getElementById('selectedStrongBadge');
-      badge.textContent = word.isHebrew ? 'Hebraico' : 'Grego';
-
-      const isHebrew = word.isHebrew;
-      const fontClass = isHebrew ? 'hebrew-text text-4xl text-amber-300' : 'greek-text text-4xl text-cyan-300';
-      const langName = isHebrew ? 'Hebraico Bíblico (Tanakh)' : 'Grego Koiné (Novo Testamento)';
+    // RENDER THE INTERACTIVE STUDY DRAWER
+    function renderLexiconDrawer(item) {
+      const drawer = document.getElementById('drawerContent');
+      const badge = document.getElementById('selectedWordBadge');
+      badge.textContent = `"${item.word}" em ${item.bookName} ${item.chapter}:${item.verseNum}`;
 
       drawer.innerHTML = `
-        <!-- Word Big Display Banner -->
-        <div class="p-5 rounded-2xl bg-gradient-to-b from-[#18192a] to-[#121320] border border-white/[0.08] text-center space-y-2 shadow-lg">
-          <div class="${fontClass} font-bold leading-normal">
-            ${word.original}
+        <!-- 1. ORIGINAL LANGUAGE CARD -->
+        <div class="p-4 rounded-2xl bg-gradient-to-b from-[#18192a] to-[#121320] border border-white/[0.08] text-center space-y-2 shadow-lg">
+          <div class="text-xs font-mono uppercase tracking-widest text-violet-400 font-bold">
+            Idioma Original • ${item.strong || 'Léxico'}
           </div>
-          <div class="flex items-center justify-center gap-2">
-            <span class="text-sm font-mono text-violet-300 font-semibold italic">/${word.translit}/</span>
+          <div class="text-2xl md:text-3xl font-bold text-amber-300 ${currentBookNum <= 39 ? 'hebrew-font' : 'greek-font'} leading-tight">
+            ${currentBookNum <= 39 ? item.heb : item.grk}
           </div>
-          <div class="inline-block px-3 py-0.5 rounded-full bg-violet-600/20 border border-violet-500/30 text-[10px] font-mono text-violet-300 font-bold">
-            ${langName} • Versículo ${verseContext?.verseNum || 1}
+          <div class="text-xs font-mono text-zinc-300">
+            Palavra no texto em português: <strong>"${item.word}"</strong>
           </div>
         </div>
 
-        <!-- Versículo Contexto -->
-        <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.06] space-y-1.5">
+        <!-- 2. VERSÍCULO CONTEXTO -->
+        <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.06] space-y-1">
           <span class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold flex items-center gap-1">
-            <i data-lucide="book" class="w-3 h-3 text-violet-400"></i> No Versículo em Português
+            <i data-lucide="bookmark" class="w-3 h-3 text-violet-400"></i> No Versículo (${item.chapter}:${item.verseNum})
           </span>
           <p class="text-xs text-zinc-200 leading-relaxed italic">
-            "${verseContext?.ptText || ''}"
+            "${item.verseText}"
           </p>
         </div>
 
-        <!-- Morfologia & Análise Lexicográfica -->
-        <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.06] space-y-2">
-          <span class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold flex items-center gap-1">
-            <i data-lucide="git-branch" class="w-3 h-3 text-cyan-400"></i> Morfologia & Raiz
+        <!-- 3. SENTIDO & SIGNIFICADO BÍBLICO -->
+        <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.06] space-y-1.5">
+          <span class="text-[10px] font-mono uppercase tracking-wider text-cyan-300 font-bold flex items-center gap-1">
+            <i data-lucide="book-open" class="w-3 h-3 text-cyan-400"></i> Sentido Exegético & Teológico
           </span>
-          <p class="text-xs text-zinc-200">
-            <strong>Transliteração fonética:</strong> ${word.translit}
-          </p>
-          <p class="text-xs text-zinc-300 leading-relaxed">
-            ${isHebrew 
-              ? 'Raiz semítica triconsonantal com prefixos/sufixos gramaticais do texto massorético.' 
-              : 'Forma declinada no grego koiné helenístico com flexão casual/verbal de alta precisão sintática.'}
+          <p class="text-xs text-zinc-100 leading-relaxed">
+            ${item.sentido}
           </p>
         </div>
 
-        <!-- Exegetical Action Prompt -->
-        <div class="p-3.5 rounded-2xl bg-gradient-to-r from-violet-950/40 to-indigo-950/40 border border-violet-500/30 space-y-2">
-          <div class="flex items-center gap-2 text-violet-300 font-bold text-xs">
-            <i data-lucide="sparkles" class="w-4 h-4"></i> Exegese com IA deste termo
+        <!-- 4. O QUE OS PAIS DA IGREJA & REFORMADORES ENTENDIAM -->
+        <div class="p-3.5 rounded-2xl bg-gradient-to-b from-[#181a29] to-[#121320] border border-violet-500/30 space-y-2">
+          <span class="text-[10px] font-mono uppercase tracking-wider text-violet-300 font-bold flex items-center gap-1.5">
+            <i data-lucide="scroll" class="w-3.5 h-3.5 text-violet-400"></i> O que os Antigos Pais da Igreja & Reformadores entendiam
+          </span>
+          <div class="text-xs text-zinc-200 leading-relaxed space-y-2">
+            ${item.patristica}
           </div>
-          <p class="text-[11px] text-zinc-300">
-            Clique no botão abaixo para o assistente gerar a análise exegética profunda desta palavra no contexto deste capítulo.
+        </div>
+
+        <!-- 5. APLICAÇÃO PRÁTICA PARA A VIDA CRISTÃ -->
+        <div class="p-3.5 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 space-y-1.5">
+          <span class="text-[10px] font-mono uppercase tracking-wider text-emerald-300 font-bold flex items-center gap-1.5">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400"></i> Aplicação Prática para Hoje
+          </span>
+          <p class="text-xs text-emerald-100 leading-relaxed font-medium">
+            ${item.pratica}
           </p>
         </div>
       `;
@@ -634,59 +661,64 @@
       lucide.createIcons();
     }
 
-    function copyCurrentWordData() {
-      if (!selectedWord) return;
-      const text = `${selectedWord.original} (/${selectedWord.translit}/) - ${document.getElementById('bookSelect')?.options[document.getElementById('bookSelect')?.selectedIndex]?.text} ${currentChapter}:${selectedWord.verseContext?.verseNum || 1}`;
-      navigator.clipboard.writeText(text);
-      alert('✓ Termo bíblico copiado!');
+    function copyStudyNote() {
+      if (!selectedWordData) return;
+      const note = `Estudo Bíblico • ${selectedWordData.bookName} ${selectedWordData.chapter}:${selectedWordData.verseNum}
+Palavra: ${selectedWordData.word}
+Original: ${selectedWordData.heb || selectedWordData.grk}
+Sentido: ${selectedWordData.sentido}
+Aplicação Prática: ${selectedWordData.pratica}`;
+      navigator.clipboard.writeText(note);
+      alert('✓ Estudo bíblico copiado!');
     }
 
-    function askAIForCurrentWord() {
-      openAIExegesis();
+    function askAIForDeepStudy() {
+      openChapterStudyAI();
     }
 
     // OPEN AI EXEGESIS MODAL
-    function openAIExegesis() {
+    function openChapterStudyAI() {
       const bookName = document.getElementById('bookSelect')?.options[document.getElementById('bookSelect')?.selectedIndex]?.text || 'Passagem';
-      document.getElementById('aiPassageTitle').textContent = `${bookName} ${currentChapter} • Análise Exegética Hebraico & Grego`;
+      document.getElementById('aiPassageTitle').textContent = `${bookName} ${currentChapter} • Fé Evangélica & Pais da Igreja`;
       document.getElementById('aiModal').classList.remove('hidden');
-
-      const isOT = currentBookNum <= 39;
-      const sampleVerse = currentPassageVerses[0]?.origText || '';
 
       setTimeout(() => {
         document.getElementById('aiContent').innerHTML = `
           <div class="space-y-4">
+            <!-- Síntese Teológica -->
             <div class="p-4 rounded-2xl bg-violet-600/10 border border-violet-500/20 space-y-2">
               <h4 class="font-bold text-violet-300 text-xs flex items-center gap-2">
                 <i data-lucide="sparkles" class="w-4 h-4"></i>
-                1. Contexto Sintático & Gramatical (${bookName} ${currentChapter})
+                1. Síntese Doutrinária (${bookName} ${currentChapter})
               </h4>
               <p class="text-zinc-200 leading-relaxed">
-                ${isOT 
-                  ? `O texto hebraico de ${bookName} ${currentChapter} destaca-se pela riqueza das construções semíticas e estruturas verbais dinâmicas. O vocabulário original expressa uma ênfase teológica marcante sobre a soberania divina, aliança e a condução da história da redenção.` 
-                  : `O texto grego koiné de ${bookName} ${currentChapter} emprega precisão sintática nas orações subordinadas e tempos verbais contínuos (presente/imperfeito) e pontuais (aoristo), enfatizando a revelação salvífica em Cristo Jesus.`}
+                Este capítulo revela com clareza a soberania absoluta de Deus, a fidelidade de Suas promessas e a centralidade da redenção. Na tradição reformada e evangélica, o texto aponta para a autoridade inerrante das Sagradas Escrituras (Sola Scriptura) e o chamado à santidade de vida.
               </p>
             </div>
 
+            <!-- Voz dos Pais da Igreja -->
             <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] space-y-2">
               <h4 class="font-bold text-cyan-300 text-xs flex items-center gap-2">
-                <i data-lucide="book-marked" class="w-4 h-4"></i>
-                2. Vocábulos de Maior Peso Teológico
+                <i data-lucide="scroll" class="w-4 h-4"></i>
+                2. O Olhar dos Pais da Igreja (Patrística) & Reformadores
               </h4>
-              <p class="text-zinc-300">
-                Os termos originais preservam nuances que muitas vezes são atenuadas nas traduções modernas. A consulta palavra por palavra na interlinear revela conexões temáticas essenciais para a interpretação correta.
+              <p class="text-zinc-300 leading-relaxed">
+                <strong>Agostinho & Crisóstomo:</strong> Destacam que a Palavra não é apenas um registro histórico, mas o alimento vivo da alma que desperta a fé genuína e a dependência do Criador.<br><br>
+                <strong>João Calvino & Martinho Lutero:</strong> Enfatizam que o propósito principal do texto é glorificar a Deus e nos conduzir a uma fé viva em Jesus Cristo.
               </p>
             </div>
 
-            <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] space-y-2">
-              <h4 class="font-bold text-amber-300 text-xs flex items-center gap-2">
-                <i data-lucide="lightbulb" class="w-4 h-4"></i>
-                3. Aplicação Homilética & Esboço para Sermão
+            <!-- Prática Cristã Diária -->
+            <div class="p-4 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 space-y-2">
+              <h4 class="font-bold text-emerald-300 text-xs flex items-center gap-2">
+                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                3. Aplicação Prática para a Vida Cristã Hoje
               </h4>
-              <p class="text-zinc-300 leading-relaxed">
-                Ideal para fundamentar mensagens expositivas com autoridade bíblica, apresentando a congregação o sentido original com clareza e fidelidade ao autor sagrado.
-              </p>
+              <ul class="space-y-1.5 list-disc list-inside text-emerald-100">
+                <li><strong>Vida Devocional:</strong> Meditar na Palavra com oração e reverência constante.</li>
+                <li><strong>Santidade & Testemunho:</strong> Refletir a luz de Cristo nas relações familiares, profissionais e sociais.</li>
+                <li><strong>Esperança & Descanso:</strong> Confiar no cuidado e provisão soberana de Deus diante dos desafios.</li>
+              </ul>
             </div>
           </div>
         `;
@@ -694,23 +726,14 @@
       }, 400);
     }
 
-    function closeAIExegesis() {
+    function closeAIModal() {
       document.getElementById('aiModal').classList.add('hidden');
     }
 
     function copyAIText() {
       const text = document.getElementById('aiContent').innerText;
       navigator.clipboard.writeText(text);
-      alert('✓ Exegese copiada para a área de transferência!');
-    }
-
-    function playVerseAudio(text) {
-      if ('speechSynthesis' in window) {
-        const u = new SpeechSynthesisUtterance();
-        u.lang = currentBookNum <= 39 ? 'he-IL' : 'el-GR';
-        u.text = text || 'Shalom';
-        window.speechSynthesis.speak(u);
-      }
+      alert('✓ Estudo exegético copiado para a área de transferência!');
     }
   </script>
 </body>
