@@ -1,47 +1,28 @@
 import React, { useState } from 'react';
-import { Presentation, FileSpreadsheet, Wand2, ExternalLink, X, Maximize, Play, Palette, Sparkles, Layers, Image as ImageIcon, BookMarked } from 'lucide-react';
+import { Presentation, FileSpreadsheet, Wand2, ExternalLink, X, Maximize, Play, Palette, Sparkles, Layers, Image as ImageIcon, BookMarked, Clapperboard } from 'lucide-react';
 
 export default function ProductivityView({ darkMode }) {
   const [activeTool, setActiveTool] = useState(null);
 
   const tools = [
     {
-      id: 'biblia',
-      title: 'Bíblia de Estudo Exegética (Léxico, Pais da Igreja & Prática)',
-      icon: BookMarked,
-      color: 'text-amber-400',
-      bgColor: 'bg-amber-500/10',
-      borderColor: 'border-amber-500/30',
-      tag: 'NOVO • EXEGESE & PATRÍSTICA',
-      tagColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
-      description: 'Texto bíblico fluido em português com consulta interativa palavra por palavra. Ao clicar, revela o original em hebraico/grego, comentários dos antigos Pais da Igreja e aplicação prática evangélica.',
+      id: 'roteiros',
+      title: 'Montador de Roteiros & Vídeos (Rundown Pro)',
+      icon: Clapperboard,
+      color: 'text-rose-400',
+      bgColor: 'bg-rose-500/10',
+      borderColor: 'border-rose-500/30',
+      tag: 'NOVO • PRODUÇÃO & TV',
+      tagColor: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
+      description: 'Central de Produção e Montagem de Roteiros de Reuniões. Organize vídeos com fotos/frames, durações, deixas do pastor, lembretes, cálculo de tempo total e exportação para switcher/PDF.',
       features: [
-        'Leitura limpa e contínua do texto bíblico em português (ARA)',
-        'Clique em qualquer palavra para abrir o Hebraico/Grego e Strong',
-        'Comentários dos Pais da Igreja (Agostinho, Crisóstomo) e Reformadores',
-        'Aplicação prática para a vida cristã e exegese pastoral com IA'
+        'Cards de vídeos com fotos/thumbnails, tempos e deixas do pastor',
+        'Importador automático de PDFs e textos de roteiros existentes',
+        'Calculador de tempo total da reunião em minutos e segundos',
+        'Seção de lembretes e exportação formatada para WhatsApp e PDF'
       ],
-      path: `${import.meta.env.BASE_URL}tools/biblia_interlinear.html?v=exegetica`,
-      iframeUrl: `${import.meta.env.BASE_URL}tools/biblia_interlinear.html?v=exegetica`
-    },
-    {
-      id: 'photoshop',
-      title: 'Obnotion Studio (Photoshop Pro)',
-      icon: Palette,
-      color: 'text-cyan-400',
-      bgColor: 'bg-cyan-500/10',
-      borderColor: 'border-cyan-500/30',
-      tag: 'ESTÚDIO GRÁFICO',
-      tagColor: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
-      description: 'Estúdio de design e edição de imagem profissional completo. Edite artes, crie banners, thumbnails e manipule arquivos PSD, PNG e vetores com ferramentas avançadas.',
-      features: [
-        'Suporte nativo a arquivos PSD, PNG, JPG, SVG e PDF',
-        'Camadas (Layers), máscaras, curvas e modos de mesclagem',
-        'Varinha mágica, caneta vetorial e seleção de objetos',
-        'Filtros profissionais e tipografia avançada'
-      ],
-      path: `${import.meta.env.BASE_URL}tools/obnotion_studio.html`,
-      iframeUrl: `${import.meta.env.BASE_URL}tools/obnotion_studio.html`
+      path: `${import.meta.env.BASE_URL}tools/montador_de_roteiros.html`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/montador_de_roteiros.html`
     },
     {
       id: 'slides',
@@ -61,6 +42,25 @@ export default function ProductivityView({ darkMode }) {
       ],
       path: `${import.meta.env.BASE_URL}tools/gerador_de_slides.html?v=texto_e_pdf`,
       iframeUrl: `${import.meta.env.BASE_URL}tools/gerador_de_slides.html?v=texto_e_pdf`
+    },
+    {
+      id: 'biblia',
+      title: 'Bíblia de Estudo Exegética (Léxico, Pais da Igreja & Prática)',
+      icon: BookMarked,
+      color: 'text-amber-400',
+      bgColor: 'bg-amber-500/10',
+      borderColor: 'border-amber-500/30',
+      tag: 'EXEGESE & PATRÍSTICA',
+      tagColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+      description: 'Texto bíblico fluido em português com consulta interativa palavra por palavra. Ao clicar, revela o original em hebraico/grego, comentários dos antigos Pais da Igreja e aplicação prática evangélica.',
+      features: [
+        'Leitura limpa e contínua do texto bíblico em português (ARA)',
+        'Clique em qualquer palavra para abrir o Hebraico/Grego e Strong',
+        'Comentários dos Pais da Igreja (Agostinho, Crisóstomo) e Reformadores',
+        'Aplicação prática para a vida cristã e exegese pastoral com IA'
+      ],
+      path: `${import.meta.env.BASE_URL}tools/biblia_interlinear.html?v=exegetica`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/biblia_interlinear.html?v=exegetica`
     },
     {
       id: 'planilhas',
