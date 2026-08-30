@@ -168,7 +168,7 @@
         min-width: 0 !important;
       }
       .print-v-title {
-        font-size: 12.5pt !important;
+        font-size: 13pt !important;
         font-weight: 900 !important;
         color: #0f172a !important;
         text-transform: uppercase !important;
@@ -176,23 +176,16 @@
         display: block !important;
       }
       .print-v-duration {
-        font-size: 13pt !important;
+        font-size: 14pt !important;
         font-family: 'JetBrains Mono', monospace !important;
         font-weight: 900 !important;
         color: #1d4ed8 !important;
         background: #eff6ff !important;
         border: 1px solid #bfdbfe !important;
-        padding: 1px 6px !important;
+        padding: 2px 8px !important;
         border-radius: 4px !important;
         display: inline-block !important;
-        margin-top: 3px !important;
-      }
-      .print-v-cue {
-        font-size: 9.5pt !important;
-        color: #475569 !important;
-        font-style: italic !important;
-        margin-top: 2px !important;
-        display: block !important;
+        margin-top: 4px !important;
       }
 
       /* LEMBRETES SECTION IN PRINT (ALWAYS VISIBLE) */
@@ -615,8 +608,8 @@ LEMBRETES:
             </div>
           </div>
 
-          <!-- Center: Title, Type & Cue -->
-          <div class="flex-1 space-y-1.5 w-full print-v-info">
+          <!-- Center: Title, Type & Duration -->
+          <div class="flex-1 space-y-1 w-full print-v-info">
             <!-- Screen Title Input -->
             <div class="flex items-center gap-2 print:hidden">
               <input type="text" value="${v.title}" class="flex-1 bg-transparent text-base md:text-lg font-black text-white uppercase outline-none focus:ring-1 focus:ring-blue-400 rounded px-1.5 py-0.5 font-sans" placeholder="NOME DO VÍDEO..." oninput="updateVideoField(${idx}, 'title', this.value)" />
@@ -632,15 +625,6 @@ LEMBRETES:
             <div class="hidden print:block">
               <span class="print-v-duration">${v.duration}</span>
             </div>
-
-            <!-- Screen Cue Input -->
-            <div class="flex items-center gap-1.5 text-xs text-blue-200/70 print:hidden">
-              <i data-lucide="mic" class="w-3.5 h-3.5 text-blue-400 shrink-0"></i>
-              <input type="text" value="${v.cue || ''}" class="w-full bg-transparent text-xs text-blue-200/80 italic outline-none focus:ring-1 focus:ring-blue-400/50 rounded px-1" placeholder="Deixa do pastor (ex: 'Quando o pastor chamar...')" oninput="updateVideoField(${idx}, 'cue', this.value)" />
-            </div>
-
-            <!-- Solid Print Cue (100% Dark Italic Text) -->
-            ${v.cue ? `<div class="hidden print:block"><span class="print-v-cue">↳ Deixa: ${v.cue}</span></div>` : ''}
           </div>
 
           <!-- Right: Duration & Actions (Screen) -->
@@ -731,7 +715,6 @@ LEMBRETES:
         title: "NOVO VÍDEO",
         duration: "02:00''",
         seconds: 120,
-        cue: "Entrada do pastor",
         type: "Testemunho",
         image: null
       });
@@ -874,7 +857,6 @@ LEMBRETES:
 
       currentRoteiro.videos.forEach((v, i) => {
         text += `${i + 1}. *${v.title}* - ⏱️ ${v.duration}\n`;
-        if (v.cue) text += `   ↳ _Deixa: ${v.cue}_\n`;
       });
 
       text += `\n⏱️ *TEMPO TOTAL DE VÍDEOS:* ${document.getElementById('totalDurationBadge').textContent}\n\n`;
