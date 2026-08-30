@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Montador de Roteiros de Vídeos & Rundown • Obnotion Pro</title>
+  <title>Montador de Roteiros & Vídeos • Obnotion Pro</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -14,12 +14,13 @@
         extend: {
           colors: {
             brand: {
-              50: '#f5f3ff',
-              100: '#ede9fe',
-              500: '#8b5cf6',
-              600: '#7c3aed',
-              700: '#6d28d9',
-              900: '#4c1d95',
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
             }
           },
           fontFamily: {
@@ -34,7 +35,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -45,7 +46,7 @@
   <style>
     body {
       font-family: 'Inter', -apple-system, sans-serif;
-      background-color: #08090f;
+      background-color: #060913;
       color: #e2e8f0;
     }
     .mono-num {
@@ -55,7 +56,7 @@
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .video-card:hover {
-      border-color: rgba(139, 92, 246, 0.4);
+      border-color: rgba(59, 130, 246, 0.45);
       transform: translateY(-2px);
       box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.6);
     }
@@ -64,7 +65,9 @@
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
 
-    /* PRINT LAYOUT: 1 SINGLE A4 PAGE LIKE ORIGINAL PDFS */
+    /* =========================================================================
+       PRINT & PDF LAYOUT: 1 SINGLE A4 PAGE, BLUE ACCENTS, LARGE FONTS
+       ========================================================================= */
     @page {
       size: A4 portrait;
       margin: 8mm 10mm;
@@ -76,7 +79,6 @@
         color: #000000 !important;
         height: auto !important;
         overflow: visible !important;
-        font-size: 11pt !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
@@ -95,7 +97,7 @@
         max-width: 100% !important;
       }
 
-      /* PRINT CONTAINER */
+      /* PRINT CONTAINER (FITS 1 PAGE) */
       .print-doc-container {
         display: flex !important;
         flex-direction: column !important;
@@ -106,50 +108,49 @@
       /* HEADER */
       .print-header {
         text-align: center !important;
-        border-bottom: 2px solid #000 !important;
+        border-bottom: 3px solid #1d4ed8 !important;
         padding-bottom: 6px !important;
         margin-bottom: 8px !important;
+        background: #f8fafc !important;
+        border-radius: 6px !important;
+        padding-top: 4px !important;
       }
       .print-header h1 {
-        font-size: 18pt !important;
+        font-size: 22pt !important;
         font-weight: 900 !important;
-        color: #000 !important;
+        color: #1e3a8a !important;
         margin: 0 !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
-      }
-      .print-header-meta {
-        font-size: 10pt !important;
-        font-weight: 700 !important;
-        color: #333 !important;
-        margin-top: 2px !important;
+        letter-spacing: 0.8px !important;
+        line-height: 1.1 !important;
       }
 
-      /* 2-COLUMN GRID OF VIDEOS FOR 1-PAGE FIT */
+      /* 2-COLUMN GRID OF VIDEOS */
       .print-videos-grid {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 8px !important;
       }
 
-      /* PRINT VIDEO CARD */
+      /* VIDEO ITEM IN PRINT */
       .print-v-card {
-        border: 1.5px solid #222 !important;
+        border: 2px solid #cbd5e1 !important;
+        border-left: 5px solid #2563eb !important;
         border-radius: 6px !important;
         padding: 6px 8px !important;
-        background: #fdfdfd !important;
+        background: #ffffff !important;
         display: flex !important;
-        gap: 8px !important;
+        gap: 10px !important;
         align-items: center !important;
         break-inside: avoid !important;
         page-break-inside: avoid !important;
       }
       .print-v-thumb {
-        width: 60px !important;
-        height: 44px !important;
-        border-radius: 4px !important;
+        width: 65px !important;
+        height: 46px !important;
+        border-radius: 5px !important;
         object-fit: cover !important;
-        border: 1px solid #999 !important;
+        border: 1.5px solid #94a3b8 !important;
         flex-shrink: 0 !important;
       }
       .print-v-info {
@@ -157,82 +158,92 @@
         min-width: 0 !important;
       }
       .print-v-title {
-        font-size: 10pt !important;
+        font-size: 12.5pt !important;
         font-weight: 900 !important;
-        color: #000 !important;
+        color: #0f172a !important;
         text-transform: uppercase !important;
         line-height: 1.15 !important;
+        display: block !important;
       }
       .print-v-duration {
-        font-size: 11pt !important;
+        font-size: 13pt !important;
         font-family: 'JetBrains Mono', monospace !important;
         font-weight: 900 !important;
-        color: #000 !important;
-        background: #eee !important;
-        padding: 1px 4px !important;
-        border-radius: 3px !important;
+        color: #1d4ed8 !important;
+        background: #eff6ff !important;
+        border: 1px solid #bfdbfe !important;
+        padding: 1px 6px !important;
+        border-radius: 4px !important;
         display: inline-block !important;
-        margin-top: 2px !important;
+        margin-top: 3px !important;
       }
       .print-v-cue {
-        font-size: 8.5pt !important;
-        color: #444 !important;
+        font-size: 9.5pt !important;
+        color: #475569 !important;
         font-style: italic !important;
         margin-top: 2px !important;
+        display: block !important;
       }
 
-      /* PRINT LEMBRETES SECTION */
+      /* LEMBRETES SECTION IN PRINT (ALWAYS VISIBLE) */
       .print-lembretes-box {
-        border: 1.5px solid #000 !important;
+        display: block !important;
+        border: 2px solid #cbd5e1 !important;
+        border-top: 4px solid #1d4ed8 !important;
         border-radius: 6px !important;
-        padding: 8px 10px !important;
-        background: #fafafa !important;
+        padding: 8px 12px !important;
+        background: #f8fafc !important;
         margin-top: 6px !important;
         break-inside: avoid !important;
       }
       .print-lembretes-title {
-        font-size: 11pt !important;
+        font-size: 12.5pt !important;
         font-weight: 900 !important;
-        color: #000 !important;
+        color: #1e3a8a !important;
         text-transform: uppercase !important;
-        margin-bottom: 4px !important;
+        margin-bottom: 6px !important;
+        letter-spacing: 0.5px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
       }
       .print-lembretes-list {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 2px 12px !important;
-        font-size: 9.5pt !important;
+        gap: 4px 16px !important;
+        font-size: 11pt !important;
         font-weight: 700 !important;
-        color: #111 !important;
+        color: #0f172a !important;
+        line-height: 1.2 !important;
       }
     }
   </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden select-none bg-[#08090f] text-slate-100">
+<body class="h-screen flex flex-col overflow-hidden select-none bg-[#060913] text-slate-100">
 
-  <!-- TOP HEADER -->
-  <header class="h-14 border-b border-white/[0.08] bg-[#0d0e17]/95 backdrop-blur-xl px-4 flex items-center justify-between shrink-0 z-30 no-print">
+  <!-- TOP HEADER (BLUE THEME) -->
+  <header class="h-14 border-b border-blue-500/20 bg-[#090e1c]/95 backdrop-blur-xl px-4 flex items-center justify-between shrink-0 z-30 no-print">
     <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/20 font-bold text-sm">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/25 font-bold text-sm">
         <i data-lucide="clapperboard" class="w-4 h-4"></i>
       </div>
       <div>
         <h1 class="text-xs md:text-sm font-bold text-white flex items-center gap-2">
           Montador de Roteiros & Vídeos
-          <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-violet-500/20 text-violet-300 border border-violet-500/30 font-bold">
-            PRODUÇÃO & TV
+          <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 font-bold">
+            PRODUÇÃO AZUL PRO
           </span>
         </h1>
       </div>
     </div>
 
     <!-- Live Total Time Pill -->
-    <div class="flex items-center gap-2 bg-[#121422] px-3 py-1.5 rounded-xl border border-white/[0.08]">
-      <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-400"></i>
-      <span class="text-[11px] text-zinc-400 font-medium">Tempo Total:</span>
-      <span id="totalDurationBadge" class="text-xs font-mono font-bold text-amber-300">00:00</span>
-      <span class="text-zinc-600">|</span>
-      <span id="totalVideosCount" class="text-[11px] font-mono text-zinc-400 font-medium">0 vídeos</span>
+    <div class="flex items-center gap-2 bg-[#0d1428] px-3.5 py-1.5 rounded-xl border border-blue-500/25 shadow-inner">
+      <i data-lucide="clock" class="w-3.5 h-3.5 text-sky-400"></i>
+      <span class="text-[11px] text-blue-200 font-medium">Tempo Total:</span>
+      <span id="totalDurationBadge" class="text-xs font-mono font-bold text-sky-300">00:00</span>
+      <span class="text-blue-500/40">|</span>
+      <span id="totalVideosCount" class="text-[11px] font-mono text-blue-300 font-medium">0 vídeos</span>
     </div>
 
     <!-- Header Actions -->
@@ -244,8 +255,8 @@
       </button>
 
       <!-- Import Button -->
-      <button onclick="openImportModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 hover:text-white text-xs font-semibold border border-white/[0.08] transition-all">
-        <i data-lucide="file-up" class="w-3.5 h-3.5"></i>
+      <button onclick="openImportModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-900/30 hover:bg-blue-900/50 text-blue-200 hover:text-white text-xs font-semibold border border-blue-500/30 transition-all">
+        <i data-lucide="file-up" class="w-3.5 h-3.5 text-blue-400"></i>
         <span class="hidden md:inline">Importar PDF / Texto</span>
       </button>
 
@@ -256,7 +267,7 @@
       </button>
 
       <!-- Print / PDF Button (1 Single Page A4) -->
-      <button onclick="window.print()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-violet-600/30 transition-all">
+      <button onclick="prepareAndPrint()" class="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-blue-600/30 transition-all">
         <i data-lucide="printer" class="w-3.5 h-3.5"></i>
         <span>Imprimir / Gerar PDF (1 Folha)</span>
       </button>
@@ -272,31 +283,23 @@
       <!-- PRINT CONTAINER (VISIBILITY MANAGED FOR SCREEN & PRINT) -->
       <div class="print-doc-container space-y-6">
 
-        <!-- SCRIPT HEADER METADATA (EDITABLE) -->
-        <div class="p-5 rounded-3xl bg-[#10121d] border border-white/[0.08] shadow-xl space-y-4 print-header">
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-white/[0.06] print-header-border">
-            <div class="flex-1 space-y-1">
-              <label class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold no-print">Título do Roteiro</label>
-              <input type="text" id="scriptTitle" value="ROTEIRO 30.08.2026" class="w-full bg-transparent text-xl md:text-2xl font-black text-white border-none outline-none focus:ring-1 focus:ring-violet-500 rounded px-1 -ml-1 uppercase tracking-wide font-sans text-center md:text-left" placeholder="Ex: ROTEIRO 30.08.2026" oninput="saveCurrentRoteiro()" />
-            </div>
-            <div class="flex items-center justify-center md:justify-end gap-3 print-header-meta">
-              <div>
-                <label class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold block no-print">Data</label>
-                <input type="text" id="scriptDate" value="30.08.2026" class="bg-[#171926] text-xs font-mono font-bold text-violet-300 border border-white/[0.08] rounded-xl px-3 py-1.5 outline-none text-center" oninput="saveCurrentRoteiro()" />
-              </div>
-              <div>
-                <label class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold block no-print">Pastor / Dirigente</label>
-                <input type="text" id="scriptPastor" value="Pastor Principal" class="bg-[#171926] text-xs font-medium text-zinc-200 border border-white/[0.08] rounded-xl px-3 py-1.5 outline-none text-center" oninput="saveCurrentRoteiro()" />
-              </div>
+        <!-- SCRIPT HEADER (TITLE ONLY - NO DATE FIELD) -->
+        <div class="p-5 rounded-3xl bg-[#0a0f22] border border-blue-500/25 shadow-xl space-y-3 print-header">
+          <div class="flex items-center justify-between">
+            <div class="w-full">
+              <label class="text-[10px] font-mono uppercase tracking-wider text-blue-400 font-bold block mb-1 text-center md:text-left no-print">
+                Título do Roteiro (com Data integrada)
+              </label>
+              <input type="text" id="scriptTitle" value="ROTEIRO 30.08.2026" class="w-full bg-transparent text-xl md:text-3xl font-black text-white border-none outline-none focus:ring-2 focus:ring-blue-500 rounded-xl px-2 py-1 text-center md:text-left uppercase tracking-wider font-sans" placeholder="Ex: ROTEIRO 30.08.2026" oninput="saveCurrentRoteiro()" />
             </div>
           </div>
 
-          <div class="flex items-center justify-between text-xs text-zinc-400 no-print">
-            <span class="flex items-center gap-1.5">
-              <i data-lucide="video" class="w-4 h-4 text-violet-400"></i> Lista de Vídeos e Testemunhos da Reunião
+          <div class="flex items-center justify-between text-xs text-blue-300/80 pt-2 border-t border-blue-500/15 no-print">
+            <span class="flex items-center gap-1.5 font-medium">
+              <i data-lucide="video" class="w-4 h-4 text-blue-400"></i> Grade de Vídeos da Reunião
             </span>
             <div class="flex items-center gap-2">
-              <button onclick="addNewVideoCard()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold shadow-lg shadow-violet-600/30 transition-all text-xs">
+              <button onclick="addNewVideoCard()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-lg shadow-blue-600/30 transition-all text-xs">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Inserir Vídeo
               </button>
             </div>
@@ -310,7 +313,9 @@
 
         <!-- PRINT ONLY: LEMBRETES SECTION AT BOTTOM FOR 1-PAGE EXPORT -->
         <div id="printLembretesSection" class="hidden print:block print-lembretes-box">
-          <div class="print-lembretes-title">LEMBRETES & AVISOS:</div>
+          <div class="print-lembretes-title">
+            <span>LEMBRETES & AVISOS:</span>
+          </div>
           <div id="printLembretesList" class="print-lembretes-list">
             <!-- Populated dynamically -->
           </div>
@@ -320,25 +325,25 @@
 
       <!-- ADD VIDEO QUICK BAR (BOTTOM) -->
       <div class="no-print pt-2">
-        <button onclick="addNewVideoCard()" class="w-full py-4 rounded-2xl border-2 border-dashed border-white/[0.1] hover:border-violet-500/50 bg-[#0d0e17]/50 hover:bg-violet-600/5 text-zinc-400 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all">
-          <i data-lucide="plus-circle" class="w-4 h-4 text-violet-400"></i> Inserir Novo Bloco de Vídeo
+        <button onclick="addNewVideoCard()" class="w-full py-4 rounded-2xl border-2 border-dashed border-blue-500/30 hover:border-blue-400 bg-[#0a0f22]/60 hover:bg-blue-600/10 text-blue-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all">
+          <i data-lucide="plus-circle" class="w-4 h-4 text-blue-400"></i> Inserir Novo Bloco de Vídeo
         </button>
       </div>
 
     </main>
 
     <!-- RIGHT: LEMBRETES, AVISOS & NOTAS DO PASTOR PANEL -->
-    <aside class="w-80 md:w-96 border-l border-white/[0.08] bg-[#0c0d16] flex flex-col overflow-hidden shrink-0 shadow-2xl no-print">
+    <aside class="w-80 md:w-96 border-l border-blue-500/20 bg-[#080d1d] flex flex-col overflow-hidden shrink-0 shadow-2xl no-print">
       
       <!-- Drawer Header -->
-      <div class="p-3.5 border-b border-white/[0.08] flex items-center justify-between bg-[#11121d]">
+      <div class="p-3.5 border-b border-blue-500/20 flex items-center justify-between bg-[#0b1229]">
         <div class="flex items-center gap-2">
-          <i data-lucide="bell" class="w-4 h-4 text-amber-400"></i>
-          <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-300">
+          <i data-lucide="bell" class="w-4 h-4 text-sky-400"></i>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-blue-200">
             Lembretes & Avisos do Pastor
           </h2>
         </div>
-        <button onclick="addNewLembrete()" class="p-1 rounded-lg hover:bg-white/[0.08] text-violet-400 hover:text-white" title="Adicionar Lembrete">
+        <button onclick="addNewLembrete()" class="p-1 rounded-lg hover:bg-blue-600/20 text-blue-300 hover:text-white" title="Adicionar Lembrete">
           <i data-lucide="plus" class="w-4 h-4"></i>
         </button>
       </div>
@@ -349,10 +354,10 @@
       </div>
 
       <!-- Quick Add Lembrete Form -->
-      <div class="p-3.5 border-t border-white/[0.08] bg-[#10111a] space-y-2">
+      <div class="p-3.5 border-t border-blue-500/20 bg-[#090f24] space-y-2">
         <div class="flex gap-2">
-          <input type="text" id="newLembreteInput" class="flex-1 bg-[#181926] border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-500 outline-none focus:border-violet-500" placeholder="Novo lembrete (ex: SANTA CEIA)..." onkeydown="if(event.key==='Enter') addNewLembreteFromInput()" />
-          <button onclick="addNewLembreteFromInput()" class="px-3 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold shrink-0">
+          <input type="text" id="newLembreteInput" class="flex-1 bg-[#0f1738] border border-blue-500/30 rounded-xl px-3 py-2 text-xs text-white placeholder-blue-400/50 outline-none focus:border-blue-400" placeholder="Novo lembrete (ex: SANTA CEIA)..." onkeydown="if(event.key==='Enter') addNewLembreteFromInput()" />
+          <button onclick="addNewLembreteFromInput()" class="px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shrink-0 shadow-lg shadow-blue-600/25">
             Adicionar
           </button>
         </div>
@@ -362,17 +367,17 @@
   </div>
 
   <!-- MODAL: IMPORT PDF OR PASTED TEXT -->
-  <div id="importModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in no-print">
-    <div class="w-full max-w-xl bg-[#11121e] border border-white/[0.1] rounded-3xl p-6 shadow-2xl flex flex-col max-h-[85vh] overflow-hidden space-y-4">
+  <div id="importModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in no-print">
+    <div class="w-full max-w-xl bg-[#0b1229] border border-blue-500/30 rounded-3xl p-6 shadow-2xl flex flex-col max-h-[85vh] overflow-hidden space-y-4">
       
-      <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+      <div class="flex items-center justify-between pb-3 border-b border-blue-500/20">
         <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400">
+          <div class="w-8 h-8 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
             <i data-lucide="file-up" class="w-4 h-4"></i>
           </div>
           <div>
             <h3 class="text-sm font-bold text-white">Importar Roteiro Existente</h3>
-            <p class="text-[11px] text-zinc-400">Extraia vídeos, durações e lembretes de PDFs ou textos do WhatsApp</p>
+            <p class="text-[11px] text-blue-300/70">Extraia vídeos, durações e lembretes de PDFs ou textos do WhatsApp</p>
           </div>
         </div>
         <button onclick="closeImportModal()" class="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.08]">
@@ -381,28 +386,28 @@
       </div>
 
       <!-- Tabs inside modal -->
-      <div class="flex bg-black/40 p-1 rounded-xl border border-white/[0.06]">
-        <button id="importTabBtnPdf" onclick="switchImportTab('pdf')" class="flex-1 py-1.5 rounded-lg text-xs font-semibold bg-violet-600 text-white transition-all">
+      <div class="flex bg-black/40 p-1 rounded-xl border border-blue-500/20">
+        <button id="importTabBtnPdf" onclick="switchImportTab('pdf')" class="flex-1 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white transition-all shadow-md">
           📄 Arquivo PDF de Roteiro
         </button>
-        <button id="importTabBtnText" onclick="switchImportTab('text')" class="flex-1 py-1.5 rounded-lg text-xs font-semibold text-zinc-400 hover:text-white transition-all">
+        <button id="importTabBtnText" onclick="switchImportTab('text')" class="flex-1 py-1.5 rounded-lg text-xs font-semibold text-blue-300 hover:text-white transition-all">
           ✍️ Colar Texto do Roteiro
         </button>
       </div>
 
       <!-- Tab PDF -->
       <div id="importTabPdf" class="space-y-3">
-        <div id="pdfDropZone" class="border-2 border-dashed border-white/[0.15] hover:border-violet-500/60 p-8 rounded-2xl text-center bg-white/[0.02] cursor-pointer transition-all">
-          <i data-lucide="upload-cloud" class="w-10 h-10 mx-auto text-zinc-500 mb-2"></i>
-          <p class="text-xs font-bold text-zinc-200">Clique para selecionar ou arraste o PDF do Roteiro</p>
-          <p class="text-[11px] text-zinc-500 mt-1">Ex: ROTEIRO 30.08.pdf, ROTEIRO 05.pdf</p>
+        <div id="pdfDropZone" class="border-2 border-dashed border-blue-500/30 hover:border-blue-400 p-8 rounded-2xl text-center bg-blue-950/20 cursor-pointer transition-all">
+          <i data-lucide="upload-cloud" class="w-10 h-10 mx-auto text-blue-400 mb-2"></i>
+          <p class="text-xs font-bold text-blue-100">Clique para selecionar ou arraste o PDF do Roteiro</p>
+          <p class="text-[11px] text-blue-400/60 mt-1">Ex: ROTEIRO 30.08.pdf, ROTEIRO 05.pdf</p>
         </div>
         <input type="file" id="pdfFileInput" accept="application/pdf" class="hidden" onchange="handlePdfUpload(this)" />
       </div>
 
       <!-- Tab Text -->
       <div id="importTabText" class="space-y-3 hidden">
-        <textarea id="rawTextRoteiroInput" rows="8" class="w-full bg-[#181926] border border-white/[0.08] rounded-xl p-3 text-xs text-white placeholder-zinc-500 outline-none focus:border-violet-500" placeholder="Cole o texto do roteiro aqui...
+        <textarea id="rawTextRoteiroInput" rows="8" class="w-full bg-[#070b1c] border border-blue-500/30 rounded-xl p-3 text-xs text-white placeholder-blue-400/40 outline-none focus:border-blue-400" placeholder="Cole o texto do roteiro aqui...
 
 Exemplo:
 ROTEIRO 30.08.2026
@@ -417,12 +422,12 @@ LEMBRETES:
 1. ORAÇÃO FOGO DO ALTAR
 2. ESTUDO QUARTA-FEIRA
 3. PODCAST 21:30"></textarea>
-        <button onclick="processRawTextRoteiro()" class="w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-lg shadow-violet-600/30">
+        <button onclick="processRawTextRoteiro()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-lg shadow-blue-600/30">
           ⚡ Processar Texto e Montar Roteiro
         </button>
       </div>
 
-      <div id="importStatus" class="text-xs text-violet-400 font-mono text-center"></div>
+      <div id="importStatus" class="text-xs text-blue-400 font-mono text-center"></div>
 
     </div>
   </div>
@@ -433,15 +438,13 @@ LEMBRETES:
 
     let currentRoteiro = {
       title: "ROTEIRO 30.08.2026",
-      date: "30.08.2026",
-      pastor: "Pastor Principal",
       videos: [
         {
           id: "v_1",
           title: "RELATO AFASTADA",
           duration: "03:40''",
           seconds: 220,
-          cue: "Quando o pastor chamar o primeiro testemunho",
+          cue: "Quando o pastor chamar o relato",
           type: "Testemunho",
           image: null
         },
@@ -450,7 +453,7 @@ LEMBRETES:
           title: "RELATO 2 EX-AFASTADAS",
           duration: "02:45''",
           seconds: 165,
-          cue: "Logo após a oração pelos familiares",
+          cue: "Logo após a oração da família",
           type: "Testemunho",
           image: null
         },
@@ -501,8 +504,6 @@ LEMBRETES:
 
     function saveCurrentRoteiro() {
       currentRoteiro.title = document.getElementById('scriptTitle').value;
-      currentRoteiro.date = document.getElementById('scriptDate').value;
-      currentRoteiro.pastor = document.getElementById('scriptPastor').value;
       localStorage.setItem('obnotion_current_roteiro', JSON.stringify(currentRoteiro));
       calculateTotalTime();
       renderPrintLembretes();
@@ -521,8 +522,6 @@ LEMBRETES:
       if (confirm('Tem certeza que deseja limpar todos os vídeos e começar um roteiro do zero?')) {
         currentRoteiro = {
           title: "ROTEIRO " + new Date().toLocaleDateString('pt-BR').replace(/\//g, '.'),
-          date: new Date().toLocaleDateString('pt-BR'),
-          pastor: "Pastor Principal",
           videos: [],
           lembretes: []
         };
@@ -533,8 +532,6 @@ LEMBRETES:
 
     function renderAll() {
       document.getElementById('scriptTitle').value = currentRoteiro.title || 'ROTEIRO';
-      document.getElementById('scriptDate').value = currentRoteiro.date || '';
-      document.getElementById('scriptPastor').value = currentRoteiro.pastor || '';
 
       renderVideosList();
       renderLembretesList();
@@ -550,10 +547,10 @@ LEMBRETES:
 
       if (currentRoteiro.videos.length === 0) {
         container.innerHTML = `
-          <div class="text-center py-12 border-2 border-dashed border-white/[0.08] rounded-3xl space-y-2 no-print">
-            <i data-lucide="film" class="w-8 h-8 mx-auto text-zinc-600"></i>
-            <p class="text-xs font-bold text-zinc-400">Nenhum vídeo adicionado neste roteiro.</p>
-            <p class="text-[11px] text-zinc-500">Clique em "+ Inserir Vídeo" ou importe um PDF acima.</p>
+          <div class="text-center py-12 border-2 border-dashed border-blue-500/25 rounded-3xl space-y-2 no-print">
+            <i data-lucide="film" class="w-8 h-8 mx-auto text-blue-400/50"></i>
+            <p class="text-xs font-bold text-blue-200">Nenhum vídeo adicionado neste roteiro.</p>
+            <p class="text-[11px] text-blue-400/60">Clique em "+ Inserir Vídeo" ou importe um PDF acima.</p>
           </div>
         `;
         return;
@@ -561,50 +558,50 @@ LEMBRETES:
 
       currentRoteiro.videos.forEach((v, idx) => {
         const card = document.createElement('div');
-        card.className = 'video-card p-4 rounded-3xl bg-[#10121d] border border-white/[0.08] shadow-lg flex flex-col md:flex-row gap-4 items-start md:items-center justify-between print-v-card';
+        card.className = 'video-card p-4 rounded-3xl bg-[#0a0f22] border border-blue-500/25 shadow-lg flex flex-col md:flex-row gap-4 items-start md:items-center justify-between print-v-card';
 
         const imageHtml = v.image 
           ? `<img src="${v.image}" class="w-full h-full object-cover rounded-2xl print-v-thumb" />`
-          : `<div class="w-full h-full rounded-2xl bg-black/40 border border-white/[0.05] flex flex-col items-center justify-center text-zinc-600 hover:text-zinc-400 cursor-pointer print-v-thumb">
+          : `<div class="w-full h-full rounded-2xl bg-blue-950/40 border border-blue-500/20 flex flex-col items-center justify-center text-blue-400/70 hover:text-blue-300 cursor-pointer print-v-thumb">
               <i data-lucide="image-plus" class="w-5 h-5 mb-1 no-print"></i>
-              <span class="text-[9px] font-mono text-zinc-500">Vídeo ${idx + 1}</span>
+              <span class="text-[9px] font-mono font-bold text-blue-400/80">Vídeo ${idx + 1}</span>
              </div>`;
 
         card.innerHTML = `
           <!-- Left: Order & Thumbnail -->
           <div class="flex items-center gap-3 w-full md:w-auto">
             <div class="flex flex-col items-center justify-center gap-1 shrink-0 no-print">
-              <button onclick="moveVideo(${idx}, -1)" class="p-1 text-zinc-500 hover:text-white hover:bg-white/[0.08] rounded-lg" title="Subir">
+              <button onclick="moveVideo(${idx}, -1)" class="p-1 text-blue-300/60 hover:text-white hover:bg-blue-600/20 rounded-lg" title="Subir">
                 <i data-lucide="chevron-up" class="w-4 h-4"></i>
               </button>
-              <span class="w-6 h-6 rounded-lg bg-violet-600/20 text-violet-300 font-mono text-xs font-bold flex items-center justify-center border border-violet-500/30">
+              <span class="w-6 h-6 rounded-lg bg-blue-600/30 text-blue-300 font-mono text-xs font-bold flex items-center justify-center border border-blue-500/40">
                 ${idx + 1}
               </span>
-              <button onclick="moveVideo(${idx}, 1)" class="p-1 text-zinc-500 hover:text-white hover:bg-white/[0.08] rounded-lg" title="Descer">
+              <button onclick="moveVideo(${idx}, 1)" class="p-1 text-blue-300/60 hover:text-white hover:bg-blue-600/20 rounded-lg" title="Descer">
                 <i data-lucide="chevron-down" class="w-4 h-4"></i>
               </button>
             </div>
 
             <!-- Thumbnail Container -->
-            <div class="w-32 md:w-36 h-20 shrink-0 relative group rounded-2xl overflow-hidden bg-black/40 border border-white/[0.08]" onclick="triggerImageUpload('${v.id}')">
+            <div class="w-32 md:w-36 h-20 shrink-0 relative group rounded-2xl overflow-hidden bg-[#070b1a] border border-blue-500/30" onclick="triggerImageUpload('${v.id}')">
               ${imageHtml}
               <input type="file" id="file_${v.id}" accept="image/*" class="hidden" onchange="handleImageSelected('${v.id}', this)" />
-              <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity no-print">
+              <div class="absolute inset-0 bg-blue-950/80 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity no-print">
                 Trocar Foto
               </div>
             </div>
 
             <!-- Mobile Only Number -->
             <div class="md:hidden flex-1 no-print">
-              <span class="text-[10px] font-mono uppercase text-zinc-500 font-bold">Vídeo ${idx + 1}</span>
+              <span class="text-[10px] font-mono uppercase text-blue-400 font-bold">Vídeo ${idx + 1}</span>
             </div>
           </div>
 
           <!-- Center: Title, Type & Cue -->
           <div class="flex-1 space-y-2 w-full print-v-info">
             <div class="flex items-center gap-2">
-              <input type="text" value="${v.title}" class="flex-1 bg-transparent text-sm md:text-base font-black text-white uppercase outline-none focus:ring-1 focus:ring-violet-500 rounded px-1.5 py-0.5 print-v-title font-sans" placeholder="NOME DO VÍDEO..." oninput="updateVideoField(${idx}, 'title', this.value)" />
-              <input type="text" value="${v.type || 'Testemunho'}" class="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-white/[0.04] text-zinc-300 border border-white/[0.08] outline-none no-print" placeholder="Tipo" oninput="updateVideoField(${idx}, 'type', this.value)" />
+              <input type="text" value="${v.title}" class="flex-1 bg-transparent text-base md:text-lg font-black text-white uppercase outline-none focus:ring-1 focus:ring-blue-400 rounded px-1.5 py-0.5 print-v-title font-sans" placeholder="NOME DO VÍDEO..." oninput="updateVideoField(${idx}, 'title', this.value)" />
+              <input type="text" value="${v.type || 'Testemunho'}" class="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-blue-900/30 text-blue-300 border border-blue-500/30 outline-none no-print" placeholder="Tipo" oninput="updateVideoField(${idx}, 'type', this.value)" />
             </div>
 
             <!-- Duration Badge for Print -->
@@ -613,27 +610,27 @@ LEMBRETES:
             </div>
 
             <!-- Cue/Deixa do Pastor -->
-            <div class="flex items-center gap-1.5 text-xs text-zinc-400 print-v-cue">
-              <i data-lucide="mic" class="w-3.5 h-3.5 text-violet-400 shrink-0 no-print"></i>
-              <input type="text" value="${v.cue || ''}" class="w-full bg-transparent text-xs text-zinc-300 italic outline-none focus:ring-1 focus:ring-violet-500/50 rounded px-1" placeholder="Deixa do pastor (ex: 'Quando o pastor chamar...')" oninput="updateVideoField(${idx}, 'cue', this.value)" />
+            <div class="flex items-center gap-1.5 text-xs text-blue-200/70 print-v-cue">
+              <i data-lucide="mic" class="w-3.5 h-3.5 text-blue-400 shrink-0 no-print"></i>
+              <input type="text" value="${v.cue || ''}" class="w-full bg-transparent text-xs text-blue-200/80 italic outline-none focus:ring-1 focus:ring-blue-400/50 rounded px-1" placeholder="Deixa do pastor (ex: 'Quando o pastor chamar...')" oninput="updateVideoField(${idx}, 'cue', this.value)" />
             </div>
           </div>
 
           <!-- Right: Duration & Actions (Screen) -->
-          <div class="flex items-center justify-between md:justify-end gap-2.5 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-white/[0.06] no-print">
+          <div class="flex items-center justify-between md:justify-end gap-2.5 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-blue-500/15 no-print">
             <!-- Duration Input Badge -->
-            <div class="flex items-center gap-1.5 bg-[#171926] px-3 py-1.5 rounded-2xl border border-white/[0.08]">
-              <i data-lucide="timer" class="w-4 h-4 text-amber-400"></i>
-              <input type="text" value="${v.duration}" class="w-20 bg-transparent text-xs font-mono font-bold text-amber-300 outline-none text-center" placeholder="00:00''" oninput="updateVideoDuration(${idx}, this.value)" />
+            <div class="flex items-center gap-1.5 bg-[#0e1633] px-3.5 py-2 rounded-2xl border border-blue-500/30 shadow-inner">
+              <i data-lucide="timer" class="w-4 h-4 text-sky-400"></i>
+              <input type="text" value="${v.duration}" class="w-20 bg-transparent text-xs font-mono font-black text-sky-300 outline-none text-center" placeholder="00:00''" oninput="updateVideoDuration(${idx}, this.value)" />
             </div>
 
             <!-- Duplicate Button -->
-            <button onclick="duplicateVideo(${idx})" class="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.08] rounded-xl transition-all" title="Duplicar Bloco">
+            <button onclick="duplicateVideo(${idx})" class="p-2 text-blue-300 hover:text-white hover:bg-blue-600/20 rounded-xl transition-all" title="Duplicar Bloco">
               <i data-lucide="copy" class="w-4 h-4"></i>
             </button>
 
-            <!-- REMOVE / DELETE VIDEO BUTTON (PROMINENT) -->
-            <button onclick="removeVideo(${idx})" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 text-rose-300 text-xs font-bold border border-rose-500/25 transition-all" title="Excluir este vídeo">
+            <!-- REMOVE / DELETE VIDEO BUTTON -->
+            <button onclick="removeVideo(${idx})" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/30 text-rose-300 text-xs font-bold border border-rose-500/30 transition-all" title="Excluir este vídeo">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
               <span>Remover</span>
             </button>
@@ -651,7 +648,7 @@ LEMBRETES:
 
       if (currentRoteiro.lembretes.length === 0) {
         container.innerHTML = `
-          <div class="text-center py-8 text-zinc-500 space-y-1">
+          <div class="text-center py-8 text-blue-400/50 space-y-1">
             <p class="text-xs">Nenhum lembrete registrado.</p>
           </div>
         `;
@@ -660,10 +657,10 @@ LEMBRETES:
 
       currentRoteiro.lembretes.forEach((txt, idx) => {
         const item = document.createElement('div');
-        item.className = 'p-2.5 rounded-2xl bg-[#121422] border border-white/[0.06] flex items-center justify-between gap-2 group';
+        item.className = 'p-2.5 rounded-2xl bg-[#0c132c] border border-blue-500/20 flex items-center justify-between gap-2 group';
         item.innerHTML = `
-          <input type="text" value="${txt}" class="flex-1 bg-transparent text-xs text-zinc-200 outline-none focus:ring-1 focus:ring-amber-400 rounded px-1 font-medium" oninput="updateLembrete(${idx}, this.value)" />
-          <button onclick="removeLembrete(${idx})" class="text-zinc-500 hover:text-rose-400 opacity-80 hover:opacity-100 transition-opacity p-1" title="Excluir Lembrete">
+          <input type="text" value="${txt}" class="flex-1 bg-transparent text-xs text-blue-100 outline-none focus:ring-1 focus:ring-sky-400 rounded px-1 font-medium" oninput="updateLembrete(${idx}, this.value)" />
+          <button onclick="removeLembrete(${idx})" class="text-blue-400 hover:text-rose-400 opacity-80 hover:opacity-100 transition-opacity p-1" title="Excluir Lembrete">
             <i data-lucide="x" class="w-3.5 h-3.5"></i>
           </button>
         `;
@@ -673,24 +670,32 @@ LEMBRETES:
       lucide.createIcons();
     }
 
-    // RENDER LEMBRETES FOR 1-PAGE PRINT EXPORT
+    // RENDER LEMBRETES FOR 1-PAGE PRINT EXPORT (ALWAYS FULLY POPULATED)
     function renderPrintLembretes() {
       const printBox = document.getElementById('printLembretesSection');
       const printList = document.getElementById('printLembretesList');
       if (!printBox || !printList) return;
 
       if (!currentRoteiro.lembretes || currentRoteiro.lembretes.length === 0) {
-        printBox.classList.add('hidden');
+        printBox.style.display = 'none';
         return;
       }
 
-      printBox.classList.remove('hidden');
+      printBox.style.display = 'block';
       printList.innerHTML = '';
       currentRoteiro.lembretes.forEach(l => {
         const div = document.createElement('div');
+        div.className = 'print-lembrete-item';
         div.textContent = `• ${l.replace(/^[•◦▪▫\s\d.-]+/, '').trim()}`;
         printList.appendChild(div);
       });
+    }
+
+    function prepareAndPrint() {
+      renderPrintLembretes();
+      setTimeout(() => {
+        window.print();
+      }, 100);
     }
 
     function addNewVideoCard() {
@@ -837,8 +842,7 @@ LEMBRETES:
 
     // COPY TO WHATSAPP FORMAT
     function copyRoteiroWhatsApp() {
-      let text = `📋 *${currentRoteiro.title.toUpperCase()}*\n`;
-      text += `📅 Data: ${currentRoteiro.date} | 👤 ${currentRoteiro.pastor}\n\n`;
+      let text = `📋 *${currentRoteiro.title.toUpperCase()}*\n\n`;
       text += `🎬 *VÍDEOS E TESTEMUNHOS:*\n`;
 
       currentRoteiro.videos.forEach((v, i) => {
@@ -869,13 +873,13 @@ LEMBRETES:
 
     function switchImportTab(tab) {
       if (tab === 'pdf') {
-        document.getElementById('importTabBtnPdf').className = 'flex-1 py-1.5 rounded-lg text-xs font-semibold bg-violet-600 text-white transition-all';
-        document.getElementById('importTabBtnText').className = 'flex-1 py-1.5 rounded-lg text-xs font-semibold text-zinc-400 hover:text-white transition-all';
+        document.getElementById('importTabBtnPdf').className = 'flex-1 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white transition-all shadow-md';
+        document.getElementById('importTabBtnText').className = 'flex-1 py-1.5 rounded-lg text-xs font-semibold text-blue-300 hover:text-white transition-all';
         document.getElementById('importTabPdf').classList.remove('hidden');
         document.getElementById('importTabText').classList.add('hidden');
       } else {
-        document.getElementById('importTabBtnText').className = 'flex-1 py-1.5 rounded-lg text-xs font-semibold bg-violet-600 text-white transition-all';
-        document.getElementById('importTabBtnPdf').className = 'flex-1 py-1.5 rounded-lg text-xs font-semibold text-zinc-400 hover:text-white transition-all';
+        document.getElementById('importTabBtnText').className = 'flex-1 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white transition-all shadow-md';
+        document.getElementById('importTabBtnPdf').className = 'flex-1 py-1.5 rounded-lg text-xs font-semibold text-blue-300 hover:text-white transition-all';
         document.getElementById('importTabText').classList.remove('hidden');
         document.getElementById('importTabPdf').classList.add('hidden');
       }
@@ -884,11 +888,11 @@ LEMBRETES:
     function setupDropZones() {
       const zone = document.getElementById('pdfDropZone');
       zone.onclick = () => document.getElementById('pdfFileInput').click();
-      zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('border-violet-500'); };
-      zone.ondragleave = (e) => { e.preventDefault(); zone.classList.remove('border-violet-500'); };
+      zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('border-blue-400'); };
+      zone.ondragleave = (e) => { e.preventDefault(); zone.classList.remove('border-blue-400'); };
       zone.ondrop = (e) => {
         e.preventDefault();
-        zone.classList.remove('border-violet-500');
+        zone.classList.remove('border-blue-400');
         if (e.dataTransfer.files[0]) processPdfFile(e.dataTransfer.files[0]);
       };
     }
@@ -931,26 +935,20 @@ LEMBRETES:
       const parsedLembretes = [];
       let isLembreteSection = false;
       let title = defaultTitle || "ROTEIRO";
-      let date = "";
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
 
-        // Check for date/title
         if (/ROTEIRO\s+\d+/i.test(line)) {
           title = line;
-          const dm = line.match(/\d{2}[./-]\d{2}(?:[./-]\d{2,4})?/);
-          if (dm) date = dm[0];
           continue;
         }
 
-        // Check for LEMBRETES header
         if (/LEMBRETES?:?/i.test(line)) {
           isLembreteSection = true;
           continue;
         }
 
-        // Duration pattern: e.g. "03:40''" or "11:35''" or "02:47"
         const timeMatch = line.match(/\b\d{1,2}:\d{2}(?:[’'"]{1,2})?\b/);
 
         if (isLembreteSection) {
@@ -970,7 +968,7 @@ LEMBRETES:
           let nextDur = "02:00''";
           if (i + 1 < lines.length && /\b\d{1,2}:\d{2}/.test(lines[i + 1])) {
             nextDur = lines[i + 1].match(/\b\d{1,2}:\d{2}(?:[’'"]{1,2})?\b/)[0];
-            i++; // skip duration line
+            i++;
           }
 
           parsedVideos.push({
@@ -988,8 +986,6 @@ LEMBRETES:
       if (parsedVideos.length > 0 || parsedLembretes.length > 0) {
         currentRoteiro = {
           title: title,
-          date: date || new Date().toLocaleDateString('pt-BR'),
-          pastor: "Pastor Principal",
           videos: parsedVideos,
           lembretes: parsedLembretes
         };
