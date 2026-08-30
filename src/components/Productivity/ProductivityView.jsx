@@ -50,17 +50,17 @@ export default function ProductivityView({ darkMode }) {
       color: 'text-purple-400',
       bgColor: 'bg-purple-500/10',
       borderColor: 'border-purple-500/30',
-      tag: 'APRESENTAÇÕES',
+      tag: 'PDF & TEXTO ESCRITO',
       tagColor: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-      description: 'Estúdio profissional para transformar sermões e estudos em apresentações de alto impacto. Extrai textos de PDFs e gera slides com referências bíblicas formatadas.',
+      description: 'Estúdio profissional para transformar sermões e estudos em apresentações de alto impacto. Aceita tanto arquivos PDF quanto textos/mensagens coladas diretamente.',
       features: [
-        'Importação inteligente de sermões em PDF',
+        'Importe PDFs ou Cole Mensagens do Pastor (WhatsApp / Anotações)',
+        'Detecção inteligente de tópicos e versículos bíblicos formatados',
         'Editor visual estilo Canvas (drag-and-drop)',
-        'Geração de arquivos PPTX nativos',
-        'Separação automática de tópicos e versículos'
+        'Geração e exportação de arquivos PPTX nativos'
       ],
-      path: `${import.meta.env.BASE_URL}tools/gerador_de_slides.html`,
-      iframeUrl: `${import.meta.env.BASE_URL}tools/gerador_de_slides.html`
+      path: `${import.meta.env.BASE_URL}tools/gerador_de_slides.html?v=texto_e_pdf`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/gerador_de_slides.html?v=texto_e_pdf`
     },
     {
       id: 'planilhas',

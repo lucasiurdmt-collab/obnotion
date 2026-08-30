@@ -2,12 +2,12 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Gerador de Slides - Canva Killer Pro</title>
+    <title>Gerador de Slides - Canva Killer Pro (PDF & Texto Escrito)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/libs/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&family=Oswald:wght@500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600&display=swap');
         
         :root { 
             --bg-base: #18181b; /* Zinc 900 */
@@ -43,9 +43,18 @@
         .btn-icon:hover { background: var(--bg-hover); color: white; }
 
         /* Setup Screen */
-        #setup { margin: auto; padding: 40px; background: var(--bg-panel); border-radius: 16px; text-align: center; max-width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 1px solid var(--border); }
-        .dropzone { border: 2px dashed var(--border); padding: 40px; border-radius: 12px; cursor: pointer; margin-top: 20px; transition: 0.2s; background: var(--bg-base); }
+        #setup { margin: auto; padding: 32px; background: var(--bg-panel); border-radius: 16px; text-align: center; max-width: 600px; width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
+        
+        /* Tabs in Setup */
+        .tab-bar { display: flex; background: var(--bg-base); padding: 4px; border-radius: 10px; gap: 6px; margin-bottom: 20px; border: 1px solid var(--border); }
+        .tab-btn { flex: 1; padding: 8px 12px; border-radius: 8px; border: none; background: transparent; color: var(--text-dim); font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4); }
+
+        .dropzone { border: 2px dashed var(--border); padding: 32px 20px; border-radius: 12px; cursor: pointer; transition: 0.2s; background: var(--bg-base); }
         .dropzone:hover { border-color: var(--primary); background: rgba(139, 92, 246, 0.05); }
+
+        .textarea-input { width: 100%; background: var(--bg-base); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: white; font-family: 'Inter', sans-serif; font-size: 12px; line-height: 1.5; resize: vertical; box-sizing: border-box; outline: none; transition: 0.2s; }
+        .textarea-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2); }
 
         /* App Layout */
         #app { display: none; flex: 1; flex-direction: column; overflow: hidden; }
@@ -130,8 +139,12 @@
     <h1><svg width="20" height="20" viewBox="0 0 24 24" fill="var(--primary)"><path d="M21 3H3C2 3 1 4 1 5V19C1 20 2 21 3 21H21C22 21 23 20 23 19V5C23 4 22 3 21 3ZM21 19H3V5H21V19Z"/><path d="M7 9L12 14L17 9H7Z"/></svg>
         Gerador de Slides <span class="badge">PRO</span>
     </h1>
-    <div style="display:flex; gap:12px; align-items:center;">
-        <input type="text" id="outFileName" value="Apresentacao.pptx" class="prop-input" style="width:200px; font-weight:500;" />
+    <div style="display:flex; gap:10px; align-items:center;">
+        <button class="btn btn-outline" onclick="openNewSermonModal()" title="Importar outro sermão ou colar novo texto">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/></svg>
+            Novo Sermão / Colar Texto
+        </button>
+        <input type="text" id="outFileName" value="Apresentacao.pptx" class="prop-input" style="width:180px; font-weight:500;" />
         <button class="btn" id="btnExport">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19 9H15V3H9V9H5L12 16L19 9ZM5 18V20H19V18H5Z"/></svg>
             Exportar PPTX
@@ -140,21 +153,64 @@
 </header>
 
 <div id="setup">
-    <h2 style="margin-top:0; color:var(--text-light); font-weight:600;">Bem-vindo ao Estúdio</h2>
-    <p style="color:var(--text-dim); font-size:13px; margin-bottom:24px;">Transforme seus sermões em apresentações incríveis com ferramentas profissionais.</p>
+    <h2 style="margin-top:0; color:var(--text-light); font-weight:600;">Bem-vindo ao Estúdio de Apresentações</h2>
+    <p style="color:var(--text-dim); font-size:13px; margin-bottom:20px;">Transforme sermões em apresentações de alto impacto a partir de arquivos PDF ou colando o texto diretamente.</p>
     
-    <div style="background:var(--bg-base); padding:20px; border-radius:12px; text-align:left; border:1px solid var(--border);">
-        <label style="font-size:12px; font-weight:500; color:var(--text-dim); display:block; margin-bottom:8px;">1. Fundo Padrão (Opcional)</label>
+    <!-- 1. Fundo Padrão -->
+    <div style="background:var(--bg-base); padding:14px 18px; border-radius:12px; text-align:left; border:1px solid var(--border); margin-bottom:16px;">
+        <label style="font-size:12px; font-weight:500; color:var(--text-dim); display:block; margin-bottom:6px;">1. Imagem de Fundo Padrão (Opcional)</label>
         <input type="file" id="globalBg" accept="image/*" class="prop-input" />
     </div>
-    
-    <div class="dropzone" id="dropZone">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="var(--text-dim)" style="margin-bottom:12px;"><path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z"/></svg>
-        <h3 style="margin:0 0 4px 0; font-weight:500;">2. Importar Sermão em PDF</h3>
-        <p style="margin:0; color:var(--text-dim); font-size:12px;">Arraste o arquivo ou clique para buscar</p>
+
+    <!-- 2. Tabs: PDF ou Texto Escrito -->
+    <div class="tab-bar">
+        <button class="tab-btn active" id="tabBtnText" onclick="switchSetupTab('text')">
+            ✍️ Colar Mensagem / Texto Escrito
+        </button>
+        <button class="tab-btn" id="tabBtnPdf" onclick="switchSetupTab('pdf')">
+            📄 Importar Arquivo PDF
+        </button>
     </div>
-    <input type="file" id="pdfInput" accept="application/pdf" style="position:absolute; left:-9999px;" />
-    <div id="statusMsg" style="margin-top:16px; color:var(--primary); font-size:13px; font-weight:500;"></div>
+
+    <!-- TAB CONTENT: TEXTO ESCRITO / COLAR MENSAGEM DO PASTOR -->
+    <div id="tabContentText" style="display:flex; flex-direction:column; gap:12px; text-align:left;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="font-size:12px; font-weight:600; color:var(--text-light);">
+                Cole a mensagem do pastor ou anotações com versículos:
+            </label>
+            <button onclick="insertSampleText()" style="background:transparent; border:none; color:var(--primary); font-size:11px; font-weight:600; cursor:pointer; text-decoration:underline;">
+                Inserir Exemplo
+            </button>
+        </div>
+        <textarea id="sermonTextInput" class="textarea-input" rows="9" placeholder="Cole aqui a mensagem recebida no WhatsApp, esboço ou anotações...
+
+Exemplo:
+O PODER DA ORAÇÃO
+
+Tiago 5:16
+Confessai as vossas culpas uns aos outros, e orai uns pelos outros, para que sareis. A oração feita por um justo pode muito em seus efeitos.
+
+Filipenses 4:6-7
+Não estejais inquietos por coisa alguma; antes as vossas petições sejam em tudo conhecidas diante de Deus pela oração e súplica, com ação de graças.
+
+Qual tem sido a sua prioridade diante das dificuldades?"></textarea>
+        
+        <button class="btn" onclick="processPastedText()" style="padding:10px 16px; font-size:13px; font-weight:600; justify-content:center; box-shadow:0 4px 12px rgba(139,92,246,0.3);">
+            ⚡ Processar Mensagem e Gerar Slides
+        </button>
+    </div>
+
+    <!-- TAB CONTENT: PDF -->
+    <div id="tabContentPdf" style="display:none;">
+        <div class="dropzone" id="dropZone">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="var(--text-dim)" style="margin-bottom:10px;"><path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z"/></svg>
+            <h3 style="margin:0 0 4px 0; font-weight:600; font-size:14px;">Importar Arquivo PDF</h3>
+            <p style="margin:0; color:var(--text-dim); font-size:12px;">Arraste o arquivo do pastor ou clique para buscar no computador</p>
+        </div>
+        <input type="file" id="pdfInput" accept="application/pdf" style="position:absolute; left:-9999px;" />
+    </div>
+
+    <div id="statusMsg" style="margin-top:14px; color:var(--primary); font-size:13px; font-weight:500;"></div>
 </div>
 
 <div id="app">
@@ -346,6 +402,76 @@
     const snapV = document.getElementById('snap-v');
     const snapH = document.getElementById('snap-h');
 
+    // TAB SWITCHING
+    function switchSetupTab(tab) {
+        const btnText = document.getElementById('tabBtnText');
+        const btnPdf = document.getElementById('tabBtnPdf');
+        const contentText = document.getElementById('tabContentText');
+        const contentPdf = document.getElementById('tabContentPdf');
+
+        if(tab === 'text') {
+            btnText.classList.add('active');
+            btnPdf.classList.remove('active');
+            contentText.style.display = 'flex';
+            contentPdf.style.display = 'none';
+        } else {
+            btnPdf.classList.add('active');
+            btnText.classList.remove('active');
+            contentText.style.display = 'none';
+            contentPdf.style.display = 'block';
+        }
+    }
+
+    function openNewSermonModal() {
+        setup.style.display = 'block';
+        app.style.display = 'none';
+    }
+
+    function insertSampleText() {
+        document.getElementById('sermonTextInput').value = `A FÉ QUE SUPERA O IMPOSSÍVEL
+
+Hebreus 11:1
+Ora, a fé é a certeza de coisas que se esperam, a convicção de fatos que se não veem.
+
+Marcos 9:23
+Ao que lhe disse Jesus: Se podes! Tudo é possível ao que crê.
+
+Romanos 8:28
+Sabemos que todas as coisas cooperam para o bem daqueles que amam a Deus, daqueles que são chamados segundo o seu propósito.
+
+O que tem desafiado a sua fé no dia de hoje?
+Confie no Senhor de todo o seu coração!`;
+    }
+
+    // PROCESS PASTED TEXT DIRECTLY
+    function processPastedText() {
+        const text = document.getElementById('sermonTextInput').value.trim();
+        if(!text) {
+            alert('Por favor, cole ou digite a mensagem do pastor.');
+            return;
+        }
+
+        document.getElementById('statusMsg').innerText = 'Processando texto e gerando slides...';
+        
+        // Extract title from first line if upper case or short
+        const firstLine = text.split('\n')[0].trim();
+        if(firstLine && firstLine.length < 50) {
+            document.getElementById('outFileName').value = firstLine.replace(/[^a-zA-Z0-9À-ÿ\s]/g, '').trim().replace(/\s+/g, '_') + '.pptx';
+        }
+
+        slides = parseSermon(text);
+        if(slides.length === 0) {
+            slides = [newSlide('reflection')];
+            slides[0].elements.push(newTextEl(text, false, 'reflection'));
+        }
+
+        setup.style.display = 'none';
+        app.style.display = 'flex';
+        resizeWorkspace();
+        setSlide(0);
+        document.getElementById('statusMsg').innerText = '';
+    }
+
     // Setup Listeners
     document.getElementById('globalBg').addEventListener('change', e => {
         const f = e.target.files[0]; if(f) { const r = new FileReader(); r.onload = ev => { globalBgData = ev.target.result; document.getElementById('statusMsg').innerText="Fundo padrão salvo!"; }; r.readAsDataURL(f); }
@@ -359,7 +485,7 @@
     document.getElementById('pdfInput').addEventListener('change', e => { if(e.target.files[0]) parsePDF(e.target.files[0]); });
 
     async function parsePDF(file) {
-        document.getElementById('statusMsg').innerText = 'Processando IA de extração...';
+        document.getElementById('statusMsg').innerText = 'Processando IA de extração do PDF...';
         try {
             document.getElementById('outFileName').value = file.name.replace('.pdf', '.pptx');
             const arr = await file.arrayBuffer();
@@ -379,14 +505,16 @@
             setup.style.display = 'none'; app.style.display = 'flex';
             resizeWorkspace();
             if(slides.length > 0) setSlide(0);
+            document.getElementById('statusMsg').innerText = '';
         } catch(e) { console.error(e); alert("Erro ao ler PDF:\n" + e.message); }
     }
 
     // --- Parser Engine ---
-    const BIB_REGEX = /(?:II?\s*Cr[oô]nicas|I?\s*Cr[oô]nicas|1\s*Cr[oô]nicas|2\s*Cr[oô]nicas|G[eê]nesis|[EÊ]xodo|Lev[ií]tico|N[uú]meros|Deuteron[oô]mio|Josu[eé]|Ju[ií]zes|Rute|1\s*Samuel|2\s*Samuel|1\s*Reis|2\s*Reis|Esdras|Neemias|Ester|J[oó]|Salmos?|Prov[eé]rbios?|Eclesiastes|C[aâ]nticos|Isa[ií]as|Jeremias|Lamenta[cç][oõ]es|Ezequiel|Daniel|Os[eé]ias|Joel|Am[oó]s|Obadias|Jonas|Miqu[eé]ias|Naum|Habacuque|Sofonias|Ageu|Zacarias|Malaquias|Mateus|Marcos|Lucas|Jo[aã]o|Atos|Romanos|1\s*Cor[ií]ntios|2\s*Cor[ií]ntios|G[aá]latas|Ef[eé]sios|Filipenses|Colossenses|1\s*Tessalonicenses|2\s*Tessalonicenses|1\s*Tim[oó]teo|2\s*Tim[oó]teo|Tito|Filemom|Hebreus|Tiago|1\s*Pedro|2\s*Pedro|1\s*Jo[aã]o|2\s*Jo[aã]o|3\s*Jo[aã]o|Judas|Apocalipse)\s+\d+:\d+(?:-\d+)?/i;
+    const BIB_REGEX = /(?:II?\s*Cr[oô]nicas|I?\s*Cr[oô]nicas|[12]\s*Cr[oô]nicas|G[eê]nesis|[EÊ]xodo|Lev[ií]tico|N[uú]meros|Deuteron[oô]mio|Josu[eé]|Ju[ií]zes|Rute|[12]\s*Samuel|[12]\s*Reis|Esdras|Neemias|Ester|J[oó]|Salmos?|Prov[eé]rbios?|Eclesiastes|C[aâ]nticos|Isa[ií]as|Jeremias|Lamenta[cç][oõ]es|Ezequiel|Daniel|Os[eé]ias|Joel|Am[oó]s|Obadias|Jonas|Miqu[eé]ias|Naum|Habacuque|Sofonias|Ageu|Zacarias|Malaquias|Mateus|Marcos|Lucas|Jo[aã]o|Atos|Romanos|[12]\s*Cor[ií]ntios|G[aá]latas|Ef[eé]sios|Filipenses|Colossenses|[12]\s*Tessalonicenses|[12]\s*Tim[oó]teo|Tito|Filemom|Hebreus|Tiago|[12]\s*Pedro|[123]\s*Jo[aã]o|Judas|Apocalipse|Gn|Ex|Lv|Nm|Dt|Js|Jz|Rt|[12]Sm|[12]Rs|[12]Cr|Ed|Ne|Et|Jó|Sl|Pv|Ec|Ct|Is|Jr|Lm|Ez|Dn|Os|Jl|Am|Ob|Jn|Mq|Na|Hc|Sf|Ag|Zc|Ml|Mt|Mc|Lc|Jo|At|Rm|[12]Co|Gl|Ef|Fp|Cl|[12]Ts|[12]Tm|Tt|Fm|Hb|Tg|[12]Pe|[123]Jo|Jd|Ap)\.?\s+\d+[:.]\d+(?:-\d+)?/i;
+
     function isRef(l) { const m = l.match(BIB_REGEX); return m ? m[0] : null; }
-    function isPureRef(l) { const m = isRef(l); return m ? l.trim().length <= m.length+6 : false; }
-    function isHead(l) { const c = l.replace(/[^a-zA-ZÀ-ÿ\s]/g,'').trim(); return c.length>4 && (c.match(/[A-ZÀ-Ý]/g)||[]).length/c.length > 0.75; }
+    function isPureRef(l) { const m = isRef(l); return m ? l.trim().length <= m.length+8 : false; }
+    function isHead(l) { const c = l.replace(/[^a-zA-ZÀ-ÿ\s]/g,'').trim(); return c.length>3 && (c.match(/[A-ZÀ-Ý]/g)||[]).length/c.length > 0.75; }
     function fmtQuote(t) { let x=t.trim(); if(!x.startsWith('“')&&!x.startsWith('"')) x='“'+x; if(!x.endsWith('”')&&!x.endsWith('"')) x=x.replace(/[.]+$/,'')+'”'; return x; }
     function genId() { return 'el_' + Math.random().toString(36).substr(2,9); }
 
@@ -396,7 +524,7 @@
         if(isR) { fz=40; ff='Bebas Neue'; col='#E8B859'; y=441; h=76; }
         else if(type==='topic') { fz=72; ff='Bebas Neue'; al='center'; y=150; }
         else if(type==='reflection') { al='center'; y=150; }
-        else if(type==='question_short') { fz=110; al='center'; y=150; }
+        else if(type==='question_short') { fz=90; al='center'; y=150; }
         else { if(txt.length<70) fz=54; else if(txt.length>160) fz=36; }
         return {
             id: genId(), type: 'text', name: isR ? 'Referência' : 'Texto Principal', content: txt,
@@ -432,20 +560,20 @@
         while(i<lines.length) {
             let l=lines[i]; if(!l) {i++; continue;}
             if(isHead(l)) { pushSld(l,'','topic'); i++; continue; }
-            if(l.endsWith('?')&&l.length<=35) { pushSld(l,'','question_short'); i++; continue; }
+            if(l.endsWith('?')&&l.length<=40) { pushSld(l,'','question_short'); i++; continue; }
             let j=i, bRef=null;
-            while(j<lines.length && lines[j] && !isHead(lines[j]) && !(lines[j].endsWith('?')&&lines[j].length<=35)) { if(isPureRef(lines[j])) { if(j>i) bRef=isRef(lines[j]); break; } j++; }
+            while(j<lines.length && lines[j] && !isHead(lines[j]) && !(lines[j].endsWith('?')&&lines[j].length<=40)) { if(isPureRef(lines[j])) { if(j>i) bRef=isRef(lines[j]); break; } j++; }
             if(bRef) { procBlk(lines.slice(i,j).join(' '), bRef); i=j+1; continue; }
             if(isPureRef(l)) {
                 const bR=isRef(l); i++; let top=[];
-                while(i<lines.length && lines[i] && !isPureRef(lines[i]) && !isHead(lines[i]) && !(lines[i].endsWith('?')&&lines[i].length<=35)) { const tR=isRef(lines[i]); if(tR && lines[i].length>tR.length+12 && !isPureRef(lines[i])) break; top.push(lines[i]); i++; }
-                if(top.length>0) procBlk(top.join(' '), bR); else pushSld('...', bR, 'verse');
+                while(i<lines.length && lines[i] && !isPureRef(lines[i]) && !isHead(lines[i]) && !(lines[i].endsWith('?')&&lines[i].length<=40)) { const tR=isRef(lines[i]); if(tR && lines[i].length>tR.length+12 && !isPureRef(lines[i])) break; top.push(lines[i]); i++; }
+                if(top.length>0) procBlk(top.join(' '), bR); else pushSld(bR, bR, 'verse');
                 continue;
             }
             const tR=isRef(l);
             if(tR && l.length>tR.length+12 && !isPureRef(l)) { procBlk(l.replace(tR,'').trim(), tR); i++; continue; }
             let refs=[];
-            while(i<lines.length && lines[i] && !isPureRef(lines[i]) && !isHead(lines[i]) && !(lines[i].endsWith('?')&&lines[i].length<=35)) { const txR=isRef(lines[i]); if(txR && lines[i].length>txR.length+12 && !isPureRef(lines[i])) break; refs.push(lines[i]); i++; }
+            while(i<lines.length && lines[i] && !isPureRef(lines[i]) && !isHead(lines[i]) && !(lines[i].endsWith('?')&&lines[i].length<=40)) { const txR=isRef(lines[i]); if(txR && lines[i].length>txR.length+12 && !isPureRef(lines[i])) break; refs.push(lines[i]); i++; }
             if(refs.length>0) procBlk(refs.join(' '), '');
         }
         return out;
@@ -511,7 +639,7 @@
     }
 
     function highlightKW(txt) {
-        const kw = /(não temas,?\s*crê somente|quem me tocou\??|não o faria\??|não o confirmaria\??|angústia de espírito|tendo-os feito sair|teu coração|não se apóie|os teus bens|os teus celeiros|transbordarão|talitá cumi|prostrou-se|um dos principais da sinagoga|despendido tudo quanto tinha|não ajunteis tesouros|ajuntai tesouros|honra ao senhor|confia no senhor)/gi;
+        const kw = /(não temas,?\s*crê somente|quem me tocou\??|não o faria\??|não o confirmaria\??|angústia de espírito|tendo-os feito sair|teu coração|não se apóie|os teus bens|os teus celeiros|transbordarão|talitá cumi|prostrou-se|um dos principais da sinagoga|despendido tudo quanto tinha|não ajunteis tesouros|ajuntai tesouros|honra ao senhor|confia no senhor|a fé é a certeza|tudo é possível ao que crê|todas as coisas cooperam)/gi;
         return txt.replace(kw, '<span style="color:#E8B859;">$1</span>');
     }
 
@@ -706,7 +834,7 @@
                         if(el.stroke && el.stroke !== 'none') opts.outline = { size: 1.5, color: el.stroke === 'white' ? 'FFFFFF' : '000000' };
                         
                         const ff = el.fontFace.includes('Oswald') || el.fontFace.includes('Bahnschrift') ? 'Bahnschrift SemiBold Condensed' : 'Bebas Neue';
-                        const kw = /(não temas,?\s*crê somente|quem me tocou\??|não o faria\??|não o confirmaria\??|angústia de espírito|tendo-os feito sair|teu coração|não se apóie|os teus bens|os teus celeiros|transbordarão|talitá cumi|prostrou-se|um dos principais da sinagoga|despendido tudo quanto tinha|não ajunteis tesouros|ajuntai tesouros|honra ao senhor|confia no senhor)/gi;
+                        const kw = /(não temas,?\s*crê somente|quem me tocou\??|não o faria\??|não o confirmaria\??|angústia de espírito|tendo-os feito sair|teu coração|não se apóie|os teus bens|os teus celeiros|transbordarão|talitá cumi|prostrou-se|um dos principais da sinagoga|despendido tudo quanto tinha|não ajunteis tesouros|ajuntai tesouros|honra ao senhor|confia no senhor|a fé é a certeza|tudo é possível ao que crê|todas as coisas cooperam)/gi;
                         const runs = []; let lx=0; let m;
                         if(!el.isRef) { while((m = kw.exec(el.content)) !== null) { if(m.index>lx) runs.push({ text: el.content.substring(lx, m.index), highlight: false }); runs.push({ text: m[0], highlight: true }); lx = m.index + m[0].length; } }
                         if(lx < el.content.length) runs.push({ text: el.content.substring(lx), highlight: false });
