@@ -647,16 +647,16 @@ O PERDÃO É UMA DECISÃO DE FÉ`;
             // 1. Check if line contains a biblical reference
             const matchedRef = isRef(line);
             if(matchedRef) {
-                // Check if the line is ONLY the reference (e.g. "MATEUS 6: 14-15" or "(Mateus 6:14-15)")
                 const remainder = line.replace(matchedRef, '').replace(/[()\[\]—–\-\s]/g, '').trim();
                 if(remainder.length === 0) {
-                    // Line is just the reference! Look ahead to capture verse text
+                    // Line is ONLY the reference! Look ahead for verse text
                     let verseLines = [];
                     i++;
                     while(i < rawLines.length) {
                         const nextLine = rawLines[i].replace(/^[•◦▪▫–—*\s>]+/, '').trim();
                         if(!nextLine) { i++; break; }
-                        if(isPureRef(nextLine) || (isHead(nextLine) && !isRef(nextLine))) {
+                        // Stop if next line has another reference or is a topic heading
+                        if(isRef(nextLine) || isHead(nextLine)) {
                             break;
                         }
                         verseLines.push(nextLine);
@@ -670,8 +670,8 @@ O PERDÃO É UMA DECISÃO DE FÉ`;
                     }
                     continue;
                 } else {
-                    // Line contains both the verse and the reference (e.g. "Nem todo o que me diz... Mateus 7:21")
-                    let verseBody = line.replace(matchedRef, '').replace(/[()]/g, '').trim();
+                    // Line contains both the verse text and reference (e.g. "Nem todo o que me diz... Mateus 7:21")
+                    let verseBody = line.replace(matchedRef, '').replace(/[()\[\]]/g, '').trim();
                     pushTextChunks(verseBody, matchedRef, 'verse');
                     i++;
                     continue;
@@ -760,7 +760,7 @@ O PERDÃO É UMA DECISÃO DE FÉ`;
     }
 
     function highlightKW(txt) {
-        const kw = /(não temas,?\s*crê somente|quem me tocou\??|não o faria\??|não o confirmaria\??|angústia de espírito|tendo-os feito sair|teu coração|não se apóie|os teus bens|os teus celeiros|transbordarão|talitá cumi|prostrou-se|um dos principais da sinagoga|despendido tudo quanto tinha|não ajunteis tesouros|ajuntai tesouros|honra ao senhor|confia no senhor|a fé é a certeza|tudo é possível ao que crê|todas as coisas cooperam|se perdoardes|perdoará|não perdoardes|tampouco vosso pai|fazer a vontade|reino dos céus|senhor,\s*senhor)/gi;
+        const kw = /(não temas,?\s*crê somente|quem me tocou\??|não o faria\??|não o confirmaria\??|angústia de espírito|tendo-os feito sair|teu coração|não se apóie|os teus bens|os teus celeiros|transbordarão|talitá cumi|prostrou-se|um dos principais da sinagoga|despendido tudo quanto tinha|não ajunteis tesouros|ajuntai tesouros|honra ao senhor|confia no senhor|a fé é a certeza|tudo é possível ao que crê|todas as coisas cooperam|se perdoardes|perdoará|não perdoardes|tampouco vosso pai|fazer a vontade|reino dos céus|senhor,\s*senhor|humildade|submissão|palavra de deus|senhor jesus|no altar|altar|filho pródigo|me perdoe|própria alma)/gi;
         return txt.replace(kw, '<span style="color:#E8B859;">$1</span>');
     }
 
@@ -955,7 +955,7 @@ O PERDÃO É UMA DECISÃO DE FÉ`;
                         if(el.stroke && el.stroke !== 'none') opts.outline = { size: 1.5, color: el.stroke === 'white' ? 'FFFFFF' : '000000' };
                         
                         const ff = el.fontFace.includes('Oswald') || el.fontFace.includes('Bahnschrift') ? 'Bahnschrift SemiBold Condensed' : 'Bebas Neue';
-                        const kw = /(não temas,?\s*crê somente|quem me tocou\??|não o faria\??|não o confirmaria\??|angústia de espírito|tendo-os feito sair|teu coração|não se apóie|os teus bens|os teus celeiros|transbordarão|talitá cumi|prostrou-se|um dos principais da sinagoga|despendido tudo quanto tinha|não ajunteis tesouros|ajuntai tesouros|honra ao senhor|confia no senhor|a fé é a certeza|tudo é possível ao que crê|todas as coisas cooperam|se perdoardes|perdoará|não perdoardes|tampouco vosso pai|fazer a vontade|reino dos céus|senhor,\s*senhor)/gi;
+                        const kw = /(não temas,?\s*crê somente|quem me tocou\??|não o faria\??|não o confirmaria\??|angústia de espírito|tendo-os feito sair|teu coração|não se apóie|os teus bens|os teus celeiros|transbordarão|talitá cumi|prostrou-se|um dos principais da sinagoga|despendido tudo quanto tinha|não ajunteis tesouros|ajuntai tesouros|honra ao senhor|confia no senhor|a fé é a certeza|tudo é possível ao que crê|todas as coisas cooperam|se perdoardes|perdoará|não perdoardes|tampouco vosso pai|fazer a vontade|reino dos céus|senhor,\s*senhor|humildade|submissão|palavra de deus|senhor jesus|no altar|altar|filho pródigo|me perdoe|própria alma)/gi;
                         const runs = []; let lx=0; let m;
                         if(!el.isRef) { while((m = kw.exec(el.content)) !== null) { if(m.index>lx) runs.push({ text: el.content.substring(lx, m.index), highlight: false }); runs.push({ text: m[0], highlight: true }); lx = m.index + m[0].length; } }
                         if(lx < el.content.length) runs.push({ text: el.content.substring(lx), highlight: false });
