@@ -290,7 +290,11 @@
               <label class="text-[10px] font-mono uppercase tracking-wider text-blue-400 font-bold block mb-1 text-center md:text-left no-print">
                 Título do Roteiro (com Data integrada)
               </label>
-              <input type="text" id="scriptTitle" value="ROTEIRO 30.08.2026" class="w-full bg-transparent text-xl md:text-3xl font-black text-white border-none outline-none focus:ring-2 focus:ring-blue-500 rounded-xl px-2 py-1 text-center md:text-left uppercase tracking-wider font-sans" placeholder="Ex: ROTEIRO 30.08.2026" oninput="saveCurrentRoteiro()" />
+              <!-- Screen Input -->
+              <input type="text" id="scriptTitle" value="ROTEIRO 30.08.2026" class="w-full bg-transparent text-xl md:text-3xl font-black text-white border-none outline-none focus:ring-2 focus:ring-blue-500 rounded-xl px-2 py-1 text-center md:text-left uppercase tracking-wider font-sans print:hidden" placeholder="Ex: ROTEIRO 30.08.2026" oninput="saveCurrentRoteiro()" />
+              
+              <!-- Solid Print Heading (100% visible dark navy/black in PDF) -->
+              <h1 id="printTitleDisplay" class="hidden print:block font-black text-2xl uppercase tracking-wider text-center text-[#1e3a8a] m-0 p-0">ROTEIRO 30.08.2026</h1>
             </div>
           </div>
 
@@ -504,6 +508,8 @@ LEMBRETES:
 
     function saveCurrentRoteiro() {
       currentRoteiro.title = document.getElementById('scriptTitle').value;
+      const printHeading = document.getElementById('printTitleDisplay');
+      if (printHeading) printHeading.textContent = currentRoteiro.title || 'ROTEIRO';
       localStorage.setItem('obnotion_current_roteiro', JSON.stringify(currentRoteiro));
       calculateTotalTime();
       renderPrintLembretes();
@@ -532,6 +538,8 @@ LEMBRETES:
 
     function renderAll() {
       document.getElementById('scriptTitle').value = currentRoteiro.title || 'ROTEIRO';
+      const printHeading = document.getElementById('printTitleDisplay');
+      if (printHeading) printHeading.textContent = currentRoteiro.title || 'ROTEIRO';
 
       renderVideosList();
       renderLembretesList();
@@ -598,10 +606,16 @@ LEMBRETES:
           </div>
 
           <!-- Center: Title, Type & Cue -->
-          <div class="flex-1 space-y-2 w-full print-v-info">
-            <div class="flex items-center gap-2">
-              <input type="text" value="${v.title}" class="flex-1 bg-transparent text-base md:text-lg font-black text-white uppercase outline-none focus:ring-1 focus:ring-blue-400 rounded px-1.5 py-0.5 print-v-title font-sans" placeholder="NOME DO VÍDEO..." oninput="updateVideoField(${idx}, 'title', this.value)" />
-              <input type="text" value="${v.type || 'Testemunho'}" class="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-blue-900/30 text-blue-300 border border-blue-500/30 outline-none no-print" placeholder="Tipo" oninput="updateVideoField(${idx}, 'type', this.value)" />
+          <div class="flex-1 space-y-1.5 w-full print-v-info">
+            <!-- Screen Title Input -->
+            <div class="flex items-center gap-2 print:hidden">
+              <input type="text" value="${v.title}" class="flex-1 bg-transparent text-base md:text-lg font-black text-white uppercase outline-none focus:ring-1 focus:ring-blue-400 rounded px-1.5 py-0.5 font-sans" placeholder="NOME DO VÍDEO..." oninput="updateVideoField(${idx}, 'title', this.value)" />
+              <input type="text" value="${v.type || 'Testemunho'}" class="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-blue-900/30 text-blue-300 border border-blue-500/30 outline-none" placeholder="Tipo" oninput="updateVideoField(${idx}, 'type', this.value)" />
+            </div>
+
+            <!-- Solid Print Title (100% Dark Text) -->
+            <div class="hidden print:block">
+              <span class="print-v-title">${v.title}</span>
             </div>
 
             <!-- Duration Badge for Print -->
@@ -609,11 +623,14 @@ LEMBRETES:
               <span class="print-v-duration">${v.duration}</span>
             </div>
 
-            <!-- Cue/Deixa do Pastor -->
-            <div class="flex items-center gap-1.5 text-xs text-blue-200/70 print-v-cue">
-              <i data-lucide="mic" class="w-3.5 h-3.5 text-blue-400 shrink-0 no-print"></i>
+            <!-- Screen Cue Input -->
+            <div class="flex items-center gap-1.5 text-xs text-blue-200/70 print:hidden">
+              <i data-lucide="mic" class="w-3.5 h-3.5 text-blue-400 shrink-0"></i>
               <input type="text" value="${v.cue || ''}" class="w-full bg-transparent text-xs text-blue-200/80 italic outline-none focus:ring-1 focus:ring-blue-400/50 rounded px-1" placeholder="Deixa do pastor (ex: 'Quando o pastor chamar...')" oninput="updateVideoField(${idx}, 'cue', this.value)" />
             </div>
+
+            <!-- Solid Print Cue (100% Dark Italic Text) -->
+            ${v.cue ? `<div class="hidden print:block"><span class="print-v-cue">↳ Deixa: ${v.cue}</span></div>` : ''}
           </div>
 
           <!-- Right: Duration & Actions (Screen) -->
