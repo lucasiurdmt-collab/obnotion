@@ -185,15 +185,10 @@
         <textarea id="sermonTextInput" class="textarea-input" rows="9" placeholder="Cole aqui a mensagem recebida no WhatsApp, esboço ou anotações...
 
 Exemplo:
-O PODER DA ORAÇÃO
+       MATEUS 6: 14-15
+• “Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós; se, porém, não perdoardes aos homens as suas ofensas, tampouco vosso Pai vos perdoará as vossas ofensas.”
 
-Tiago 5:16
-Confessai as vossas culpas uns aos outros, e orai uns pelos outros, para que sareis. A oração feita por um justo pode muito em seus efeitos.
-
-Filipenses 4:6-7
-Não estejais inquietos por coisa alguma; antes as vossas petições sejam em tudo conhecidas diante de Deus pela oração e súplica, com ação de graças.
-
-Qual tem sido a sua prioridade diante das dificuldades?"></textarea>
+ ◦ Nem todo o que me diz: Senhor, Senhor! Entrará no reino dos céus, mas aquele que faz a vontade de meu Pai, que está nos céus. Mateus 7:21"></textarea>
         
         <button class="btn" onclick="processPastedText()" style="padding:10px 16px; font-size:13px; font-weight:600; justify-content:center; box-shadow:0 4px 12px rgba(139,92,246,0.3);">
             ⚡ Processar Mensagem e Gerar Slides
@@ -428,19 +423,12 @@ Qual tem sido a sua prioridade diante das dificuldades?"></textarea>
     }
 
     function insertSampleText() {
-        document.getElementById('sermonTextInput').value = `A FÉ QUE SUPERA O IMPOSSÍVEL
+        document.getElementById('sermonTextInput').value = `MATEUS 6: 14-15
+• “Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós; se, porém, não perdoardes aos homens as suas ofensas, tampouco vosso Pai vos perdoará as vossas ofensas.”
 
-Hebreus 11:1
-Ora, a fé é a certeza de coisas que se esperam, a convicção de fatos que se não veem.
+ ◦ Nem todo o que me diz: Senhor, Senhor! Entrará no reino dos céus, mas aquele que faz a vontade de meu Pai, que está nos céus. Mateus 7:21
 
-Marcos 9:23
-Ao que lhe disse Jesus: Se podes! Tudo é possível ao que crê.
-
-Romanos 8:28
-Sabemos que todas as coisas cooperam para o bem daqueles que amam a Deus, daqueles que são chamados segundo o seu propósito.
-
-O que tem desafiado a sua fé no dia de hoje?
-Confie no Senhor de todo o seu coração!`;
+O PERDÃO É UMA DECISÃO DE FÉ`;
     }
 
     // PROCESS PASTED TEXT DIRECTLY
@@ -510,15 +498,81 @@ Confie no Senhor de todo o seu coração!`;
     }
 
     // --- Parser Engine ---
-    const BIB_REGEX = /(?:II?\s*Cr[oô]nicas|I?\s*Cr[oô]nicas|[12]\s*Cr[oô]nicas|G[eê]nesis|[EÊ]xodo|Lev[ií]tico|N[uú]meros|Deuteron[oô]mio|Josu[eé]|Ju[ií]zes|Rute|[12]\s*Samuel|[12]\s*Reis|Esdras|Neemias|Ester|J[oó]|Salmos?|Prov[eé]rbios?|Eclesiastes|C[aâ]nticos|Isa[ií]as|Jeremias|Lamenta[cç][oõ]es|Ezequiel|Daniel|Os[eé]ias|Joel|Am[oó]s|Obadias|Jonas|Miqu[eé]ias|Naum|Habacuque|Sofonias|Ageu|Zacarias|Malaquias|Mateus|Marcos|Lucas|Jo[aã]o|Atos|Romanos|[12]\s*Cor[ií]ntios|G[aá]latas|Ef[eé]sios|Filipenses|Colossenses|[12]\s*Tessalonicenses|[12]\s*Tim[oó]teo|Tito|Filemom|Hebreus|Tiago|[12]\s*Pedro|[123]\s*Jo[aã]o|Judas|Apocalipse|Gn|Ex|Lv|Nm|Dt|Js|Jz|Rt|[12]Sm|[12]Rs|[12]Cr|Ed|Ne|Et|Jó|Sl|Pv|Ec|Ct|Is|Jr|Lm|Ez|Dn|Os|Jl|Am|Ob|Jn|Mq|Na|Hc|Sf|Ag|Zc|Ml|Mt|Mc|Lc|Jo|At|Rm|[12]Co|Gl|Ef|Fp|Cl|[12]Ts|[12]Tm|Tt|Fm|Hb|Tg|[12]Pe|[123]Jo|Jd|Ap)\.?\s+\d+[:.]\d+(?:-\d+)?/i;
+    const BOOK_NAMES = [
+      "1 Crônicas", "2 Crônicas", "1 Cronicas", "2 Cronicas", "1Crônicas", "2Crônicas", "1Cr", "2Cr", "1 Cr", "2 Cr", "I Crônicas", "II Crônicas", "I Cronicas", "II Cronicas",
+      "1 Coríntios", "2 Coríntios", "1 Corintios", "2 Corintios", "1Coríntios", "2Coríntios", "1Co", "2Co", "1 Co", "2 Co", "I Coríntios", "II Coríntios", "I Corintios", "II Corintios",
+      "1 Tessalonicenses", "2 Tessalonicenses", "1Ts", "2Ts", "1 Ts", "2 Ts", "I Tessalonicenses", "II Tessalonicenses",
+      "1 Timóteo", "2 Timóteo", "1 Timoteo", "2 Timoteo", "1Tm", "2Tm", "1 Tm", "2 Tm", "I Timóteo", "II Timóteo", "I Timoteo", "II Timoteo",
+      "1 Pedro", "2 Pedro", "1Pe", "2Pe", "1 Pe", "2 Pe", "I Pedro", "II Pedro",
+      "1 João", "2 João", "3 João", "1 Joao", "2 Joao", "3 Joao", "1Jo", "2Jo", "3Jo", "1 Jo", "2 Jo", "3 Jo", "I João", "II João", "III João",
+      "1 Samuel", "2 Samuel", "1Sm", "2Sm", "1 Sm", "2 Sm", "I Samuel", "II Samuel",
+      "1 Reis", "2 Reis", "1Rs", "2Rs", "1 Rs", "2 Rs", "I Reis", "II Reis",
+      "Gênesis", "Genesis", "Gn", "Êxodo", "Exodo", "Ex", "Levítico", "Levitico", "Lv",
+      "Números", "Numeros", "Nm", "Deuteronômio", "Deuteronomio", "Dt", "Josué", "Josue", "Js",
+      "Juízes", "Juizes", "Jz", "Rute", "Rt", "Esdras", "Ed", "Neemias", "Ne", "Ester", "Et",
+      "Jó", "Jo", "Salmos", "Salmo", "Sl", "Provérbios", "Proverbios", "Pv", "Eclesiastes", "Ec",
+      "Cantares", "Cânticos", "Canticos", "Ct", "Isaías", "Isaias", "Is", "Jeremias", "Jr",
+      "Lamentações", "Lamentacoes", "Lm", "Ezequiel", "Ez", "Daniel", "Dn", "Oseias", "Oséias", "Os",
+      "Joel", "Jl", "Amós", "Amos", "Am", "Obadias", "Ob", "Jonas", "Jn", "Miqueias", "Miquéias", "Mq",
+      "Naum", "Na", "Habacuque", "Habacuc", "Hc", "Sofonias", "Sf", "Ageu", "Ag", "Zacarias", "Zc", "Malaquias", "Ml",
+      "Mateus", "Mt", "Marcos", "Mc", "Lucas", "Lc", "João", "Joao", "Jo", "Atos", "At", "Romanos", "Rm",
+      "Gálatas", "Galatas", "Gl", "Efésios", "Efesios", "Ef", "Filipenses", "Fp", "Colossenses", "Cl",
+      "Tito", "Tt", "Filemom", "Filemon", "Fm", "Hebreus", "Hb", "Tiago", "Tg", "Judas", "Jd", "Apocalipse", "Ap"
+    ];
 
-    function isRef(l) { const m = l.match(BIB_REGEX); return m ? m[0] : null; }
-    function isPureRef(l) { const m = isRef(l); return m ? l.trim().length <= m.length+8 : false; }
-    function isHead(l) { const c = l.replace(/[^a-zA-ZÀ-ÿ\s]/g,'').trim(); return c.length>3 && (c.match(/[A-ZÀ-Ý]/g)||[]).length/c.length > 0.75; }
-    function fmtQuote(t) { let x=t.trim(); if(!x.startsWith('“')&&!x.startsWith('"')) x='“'+x; if(!x.endsWith('”')&&!x.endsWith('"')) x=x.replace(/[.]+$/,'')+'”'; return x; }
+    const BIB_REGEX = new RegExp(
+      '(?:' + BOOK_NAMES.join('|') + ')\\.?\\s+\\d+\\s*[:.]\\s*\\d+(?:\\s*[-–—,]\\s*\\d+)?',
+      'i'
+    );
+
+    function isRef(l) { 
+        if(!l) return null;
+        const clean = l.replace(/^[•◦▪▫–—*\s>]+/, '').trim();
+        const m = clean.match(BIB_REGEX); 
+        return m ? m[0] : null; 
+    }
+
+    function isPureRef(l) { 
+        const m = isRef(l); 
+        if(!m) return false;
+        const clean = l.replace(/^[•◦▪▫–—*\s>]+/, '').replace(m, '').replace(/[()\[\]—–\-\s]/g, '').trim();
+        return clean.length === 0;
+    }
+
+    function isHead(l) { 
+        const clean = l.replace(/^[•◦▪▫–—*\s>]+/, '').replace(/[^a-zA-ZÀ-ÿ\s]/g,'').trim(); 
+        return clean.length > 3 && (clean.match(/[A-ZÀ-Ý]/g)||[]).length / clean.length > 0.75; 
+    }
+
+    function cleanBulletAndQuotes(txt) {
+        if(!txt) return '';
+        return txt.replace(/^[•◦▪▫–—*\s>]+/, '')
+                  .replace(/^[“"']+|[”"']+$/g, '')
+                  .replace(/^[•◦▪▫–—*\s>]+/, '')
+                  .trim();
+    }
+
+    function fmtQuote(t) { 
+        let x = cleanBulletAndQuotes(t); 
+        if(!x.startsWith('“')) x = '“' + x; 
+        if(!x.endsWith('”')) x = x.replace(/[.]+$/, '') + '”'; 
+        return x; 
+    }
+
+    function normalizeRef(refStr) {
+        if(!refStr) return '';
+        return refStr.replace(/\s*:\s*/g, ':')
+                     .replace(/\s*[-–—]\s*/g, '-')
+                     .replace(/\s*,\s*/g, ', ')
+                     .replace(/\s+/g, ' ')
+                     .trim()
+                     .toUpperCase();
+    }
+
     function genId() { return 'el_' + Math.random().toString(36).substr(2,9); }
 
     function newSlide(type) { return { id:'s_'+genId(), bgImage:globalBgData, bgColor:'#000000', type:type, elements:[] }; }
+    
     function newTextEl(txt, isR, type) {
         let fz=44, ff='Bahnschrift SemiBold Condensed', col='#ffffff', al='left', y=76, h=345, sh='dark', strk='none';
         if(isR) { fz=40; ff='Bebas Neue'; col='#E8B859'; y=441; h=76; }
@@ -534,48 +588,97 @@ Confie no Senhor de todo o seu coração!`;
     }
 
     function parseSermon(raw) {
-        const lines = raw.split(/\r?\n/).map(l => l.replace(/^[⸻\-_\s]+/, '').trim());
-        const out = []; let i = 0;
-        const pushSld = (t, r, tp) => { const s = newSlide(tp); s.elements.push(newTextEl(fmtQuote(t), false, tp)); if(r) s.elements.push(newTextEl(r, true, tp)); out.push(s); };
-        const procBlk = (txt, ref) => {
-            const tp = ref ? 'verse' : 'reflection';
-            if(ref) {
-                const vs = txt.split(/(?=\b\d{1,3}\s+[A-ZÀ-Ý“"])/g).filter(x=>x.trim());
-                if(vs.length>0 && /^\d+/.test(vs[0].trim())) {
-                    const bc = ref.split(':')[0];
-                    vs.forEach(v => { const m = v.trim().match(/^(\d+)\s+(.*)$/s); if(m) pushSld(m[2], `${bc}:${m[1]}`, tp); else pushSld(v, ref, tp); });
+        const rawLines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        const out = [];
+        let i = 0;
+
+        const pushSld = (t, r, tp) => {
+            const s = newSlide(tp);
+            s.elements.push(newTextEl(fmtQuote(t), false, tp));
+            if(r) s.elements.push(newTextEl(normalizeRef(r), true, tp));
+            out.push(s);
+        };
+
+        const pushTextChunks = (txt, ref, tp) => {
+            const cleanTxt = cleanBulletAndQuotes(txt);
+            if(!cleanTxt) return;
+            // Split long text cleanly into sentences
+            if(cleanTxt.length > 200) {
+                const sents = cleanTxt.replace(/([.?!]+["”]?)\s+/g, "$1|").split("|").map(x => x.trim()).filter(Boolean);
+                if(sents.length > 1) {
+                    let cur = "";
+                    for(let s of sents) {
+                        if(!cur) cur = s;
+                        else if((cur.length + s.length) < 170) cur += " " + s;
+                        else {
+                            pushSld(cur, ref, tp);
+                            cur = s;
+                        }
+                    }
+                    if(cur) pushSld(cur, ref, tp);
                     return;
                 }
             }
-            if(txt.length>180) {
-                const sents = txt.replace(/([.?!]+["”]?)/g, "$1|").split("|").map(x=>x.trim()).filter(x=>x);
-                if(sents.length>1) {
-                    let cur=""; for(let s of sents) { if(!cur) cur=s; else if(cur.length+s.length<150) cur+=" "+s; else { pushSld(cur,ref,tp); cur=s; } }
-                    if(cur) pushSld(cur,ref,tp); return;
-                }
-            }
-            if(txt.trim()) pushSld(txt, ref, tp);
+            pushSld(cleanTxt, ref, tp);
         };
 
-        while(i<lines.length) {
-            let l=lines[i]; if(!l) {i++; continue;}
-            if(isHead(l)) { pushSld(l,'','topic'); i++; continue; }
-            if(l.endsWith('?')&&l.length<=40) { pushSld(l,'','question_short'); i++; continue; }
-            let j=i, bRef=null;
-            while(j<lines.length && lines[j] && !isHead(lines[j]) && !(lines[j].endsWith('?')&&lines[j].length<=40)) { if(isPureRef(lines[j])) { if(j>i) bRef=isRef(lines[j]); break; } j++; }
-            if(bRef) { procBlk(lines.slice(i,j).join(' '), bRef); i=j+1; continue; }
-            if(isPureRef(l)) {
-                const bR=isRef(l); i++; let top=[];
-                while(i<lines.length && lines[i] && !isPureRef(lines[i]) && !isHead(lines[i]) && !(lines[i].endsWith('?')&&lines[i].length<=40)) { const tR=isRef(lines[i]); if(tR && lines[i].length>tR.length+12 && !isPureRef(lines[i])) break; top.push(lines[i]); i++; }
-                if(top.length>0) procBlk(top.join(' '), bR); else pushSld(bR, bR, 'verse');
+        while(i < rawLines.length) {
+            let line = rawLines[i].replace(/^[•◦▪▫–—*\s>]+/, '').trim();
+            if(!line) { i++; continue; }
+
+            // 1. Check if line contains a biblical reference
+            const matchedRef = isRef(line);
+            if(matchedRef) {
+                // Check if the line is ONLY the reference (e.g. "MATEUS 6: 14-15" or "(Mateus 6:14-15)")
+                const remainder = line.replace(matchedRef, '').replace(/[()\[\]—–\-\s]/g, '').trim();
+                if(remainder.length === 0) {
+                    // Line is just the reference! Look ahead to capture verse text
+                    let verseLines = [];
+                    i++;
+                    while(i < rawLines.length) {
+                        const nextLine = rawLines[i].replace(/^[•◦▪▫–—*\s>]+/, '').trim();
+                        if(!nextLine) { i++; break; }
+                        if(isPureRef(nextLine) || (isHead(nextLine) && !isRef(nextLine))) {
+                            break;
+                        }
+                        verseLines.push(nextLine);
+                        i++;
+                    }
+                    const verseBody = verseLines.join(' ');
+                    if(verseBody) {
+                        pushTextChunks(verseBody, matchedRef, 'verse');
+                    } else {
+                        pushSld(matchedRef, matchedRef, 'verse');
+                    }
+                    continue;
+                } else {
+                    // Line contains both the verse and the reference (e.g. "Nem todo o que me diz... Mateus 7:21")
+                    let verseBody = line.replace(matchedRef, '').replace(/[()]/g, '').trim();
+                    pushTextChunks(verseBody, matchedRef, 'verse');
+                    i++;
+                    continue;
+                }
+            }
+
+            // 2. Check if line is a Heading / Topic (All uppercase or numbered point)
+            if(isHead(line)) {
+                pushSld(line, '', 'topic');
+                i++;
                 continue;
             }
-            const tR=isRef(l);
-            if(tR && l.length>tR.length+12 && !isPureRef(l)) { procBlk(l.replace(tR,'').trim(), tR); i++; continue; }
-            let refs=[];
-            while(i<lines.length && lines[i] && !isPureRef(lines[i]) && !isHead(lines[i]) && !(lines[i].endsWith('?')&&lines[i].length<=40)) { const txR=isRef(lines[i]); if(txR && lines[i].length>txR.length+12 && !isPureRef(lines[i])) break; refs.push(lines[i]); i++; }
-            if(refs.length>0) procBlk(refs.join(' '), '');
+
+            // 3. Check if line is a Question slide
+            if(line.endsWith('?') && line.length <= 50) {
+                pushSld(line, '', 'question_short');
+                i++;
+                continue;
+            }
+
+            // 4. Free reflection text
+            pushTextChunks(line, '', 'reflection');
+            i++;
         }
+
         return out;
     }
 
@@ -639,7 +742,7 @@ Confie no Senhor de todo o seu coração!`;
     }
 
     function highlightKW(txt) {
-        const kw = /(não temas,?\s*crê somente|quem me tocou\??|não o faria\??|não o confirmaria\??|angústia de espírito|tendo-os feito sair|teu coração|não se apóie|os teus bens|os teus celeiros|transbordarão|talitá cumi|prostrou-se|um dos principais da sinagoga|despendido tudo quanto tinha|não ajunteis tesouros|ajuntai tesouros|honra ao senhor|confia no senhor|a fé é a certeza|tudo é possível ao que crê|todas as coisas cooperam)/gi;
+        const kw = /(não temas,?\s*crê somente|quem me tocou\??|não o faria\??|não o confirmaria\??|angústia de espírito|tendo-os feito sair|teu coração|não se apóie|os teus bens|os teus celeiros|transbordarão|talitá cumi|prostrou-se|um dos principais da sinagoga|despendido tudo quanto tinha|não ajunteis tesouros|ajuntai tesouros|honra ao senhor|confia no senhor|a fé é a certeza|tudo é possível ao que crê|todas as coisas cooperam|se perdoardes|perdoará|não perdoardes|tampouco vosso pai|fazer a vontade|reino dos céus|senhor,\s*senhor)/gi;
         return txt.replace(kw, '<span style="color:#E8B859;">$1</span>');
     }
 
@@ -834,7 +937,7 @@ Confie no Senhor de todo o seu coração!`;
                         if(el.stroke && el.stroke !== 'none') opts.outline = { size: 1.5, color: el.stroke === 'white' ? 'FFFFFF' : '000000' };
                         
                         const ff = el.fontFace.includes('Oswald') || el.fontFace.includes('Bahnschrift') ? 'Bahnschrift SemiBold Condensed' : 'Bebas Neue';
-                        const kw = /(não temas,?\s*crê somente|quem me tocou\??|não o faria\??|não o confirmaria\??|angústia de espírito|tendo-os feito sair|teu coração|não se apóie|os teus bens|os teus celeiros|transbordarão|talitá cumi|prostrou-se|um dos principais da sinagoga|despendido tudo quanto tinha|não ajunteis tesouros|ajuntai tesouros|honra ao senhor|confia no senhor|a fé é a certeza|tudo é possível ao que crê|todas as coisas cooperam)/gi;
+                        const kw = /(não temas,?\s*crê somente|quem me tocou\??|não o faria\??|não o confirmaria\??|angústia de espírito|tendo-os feito sair|teu coração|não se apóie|os teus bens|os teus celeiros|transbordarão|talitá cumi|prostrou-se|um dos principais da sinagoga|despendido tudo quanto tinha|não ajunteis tesouros|ajuntai tesouros|honra ao senhor|confia no senhor|a fé é a certeza|tudo é possível ao que crê|todas as coisas cooperam|se perdoardes|perdoará|não perdoardes|tampouco vosso pai|fazer a vontade|reino dos céus|senhor,\s*senhor)/gi;
                         const runs = []; let lx=0; let m;
                         if(!el.isRef) { while((m = kw.exec(el.content)) !== null) { if(m.index>lx) runs.push({ text: el.content.substring(lx, m.index), highlight: false }); runs.push({ text: m[0], highlight: true }); lx = m.index + m[0].length; } }
                         if(lx < el.content.length) runs.push({ text: el.content.substring(lx), highlight: false });
