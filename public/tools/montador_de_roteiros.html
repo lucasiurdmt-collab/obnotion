@@ -145,13 +145,23 @@
         break-inside: avoid !important;
         page-break-inside: avoid !important;
       }
-      .print-v-thumb {
-        width: 65px !important;
-        height: 46px !important;
-        border-radius: 5px !important;
-        object-fit: cover !important;
+      .print-thumb-box {
+        width: 95px !important;
+        height: 58px !important;
+        border-radius: 4px !important;
+        overflow: hidden !important;
+        background: #f1f5f9 !important;
         border: 1.5px solid #94a3b8 !important;
         flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      .print-thumb-box img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        display: block !important;
       }
       .print-v-info {
         flex: 1 !important;
@@ -569,8 +579,8 @@ LEMBRETES:
         card.className = 'video-card p-4 rounded-3xl bg-[#0a0f22] border border-blue-500/25 shadow-lg flex flex-col md:flex-row gap-4 items-start md:items-center justify-between print-v-card';
 
         const imageHtml = v.image 
-          ? `<img src="${v.image}" class="w-full h-full object-cover rounded-2xl print-v-thumb" />`
-          : `<div class="w-full h-full rounded-2xl bg-blue-950/40 border border-blue-500/20 flex flex-col items-center justify-center text-blue-400/70 hover:text-blue-300 cursor-pointer print-v-thumb">
+          ? `<img src="${v.image}" class="w-full h-full object-cover rounded-2xl" />`
+          : `<div class="w-full h-full rounded-2xl bg-blue-950/40 border border-blue-500/20 flex flex-col items-center justify-center text-blue-400/70 hover:text-blue-300 cursor-pointer">
               <i data-lucide="image-plus" class="w-5 h-5 mb-1 no-print"></i>
               <span class="text-[9px] font-mono font-bold text-blue-400/80">Vídeo ${idx + 1}</span>
              </div>`;
@@ -590,8 +600,8 @@ LEMBRETES:
               </button>
             </div>
 
-            <!-- Thumbnail Container -->
-            <div class="w-32 md:w-36 h-20 shrink-0 relative group rounded-2xl overflow-hidden bg-[#070b1a] border border-blue-500/30" onclick="triggerImageUpload('${v.id}')">
+            <!-- Thumbnail Container (100% Fill on Screen & Print) -->
+            <div class="print-thumb-box w-32 md:w-36 h-20 shrink-0 relative group rounded-2xl overflow-hidden bg-[#070b1a] border border-blue-500/30" onclick="triggerImageUpload('${v.id}')">
               ${imageHtml}
               <input type="file" id="file_${v.id}" accept="image/*" class="hidden" onchange="handleImageSelected('${v.id}', this)" />
               <div class="absolute inset-0 bg-blue-950/80 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity no-print">
