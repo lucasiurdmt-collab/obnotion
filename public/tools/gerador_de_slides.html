@@ -540,8 +540,26 @@ O PERDÃO É UMA DECISÃO DE FÉ`;
     }
 
     function isHead(l) { 
-        const clean = l.replace(/^[•◦▪▫–—*\s>]+/, '').replace(/[^a-zA-ZÀ-ÿ\s]/g,'').trim(); 
-        return clean.length > 3 && (clean.match(/[A-ZÀ-Ý]/g)||[]).length / clean.length > 0.75; 
+        if(!l) return false;
+        const clean = l.replace(/^[•◦▪▫–—*\s>📌🎯💡🔥👉✅📖✝️🕊️⚡📍1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣🔟]+/gu, '').trim(); 
+        if(!clean) return false;
+
+        // Emoji bullet topic (e.g. 📌 Olhar para si mesmo)
+        if(/^[📌🎯💡🔥👉✅📖✝️🕊️⚡📍1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣🔟]/u.test(l.trim()) && clean.length < 80) return true;
+
+        // Numbered topic (e.g. 1. O Perdão, 1 - O Perdão, Tópico 1:)
+        if(/^(\d+\s*[\.\-\)]|t[oó]pico\s*\d+|ponto\s*\d+|passo\s*\d+)/i.test(clean) && clean.length < 80) return true;
+
+        // Uppercase title
+        const letters = clean.replace(/[^a-zA-ZÀ-ÿ]/g,''); 
+        if(letters.length > 3 && (letters.match(/[A-ZÀ-Ý]/g)||[]).length / letters.length > 0.7) return true;
+
+        // Short title without sentence punctuation (e.g. "Olhar para si mesmo")
+        if(clean.length >= 3 && clean.length <= 45 && !clean.endsWith('.') && !clean.endsWith(',') && !clean.endsWith(';') && !clean.endsWith(':') && !isRef(clean)) {
+            return true;
+        }
+
+        return false;
     }
 
     function cleanBulletAndQuotes(txt) {
