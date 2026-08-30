@@ -34,7 +34,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -64,20 +64,154 @@
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
 
+    /* PRINT LAYOUT: 1 SINGLE A4 PAGE LIKE ORIGINAL PDFS */
+    @page {
+      size: A4 portrait;
+      margin: 8mm 10mm;
+    }
+
     @media print {
-      body { background: white !important; color: black !important; }
-      header, .no-print { display: none !important; }
-      .print-page { padding: 0 !important; margin: 0 !important; }
-      .print-card { border: 1px solid #ccc !important; background: #fff !important; color: #000 !important; break-inside: avoid; }
-      .print-text-dark { color: #111 !important; }
-      .print-border { border-color: #ddd !important; }
+      html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        height: auto !important;
+        overflow: visible !important;
+        font-size: 11pt !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      header, aside, .no-print, #importModal {
+        display: none !important;
+      }
+      .app-wrapper {
+        display: block !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+      main {
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+        max-width: 100% !important;
+      }
+
+      /* PRINT CONTAINER */
+      .print-doc-container {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        max-height: 275mm !important;
+      }
+
+      /* HEADER */
+      .print-header {
+        text-align: center !important;
+        border-bottom: 2px solid #000 !important;
+        padding-bottom: 6px !important;
+        margin-bottom: 8px !important;
+      }
+      .print-header h1 {
+        font-size: 18pt !important;
+        font-weight: 900 !important;
+        color: #000 !important;
+        margin: 0 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+      }
+      .print-header-meta {
+        font-size: 10pt !important;
+        font-weight: 700 !important;
+        color: #333 !important;
+        margin-top: 2px !important;
+      }
+
+      /* 2-COLUMN GRID OF VIDEOS FOR 1-PAGE FIT */
+      .print-videos-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+      }
+
+      /* PRINT VIDEO CARD */
+      .print-v-card {
+        border: 1.5px solid #222 !important;
+        border-radius: 6px !important;
+        padding: 6px 8px !important;
+        background: #fdfdfd !important;
+        display: flex !important;
+        gap: 8px !important;
+        align-items: center !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      .print-v-thumb {
+        width: 60px !important;
+        height: 44px !important;
+        border-radius: 4px !important;
+        object-fit: cover !important;
+        border: 1px solid #999 !important;
+        flex-shrink: 0 !important;
+      }
+      .print-v-info {
+        flex: 1 !important;
+        min-width: 0 !important;
+      }
+      .print-v-title {
+        font-size: 10pt !important;
+        font-weight: 900 !important;
+        color: #000 !important;
+        text-transform: uppercase !important;
+        line-height: 1.15 !important;
+      }
+      .print-v-duration {
+        font-size: 11pt !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-weight: 900 !important;
+        color: #000 !important;
+        background: #eee !important;
+        padding: 1px 4px !important;
+        border-radius: 3px !important;
+        display: inline-block !important;
+        margin-top: 2px !important;
+      }
+      .print-v-cue {
+        font-size: 8.5pt !important;
+        color: #444 !important;
+        font-style: italic !important;
+        margin-top: 2px !important;
+      }
+
+      /* PRINT LEMBRETES SECTION */
+      .print-lembretes-box {
+        border: 1.5px solid #000 !important;
+        border-radius: 6px !important;
+        padding: 8px 10px !important;
+        background: #fafafa !important;
+        margin-top: 6px !important;
+        break-inside: avoid !important;
+      }
+      .print-lembretes-title {
+        font-size: 11pt !important;
+        font-weight: 900 !important;
+        color: #000 !important;
+        text-transform: uppercase !important;
+        margin-bottom: 4px !important;
+      }
+      .print-lembretes-list {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 2px 12px !important;
+        font-size: 9.5pt !important;
+        font-weight: 700 !important;
+        color: #111 !important;
+      }
     }
   </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden select-none bg-[#08090f] text-slate-100">
 
   <!-- TOP HEADER -->
-  <header class="h-14 border-b border-white/[0.08] bg-[#0d0e17]/95 backdrop-blur-xl px-4 flex items-center justify-between shrink-0 z-30">
+  <header class="h-14 border-b border-white/[0.08] bg-[#0d0e17]/95 backdrop-blur-xl px-4 flex items-center justify-between shrink-0 z-30 no-print">
     <div class="flex items-center gap-3">
       <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/20 font-bold text-sm">
         <i data-lucide="clapperboard" class="w-4 h-4"></i>
@@ -95,7 +229,7 @@
     <!-- Live Total Time Pill -->
     <div class="flex items-center gap-2 bg-[#121422] px-3 py-1.5 rounded-xl border border-white/[0.08]">
       <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-400"></i>
-      <span class="text-[11px] text-zinc-400 font-medium">Tempo de Vídeos:</span>
+      <span class="text-[11px] text-zinc-400 font-medium">Tempo Total:</span>
       <span id="totalDurationBadge" class="text-xs font-mono font-bold text-amber-300">00:00</span>
       <span class="text-zinc-600">|</span>
       <span id="totalVideosCount" class="text-[11px] font-mono text-zinc-400 font-medium">0 vídeos</span>
@@ -103,6 +237,12 @@
 
     <!-- Header Actions -->
     <div class="flex items-center gap-2">
+      <!-- Clear/New Button -->
+      <button onclick="confirmClearRoteiro()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-semibold border border-rose-500/20 transition-all" title="Limpar tudo e iniciar novo roteiro">
+        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+        <span class="hidden lg:inline">Novo Roteiro</span>
+      </button>
+
       <!-- Import Button -->
       <button onclick="openImportModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 hover:text-white text-xs font-semibold border border-white/[0.08] transition-all">
         <i data-lucide="file-up" class="w-3.5 h-3.5"></i>
@@ -115,52 +255,67 @@
         <span class="hidden md:inline">Copiar WhatsApp</span>
       </button>
 
-      <!-- Print / PDF -->
-      <button onclick="window.print()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-lg shadow-violet-600/30 transition-all">
+      <!-- Print / PDF Button (1 Single Page A4) -->
+      <button onclick="window.print()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-violet-600/30 transition-all">
         <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-        <span>Imprimir / PDF</span>
+        <span>Imprimir / Gerar PDF (1 Folha)</span>
       </button>
     </div>
   </header>
 
   <!-- MAIN APP CONTAINER -->
-  <div class="flex-1 flex overflow-hidden">
+  <div class="app-wrapper flex-1 flex overflow-hidden">
     
     <!-- LEFT: MAIN SCRIPT & VIDEOS TIMELINE -->
-    <main class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 print-page" id="mainContentArea">
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6" id="mainContentArea">
       
-      <!-- SCRIPT HEADER METADATA (EDITABLE) -->
-      <div class="p-5 rounded-3xl bg-[#10121d] border border-white/[0.08] shadow-xl space-y-4 print-card">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-white/[0.06] print-border">
-          <div class="flex-1 space-y-1">
-            <label class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold">Título do Roteiro</label>
-            <input type="text" id="scriptTitle" value="ROTEIRO DE REUNIÃO" class="w-full bg-transparent text-xl font-bold text-white border-none outline-none focus:ring-1 focus:ring-violet-500 rounded px-1 -ml-1 print-text-dark font-sans" placeholder="Ex: ROTEIRO 30.08.2026" oninput="saveCurrentRoteiro()" />
-          </div>
-          <div class="flex items-center gap-3">
-            <div>
-              <label class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold block">Data</label>
-              <input type="text" id="scriptDate" value="30.08.2026" class="bg-[#171926] text-xs font-mono font-bold text-violet-300 border border-white/[0.08] rounded-xl px-3 py-1.5 outline-none print-card print-text-dark" oninput="saveCurrentRoteiro()" />
+      <!-- PRINT CONTAINER (VISIBILITY MANAGED FOR SCREEN & PRINT) -->
+      <div class="print-doc-container space-y-6">
+
+        <!-- SCRIPT HEADER METADATA (EDITABLE) -->
+        <div class="p-5 rounded-3xl bg-[#10121d] border border-white/[0.08] shadow-xl space-y-4 print-header">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-white/[0.06] print-header-border">
+            <div class="flex-1 space-y-1">
+              <label class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold no-print">Título do Roteiro</label>
+              <input type="text" id="scriptTitle" value="ROTEIRO 30.08.2026" class="w-full bg-transparent text-xl md:text-2xl font-black text-white border-none outline-none focus:ring-1 focus:ring-violet-500 rounded px-1 -ml-1 uppercase tracking-wide font-sans text-center md:text-left" placeholder="Ex: ROTEIRO 30.08.2026" oninput="saveCurrentRoteiro()" />
             </div>
-            <div>
-              <label class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold block">Pastor / Dirigente</label>
-              <input type="text" id="scriptPastor" value="Pastor Principal" class="bg-[#171926] text-xs font-medium text-zinc-200 border border-white/[0.08] rounded-xl px-3 py-1.5 outline-none print-card print-text-dark" oninput="saveCurrentRoteiro()" />
+            <div class="flex items-center justify-center md:justify-end gap-3 print-header-meta">
+              <div>
+                <label class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold block no-print">Data</label>
+                <input type="text" id="scriptDate" value="30.08.2026" class="bg-[#171926] text-xs font-mono font-bold text-violet-300 border border-white/[0.08] rounded-xl px-3 py-1.5 outline-none text-center" oninput="saveCurrentRoteiro()" />
+              </div>
+              <div>
+                <label class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold block no-print">Pastor / Dirigente</label>
+                <input type="text" id="scriptPastor" value="Pastor Principal" class="bg-[#171926] text-xs font-medium text-zinc-200 border border-white/[0.08] rounded-xl px-3 py-1.5 outline-none text-center" oninput="saveCurrentRoteiro()" />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-zinc-400 no-print">
+            <span class="flex items-center gap-1.5">
+              <i data-lucide="video" class="w-4 h-4 text-violet-400"></i> Lista de Vídeos e Testemunhos da Reunião
+            </span>
+            <div class="flex items-center gap-2">
+              <button onclick="addNewVideoCard()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold shadow-lg shadow-violet-600/30 transition-all text-xs">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Inserir Vídeo
+              </button>
             </div>
           </div>
         </div>
 
-        <div class="flex items-center justify-between text-xs text-zinc-400 no-print">
-          <span class="flex items-center gap-1.5">
-            <i data-lucide="video" class="w-4 h-4 text-violet-400"></i> Lista de Vídeos e Testemunhos da Reunião
-          </span>
-          <button onclick="addNewVideoCard()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold shadow-lg shadow-violet-600/30 transition-all text-xs">
-            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Adicionar Vídeo
-          </button>
+        <!-- VIDEOS CARDS LIST (TIMELINE) -->
+        <div id="videosListContainer" class="space-y-4 print-videos-grid">
+          <!-- Rendered dynamically -->
         </div>
-      </div>
 
-      <!-- VIDEOS CARDS LIST (TIMELINE) -->
-      <div id="videosListContainer" class="space-y-4">
-        <!-- Rendered dynamically -->
+        <!-- PRINT ONLY: LEMBRETES SECTION AT BOTTOM FOR 1-PAGE EXPORT -->
+        <div id="printLembretesSection" class="hidden print:block print-lembretes-box">
+          <div class="print-lembretes-title">LEMBRETES & AVISOS:</div>
+          <div id="printLembretesList" class="print-lembretes-list">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
       </div>
 
       <!-- ADD VIDEO QUICK BAR (BOTTOM) -->
@@ -319,11 +474,11 @@ LEMBRETES:
         },
         {
           id: "v_5",
-          title: "VIDEO QUARTA 3 TROMBETA",
-          duration: "04:04''",
-          seconds: 244,
-          cue: "Chamada para a reunião de quarta-feira",
-          type: "Chamada Especial",
+          title: "VIDEO DEMONIO",
+          duration: "02:01''",
+          seconds: 121,
+          cue: "Momento de Libertação",
+          type: "Libertação",
           image: null
         }
       ],
@@ -350,6 +505,7 @@ LEMBRETES:
       currentRoteiro.pastor = document.getElementById('scriptPastor').value;
       localStorage.setItem('obnotion_current_roteiro', JSON.stringify(currentRoteiro));
       calculateTotalTime();
+      renderPrintLembretes();
     }
 
     function loadSavedRoteiro() {
@@ -361,6 +517,20 @@ LEMBRETES:
       }
     }
 
+    function confirmClearRoteiro() {
+      if (confirm('Tem certeza que deseja limpar todos os vídeos e começar um roteiro do zero?')) {
+        currentRoteiro = {
+          title: "ROTEIRO " + new Date().toLocaleDateString('pt-BR').replace(/\//g, '.'),
+          date: new Date().toLocaleDateString('pt-BR'),
+          pastor: "Pastor Principal",
+          videos: [],
+          lembretes: []
+        };
+        renderAll();
+        saveCurrentRoteiro();
+      }
+    }
+
     function renderAll() {
       document.getElementById('scriptTitle').value = currentRoteiro.title || 'ROTEIRO';
       document.getElementById('scriptDate').value = currentRoteiro.date || '';
@@ -368,21 +538,22 @@ LEMBRETES:
 
       renderVideosList();
       renderLembretesList();
+      renderPrintLembretes();
       calculateTotalTime();
       lucide.createIcons();
     }
 
-    // RENDER VIDEOS LIST
+    // RENDER VIDEOS LIST (BOTH SCREEN AND PRINT VERSION)
     function renderVideosList() {
       const container = document.getElementById('videosListContainer');
       container.innerHTML = '';
 
       if (currentRoteiro.videos.length === 0) {
         container.innerHTML = `
-          <div class="text-center py-12 border-2 border-dashed border-white/[0.08] rounded-3xl space-y-2">
+          <div class="text-center py-12 border-2 border-dashed border-white/[0.08] rounded-3xl space-y-2 no-print">
             <i data-lucide="film" class="w-8 h-8 mx-auto text-zinc-600"></i>
             <p class="text-xs font-bold text-zinc-400">Nenhum vídeo adicionado neste roteiro.</p>
-            <p class="text-[11px] text-zinc-500">Clique em "+ Adicionar Vídeo" ou importe um PDF acima.</p>
+            <p class="text-[11px] text-zinc-500">Clique em "+ Inserir Vídeo" ou importe um PDF acima.</p>
           </div>
         `;
         return;
@@ -390,13 +561,13 @@ LEMBRETES:
 
       currentRoteiro.videos.forEach((v, idx) => {
         const card = document.createElement('div');
-        card.className = 'video-card p-4 rounded-3xl bg-[#10121d] border border-white/[0.08] shadow-lg flex flex-col md:flex-row gap-4 items-start md:items-center justify-between print-card';
+        card.className = 'video-card p-4 rounded-3xl bg-[#10121d] border border-white/[0.08] shadow-lg flex flex-col md:flex-row gap-4 items-start md:items-center justify-between print-v-card';
 
         const imageHtml = v.image 
-          ? `<img src="${v.image}" class="w-full h-full object-cover rounded-2xl" />`
-          : `<div class="w-full h-full rounded-2xl bg-black/40 border border-white/[0.05] flex flex-col items-center justify-center text-zinc-600 hover:text-zinc-400 cursor-pointer">
-              <i data-lucide="image-plus" class="w-6 h-6 mb-1"></i>
-              <span class="text-[9px] font-mono">Add Foto / Frame</span>
+          ? `<img src="${v.image}" class="w-full h-full object-cover rounded-2xl print-v-thumb" />`
+          : `<div class="w-full h-full rounded-2xl bg-black/40 border border-white/[0.05] flex flex-col items-center justify-center text-zinc-600 hover:text-zinc-400 cursor-pointer print-v-thumb">
+              <i data-lucide="image-plus" class="w-5 h-5 mb-1 no-print"></i>
+              <span class="text-[9px] font-mono text-zinc-500">Vídeo ${idx + 1}</span>
              </div>`;
 
         card.innerHTML = `
@@ -415,7 +586,7 @@ LEMBRETES:
             </div>
 
             <!-- Thumbnail Container -->
-            <div class="w-36 h-20 shrink-0 relative group rounded-2xl overflow-hidden bg-black/40 border border-white/[0.08]" onclick="triggerImageUpload('${v.id}')">
+            <div class="w-32 md:w-36 h-20 shrink-0 relative group rounded-2xl overflow-hidden bg-black/40 border border-white/[0.08]" onclick="triggerImageUpload('${v.id}')">
               ${imageHtml}
               <input type="file" id="file_${v.id}" accept="image/*" class="hidden" onchange="handleImageSelected('${v.id}', this)" />
               <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity no-print">
@@ -424,42 +595,48 @@ LEMBRETES:
             </div>
 
             <!-- Mobile Only Number -->
-            <div class="md:hidden flex-1">
-              <span class="text-[10px] font-mono uppercase text-zinc-500">Vídeo ${idx + 1}</span>
+            <div class="md:hidden flex-1 no-print">
+              <span class="text-[10px] font-mono uppercase text-zinc-500 font-bold">Vídeo ${idx + 1}</span>
             </div>
           </div>
 
           <!-- Center: Title, Type & Cue -->
-          <div class="flex-1 space-y-2 w-full">
+          <div class="flex-1 space-y-2 w-full print-v-info">
             <div class="flex items-center gap-2">
-              <input type="text" value="${v.title}" class="flex-1 bg-transparent text-sm font-bold text-white uppercase outline-none focus:ring-1 focus:ring-violet-500 rounded px-1.5 py-0.5 print-text-dark font-sans" placeholder="NOME DO VÍDEO..." oninput="updateVideoField(${idx}, 'title', this.value)" />
-              <input type="text" value="${v.type || 'Testemunho'}" class="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-white/[0.04] text-zinc-300 border border-white/[0.08] outline-none print-card print-text-dark" placeholder="Tipo" oninput="updateVideoField(${idx}, 'type', this.value)" />
+              <input type="text" value="${v.title}" class="flex-1 bg-transparent text-sm md:text-base font-black text-white uppercase outline-none focus:ring-1 focus:ring-violet-500 rounded px-1.5 py-0.5 print-v-title font-sans" placeholder="NOME DO VÍDEO..." oninput="updateVideoField(${idx}, 'title', this.value)" />
+              <input type="text" value="${v.type || 'Testemunho'}" class="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-white/[0.04] text-zinc-300 border border-white/[0.08] outline-none no-print" placeholder="Tipo" oninput="updateVideoField(${idx}, 'type', this.value)" />
+            </div>
+
+            <!-- Duration Badge for Print -->
+            <div class="hidden print:block">
+              <span class="print-v-duration">${v.duration}</span>
             </div>
 
             <!-- Cue/Deixa do Pastor -->
-            <div class="flex items-center gap-1.5 text-xs text-zinc-400">
-              <i data-lucide="mic" class="w-3.5 h-3.5 text-violet-400 shrink-0"></i>
-              <input type="text" value="${v.cue || ''}" class="w-full bg-transparent text-xs text-zinc-300 italic outline-none focus:ring-1 focus:ring-violet-500/50 rounded px-1 print-text-dark" placeholder="Deixa do pastor (ex: 'Quando o pastor chamar...')" oninput="updateVideoField(${idx}, 'cue', this.value)" />
+            <div class="flex items-center gap-1.5 text-xs text-zinc-400 print-v-cue">
+              <i data-lucide="mic" class="w-3.5 h-3.5 text-violet-400 shrink-0 no-print"></i>
+              <input type="text" value="${v.cue || ''}" class="w-full bg-transparent text-xs text-zinc-300 italic outline-none focus:ring-1 focus:ring-violet-500/50 rounded px-1" placeholder="Deixa do pastor (ex: 'Quando o pastor chamar...')" oninput="updateVideoField(${idx}, 'cue', this.value)" />
             </div>
           </div>
 
-          <!-- Right: Duration & Actions -->
-          <div class="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-white/[0.06]">
-            <!-- Duration Badge -->
-            <div class="flex items-center gap-1.5 bg-[#171926] px-3 py-1.5 rounded-2xl border border-white/[0.08] print-card">
+          <!-- Right: Duration & Actions (Screen) -->
+          <div class="flex items-center justify-between md:justify-end gap-2.5 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-white/[0.06] no-print">
+            <!-- Duration Input Badge -->
+            <div class="flex items-center gap-1.5 bg-[#171926] px-3 py-1.5 rounded-2xl border border-white/[0.08]">
               <i data-lucide="timer" class="w-4 h-4 text-amber-400"></i>
-              <input type="text" value="${v.duration}" class="w-20 bg-transparent text-xs font-mono font-bold text-amber-300 outline-none text-center print-text-dark" placeholder="00:00''" oninput="updateVideoDuration(${idx}, this.value)" />
+              <input type="text" value="${v.duration}" class="w-20 bg-transparent text-xs font-mono font-bold text-amber-300 outline-none text-center" placeholder="00:00''" oninput="updateVideoDuration(${idx}, this.value)" />
             </div>
 
-            <!-- Actions -->
-            <div class="flex items-center gap-1 no-print">
-              <button onclick="duplicateVideo(${idx})" class="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.08] rounded-xl transition-all" title="Duplicar">
-                <i data-lucide="copy" class="w-4 h-4"></i>
-              </button>
-              <button onclick="removeVideo(${idx})" class="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-xl transition-all" title="Excluir">
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
-              </button>
-            </div>
+            <!-- Duplicate Button -->
+            <button onclick="duplicateVideo(${idx})" class="p-2 text-zinc-400 hover:text-white hover:bg-white/[0.08] rounded-xl transition-all" title="Duplicar Bloco">
+              <i data-lucide="copy" class="w-4 h-4"></i>
+            </button>
+
+            <!-- REMOVE / DELETE VIDEO BUTTON (PROMINENT) -->
+            <button onclick="removeVideo(${idx})" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 text-rose-300 text-xs font-bold border border-rose-500/25 transition-all" title="Excluir este vídeo">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              <span>Remover</span>
+            </button>
           </div>
         `;
 
@@ -467,7 +644,7 @@ LEMBRETES:
       });
     }
 
-    // RENDER LEMBRETES LIST
+    // RENDER LEMBRETES LIST (SCREEN)
     function renderLembretesList() {
       const container = document.getElementById('lembretesContainer');
       container.innerHTML = '';
@@ -485,8 +662,8 @@ LEMBRETES:
         const item = document.createElement('div');
         item.className = 'p-2.5 rounded-2xl bg-[#121422] border border-white/[0.06] flex items-center justify-between gap-2 group';
         item.innerHTML = `
-          <input type="text" value="${txt}" class="flex-1 bg-transparent text-xs text-zinc-200 outline-none focus:ring-1 focus:ring-amber-400 rounded px-1" oninput="updateLembrete(${idx}, this.value)" />
-          <button onclick="removeLembrete(${idx})" class="text-zinc-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity p-1">
+          <input type="text" value="${txt}" class="flex-1 bg-transparent text-xs text-zinc-200 outline-none focus:ring-1 focus:ring-amber-400 rounded px-1 font-medium" oninput="updateLembrete(${idx}, this.value)" />
+          <button onclick="removeLembrete(${idx})" class="text-zinc-500 hover:text-rose-400 opacity-80 hover:opacity-100 transition-opacity p-1" title="Excluir Lembrete">
             <i data-lucide="x" class="w-3.5 h-3.5"></i>
           </button>
         `;
@@ -494,6 +671,26 @@ LEMBRETES:
       });
 
       lucide.createIcons();
+    }
+
+    // RENDER LEMBRETES FOR 1-PAGE PRINT EXPORT
+    function renderPrintLembretes() {
+      const printBox = document.getElementById('printLembretesSection');
+      const printList = document.getElementById('printLembretesList');
+      if (!printBox || !printList) return;
+
+      if (!currentRoteiro.lembretes || currentRoteiro.lembretes.length === 0) {
+        printBox.classList.add('hidden');
+        return;
+      }
+
+      printBox.classList.remove('hidden');
+      printList.innerHTML = '';
+      currentRoteiro.lembretes.forEach(l => {
+        const div = document.createElement('div');
+        div.textContent = `• ${l.replace(/^[•◦▪▫\s\d.-]+/, '').trim()}`;
+        printList.appendChild(div);
+      });
     }
 
     function addNewVideoCard() {
@@ -583,6 +780,7 @@ LEMBRETES:
     function addNewLembrete() {
       currentRoteiro.lembretes.push(`${currentRoteiro.lembretes.length + 1}. NOVO LEMBRETE`);
       renderLembretesList();
+      renderPrintLembretes();
       saveCurrentRoteiro();
     }
 
@@ -593,18 +791,21 @@ LEMBRETES:
         currentRoteiro.lembretes.push(val);
         input.value = '';
         renderLembretesList();
+        renderPrintLembretes();
         saveCurrentRoteiro();
       }
     }
 
     function updateLembrete(idx, val) {
       currentRoteiro.lembretes[idx] = val;
+      renderPrintLembretes();
       saveCurrentRoteiro();
     }
 
     function removeLembrete(idx) {
       currentRoteiro.lembretes.splice(idx, 1);
       renderLembretesList();
+      renderPrintLembretes();
       saveCurrentRoteiro();
     }
 
@@ -762,12 +963,10 @@ LEMBRETES:
         }
 
         if (timeMatch) {
-          // Time is on its own line or attached to title
           if (parsedVideos.length > 0 && (!parsedVideos[parsedVideos.length - 1].duration || parsedVideos[parsedVideos.length - 1].duration === "00:00''")) {
             parsedVideos[parsedVideos.length - 1].duration = timeMatch[0];
           }
         } else {
-          // Look ahead to see if next line has duration
           let nextDur = "02:00''";
           if (i + 1 < lines.length && /\b\d{1,2}:\d{2}/.test(lines[i + 1])) {
             nextDur = lines[i + 1].match(/\b\d{1,2}:\d{2}(?:[’'"]{1,2})?\b/)[0];
