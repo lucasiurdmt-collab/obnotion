@@ -1,10 +1,29 @@
 import React, { useState } from 'react';
-import { Presentation, FileSpreadsheet, Wand2, ExternalLink, X, Maximize, Play, Palette, Sparkles, Layers, Image as ImageIcon, BookMarked, Clapperboard } from 'lucide-react';
+import { Presentation, FileSpreadsheet, Wand2, ExternalLink, X, Maximize, Play, Palette, Sparkles, Layers, Image as ImageIcon, BookMarked, Clapperboard, Scissors, Film } from 'lucide-react';
 
 export default function ProductivityView({ darkMode }) {
   const [activeTool, setActiveTool] = useState(null);
 
   const tools = [
+    {
+      id: 'cinecut',
+      title: 'CineCut Pro (CapCut Open-Source • OpenCut)',
+      icon: Scissors,
+      color: 'text-cyan-400',
+      bgColor: 'bg-cyan-500/10',
+      borderColor: 'border-cyan-500/30',
+      tag: 'NOVO • CAPCUT OPEN-SOURCE',
+      tagColor: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
+      description: 'Estúdio profissional de edição de vídeo de código aberto (OpenCut). Faça cortes, edite Reels/Shorts (9:16), vídeos de cultos (16:9), adicione legendas, efeitos e transições com processamento local privado (WASM/GPU).',
+      features: [
+        'Editor completo estilo CapCut baseado no motor OpenCut (Rust + WASM)',
+        'Ideal para cortes de testemunhos, pregações, Reels, Shorts e TikTok',
+        'Processamento 100% local e privado direto no navegador com aceleração de GPU',
+        'Linha do tempo multicamadas, textos, áudio, transições e exportação 4K'
+      ],
+      path: `${import.meta.env.BASE_URL}tools/cinecut_studio.html`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/cinecut_studio.html`
+    },
     {
       id: 'roteiros',
       title: 'Montador de Roteiros & Vídeos (Rundown Pro)',
@@ -12,7 +31,7 @@ export default function ProductivityView({ darkMode }) {
       color: 'text-rose-400',
       bgColor: 'bg-rose-500/10',
       borderColor: 'border-rose-500/30',
-      tag: 'NOVO • PRODUÇÃO & TV',
+      tag: 'PRODUÇÃO & TV',
       tagColor: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
       description: 'Central de Produção e Montagem de Roteiros de Reuniões. Organize vídeos com fotos/frames, durações, deixas do pastor, lembretes, cálculo de tempo total e exportação para switcher/PDF.',
       features: [
