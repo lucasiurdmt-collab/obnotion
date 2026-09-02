@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR" class="dark h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineCut Pro • Editor de Vídeo Nativo Obnotion</title>
+  <title>OpenCut Studio • Editor de Vídeo Completo Open-Source</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -31,59 +31,26 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
       background-color: #060810;
-      color: #e2e8f0;
-    }
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 9999px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
-
-    /* Timeline Playhead / Scrubber Needle */
-    .playhead-needle {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background-color: #06b6d4;
-      pointer-events: none;
-      z-index: 40;
-      box-shadow: 0 0 10px #06b6d4;
-    }
-    .playhead-handle {
-      position: absolute;
-      top: -1px;
-      left: -6px;
-      width: 14px;
-      height: 14px;
-      background: #06b6d4;
-      clip-path: polygon(0% 0%, 100% 0%, 100% 60%, 50% 100%, 0% 60%);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    }
-    
-    .clip-block {
-      transition: border-color 0.15s, transform 0.1s;
-    }
-    .clip-block:hover {
-      border-color: rgba(6, 182, 212, 0.7);
-    }
-    .clip-block.selected {
-      border-color: #06b6d4 !important;
-      box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.4);
+      font-family: 'Inter', -apple-system, sans-serif;
     }
   </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden select-none bg-[#060810] text-slate-100">
+<body class="h-screen w-screen flex flex-col overflow-hidden select-none bg-[#060810] text-slate-100">
 
-  <!-- 1. TOP EXECUTIVE HEADER -->
+  <!-- TOP APP HEADER -->
   <header class="h-12 border-b border-cyan-500/20 bg-[#090d1a] px-3 flex items-center justify-between shrink-0 z-30">
     <div class="flex items-center gap-3">
       <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-500 via-teal-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/25 font-black text-xs">
@@ -91,904 +58,106 @@
       </div>
       <div>
         <h1 class="text-xs md:text-sm font-bold text-white flex items-center gap-2">
-          CineCut Pro
-          <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-bold">
-            100% NATIVO • CÓDIGO FONTE LOCAL
+          OpenCut Studio Pro
+          <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-bold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            CAPCUT OPEN-SOURCE COMPLETO (100% OFICIAL)
           </span>
         </h1>
       </div>
     </div>
 
-    <!-- Aspect Ratio Selector (9:16, 16:9, 1:1) -->
-    <div class="flex items-center gap-1 bg-[#0e1426] p-1 rounded-xl border border-cyan-500/25">
-      <button onclick="setAspectRatio('16:9')" id="btn-ratio-16-9" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-cyan-600 text-white transition-all flex items-center gap-1">
-        <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
-        <span>16:9 Cultos / TV</span>
-      </button>
-      <button onclick="setAspectRatio('9:16')" id="btn-ratio-9-16" class="px-2.5 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1">
-        <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
-        <span>9:16 Reels / Shorts</span>
-      </button>
-      <button onclick="setAspectRatio('1:1')" id="btn-ratio-1-1" class="px-2.5 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1">
-        <i data-lucide="square" class="w-3.5 h-3.5"></i>
-        <span>1:1 Feed</span>
-      </button>
-    </div>
-
-    <!-- Export Actions -->
+    <!-- Actions -->
     <div class="flex items-center gap-2">
-      <!-- Media Import Button -->
-      <label class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-zinc-200 hover:text-white text-xs font-semibold border border-white/[0.1] transition-all cursor-pointer">
-        <i data-lucide="plus" class="w-3.5 h-3.5 text-cyan-400"></i>
-        <span>Importar Mídia</span>
-        <input type="file" id="mediaFileInput" accept="video/*,audio/*,image/*" multiple class="hidden" onchange="handleMediaImport(event)" />
-      </label>
+      <!-- Fullscreen Toggle -->
+      <button onclick="toggleFullScreen()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-zinc-300 hover:text-white text-xs font-semibold border border-white/[0.1] transition-all" title="Tela Cheia">
+        <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
+        <span class="hidden sm:inline">Tela Cheia</span>
+      </button>
 
-      <!-- Export Render Button -->
-      <button onclick="exportVideo()" id="exportBtn" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 via-teal-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-cyan-500/30 transition-all active:scale-95">
-        <i data-lucide="download" class="w-3.5 h-3.5"></i>
-        <span>Exportar Vídeo</span>
+      <!-- Open in New Tab Direct -->
+      <a href="https://opencut.app" target="_blank" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 text-xs font-bold border border-cyan-500/30 transition-all shadow-sm shadow-cyan-500/20">
+        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        <span>Abrir em Nova Guia</span>
+      </a>
+
+      <!-- Reload Button -->
+      <button onclick="reloadOpenCut()" class="p-1.5 px-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-zinc-300 hover:text-white text-xs border border-white/[0.1] transition-all" title="Recarregar OpenCut">
+        <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
       </button>
     </div>
   </header>
 
-  <!-- 2. MAIN WORKSPACE (SPLIT: MEDIA LIBRARY, PREVIEW PLAYER, INSPECTOR) -->
-  <div class="flex-1 flex overflow-hidden">
+  <!-- MAIN OPENCUT WORKSPACE (100% COMPLETE ENGINE) -->
+  <main class="flex-1 w-full h-full relative overflow-hidden bg-[#000000]">
     
-    <!-- LEFT: MEDIA ASSETS & TOOLS LIBRARY -->
-    <aside class="w-64 bg-[#090d1a] border-r border-cyan-500/20 flex flex-col shrink-0">
-      
-      <!-- Library Tabs -->
-      <div class="flex border-b border-cyan-500/20 bg-[#0c1122]">
-        <button onclick="switchLibraryTab('media')" id="tab-btn-media" class="flex-1 py-2 text-xs font-bold text-cyan-300 border-b-2 border-cyan-400 flex items-center justify-center gap-1.5">
-          <i data-lucide="folder-video" class="w-3.5 h-3.5"></i> Mídia
-        </button>
-        <button onclick="switchLibraryTab('text')" id="tab-btn-text" class="flex-1 py-2 text-xs font-bold text-zinc-400 hover:text-white flex items-center justify-center gap-1.5">
-          <i data-lucide="type" class="w-3.5 h-3.5"></i> Texto
-        </button>
-        <button onclick="switchLibraryTab('filters')" id="tab-btn-filters" class="flex-1 py-2 text-xs font-bold text-zinc-400 hover:text-white flex items-center justify-center gap-1.5">
-          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Filtros
-        </button>
+    <!-- Loading Screen -->
+    <div id="loadingOverlay" class="absolute inset-0 bg-[#060810] z-20 flex flex-col items-center justify-center p-6 space-y-4 transition-opacity duration-500">
+      <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500 via-teal-500 to-indigo-600 flex items-center justify-center text-white shadow-2xl shadow-cyan-500/30 animate-pulse">
+        <i data-lucide="scissors" class="w-7 h-7"></i>
       </div>
-
-      <!-- Tab Content: Media Files -->
-      <div id="tab-content-media" class="flex-1 overflow-y-auto p-3 space-y-2.5 custom-scrollbar">
-        <div class="flex items-center justify-between text-[11px] font-bold text-zinc-400">
-          <span>ARQUIVOS DO PROJETO</span>
-          <span id="mediaCountBadge" class="text-cyan-400 font-mono">0 itens</span>
-        </div>
-
-        <div id="mediaItemsContainer" class="grid grid-cols-2 gap-2">
-          <!-- Dynamic media items -->
-        </div>
-
-        <!-- Empty state placeholder -->
-        <div id="emptyMediaPlaceholder" class="p-6 border-2 border-dashed border-cyan-500/20 rounded-2xl text-center space-y-2 my-2 cursor-pointer hover:border-cyan-400/50 transition-all" onclick="document.getElementById('mediaFileInput').click()">
-          <i data-lucide="upload-cloud" class="w-7 h-7 mx-auto text-cyan-400/70"></i>
-          <p class="text-xs font-bold text-zinc-300">Arraste ou clique para adicionar vídeos</p>
-          <p class="text-[10px] text-zinc-500">MP4, WebM, MOV, MP3, PNG, JPG</p>
-        </div>
+      <div class="text-center space-y-1">
+        <h2 class="text-sm font-bold text-white">Carregando OpenCut Studio Oficial...</h2>
+        <p class="text-xs text-zinc-400 max-w-sm">Inicializando todas as funções de edição: Linha do tempo completa, efeitos, legendas e aceleração por GPU.</p>
       </div>
-
-      <!-- Tab Content: Text Overlays -->
-      <div id="tab-content-text" class="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar hidden">
-        <div class="text-[11px] font-bold text-zinc-400 uppercase">Modelos de Legendas & Títulos</div>
-        
-        <button onclick="addTextTrack('TÍTULO IMPACTANTE', 'Bebas Neue', '#ffffff', '#000000')" class="w-full p-3 rounded-xl bg-[#11172a] hover:bg-cyan-600/20 border border-cyan-500/20 text-left space-y-1 group transition-all">
-          <div class="font-bold text-white text-sm font-['Bebas_Neue'] tracking-wider">TÍTULO IMPACTANTE (CAIXA ALTA)</div>
-          <div class="text-[10px] text-zinc-400">Ideal para capas, frases fortes e temas</div>
-        </button>
-
-        <button onclick="addTextTrack('Legenda do Testemunho', 'Inter', '#fde047', '#000000')" class="w-full p-3 rounded-xl bg-[#11172a] hover:bg-cyan-600/20 border border-cyan-500/20 text-left space-y-1 group transition-all">
-          <div class="font-bold text-amber-300 text-xs">Legenda Dinâmica Amarela</div>
-          <div class="text-[10px] text-zinc-400">Padrão Reels, TikTok e cortes virais</div>
-        </button>
-
-        <button onclick="addTextTrack('MATEUS 6:14-15', 'Montserrat', '#38bdf8', '#000000')" class="w-full p-3 rounded-xl bg-[#11172a] hover:bg-cyan-600/20 border border-cyan-500/20 text-left space-y-1 group transition-all">
-          <div class="font-black text-sky-400 text-xs uppercase">Referência Bíblica Dourada/Azul</div>
-          <div class="text-[10px] text-zinc-400">Para citações de passagens e versículos</div>
-        </button>
-      </div>
-
-      <!-- Tab Content: Video Filters -->
-      <div id="tab-content-filters" class="flex-1 overflow-y-auto p-3 space-y-2.5 custom-scrollbar hidden">
-        <div class="text-[11px] font-bold text-zinc-400 uppercase">Efeitos de Cor & Estilo</div>
-        
-        <div class="grid grid-cols-2 gap-2 text-xs">
-          <button onclick="applyFilter('none')" class="p-2.5 rounded-xl bg-[#11172a] hover:bg-cyan-600/20 border border-cyan-500/20 text-left">
-            <div class="font-bold text-white">Normal</div>
-            <div class="text-[9px] text-zinc-500">Sem efeito</div>
-          </button>
-          <button onclick="applyFilter('cinematic')" class="p-2.5 rounded-xl bg-[#11172a] hover:bg-cyan-600/20 border border-cyan-500/20 text-left">
-            <div class="font-bold text-cyan-300">Cinema 4K</div>
-            <div class="text-[9px] text-zinc-500">Contraste & Tom Frio</div>
-          </button>
-          <button onclick="applyFilter('vivid')" class="p-2.5 rounded-xl bg-[#11172a] hover:bg-cyan-600/20 border border-cyan-500/20 text-left">
-            <div class="font-bold text-emerald-300">Vívido / Quente</div>
-            <div class="text-[9px] text-zinc-500">Cores saturadas</div>
-          </button>
-          <button onclick="applyFilter('bw')" class="p-2.5 rounded-xl bg-[#11172a] hover:bg-cyan-600/20 border border-cyan-500/20 text-left">
-            <div class="font-bold text-zinc-300">P&B Dramático</div>
-            <div class="text-[9px] text-zinc-500">Monocromático</div>
-          </button>
-          <button onclick="applyFilter('vintage')" class="p-2.5 rounded-xl bg-[#11172a] hover:bg-cyan-600/20 border border-cyan-500/20 text-left">
-            <div class="font-bold text-amber-300">Vintage / Retrô</div>
-            <div class="text-[9px] text-zinc-500">Sépia suave</div>
-          </button>
-        </div>
-      </div>
-
-    </aside>
-
-    <!-- CENTER: VIDEO CANVAS PREVIEW PLAYER -->
-    <main class="flex-1 flex flex-col bg-[#05060b] relative overflow-hidden">
-      
-      <!-- Video Stage / Viewport -->
-      <div class="flex-1 flex items-center justify-center p-4 relative" id="playerViewport">
-        <!-- Aspect Ratio Box Wrapper -->
-        <div id="videoCanvasBox" class="relative bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/[0.08] flex items-center justify-center w-[640px] h-[360px] transition-all duration-300">
-          
-          <!-- Hidden Native Video Engine for Frame Rendering -->
-          <video id="sourceVideo" class="hidden" playsinline crossorigin="anonymous"></video>
-          
-          <!-- Live Compositor Canvas (Output of Video + Filter + Text Overlays) -->
-          <canvas id="previewCanvas" class="w-full h-full object-contain"></canvas>
-
-          <!-- Watermark / Empty Stage Indicator -->
-          <div id="emptyStageNotice" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-black/80 space-y-2">
-            <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-              <i data-lucide="play" class="w-6 h-6 ml-0.5"></i>
-            </div>
-            <p class="text-xs font-bold text-white">Nenhum clipe na Linha do Tempo</p>
-            <p class="text-[11px] text-zinc-400 max-w-xs">Importe um vídeo e clique em "+ Adicionar à Timeline" para começar a editar!</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Playback Bar & Scrubber Controls -->
-      <div class="h-11 bg-[#090d1a] border-t border-cyan-500/20 px-4 flex items-center justify-between shrink-0">
-        <!-- Timecode Display -->
-        <div class="flex items-center gap-2 font-mono text-xs">
-          <span id="currentTimeDisplay" class="font-bold text-cyan-300">00:00.00</span>
-          <span class="text-zinc-600">/</span>
-          <span id="totalDurationDisplay" class="text-zinc-400">00:00.00</span>
-        </div>
-
-        <!-- Playback Buttons -->
-        <div class="flex items-center gap-2">
-          <!-- Step back 1s -->
-          <button onclick="seekRelative(-1)" class="p-1.5 rounded-lg hover:bg-white/[0.08] text-zinc-400 hover:text-white" title="Voltar 1 seg">
-            <i data-lucide="skip-back" class="w-4 h-4"></i>
-          </button>
-          
-          <!-- Play / Pause -->
-          <button onclick="togglePlay()" id="playPauseBtn" class="w-8 h-8 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white flex items-center justify-center shadow-lg shadow-cyan-600/30 active:scale-95 transition-all">
-            <i data-lucide="play" class="w-4 h-4 ml-0.5" id="playIcon"></i>
-          </button>
-
-          <!-- Step forward 1s -->
-          <button onclick="seekRelative(1)" class="p-1.5 rounded-lg hover:bg-white/[0.08] text-zinc-400 hover:text-white" title="Avançar 1 seg">
-            <i data-lucide="skip-forward" class="w-4 h-4"></i>
-          </button>
-        </div>
-
-        <!-- Speed & Volume Controls -->
-        <div class="flex items-center gap-3">
-          <select id="playbackSpeedSelect" onchange="setPlaybackSpeed(this.value)" class="bg-[#10162a] border border-cyan-500/20 rounded-lg px-2 py-1 text-[11px] text-zinc-300 outline-none">
-            <option value="0.5">0.5x</option>
-            <option value="1.0" selected>1.0x Normal</option>
-            <option value="1.25">1.25x</option>
-            <option value="1.5">1.5x</option>
-            <option value="2.0">2.0x</option>
-          </select>
-
-          <button onclick="toggleMute()" id="muteBtn" class="p-1.5 rounded-lg hover:bg-white/[0.08] text-zinc-400 hover:text-white" title="Mudo / Volume">
-            <i data-lucide="volume-2" class="w-4 h-4" id="volumeIcon"></i>
-          </button>
-        </div>
-      </div>
-
-    </main>
-
-    <!-- RIGHT: INSPECTOR & PROPERTIES PANEL -->
-    <aside class="w-72 bg-[#090d1a] border-l border-cyan-500/20 flex flex-col shrink-0 p-3 space-y-4 custom-scrollbar overflow-y-auto">
-      
-      <div class="flex items-center justify-between pb-2 border-b border-cyan-500/20">
-        <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-          <i data-lucide="sliders" class="w-3.5 h-3.5 text-cyan-400"></i> Inspetor de Propriedades
-        </h3>
-      </div>
-
-      <!-- Clip Inspector -->
-      <div id="clipInspector" class="space-y-3">
-        <div>
-          <label class="text-[10px] font-mono uppercase text-zinc-400 font-bold block mb-1">Título do Clipe Selecionado</label>
-          <input type="text" id="inspectorClipName" class="w-full bg-[#10162a] border border-cyan-500/30 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none focus:border-cyan-400" oninput="updateActiveClipName(this.value)" placeholder="Nome do clipe..." />
-        </div>
-
-        <div class="grid grid-cols-2 gap-2 text-xs">
-          <div>
-            <label class="text-[10px] font-mono text-zinc-400 block mb-1">Início (Segundos)</label>
-            <input type="number" step="0.1" id="inspectorClipStart" class="w-full bg-[#10162a] border border-cyan-500/30 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none font-mono" onchange="updateClipTiming()" />
-          </div>
-          <div>
-            <label class="text-[10px] font-mono text-zinc-400 block mb-1">Duração (Segundos)</label>
-            <input type="number" step="0.1" id="inspectorClipDuration" class="w-full bg-[#10162a] border border-cyan-500/30 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none font-mono" onchange="updateClipTiming()" />
-          </div>
-        </div>
-
-        <!-- Volume Slider -->
-        <div>
-          <div class="flex justify-between text-[11px] mb-1">
-            <span class="text-zinc-400">Volume do Áudio</span>
-            <span id="inspectorVolumeLabel" class="font-mono text-cyan-300 font-bold">100%</span>
-          </div>
-          <input type="range" id="inspectorVolumeSlider" min="0" max="100" value="100" class="w-full accent-cyan-400" oninput="updateClipVolume(this.value)" />
-        </div>
-
-        <!-- Split & Delete Quick Tools -->
-        <div class="pt-2 border-t border-cyan-500/20 space-y-2">
-          <button onclick="splitCurrentClip()" class="w-full py-2 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/30 text-cyan-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
-            <i data-lucide="scissors" class="w-3.5 h-3.5"></i> Dividir / Cortar na Agulha
-          </button>
-          <button onclick="deleteActiveClip()" class="w-full py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Excluir Clipe da Timeline
-          </button>
-        </div>
-      </div>
-
-      <!-- Text Overlay Inspector (When text is active) -->
-      <div id="textInspector" class="space-y-3 pt-2 border-t border-cyan-500/20 hidden">
-        <label class="text-[10px] font-mono uppercase text-zinc-400 font-bold block mb-1">Texto da Legenda</label>
-        <input type="text" id="inspectorTextContent" class="w-full bg-[#10162a] border border-cyan-500/30 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none focus:border-cyan-400" oninput="updateActiveTextOverlay(this.value)" />
-      </div>
-
-    </aside>
-
-  </div>
-
-  <!-- 3. MULTITRACK TIMELINE (CAPCUT STYLE) -->
-  <footer class="h-60 bg-[#070a14] border-t border-cyan-500/20 flex flex-col shrink-0 z-20">
-    
-    <!-- Timeline Toolbar (Split, Delete, Zoom, Playhead info) -->
-    <div class="h-9 bg-[#0b0f1e] border-b border-cyan-500/15 px-4 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <button onclick="splitCurrentClip()" class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-zinc-300 hover:text-white text-xs font-semibold transition-all" title="Dividir clipe no cursor">
-          <i data-lucide="scissors" class="w-3.5 h-3.5 text-cyan-400"></i>
-          <span>Dividir (Split)</span>
-        </button>
-        <button onclick="deleteActiveClip()" class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-semibold border border-rose-500/20 transition-all" title="Excluir clipe selecionado">
-          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-          <span>Excluir</span>
-        </button>
-        <div class="h-4 w-px bg-white/[0.1] mx-1"></div>
-        <button onclick="addTextTrack('NOVA LEGENDA', 'Inter', '#ffffff', '#000000')" class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-zinc-300 hover:text-white text-xs font-semibold transition-all">
-          <i data-lucide="type" class="w-3.5 h-3.5 text-indigo-400"></i>
-          <span>+ Texto</span>
-        </button>
-      </div>
-
-      <!-- Timeline Zoom Slider -->
-      <div class="flex items-center gap-2">
-        <i data-lucide="zoom-out" class="w-3.5 h-3.5 text-zinc-500"></i>
-        <input type="range" id="timelineZoom" min="10" max="100" value="30" class="w-24 accent-cyan-400" oninput="updateTimelineZoom(this.value)" />
-        <i data-lucide="zoom-in" class="w-3.5 h-3.5 text-zinc-500"></i>
+      <div class="flex items-center gap-2 text-[11px] font-mono text-cyan-400/90 bg-cyan-950/50 px-3.5 py-1.5 rounded-xl border border-cyan-500/30">
+        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+        100% Código Oficial OpenCut • Todas as Funções Ativas
       </div>
     </div>
 
-    <!-- Tracks Container & Scrubber Viewport -->
-    <div class="flex-1 flex overflow-x-auto relative custom-scrollbar select-none" id="timelineScrollArea" onclick="handleTimelineClick(event)">
-      
-      <!-- Track Headers (Left fixed side) -->
-      <div class="w-24 bg-[#090d1b] border-r border-cyan-500/20 flex flex-col shrink-0 sticky left-0 z-30 shadow-xl">
-        <div class="h-6 border-b border-white/[0.06] text-[9px] font-mono text-zinc-500 flex items-center px-2 font-bold">FAIXA</div>
-        <div class="h-16 border-b border-white/[0.06] flex items-center px-2 text-[10px] font-bold text-cyan-300 gap-1">
-          <i data-lucide="video" class="w-3.5 h-3.5"></i> Vídeo 1
-        </div>
-        <div class="h-14 border-b border-white/[0.06] flex items-center px-2 text-[10px] font-bold text-indigo-300 gap-1">
-          <i data-lucide="type" class="w-3.5 h-3.5"></i> Textos
-        </div>
-        <div class="h-12 flex items-center px-2 text-[10px] font-bold text-emerald-300 gap-1">
-          <i data-lucide="music" class="w-3.5 h-3.5"></i> Áudio
-        </div>
-      </div>
+    <!-- Embedded Native OpenCut Full Web App -->
+    <iframe 
+      id="opencutFrame"
+      src="https://opencut.app" 
+      class="w-full h-full border-0 block bg-[#000000]"
+      allow="accelerometer; autoplay; clipboard-read; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; camera; microphone; display-capture; fullscreen"
+      onload="handleIframeLoaded()"
+    ></iframe>
 
-      <!-- Timeline Canvas & Tracks Area -->
-      <div class="flex-1 relative min-w-[2000px] h-full" id="timelineTracksArea">
-        
-        <!-- Ruler (Time ticks) -->
-        <div class="h-6 border-b border-white/[0.08] bg-[#070a14] relative font-mono text-[9px] text-zinc-500" id="timelineRuler">
-          <!-- Populated dynamically with second markers -->
-        </div>
+  </main>
 
-        <!-- Playhead Needle (Scrubber) -->
-        <div class="playhead-needle" id="playheadNeedle" style="left: 0px;">
-          <div class="playhead-handle"></div>
-        </div>
-
-        <!-- Video Track 1 -->
-        <div class="h-16 border-b border-white/[0.06] bg-[#0c1020]/60 relative p-1 flex items-center" id="trackVideo1">
-          <!-- Rendered video clip blocks -->
-        </div>
-
-        <!-- Text Overlay Track -->
-        <div class="h-14 border-b border-white/[0.06] bg-[#0a0e1c]/40 relative p-1 flex items-center" id="trackText">
-          <!-- Rendered text clip blocks -->
-        </div>
-
-        <!-- Audio Track -->
-        <div class="h-12 bg-[#080c18]/30 relative p-1 flex items-center" id="trackAudio">
-          <!-- Rendered audio clip blocks -->
-        </div>
-
-      </div>
-    </div>
-  </footer>
-
-  <!-- SCRIPT ENGINE (100% NATIVE JAVASCRIPT & HTML5 CANVAS) -->
   <script>
-    // Global Project State
-    let project = {
-      title: "Meu Projeto CineCut",
-      aspectRatio: "16:9",
-      width: 1280,
-      height: 720,
-      fps: 30,
-      duration: 0, // Total project duration in seconds
-      currentTime: 0,
-      isPlaying: false,
-      filter: "none",
-      mediaAssets: [],
-      videoClips: [],
-      textClips: [],
-      selectedClipId: null,
-      selectedTrack: 'video'
-    };
-
-    let pps = 30; // Pixels per second in timeline
-    let videoEl, canvasEl, ctx;
-    let animFrameId = null;
-
     window.addEventListener('DOMContentLoaded', () => {
-      videoEl = document.getElementById('sourceVideo');
-      canvasEl = document.getElementById('previewCanvas');
-      ctx = canvasEl.getContext('2d');
-
-      setAspectRatio('16:9');
-      renderRuler();
       lucide.createIcons();
-
-      // Video Event Listeners
-      videoEl.addEventListener('timeupdate', onVideoTimeUpdate);
-      videoEl.addEventListener('ended', () => {
-        pause();
-      });
+      // Auto-hide loader fallback
+      setTimeout(() => {
+        hideLoader();
+      }, 2000);
     });
 
-    // ASPECT RATIO SWITCHER
-    function setAspectRatio(ratio) {
-      project.aspectRatio = ratio;
-      const box = document.getElementById('videoCanvasBox');
-      
-      document.getElementById('btn-ratio-16-9').className = ratio === '16:9' ? 'px-2.5 py-1 rounded-lg text-xs font-bold bg-cyan-600 text-white transition-all flex items-center gap-1' : 'px-2.5 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1';
-      document.getElementById('btn-ratio-9-16').className = ratio === '9:16' ? 'px-2.5 py-1 rounded-lg text-xs font-bold bg-cyan-600 text-white transition-all flex items-center gap-1' : 'px-2.5 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1';
-      document.getElementById('btn-ratio-1-1').className = ratio === '1:1' ? 'px-2.5 py-1 rounded-lg text-xs font-bold bg-cyan-600 text-white transition-all flex items-center gap-1' : 'px-2.5 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1';
+    function handleIframeLoaded() {
+      hideLoader();
+    }
 
-      if (ratio === '16:9') {
-        project.width = 1280; project.height = 720;
-        box.style.width = '640px'; box.style.height = '360px';
-      } else if (ratio === '9:16') {
-        project.width = 720; project.height = 1280;
-        box.style.width = '240px'; box.style.height = '426px';
-      } else if (ratio === '1:1') {
-        project.width = 1080; project.height = 1080;
-        box.style.width = '380px'; box.style.height = '380px';
+    function hideLoader() {
+      const overlay = document.getElementById('loadingOverlay');
+      if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+          overlay.style.display = 'none';
+        }, 500);
       }
-
-      canvasEl.width = project.width;
-      canvasEl.height = project.height;
-      drawPreviewFrame();
     }
 
-    // MEDIA IMPORT
-    function handleMediaImport(e) {
-      const files = Array.from(e.target.files);
-      if (!files.length) return;
-
-      files.forEach(file => {
-        const url = URL.createObjectURL(file);
-        const isVideo = file.type.startsWith('video');
-        const isAudio = file.type.startsWith('audio');
-        const isImage = file.type.startsWith('image');
-
-        const asset = {
-          id: 'media_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-          name: file.name,
-          type: isVideo ? 'video' : (isAudio ? 'audio' : 'image'),
-          url: url,
-          duration: 0
-        };
-
-        if (isVideo || isAudio) {
-          const tempEl = document.createElement(isVideo ? 'video' : 'audio');
-          tempEl.src = url;
-          tempEl.onloadedmetadata = () => {
-            asset.duration = tempEl.duration;
-            project.mediaAssets.push(asset);
-            renderMediaLibrary();
-            // Automatically add first imported video to timeline if empty
-            if (project.videoClips.length === 0 && isVideo) {
-              addMediaToTimeline(asset.id);
-            }
-          };
-        } else {
-          asset.duration = 5; // Default image duration
-          project.mediaAssets.push(asset);
-          renderMediaLibrary();
-        }
-      });
+    function reloadOpenCut() {
+      const overlay = document.getElementById('loadingOverlay');
+      const frame = document.getElementById('opencutFrame');
+      if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.style.opacity = '1';
+      }
+      frame.src = 'https://opencut.app?v=' + Date.now();
     }
 
-    function renderMediaLibrary() {
-      const container = document.getElementById('mediaItemsContainer');
-      const placeholder = document.getElementById('emptyMediaPlaceholder');
-      const badge = document.getElementById('mediaCountBadge');
-      
-      container.innerHTML = '';
-      badge.textContent = `${project.mediaAssets.length} itens`;
-
-      if (project.mediaAssets.length > 0) {
-        placeholder.classList.add('hidden');
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
       } else {
-        placeholder.classList.remove('hidden');
-      }
-
-      project.mediaAssets.forEach(m => {
-        const div = document.createElement('div');
-        div.className = 'p-2 rounded-xl bg-[#10162a] border border-cyan-500/20 hover:border-cyan-400/50 flex flex-col gap-1.5 transition-all group';
-        div.innerHTML = `
-          <div class="h-16 bg-black/50 rounded-lg overflow-hidden flex items-center justify-center relative">
-            <i data-lucide="${m.type === 'video' ? 'video' : (m.type === 'audio' ? 'music' : 'image')}" class="w-6 h-6 text-cyan-400"></i>
-            <span class="absolute bottom-1 right-1 text-[9px] font-mono bg-black/80 px-1 rounded text-zinc-300 font-bold">
-              ${formatTime(m.duration)}
-            </span>
-          </div>
-          <div class="text-[11px] font-bold text-white truncate" title="${m.name}">${m.name}</div>
-          <button onclick="addMediaToTimeline('${m.id}')" class="w-full py-1 rounded-lg bg-cyan-600/30 hover:bg-cyan-600 text-cyan-200 hover:text-white text-[10px] font-bold transition-all flex items-center justify-center gap-1">
-            <i data-lucide="plus" class="w-3 h-3"></i> Adicionar
-          </button>
-        `;
-        container.appendChild(div);
-      });
-
-      lucide.createIcons();
-    }
-
-    // ADD TO TIMELINE
-    function addMediaToTimeline(mediaId) {
-      const asset = project.mediaAssets.find(m => m.id === mediaId);
-      if (!asset) return;
-
-      // Calculate track start position right after existing clips
-      let start = 0;
-      project.videoClips.forEach(c => {
-        const end = c.timelineStart + c.duration;
-        if (end > start) start = end;
-      });
-
-      const clip = {
-        id: 'clip_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-        mediaId: asset.id,
-        name: asset.name,
-        src: asset.url,
-        type: asset.type,
-        timelineStart: start,
-        trimStart: 0,
-        duration: asset.duration || 5,
-        volume: 1.0
-      };
-
-      project.videoClips.push(clip);
-      project.selectedClipId = clip.id;
-      recalculateProjectDuration();
-      renderTimeline();
-      loadActiveClipInPlayer();
-      document.getElementById('emptyStageNotice').classList.add('hidden');
-    }
-
-    function addTextTrack(txt, ff, col, stroke) {
-      let start = project.currentTime;
-      const textClip = {
-        id: 'txt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-        content: txt,
-        fontFamily: ff || 'Inter',
-        color: col || '#ffffff',
-        stroke: stroke || '#000000',
-        fontSize: 48,
-        timelineStart: start,
-        duration: 4,
-        x: project.width / 2,
-        y: project.height * 0.85
-      };
-
-      project.textClips.push(textClip);
-      recalculateProjectDuration();
-      renderTimeline();
-      drawPreviewFrame();
-    }
-
-    function recalculateProjectDuration() {
-      let maxD = 0;
-      project.videoClips.forEach(c => {
-        const end = c.timelineStart + c.duration;
-        if (end > maxD) maxD = end;
-      });
-      project.textClips.forEach(c => {
-        const end = c.timelineStart + c.duration;
-        if (end > maxD) maxD = end;
-      });
-      project.duration = Math.max(maxD, 1);
-      document.getElementById('totalDurationDisplay').textContent = formatTime(project.duration);
-      renderRuler();
-    }
-
-    // RENDER TIMELINE CLIPS
-    function renderTimeline() {
-      const trackVideo = document.getElementById('trackVideo1');
-      const trackText = document.getElementById('trackText');
-      
-      trackVideo.innerHTML = '';
-      trackText.innerHTML = '';
-
-      // Render Video Clips
-      project.videoClips.forEach(c => {
-        const el = document.createElement('div');
-        const left = c.timelineStart * pps;
-        const width = c.duration * pps;
-        const isSel = c.id === project.selectedClipId;
-
-        el.className = `clip-block absolute h-14 rounded-xl bg-gradient-to-r from-cyan-900/80 to-blue-900/80 border ${isSel ? 'selected' : 'border-cyan-500/40'} p-2 flex flex-col justify-between cursor-pointer overflow-hidden shadow-lg select-none`;
-        el.style.left = `${left}px`;
-        el.style.width = `${Math.max(width, 30)}px`;
-        el.onclick = (e) => {
-          e.stopPropagation();
-          selectClip(c.id, 'video');
-        };
-
-        el.innerHTML = `
-          <div class="text-[10px] font-black text-white truncate uppercase">${c.name}</div>
-          <div class="flex items-center justify-between text-[9px] font-mono text-cyan-300 font-bold">
-            <span>${formatTime(c.duration)}</span>
-            <i data-lucide="video" class="w-3 h-3 text-cyan-400"></i>
-          </div>
-        `;
-        trackVideo.appendChild(el);
-      });
-
-      // Render Text Clips
-      project.textClips.forEach(t => {
-        const el = document.createElement('div');
-        const left = t.timelineStart * pps;
-        const width = t.duration * pps;
-        const isSel = t.id === project.selectedClipId;
-
-        el.className = `clip-block absolute h-11 rounded-xl bg-gradient-to-r from-indigo-900/80 to-purple-900/80 border ${isSel ? 'selected' : 'border-indigo-500/40'} p-1.5 flex items-center justify-between cursor-pointer overflow-hidden shadow-lg select-none`;
-        el.style.left = `${left}px`;
-        el.style.width = `${Math.max(width, 25)}px`;
-        el.onclick = (e) => {
-          e.stopPropagation();
-          selectClip(t.id, 'text');
-        };
-
-        el.innerHTML = `
-          <span class="text-[10px] font-bold text-indigo-200 truncate">${t.content}</span>
-          <i data-lucide="type" class="w-3 h-3 text-indigo-400 shrink-0"></i>
-        `;
-        trackText.appendChild(el);
-      });
-
-      lucide.createIcons();
-    }
-
-    function selectClip(id, track) {
-      project.selectedClipId = id;
-      project.selectedTrack = track;
-      renderTimeline();
-
-      if (track === 'video') {
-        const clip = project.videoClips.find(c => c.id === id);
-        if (clip) {
-          document.getElementById('inspectorClipName').value = clip.name;
-          document.getElementById('inspectorClipStart').value = clip.timelineStart.toFixed(1);
-          document.getElementById('inspectorClipDuration').value = clip.duration.toFixed(1);
-          document.getElementById('clipInspector').classList.remove('hidden');
-          document.getElementById('textInspector').classList.add('hidden');
-        }
-      } else if (track === 'text') {
-        const t = project.textClips.find(c => c.id === id);
-        if (t) {
-          document.getElementById('inspectorTextContent').value = t.content;
-          document.getElementById('textInspector').classList.remove('hidden');
-          document.getElementById('clipInspector').classList.add('hidden');
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
         }
       }
-    }
-
-    function splitCurrentClip() {
-      const curT = project.currentTime;
-      const clipIdx = project.videoClips.findIndex(c => curT > c.timelineStart && curT < (c.timelineStart + c.duration));
-      if (clipIdx === -1) {
-        alert('Posicione a agulha da timeline em cima de um clipe para dividir.');
-        return;
-      }
-
-      const clip = project.videoClips[clipIdx];
-      const offset = curT - clip.timelineStart;
-      const originalDuration = clip.duration;
-
-      clip.duration = offset;
-
-      const newClip = {
-        ...clip,
-        id: 'clip_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-        name: clip.name + ' (Parte 2)',
-        timelineStart: curT,
-        trimStart: clip.trimStart + offset,
-        duration: originalDuration - offset
-      };
-
-      project.videoClips.splice(clipIdx + 1, 0, newClip);
-      project.selectedClipId = newClip.id;
-      renderTimeline();
-      drawPreviewFrame();
-    }
-
-    function deleteActiveClip() {
-      if (!project.selectedClipId) return;
-      if (project.selectedTrack === 'video') {
-        project.videoClips = project.videoClips.filter(c => c.id !== project.selectedClipId);
-      } else {
-        project.textClips = project.textClips.filter(c => c.id !== project.selectedClipId);
-      }
-      project.selectedClipId = null;
-      recalculateProjectDuration();
-      renderTimeline();
-      drawPreviewFrame();
-    }
-
-    // PLAYHEAD & SCRUBBING
-    function handleTimelineClick(e) {
-      const rect = document.getElementById('timelineTracksArea').getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      if (clickX >= 0) {
-        seekTo(clickX / pps);
-      }
-    }
-
-    function seekTo(sec) {
-      project.currentTime = Math.max(0, Math.min(sec, project.duration));
-      document.getElementById('currentTimeDisplay').textContent = formatTime(project.currentTime);
-      document.getElementById('playheadNeedle').style.left = `${project.currentTime * pps}px`;
-
-      // Sync native video element if current time lands in a video clip
-      syncVideoElement();
-      drawPreviewFrame();
-    }
-
-    function seekRelative(delta) {
-      seekTo(project.currentTime + delta);
-    }
-
-    function syncVideoElement() {
-      const activeClip = project.videoClips.find(c => project.currentTime >= c.timelineStart && project.currentTime < (c.timelineStart + c.duration));
-      if (activeClip) {
-        if (videoEl.src !== activeClip.src) {
-          videoEl.src = activeClip.src;
-        }
-        const internalTime = (project.currentTime - activeClip.timelineStart) + activeClip.trimStart;
-        if (Math.abs(videoEl.currentTime - internalTime) > 0.15) {
-          videoEl.currentTime = internalTime;
-        }
-        videoEl.volume = activeClip.volume !== undefined ? activeClip.volume : 1.0;
-      }
-    }
-
-    function loadActiveClipInPlayer() {
-      if (project.videoClips.length > 0) {
-        const first = project.videoClips[0];
-        videoEl.src = first.src;
-        seekTo(0);
-      }
-    }
-
-    function togglePlay() {
-      if (project.isPlaying) {
-        pause();
-      } else {
-        play();
-      }
-    }
-
-    function play() {
-      project.isPlaying = true;
-      document.getElementById('playIcon').setAttribute('data-lucide', 'pause');
-      lucide.createIcons();
-
-      syncVideoElement();
-      videoEl.play().catch(() => {});
-      startRenderLoop();
-    }
-
-    function pause() {
-      project.isPlaying = false;
-      document.getElementById('playIcon').setAttribute('data-lucide', 'play');
-      lucide.createIcons();
-      videoEl.pause();
-      if (animFrameId) cancelAnimationFrame(animFrameId);
-    }
-
-    function startRenderLoop() {
-      function loop() {
-        if (!project.isPlaying) return;
-        project.currentTime += (1 / project.fps);
-        if (project.currentTime >= project.duration) {
-          seekTo(0);
-          pause();
-          return;
-        }
-
-        document.getElementById('currentTimeDisplay').textContent = formatTime(project.currentTime);
-        document.getElementById('playheadNeedle').style.left = `${project.currentTime * pps}px`;
-        syncVideoElement();
-        drawPreviewFrame();
-        animFrameId = requestAnimationFrame(loop);
-      }
-      animFrameId = requestAnimationFrame(loop);
-    }
-
-    function onVideoTimeUpdate() {
-      // Sync frame
-      drawPreviewFrame();
-    }
-
-    // DRAW PREVIEW FRAME ON CANVAS
-    function drawPreviewFrame() {
-      ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-
-      // 1. Draw Active Video Frame
-      const activeClip = project.videoClips.find(c => project.currentTime >= c.timelineStart && project.currentTime < (c.timelineStart + c.duration));
-      if (activeClip && videoEl.readyState >= 2) {
-        ctx.save();
-        applyCanvasFilter();
-        ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
-        ctx.restore();
-      } else {
-        // Black background
-        ctx.fillStyle = '#05060b';
-        ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
-      }
-
-      // 2. Draw Active Text Overlays
-      project.textClips.forEach(t => {
-        if (project.currentTime >= t.timelineStart && project.currentTime < (t.timelineStart + t.duration)) {
-          ctx.save();
-          ctx.font = `900 ${t.fontSize}px "${t.fontFamily}", sans-serif`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          
-          // Shadow/Stroke
-          ctx.lineWidth = 6;
-          ctx.strokeStyle = t.stroke || '#000000';
-          ctx.strokeText(t.content, t.x || (canvasEl.width / 2), t.y || (canvasEl.height * 0.85));
-
-          ctx.fillStyle = t.color || '#ffffff';
-          ctx.fillText(t.content, t.x || (canvasEl.width / 2), t.y || (canvasEl.height * 0.85));
-          ctx.restore();
-        }
-      });
-    }
-
-    function applyCanvasFilter() {
-      if (project.filter === 'cinematic') {
-        ctx.filter = 'contrast(1.2) saturate(1.1) brightness(0.95)';
-      } else if (project.filter === 'vivid') {
-        ctx.filter = 'saturate(1.4) contrast(1.15)';
-      } else if (project.filter === 'bw') {
-        ctx.filter = 'grayscale(100%) contrast(1.2)';
-      } else if (project.filter === 'vintage') {
-        ctx.filter = 'sepia(40%) contrast(1.1) brightness(0.9)';
-      } else {
-        ctx.filter = 'none';
-      }
-    }
-
-    function applyFilter(f) {
-      project.filter = f;
-      drawPreviewFrame();
-    }
-
-    // RULER GENERATOR
-    function renderRuler() {
-      const ruler = document.getElementById('timelineRuler');
-      ruler.innerHTML = '';
-      const totalSec = Math.max(project.duration + 20, 60);
-
-      for (let s = 0; s <= totalSec; s += 2) {
-        const mark = document.createElement('div');
-        mark.className = 'absolute top-0 bottom-0 border-l border-white/[0.1] pl-1 font-mono text-[9px] text-zinc-500 flex items-center';
-        mark.style.left = `${s * pps}px`;
-        mark.textContent = formatTime(s);
-        ruler.appendChild(mark);
-      }
-    }
-
-    function updateTimelineZoom(val) {
-      pps = parseInt(val);
-      renderRuler();
-      renderTimeline();
-      document.getElementById('playheadNeedle').style.left = `${project.currentTime * pps}px`;
-    }
-
-    // TIME FORMAT HELPER (MM:SS.ms)
-    function formatTime(sec) {
-      if (isNaN(sec) || sec < 0) return "00:00";
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60);
-      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-    }
-
-    function switchLibraryTab(tab) {
-      ['media', 'text', 'filters'].forEach(t => {
-        document.getElementById(`tab-content-${t}`).classList.toggle('hidden', t !== tab);
-        const btn = document.getElementById(`tab-btn-${t}`);
-        if (t === tab) {
-          btn.className = 'flex-1 py-2 text-xs font-bold text-cyan-300 border-b-2 border-cyan-400 flex items-center justify-center gap-1.5';
-        } else {
-          btn.className = 'flex-1 py-2 text-xs font-bold text-zinc-400 hover:text-white flex items-center justify-center gap-1.5';
-        }
-      });
-      lucide.createIcons();
-    }
-
-    // EXPORT RENDER ENGINE (HTML5 MediaRecorder)
-    function exportVideo() {
-      if (project.videoClips.length === 0) {
-        alert('Adicione pelo menos um vídeo na Linha do Tempo antes de exportar.');
-        return;
-      }
-
-      const exportBtn = document.getElementById('exportBtn');
-      exportBtn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Renderizando...</span>`;
-      lucide.createIcons();
-
-      seekTo(0);
-      play();
-
-      const stream = canvasEl.captureStream(30);
-      const recorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
-      const chunks = [];
-
-      recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-      recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'video/webm' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `cinecut_video_${Date.now()}.webm`;
-        link.click();
-        exportBtn.innerHTML = `<i data-lucide="download" class="w-3.5 h-3.5"></i><span>Exportar Vídeo</span>`;
-        lucide.createIcons();
-        alert('✓ Vídeo renderizado e exportado com sucesso!');
-      };
-
-      recorder.start();
-
-      const checkEnd = setInterval(() => {
-        if (project.currentTime >= project.duration || !project.isPlaying) {
-          clearInterval(checkEnd);
-          recorder.stop();
-          pause();
-        }
-      }, 500);
     }
   </script>
 </body>
