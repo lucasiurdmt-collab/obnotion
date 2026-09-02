@@ -25,6 +25,25 @@ export default function ProductivityView({ darkMode }) {
       iframeUrl: `${import.meta.env.BASE_URL}tools/cinecut_studio.html`
     },
     {
+      id: 'photogimp',
+      title: 'PhotoGIMP Studio Pro (GIMP + Photoshop Diolinux)',
+      icon: Palette,
+      color: 'text-blue-400',
+      bgColor: 'bg-blue-500/10',
+      borderColor: 'border-blue-500/30',
+      tag: 'NOVO • PHOTOGIMP PRO',
+      tagColor: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+      description: 'Estúdio de design e edição de imagem profissional baseado no projeto PhotoGIMP (Diolinux). Interface, ferramentas e atalhos idênticos ao Adobe Photoshop com suporte a arquivos PSD, camadas, filtros e exportação de alta resolução.',
+      features: [
+        'Interface e atalhos de teclado 100% mapeados no padrão Adobe Photoshop',
+        'Suporte nativo a arquivos PSD, PNG, JPG, WebP e camadas com máscaras',
+        'Ferramentas avançadas: Pincéis, varinha mágica, caneta, curvas e filtros',
+        'Acesso direto à documentação oficial e patch do Diolinux PhotoGIMP'
+      ],
+      path: `${import.meta.env.BASE_URL}tools/photogimp_studio.html`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/photogimp_studio.html`
+    },
+    {
       id: 'roteiros',
       title: 'Montador de Roteiros & Vídeos (Rundown Pro)',
       icon: Clapperboard,

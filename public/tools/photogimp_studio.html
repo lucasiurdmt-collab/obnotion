@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhotoGIMP Studio Pro • Diolinux & Obnotion</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Lobster&family=Montserrat:wght@400;600;800;900&family=Playfair+Display:ital,wght@0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;600;800&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- PSD Parser & Generator (ag-psd) -->
+  <script src="https://cdn.jsdelivr.net/npm/ag-psd/dist/bundle.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #090c15;
+      --bg-panel: #0e1322;
+      --bg-subpanel: #141b30;
+      --border: rgba(59, 130, 246, 0.2);
+      --accent: #3b82f6;
+    }
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-dark);
+      color: #e2e8f0;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    
+    #canvas-viewport {
+      background-color: #060810;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(37, 99, 235, 0.04) 0%, transparent 80%),
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 20px 20px, 20px 20px;
+    }
+
+    .transparent-pattern {
+      background-image: linear-gradient(45deg, #131829 25%, transparent 25%), 
+                        linear-gradient(-45deg, #131829 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #131829 75%), 
+                        linear-gradient(-45deg, transparent 75%, #131829 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+      background-color: #0a0d1a;
+    }
+
+    .tool-btn.active {
+      background-color: rgba(37, 99, 235, 0.3);
+      color: #93c5fd;
+      border-color: rgba(59, 130, 246, 0.6);
+    }
+    .layer-row.active {
+      background-color: rgba(37, 99, 235, 0.25);
+      border-color: rgba(59, 130, 246, 0.5);
+    }
+    
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
+  </style>
+</head>
+<body class="flex flex-col h-screen w-screen text-xs select-none bg-[#090c15]">
+
+  <!-- 1. TOP EXECUTIVE MENU BAR (PhotoGIMP Branded) -->
+  <header class="h-10 bg-[#0c101d] border-b border-blue-500/20 flex items-center justify-between px-3 z-30">
+    <div class="flex items-center gap-3">
+      <!-- PhotoGIMP Logo Badge -->
+      <div class="flex items-center gap-2 pr-3 border-r border-blue-500/20">
+        <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center font-black text-[11px] text-white shadow-lg shadow-blue-500/30">
+          Pg
+        </div>
+        <div class="flex flex-col">
+          <span class="font-black text-white tracking-tight text-[12px] flex items-center gap-1.5">
+            PhotoGIMP <span class="text-[9px] font-mono px-1 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">STUDIO PRO</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Menus dropdowns -->
+      <div class="flex items-center gap-0.5">
+        <!-- Arquivo -->
+        <div class="relative group">
+          <button class="px-2 py-1 rounded hover:bg-white/[0.06] text-zinc-300 hover:text-white transition-colors">Arquivo</button>
+          <div class="absolute left-0 top-full mt-0.5 w-56 bg-[#10162a] border border-blue-500/30 rounded-xl shadow-2xl py-1 hidden group-hover:block z-50">
+            <button onclick="openNewModal()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white flex justify-between">
+              <span>Novo Projeto</span>
+              <span class="text-zinc-500 font-mono text-[10px]">Ctrl+N</span>
+            </button>
+            <label class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white flex justify-between cursor-pointer">
+              <span>Abrir PSD / Imagem...</span>
+              <span class="text-zinc-500 font-mono text-[10px]">Ctrl+O</span>
+              <input type="file" id="file-input-open" class="hidden" accept="image/*,.psd" onchange="handleFileOpen(event)">
+            </label>
+            <div class="h-px bg-white/[0.08] my-1"></div>
+            <button onclick="exportImage('png')" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white flex justify-between">
+              <span>Exportar PNG (Transparente)</span>
+              <span class="text-zinc-500 font-mono text-[10px]">Ctrl+Shift+E</span>
+            </button>
+            <button onclick="exportImage('jpg')" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Exportar JPG (Alta Qualidade)</button>
+            <button onclick="exportImage('webp')" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Exportar WebP (Web Leve)</button>
+            <button onclick="exportPSD()" class="w-full px-3 py-1.5 text-left text-blue-300 hover:bg-blue-600/30 hover:text-white flex justify-between">
+              <span>Salvar Arquivo PSD (Photoshop)</span>
+              <span class="text-blue-400 font-mono text-[10px]">PSD</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Editar -->
+        <div class="relative group">
+          <button class="px-2 py-1 rounded hover:bg-white/[0.06] text-zinc-300 hover:text-white transition-colors">Editar</button>
+          <div class="absolute left-0 top-full mt-0.5 w-52 bg-[#10162a] border border-blue-500/30 rounded-xl shadow-2xl py-1 hidden group-hover:block z-50">
+            <button onclick="undo()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white flex justify-between">
+              <span>Desfazer</span>
+              <span class="text-zinc-500 font-mono text-[10px]">Ctrl+Z</span>
+            </button>
+            <button onclick="redo()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white flex justify-between">
+              <span>Refazer</span>
+              <span class="text-zinc-500 font-mono text-[10px]">Ctrl+Y</span>
+            </button>
+            <div class="h-px bg-white/[0.08] my-1"></div>
+            <button onclick="clearCanvas()" class="w-full px-3 py-1.5 text-left text-rose-400 hover:bg-rose-600/20 hover:text-rose-200">Limpar Tela / Resetar</button>
+          </div>
+        </div>
+
+        <!-- Imagem & Ajustes -->
+        <div class="relative group">
+          <button class="px-2 py-1 rounded hover:bg-white/[0.06] text-zinc-300 hover:text-white transition-colors">Imagem</button>
+          <div class="absolute left-0 top-full mt-0.5 w-56 bg-[#10162a] border border-blue-500/30 rounded-xl shadow-2xl py-1 hidden group-hover:block z-50">
+            <button onclick="applyAutoLevels()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Auto Contraste & Níveis</button>
+            <button onclick="applyInvertFilter()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Inverter Cores (Negativo)</button>
+            <button onclick="applyGrayscaleFilter()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Preto & Branco (Monocromático)</button>
+            <button onclick="applySepiaFilter()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Filtro Sépia Retrô</button>
+            <div class="h-px bg-white/[0.08] my-1"></div>
+            <button onclick="flipHorizontal()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Virar Horizontalmente (Espelhar)</button>
+            <button onclick="flipVertical()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Virar Verticalmente</button>
+            <button onclick="rotate90(true)" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Girar 90° Horário</button>
+            <button onclick="rotate90(false)" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Girar 90° Anti-horário</button>
+          </div>
+        </div>
+
+        <!-- Camadas -->
+        <div class="relative group">
+          <button class="px-2 py-1 rounded hover:bg-white/[0.06] text-zinc-300 hover:text-white transition-colors">Camada</button>
+          <div class="absolute left-0 top-full mt-0.5 w-52 bg-[#10162a] border border-blue-500/30 rounded-xl shadow-2xl py-1 hidden group-hover:block z-50">
+            <button onclick="addNewLayer()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white flex justify-between">
+              <span>Nova Camada</span>
+              <span class="text-zinc-500 font-mono text-[10px]">Ctrl+Shift+N</span>
+            </button>
+            <button onclick="duplicateActiveLayer()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white flex justify-between">
+              <span>Duplicar Camada</span>
+              <span class="text-zinc-500 font-mono text-[10px]">Ctrl+J</span>
+            </button>
+            <button onclick="deleteActiveLayer()" class="w-full px-3 py-1.5 text-left text-rose-400 hover:bg-rose-600/20">Excluir Camada</button>
+            <div class="h-px bg-white/[0.08] my-1"></div>
+            <button onclick="mergeDownLayer()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white flex justify-between">
+              <span>Mesclar com a de Baixo</span>
+              <span class="text-zinc-500 font-mono text-[10px]">Ctrl+E</span>
+            </button>
+            <button onclick="flattenImage()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Achatar Imagem</button>
+          </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="relative group">
+          <button class="px-2 py-1 rounded hover:bg-white/[0.06] text-zinc-300 hover:text-white transition-colors">Filtros</button>
+          <div class="absolute left-0 top-full mt-0.5 w-52 bg-[#10162a] border border-blue-500/30 rounded-xl shadow-2xl py-1 hidden group-hover:block z-50">
+            <button onclick="applyBlur(3)" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Desfoque Gaussiano Leve (3px)</button>
+            <button onclick="applyBlur(10)" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Desfoque Forte (10px)</button>
+            <button onclick="applySharpen()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Nitidez / Realce de Bordas</button>
+            <button onclick="applyPixelate(12)" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Pixelizar (Mosaico 12px)</button>
+            <button onclick="applyVignette()" class="w-full px-3 py-1.5 text-left text-zinc-200 hover:bg-blue-600/30 hover:text-white">Vinheta Escura (Bordas)</button>
+          </div>
+        </div>
+
+        <!-- Diolinux PhotoGIMP Link -->
+        <a href="https://github.com/Diolinux/PhotoGIMP" target="_blank" class="px-2 py-1 rounded hover:bg-blue-600/20 text-blue-300 hover:text-white transition-colors flex items-center gap-1 font-semibold">
+          <i data-lucide="info" class="w-3.5 h-3.5"></i>
+          <span>Sobre PhotoGIMP (Diolinux)</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Right Controls: Zoom & Export -->
+    <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1 bg-black/40 px-2.5 py-1 rounded-xl border border-blue-500/20 font-mono text-[11px] text-zinc-300">
+        <button onclick="zoomOut()" class="hover:text-white px-1 font-bold">-</button>
+        <span id="zoom-label" class="text-blue-300 font-bold">100%</span>
+        <button onclick="zoomIn()" class="hover:text-white px-1 font-bold">+</button>
+        <button onclick="zoomFit()" class="hover:text-blue-400 ml-1 text-[10px] uppercase font-semibold text-zinc-400" title="Ajustar à Janela">Ajustar</button>
+      </div>
+
+      <button onclick="exportImage('png')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-lg shadow-blue-600/30 active:scale-95">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+        <span>Exportar Arte</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 2. CONTEXTUAL TOOL OPTIONS BAR (Photoshop Property Ribbon) -->
+  <div id="property-bar" class="h-8 bg-[#0e1322] border-b border-blue-500/20 flex items-center px-3 gap-4 text-zinc-300 z-20">
+    <div class="flex items-center gap-1.5 font-bold text-white">
+      <span id="active-tool-label" class="text-blue-300">Pincel</span>
+    </div>
+    <div class="h-3.5 w-px bg-blue-500/20"></div>
+
+    <!-- Pincel & Borracha Options -->
+    <div id="opts-brush" class="flex items-center gap-4">
+      <div class="flex items-center gap-1.5">
+        <span class="text-zinc-500">Tamanho:</span>
+        <input type="range" id="brush-size" min="1" max="250" value="20" class="w-24 accent-blue-500" oninput="updateBrushLabels()">
+        <span id="brush-size-label" class="font-mono w-8 text-right text-blue-200 font-bold">20px</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="text-zinc-500">Opacidade:</span>
+        <input type="range" id="brush-opacity" min="1" max="100" value="100" class="w-20 accent-blue-500" oninput="updateBrushLabels()">
+        <span id="brush-opacity-label" class="font-mono w-8 text-right text-blue-200 font-bold">100%</span>
+      </div>
+    </div>
+
+    <!-- Texto Options -->
+    <div id="opts-text" class="flex items-center gap-3 hidden">
+      <div class="flex items-center gap-1.5">
+        <span class="text-zinc-500">Fonte:</span>
+        <select id="text-font-family" class="bg-[#141b30] border border-blue-500/30 rounded-lg px-2 py-0.5 text-white">
+          <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+          <option value="Montserrat">Montserrat Bold</option>
+          <option value="Poppins">Poppins</option>
+          <option value="Bebas Neue">Bebas Neue (Poster)</option>
+          <option value="Lobster">Lobster (Cursiva)</option>
+          <option value="Playfair Display">Playfair Display (Elegante)</option>
+          <option value="Roboto">Roboto</option>
+        </select>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="text-zinc-500">Tam:</span>
+        <input type="number" id="text-font-size" value="48" min="8" max="400" class="w-14 bg-[#141b30] border border-blue-500/30 rounded-lg px-1.5 py-0.5 text-white font-mono">
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button onclick="toggleTextBold()" id="btn-text-bold" class="px-2 py-0.5 rounded bg-white/[0.06] font-bold hover:bg-blue-600/30">B</button>
+        <button onclick="toggleTextItalic()" id="btn-text-italic" class="px-2 py-0.5 rounded bg-white/[0.06] italic hover:bg-blue-600/30">I</button>
+      </div>
+    </div>
+
+    <!-- Formas Options -->
+    <div id="opts-shapes" class="flex items-center gap-4 hidden">
+      <div class="flex items-center gap-1.5">
+        <span class="text-zinc-500">Forma:</span>
+        <select id="shape-type" class="bg-[#141b30] border border-blue-500/30 rounded-lg px-2 py-0.5 text-white">
+          <option value="rect">Retângulo</option>
+          <option value="rounded-rect">Retângulo Arredondado</option>
+          <option value="circle">Círculo / Elipse</option>
+          <option value="line">Linha Reta</option>
+        </select>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="text-zinc-500">Contorno:</span>
+        <input type="number" id="shape-stroke-width" value="0" min="0" max="50" class="w-12 bg-[#141b30] border border-blue-500/30 rounded-lg px-1.5 py-0.5 text-white font-mono">
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. MAIN WORKSPACE WITH TOOLS, CANVAS VIEWPORT & LAYER INSPECTOR -->
+  <div class="flex-1 flex overflow-hidden">
+    
+    <!-- LEFT: TOOLBAR (Photoshop Vertical Tools) -->
+    <aside class="w-12 bg-[#0c101d] border-r border-blue-500/20 flex flex-col items-center py-2 gap-1.5 z-20 shrink-0">
+      
+      <!-- Move Tool (V) -->
+      <button onclick="selectTool('move')" id="tool-move" class="tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-blue-600/20 border border-transparent transition-all" title="Mover (V)">
+        <i data-lucide="move" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Marquee Rect Selection (M) -->
+      <button onclick="selectTool('select-rect')" id="tool-select-rect" class="tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-blue-600/20 border border-transparent transition-all" title="Seleção Retangular (M)">
+        <i data-lucide="scan" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Magic Wand (W) -->
+      <button onclick="selectTool('magic-wand')" id="tool-magic-wand" class="tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-blue-600/20 border border-transparent transition-all" title="Varinha Mágica / Seleção Automática (W)">
+        <i data-lucide="wand-2" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Crop Tool (C) -->
+      <button onclick="selectTool('crop')" id="tool-crop" class="tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-blue-600/20 border border-transparent transition-all" title="Cortar / Enquadrar (C)">
+        <i data-lucide="crop" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Eyedropper (I) -->
+      <button onclick="selectTool('pipette')" id="tool-pipette" class="tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-blue-600/20 border border-transparent transition-all" title="Conta-Gotas / Capturar Cor (I)">
+        <i data-lucide="pipette" class="w-4 h-4"></i>
+      </button>
+
+      <div class="w-6 h-px bg-blue-500/20 my-1"></div>
+
+      <!-- Brush Tool (B) -->
+      <button onclick="selectTool('brush')" id="tool-brush" class="tool-btn active w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-blue-600/20 border border-transparent transition-all" title="Pincel (B)">
+        <i data-lucide="paintbrush" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Eraser Tool (E) -->
+      <button onclick="selectTool('eraser')" id="tool-eraser" class="tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-blue-600/20 border border-transparent transition-all" title="Borracha (E)">
+        <i data-lucide="eraser" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Paint Bucket / Gradient (G) -->
+      <button onclick="selectTool('bucket')" id="tool-bucket" class="tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-blue-600/20 border border-transparent transition-all" title="Lata de Tinta / Preenchimento (G)">
+        <i data-lucide="paint-bucket" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Text Tool (T) -->
+      <button onclick="selectTool('text')" id="tool-text" class="tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-blue-600/20 border border-transparent transition-all" title="Texto (T)">
+        <i data-lucide="type" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Shapes Tool (U) -->
+      <button onclick="selectTool('shape')" id="tool-shape" class="tool-btn w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-blue-600/20 border border-transparent transition-all" title="Formas Geométricas (U)">
+        <i data-lucide="square" class="w-4 h-4"></i>
+      </button>
+
+      <div class="flex-1"></div>
+
+      <!-- Color Pickers (Foreground & Background) -->
+      <div class="relative w-8 h-8 my-2">
+        <!-- Background Color -->
+        <input type="color" id="bg-color-picker" value="#ffffff" class="absolute bottom-0 right-0 w-5 h-5 rounded border border-white/20 cursor-pointer p-0 bg-transparent" title="Cor do Plano de Fundo" onchange="updateColors()">
+        <!-- Foreground Color -->
+        <input type="color" id="fg-color-picker" value="#2563eb" class="absolute top-0 left-0 w-5 h-5 rounded border border-white/40 cursor-pointer p-0 bg-transparent z-10" title="Cor Principal (Pincel/Texto)" onchange="updateColors()">
+      </div>
+    </aside>
+
+    <!-- CENTER: CANVAS VIEWPORT -->
+    <main id="canvas-viewport" class="flex-1 overflow-auto flex items-center justify-center p-8 relative">
+      <div id="canvas-wrapper" class="relative shadow-2xl transition-transform duration-75">
+        <!-- Transparent Pattern Grid -->
+        <div class="absolute inset-0 transparent-pattern rounded-sm"></div>
+        <!-- Display Canvas -->
+        <canvas id="main-canvas" width="1280" height="720" class="relative block shadow-2xl cursor-crosshair"></canvas>
+      </div>
+    </main>
+
+    <!-- RIGHT: LAYERS, ADJUSTMENTS & PROPERTIES PANEL -->
+    <aside class="w-72 bg-[#0c101d] border-l border-blue-500/20 flex flex-col z-20 shrink-0">
+      
+      <!-- Panel Header Tabs -->
+      <div class="h-9 border-b border-blue-500/20 flex items-center px-3 justify-between bg-[#0e1324]">
+        <div class="flex items-center gap-2">
+          <i data-lucide="layers" class="w-4 h-4 text-blue-400"></i>
+          <span class="font-bold text-white text-xs uppercase tracking-wider">Camadas (Layers)</span>
+        </div>
+        <button onclick="addNewLayer()" class="p-1 rounded-lg hover:bg-blue-600/20 text-blue-300 hover:text-white" title="Nova Camada">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Layers List -->
+      <div id="layers-container" class="flex-1 overflow-y-auto p-2 space-y-1.5">
+        <!-- Layers rendered dynamically -->
+      </div>
+
+      <!-- Layer Actions Bottom Bar -->
+      <div class="p-2 border-t border-blue-500/20 bg-[#0e1324] flex items-center justify-between">
+        <div class="flex items-center gap-1">
+          <button onclick="duplicateActiveLayer()" class="p-1.5 rounded-lg hover:bg-white/[0.08] text-zinc-300 hover:text-white" title="Duplicar Camada (Ctrl+J)">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="mergeDownLayer()" class="p-1.5 rounded-lg hover:bg-white/[0.08] text-zinc-300 hover:text-white" title="Mesclar Abaixo (Ctrl+E)">
+            <i data-lucide="combine" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+        <button onclick="deleteActiveLayer()" class="p-1.5 rounded-lg hover:bg-rose-500/20 text-rose-400 hover:text-rose-300" title="Excluir Camada">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- MODAL: NOVO PROJETO (PRESETS) -->
+  <div id="newModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-md bg-[#0f1426] border border-blue-500/30 rounded-2xl p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-blue-500/20">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i data-lucide="file-plus" class="w-4 h-4 text-blue-400"></i> Novo Documento PhotoGIMP
+        </h3>
+        <button onclick="closeNewModal()" class="text-zinc-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Presets -->
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <button onclick="setPreset(1920, 1080)" class="p-2.5 rounded-xl bg-[#141b33] hover:bg-blue-600/30 border border-blue-500/20 text-left">
+          <div class="font-bold text-white">Full HD (16:9)</div>
+          <div class="text-[10px] text-zinc-400 font-mono">1920 × 1080 px</div>
+        </button>
+        <button onclick="setPreset(1080, 1920)" class="p-2.5 rounded-xl bg-[#141b33] hover:bg-blue-600/30 border border-blue-500/20 text-left">
+          <div class="font-bold text-white">Stories / Reels (9:16)</div>
+          <div class="text-[10px] text-zinc-400 font-mono">1080 × 1920 px</div>
+        </button>
+        <button onclick="setPreset(1080, 1080)" class="p-2.5 rounded-xl bg-[#141b33] hover:bg-blue-600/30 border border-blue-500/20 text-left">
+          <div class="font-bold text-white">Feed Quadrado (1:1)</div>
+          <div class="text-[10px] text-zinc-400 font-mono">1080 × 1080 px</div>
+        </button>
+        <button onclick="setPreset(1280, 720)" class="p-2.5 rounded-xl bg-[#141b33] hover:bg-blue-600/30 border border-blue-500/20 text-left">
+          <div class="font-bold text-white">HD / Thumbnail</div>
+          <div class="text-[10px] text-zinc-400 font-mono">1280 × 720 px</div>
+        </button>
+      </div>
+
+      <div class="flex gap-2">
+        <div class="flex-1">
+          <label class="text-[10px] font-mono text-zinc-400">Largura (px)</label>
+          <input type="number" id="new-width" value="1280" class="w-full bg-[#141b33] border border-blue-500/30 rounded-xl px-3 py-2 text-white font-mono">
+        </div>
+        <div class="flex-1">
+          <label class="text-[10px] font-mono text-zinc-400">Altura (px)</label>
+          <input type="number" id="new-height" value="720" class="w-full bg-[#141b33] border border-blue-500/30 rounded-xl px-3 py-2 text-white font-mono">
+        </div>
+      </div>
+
+      <button onclick="createProject()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30">
+        Criar Documento
+      </button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT ENGINE -->
+  <script>
+    let canvas, ctx;
+    let layers = [];
+    let activeLayerIndex = 0;
+    let currentTool = 'brush';
+    let isDrawing = false;
+    let lastX = 0, lastY = 0;
+    let zoomLevel = 1.0;
+    let undoStack = [];
+    let redoStack = [];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      canvas = document.getElementById('main-canvas');
+      ctx = canvas.getContext('2d');
+      initProject(1280, 720);
+      setupKeyboardShortcuts();
+      lucide.createIcons();
+    });
+
+    function initProject(w, h) {
+      canvas.width = w;
+      canvas.height = h;
+      layers = [];
+      // Create Background Layer
+      const bgLayer = createLayerCanvas(w, h, 'Plano de Fundo');
+      const bctx = bgLayer.canvas.getContext('2d');
+      bctx.fillStyle = '#ffffff';
+      bctx.fillRect(0, 0, w, h);
+      layers.push(bgLayer);
+      activeLayerIndex = 0;
+      renderCanvas();
+      renderLayersList();
+    }
+
+    function createLayerCanvas(w, h, name) {
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      return {
+        id: 'layer_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        name: name || `Camada ${layers.length + 1}`,
+        canvas: c,
+        visible: true,
+        opacity: 1.0
+      };
+    }
+
+    function renderCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      layers.forEach(l => {
+        if (l.visible) {
+          ctx.globalAlpha = l.opacity;
+          ctx.drawImage(l.canvas, 0, 0);
+        }
+      });
+      ctx.globalAlpha = 1.0;
+    }
+
+    function renderLayersList() {
+      const container = document.getElementById('layers-container');
+      container.innerHTML = '';
+      
+      // Render in reverse so top layer is on top
+      for (let i = layers.length - 1; i >= 0; i--) {
+        const l = layers[i];
+        const row = document.createElement('div');
+        row.className = `layer-row p-2 rounded-xl border flex items-center justify-between gap-2 cursor-pointer transition-all ${i === activeLayerIndex ? 'active border-blue-500 bg-blue-600/20' : 'border-white/[0.06] bg-[#121729] hover:bg-white/[0.04]'}`;
+        row.onclick = () => { activeLayerIndex = i; renderLayersList(); };
+
+        row.innerHTML = `
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <button onclick="event.stopPropagation(); toggleLayerVisibility(${i})" class="text-zinc-400 hover:text-white">
+              <i data-lucide="${l.visible ? 'eye' : 'eye-off'}" class="w-3.5 h-3.5"></i>
+            </button>
+            <span class="font-semibold text-white truncate text-[11px]">${l.name}</span>
+          </div>
+          <span class="font-mono text-[9px] text-zinc-500">${Math.round(l.opacity * 100)}%</span>
+        `;
+        container.appendChild(row);
+      }
+      lucide.createIcons();
+    }
+
+    function toggleLayerVisibility(i) {
+      if (layers[i]) {
+        layers[i].visible = !layers[i].visible;
+        renderCanvas();
+        renderLayersList();
+      }
+    }
+
+    function addNewLayer() {
+      const newL = createLayerCanvas(canvas.width, canvas.height);
+      layers.push(newL);
+      activeLayerIndex = layers.length - 1;
+      renderLayersList();
+    }
+
+    function duplicateActiveLayer() {
+      const cur = layers[activeLayerIndex];
+      if (!cur) return;
+      const dup = createLayerCanvas(canvas.width, canvas.height, cur.name + ' (Cópia)');
+      const dctx = dup.canvas.getContext('2d');
+      dctx.drawImage(cur.canvas, 0, 0);
+      layers.splice(activeLayerIndex + 1, 0, dup);
+      activeLayerIndex++;
+      renderCanvas();
+      renderLayersList();
+    }
+
+    function deleteActiveLayer() {
+      if (layers.length <= 1) return;
+      layers.splice(activeLayerIndex, 1);
+      if (activeLayerIndex >= layers.length) activeLayerIndex = layers.length - 1;
+      renderCanvas();
+      renderLayersList();
+    }
+
+    function mergeDownLayer() {
+      if (activeLayerIndex <= 0) return;
+      const top = layers[activeLayerIndex];
+      const bottom = layers[activeLayerIndex - 1];
+      const bctx = bottom.canvas.getContext('2d');
+      bctx.globalAlpha = top.opacity;
+      bctx.drawImage(top.canvas, 0, 0);
+      bctx.globalAlpha = 1.0;
+      layers.splice(activeLayerIndex, 1);
+      activeLayerIndex--;
+      renderCanvas();
+      renderLayersList();
+    }
+
+    function flattenImage() {
+      const flat = createLayerCanvas(canvas.width, canvas.height, 'Imagem Achatada');
+      const fctx = flat.canvas.getContext('2d');
+      layers.forEach(l => {
+        if (l.visible) {
+          fctx.globalAlpha = l.opacity;
+          fctx.drawImage(l.canvas, 0, 0);
+        }
+      });
+      layers = [flat];
+      activeLayerIndex = 0;
+      renderCanvas();
+      renderLayersList();
+    }
+
+    // DRAWING & TOOLS
+    canvas.addEventListener('mousedown', (e) => {
+      isDrawing = true;
+      const rect = canvas.getBoundingClientRect();
+      lastX = (e.clientX - rect.left) / zoomLevel;
+      lastY = (e.clientY - rect.top) / zoomLevel;
+      saveState();
+
+      if (currentTool === 'text') {
+        const text = prompt('Digite o texto a inserir:');
+        if (text) {
+          const l = layers[activeLayerIndex];
+          const lctx = l.canvas.getContext('2d');
+          const ff = document.getElementById('text-font-family').value;
+          const sz = document.getElementById('text-font-size').value;
+          lctx.font = `bold ${sz}px "${ff}", sans-serif`;
+          lctx.fillStyle = document.getElementById('fg-color-picker').value;
+          lctx.fillText(text, lastX, lastY);
+          renderCanvas();
+        }
+        isDrawing = false;
+      }
+    });
+
+    window.addEventListener('mouseup', () => { isDrawing = false; });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!isDrawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const curX = (e.clientX - rect.left) / zoomLevel;
+      const curY = (e.clientY - rect.top) / zoomLevel;
+      const curLayer = layers[activeLayerIndex];
+      if (!curLayer) return;
+      const lctx = curLayer.canvas.getContext('2d');
+
+      if (currentTool === 'brush') {
+        lctx.beginPath();
+        lctx.moveTo(lastX, lastY);
+        lctx.lineTo(curX, curY);
+        lctx.strokeStyle = document.getElementById('fg-color-picker').value;
+        lctx.lineWidth = document.getElementById('brush-size').value;
+        lctx.lineCap = 'round';
+        lctx.lineJoin = 'round';
+        lctx.stroke();
+      } else if (currentTool === 'eraser') {
+        lctx.save();
+        lctx.globalCompositeOperation = 'destination-out';
+        lctx.beginPath();
+        lctx.moveTo(lastX, lastY);
+        lctx.lineTo(curX, curY);
+        lctx.lineWidth = document.getElementById('brush-size').value;
+        lctx.lineCap = 'round';
+        lctx.stroke();
+        lctx.restore();
+      }
+
+      lastX = curX;
+      lastY = curY;
+      renderCanvas();
+    });
+
+    function selectTool(t) {
+      currentTool = t;
+      document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tool-' + t)?.classList.add('active');
+      document.getElementById('active-tool-label').textContent = t.toUpperCase();
+      
+      document.getElementById('opts-brush').classList.toggle('hidden', t !== 'brush' && t !== 'eraser');
+      document.getElementById('opts-text').classList.toggle('hidden', t !== 'text');
+      document.getElementById('opts-shapes').classList.toggle('hidden', t !== 'shape');
+    }
+
+    function saveState() {
+      // Snapshot of layers
+    }
+    function undo() {}
+    function redo() {}
+
+    // FILTERS
+    function applyAutoLevels() {
+      const cur = layers[activeLayerIndex];
+      if (!cur) return;
+      const lctx = cur.canvas.getContext('2d');
+      const imgData = lctx.getImageData(0, 0, cur.canvas.width, cur.canvas.height);
+      const d = imgData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        d[i] = Math.min(255, d[i] * 1.1);
+        d[i+1] = Math.min(255, d[i+1] * 1.1);
+        d[i+2] = Math.min(255, d[i+2] * 1.1);
+      }
+      lctx.putImageData(imgData, 0, 0);
+      renderCanvas();
+    }
+
+    function applyInvertFilter() {
+      const cur = layers[activeLayerIndex];
+      if (!cur) return;
+      const lctx = cur.canvas.getContext('2d');
+      const imgData = lctx.getImageData(0, 0, cur.canvas.width, cur.canvas.height);
+      const d = imgData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        d[i] = 255 - d[i];
+        d[i+1] = 255 - d[i+1];
+        d[i+2] = 255 - d[i+2];
+      }
+      lctx.putImageData(imgData, 0, 0);
+      renderCanvas();
+    }
+
+    function applyGrayscaleFilter() {
+      const cur = layers[activeLayerIndex];
+      if (!cur) return;
+      const lctx = cur.canvas.getContext('2d');
+      const imgData = lctx.getImageData(0, 0, cur.canvas.width, cur.canvas.height);
+      const d = imgData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const v = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+        d[i] = v; d[i+1] = v; d[i+2] = v;
+      }
+      lctx.putImageData(imgData, 0, 0);
+      renderCanvas();
+    }
+
+    function applySepiaFilter() {
+      const cur = layers[activeLayerIndex];
+      if (!cur) return;
+      const lctx = cur.canvas.getContext('2d');
+      const imgData = lctx.getImageData(0, 0, cur.canvas.width, cur.canvas.height);
+      const d = imgData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const r = d[i], g = d[i+1], b = d[i+2];
+        d[i] = Math.min(255, (r * 0.393) + (g * 0.769) + (b * 0.189));
+        d[i+1] = Math.min(255, (r * 0.349) + (g * 0.686) + (b * 0.168));
+        d[i+2] = Math.min(255, (r * 0.272) + (g * 0.534) + (b * 0.131));
+      }
+      lctx.putImageData(imgData, 0, 0);
+      renderCanvas();
+    }
+
+    function flipHorizontal() {
+      const cur = layers[activeLayerIndex];
+      if (!cur) return;
+      const temp = document.createElement('canvas');
+      temp.width = cur.canvas.width; temp.height = cur.canvas.height;
+      const tctx = temp.getContext('2d');
+      tctx.drawImage(cur.canvas, 0, 0);
+      const lctx = cur.canvas.getContext('2d');
+      lctx.clearRect(0, 0, cur.canvas.width, cur.canvas.height);
+      lctx.save();
+      lctx.scale(-1, 1);
+      lctx.drawImage(temp, -cur.canvas.width, 0);
+      lctx.restore();
+      renderCanvas();
+    }
+
+    function flipVertical() {
+      const cur = layers[activeLayerIndex];
+      if (!cur) return;
+      const temp = document.createElement('canvas');
+      temp.width = cur.canvas.width; temp.height = cur.canvas.height;
+      const tctx = temp.getContext('2d');
+      tctx.drawImage(cur.canvas, 0, 0);
+      const lctx = cur.canvas.getContext('2d');
+      lctx.clearRect(0, 0, cur.canvas.width, cur.canvas.height);
+      lctx.save();
+      lctx.scale(1, -1);
+      lctx.drawImage(temp, 0, -cur.canvas.height);
+      lctx.restore();
+      renderCanvas();
+    }
+
+    function rotate90(cw) {
+      // Rotate 90
+    }
+
+    // EXPORT
+    function exportImage(format) {
+      const link = document.createElement('a');
+      link.download = `photogimp_arte_${Date.now()}.${format}`;
+      link.href = canvas.toDataURL(format === 'jpg' ? 'image/jpeg' : `image/${format}`, 0.95);
+      link.click();
+    }
+
+    function exportPSD() {
+      if (window.agPsd) {
+        const psdData = {
+          width: canvas.width,
+          height: canvas.height,
+          children: layers.map(l => ({
+            name: l.name,
+            canvas: l.canvas
+          }))
+        };
+        const buffer = window.agPsd.writePsd(psdData);
+        const blob = new Blob([buffer], { type: 'application/octet-stream' });
+        const link = document.createElement('a');
+        link.download = `photogimp_projeto_${Date.now()}.psd`;
+        link.href = URL.createObjectURL(blob);
+        link.click();
+      } else {
+        exportImage('png');
+      }
+    }
+
+    function handleFileOpen(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          initProject(img.width, img.height);
+          const lctx = layers[0].canvas.getContext('2d');
+          lctx.drawImage(img, 0, 0);
+          renderCanvas();
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // MODAL
+    function openNewModal() { document.getElementById('newModal').classList.remove('hidden'); }
+    function closeNewModal() { document.getElementById('newModal').classList.add('hidden'); }
+    function setPreset(w, h) {
+      document.getElementById('new-width').value = w;
+      document.getElementById('new-height').value = h;
+    }
+    function createProject() {
+      const w = parseInt(document.getElementById('new-width').value) || 1280;
+      const h = parseInt(document.getElementById('new-height').value) || 720;
+      initProject(w, h);
+      closeNewModal();
+    }
+
+    // ZOOM
+    function zoomIn() { zoomLevel = Math.min(3.0, zoomLevel + 0.15); updateZoom(); }
+    function zoomOut() { zoomLevel = Math.max(0.2, zoomLevel - 0.15); updateZoom(); }
+    function zoomFit() { zoomLevel = 1.0; updateZoom(); }
+    function updateZoom() {
+      document.getElementById('canvas-wrapper').style.transform = `scale(${zoomLevel})`;
+      document.getElementById('zoom-label').textContent = Math.round(zoomLevel * 100) + '%';
+    }
+
+    function updateBrushLabels() {
+      document.getElementById('brush-size-label').textContent = document.getElementById('brush-size').value + 'px';
+      document.getElementById('brush-opacity-label').textContent = document.getElementById('brush-opacity').value + '%';
+    }
+
+    function updateColors() {}
+
+    function setupKeyboardShortcuts() {
+      window.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+        if (e.key.toLowerCase() === 'v') selectTool('move');
+        if (e.key.toLowerCase() === 'b') selectTool('brush');
+        if (e.key.toLowerCase() === 'e') selectTool('eraser');
+        if (e.key.toLowerCase() === 't') selectTool('text');
+        if (e.key.toLowerCase() === 'g') selectTool('bucket');
+        if (e.key.toLowerCase() === 'm') selectTool('select-rect');
+        if (e.key.toLowerCase() === 'c') selectTool('crop');
+        if (e.ctrlKey && e.key.toLowerCase() === 'j') { e.preventDefault(); duplicateActiveLayer(); }
+        if (e.ctrlKey && e.key.toLowerCase() === 'e') { e.preventDefault(); mergeDownLayer(); }
+      });
+    }
+  </script>
+</body>
+</html>
