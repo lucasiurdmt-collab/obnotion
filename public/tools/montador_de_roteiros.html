@@ -224,6 +224,18 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden select-none bg-[#060913] text-slate-100">
 
+  <!-- GLOBAL DRAG & DROP OVERLAY -->
+  <div id="globalDropOverlay" class="fixed inset-0 bg-blue-950/90 backdrop-blur-md z-50 flex flex-col items-center justify-center p-6 text-center border-4 border-dashed border-cyan-400 m-4 rounded-3xl hidden pointer-events-none transition-all shadow-2xl">
+    <div class="w-20 h-20 rounded-3xl bg-blue-600/30 border border-cyan-400 flex items-center justify-center text-cyan-300 mb-4 animate-bounce">
+      <i data-lucide="clapperboard" class="w-10 h-10"></i>
+    </div>
+    <h2 class="text-2xl font-black text-white uppercase tracking-wide">Solte seus Vídeos aqui!</h2>
+    <p class="text-sm text-blue-200 mt-1 max-w-md">O Obnotion vai extrair automaticamente as <b>Thumbnails / Fotos</b>, <b>Durações</b> e <b>Nomes</b> para criar os cards do roteiro.</p>
+    <div class="mt-4 flex items-center gap-2 text-xs font-mono text-cyan-300 bg-cyan-950/50 px-3 py-1.5 rounded-xl border border-cyan-500/30">
+      <i data-lucide="sparkles" class="w-4 h-4"></i> Reconhecimento automático de Thumbnail e Duração
+    </div>
+  </div>
+
   <!-- TOP HEADER (BLUE THEME) -->
   <header class="h-14 border-b border-blue-500/20 bg-[#090e1c]/95 backdrop-blur-xl px-4 flex items-center justify-between shrink-0 z-30 no-print">
     <div class="flex items-center gap-3">
@@ -256,6 +268,13 @@
         <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
         <span class="hidden lg:inline">Novo Roteiro</span>
       </button>
+
+      <!-- Import Videos Direct Button -->
+      <label class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-200 hover:text-white text-xs font-semibold border border-cyan-500/30 transition-all cursor-pointer shadow-sm shadow-cyan-600/20" title="Selecione arquivos de vídeo para extrair automaticamente thumbnails, durações e nomes">
+        <i data-lucide="video" class="w-3.5 h-3.5 text-cyan-400"></i>
+        <span class="hidden md:inline">+ Importar Vídeos (.mp4)</span>
+        <input type="file" accept="video/*,image/*" multiple class="hidden" onchange="processDroppedBatchFiles(Array.from(this.files)); this.value='';" />
+      </label>
 
       <!-- Import Button -->
       <button onclick="openImportModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-900/30 hover:bg-blue-900/50 text-blue-200 hover:text-white text-xs font-semibold border border-blue-500/30 transition-all">
@@ -593,12 +612,19 @@ LEMBRETES:
               </button>
             </div>
 
-            <!-- Thumbnail Container (100% Fill on Screen & Print) -->
-            <div class="print-thumb-box w-32 md:w-36 h-20 shrink-0 relative group rounded-2xl overflow-hidden bg-[#070b1a] border border-blue-500/30" onclick="triggerImageUpload('${v.id}')">
+            <!-- Thumbnail Container (Auto Video Extractor & Drop Zone) -->
+            <div class="print-thumb-box w-32 md:w-36 h-20 shrink-0 relative group rounded-2xl overflow-hidden bg-[#070b1a] border border-blue-500/30 cursor-pointer transition-all" 
+                 onclick="triggerImageUpload('${v.id}')"
+                 ondragover="event.preventDefault(); event.stopPropagation(); this.classList.add('border-cyan-400', 'ring-2', 'ring-cyan-400/50');"
+                 ondragleave="event.stopPropagation(); this.classList.remove('border-cyan-400', 'ring-2', 'ring-cyan-400/50');"
+                 ondrop="handleCardDrop('${v.id}', event)"
+                 title="Clique para escolher foto/vídeo ou arraste um vídeo diretamente para cá">
               ${imageHtml}
-              <input type="file" id="file_${v.id}" accept="image/*" class="hidden" onchange="handleImageSelected('${v.id}', this)" />
-              <div class="absolute inset-0 bg-blue-950/80 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity no-print">
-                Trocar Foto
+              <input type="file" id="file_${v.id}" accept="image/*,video/*" class="hidden" onchange="handleMediaSelected('${v.id}', this)" />
+              <div class="absolute inset-0 bg-blue-950/85 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[10px] font-bold transition-opacity no-print text-center px-1">
+                <i data-lucide="video" class="w-4 h-4 mb-0.5 text-cyan-300"></i>
+                <span>Solte o Vídeo / Foto</span>
+                <span class="text-[8px] text-cyan-300/80 font-normal">Auto-Thumbnail</span>
               </div>
             </div>
 
@@ -775,21 +801,198 @@ LEMBRETES:
       document.getElementById('file_' + id)?.click();
     }
 
-    function handleImageSelected(id, input) {
-      const file = input.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const video = currentRoteiro.videos.find(v => v.id === id);
-          if (video) {
-            video.image = e.target.result;
-            renderVideosList();
-            saveCurrentRoteiro();
-            lucide.createIcons();
+    // AUTOMATIC VIDEO THUMBNAIL & DURATION EXTRACTOR (100% Client-Side)
+    function extractThumbnailAndDurationFromVideo(file, targetSec = 1.0) {
+      return new Promise((resolve, reject) => {
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.muted = true;
+        video.playsInline = true;
+        const url = URL.createObjectURL(file);
+        video.src = url;
+
+        // Fallback timeout in case video format is not seekable
+        const timeout = setTimeout(() => {
+          URL.revokeObjectURL(url);
+          reject(new Error("Timeout ao processar vídeo"));
+        }, 12000);
+
+        video.onloadedmetadata = () => {
+          const durationSec = video.duration || 0;
+          // Capture frame at 1s or 15% of duration to guarantee a clear non-black frame
+          const seekTime = Math.min(Math.max(0.5, targetSec), Math.max(0.5, durationSec * 0.15));
+          video.currentTime = seekTime;
+        };
+
+        video.onseeked = () => {
+          clearTimeout(timeout);
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 360;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+            URL.revokeObjectURL(url);
+            resolve({
+              thumbnail: dataUrl,
+              durationSec: Math.round(video.duration || 0),
+              durationFormatted: formatDurationString(video.duration || 0),
+              width: video.videoWidth,
+              height: video.videoHeight
+            });
+          } catch (err) {
+            URL.revokeObjectURL(url);
+            reject(err);
           }
         };
+
+        video.onerror = (e) => {
+          clearTimeout(timeout);
+          URL.revokeObjectURL(url);
+          reject(e);
+        };
+      });
+    }
+
+    function formatDurationString(sec) {
+      if (isNaN(sec) || sec <= 0) return "00:00''";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}''`;
+    }
+
+    function cleanVideoTitle(fileName) {
+      return fileName
+        .replace(/\.[^/.]+$/, "") // Remove file extension (.mp4, .mov, etc)
+        .replace(/[_-]+/g, " ")   // Replace underscores and dashes with spaces
+        .replace(/\s+/g, " ")     // Collapse multiple spaces
+        .trim()
+        .toUpperCase();
+    }
+
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
         reader.readAsDataURL(file);
+      });
+    }
+
+    // HANDLE MEDIA FOR SPECIFIC CARD (Input Change or Drag Drop)
+    async function handleMediaSelected(id, input) {
+      const file = input.files[0];
+      if (file) {
+        await processMediaForCard(id, file);
       }
+    }
+
+    async function handleCardDrop(id, e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const box = e.currentTarget;
+      box.classList.remove('border-cyan-400', 'ring-2', 'ring-cyan-400/50');
+      
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length > 0) {
+        await processMediaForCard(id, files[0]);
+      }
+    }
+
+    async function processMediaForCard(id, file) {
+      const video = currentRoteiro.videos.find(v => v.id === id);
+      if (!video) return;
+
+      const isVideoFile = file.type.startsWith('video') || file.name.match(/\.(mp4|mov|mkv|avi|webm|ts|m4v)$/i);
+
+      if (isVideoFile) {
+        try {
+          const info = await extractThumbnailAndDurationFromVideo(file);
+          video.image = info.thumbnail;
+          video.duration = info.durationFormatted;
+          video.seconds = info.durationSec;
+          
+          // Auto-update title if it's default
+          if (!video.title || video.title === 'NOVO VÍDEO' || video.title.startsWith('Vídeo ') || video.title === 'VÍDEO 1') {
+            video.title = cleanVideoTitle(file.name);
+          }
+        } catch (err) {
+          console.error("Erro ao extrair miniatura:", err);
+          alert('Não foi possível extrair a foto automaticamente do vídeo. Tente selecionar uma imagem.');
+        }
+      } else if (file.type.startsWith('image')) {
+        const dataUrl = await readFileAsDataUrl(file);
+        video.image = dataUrl;
+      }
+
+      renderVideosList();
+      calculateTotalTime();
+      saveCurrentRoteiro();
+      lucide.createIcons();
+    }
+
+    // GLOBAL DRAG & DROP FOR BATCH VIDEOS
+    window.addEventListener('dragenter', (e) => {
+      if (e.dataTransfer.types && e.dataTransfer.types.includes('Files')) {
+        document.getElementById('globalDropOverlay').classList.remove('hidden');
+      }
+    });
+
+    window.addEventListener('dragover', (e) => {
+      e.preventDefault();
+    });
+
+    window.addEventListener('dragleave', (e) => {
+      if (e.clientX <= 0 || e.clientY <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
+        document.getElementById('globalDropOverlay').classList.add('hidden');
+      }
+    });
+
+    window.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      document.getElementById('globalDropOverlay').classList.add('hidden');
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length > 0) {
+        await processDroppedBatchFiles(files);
+      }
+    });
+
+    async function processDroppedBatchFiles(files) {
+      for (const file of files) {
+        const isVideo = file.type.startsWith('video') || file.name.match(/\.(mp4|mov|mkv|avi|webm|ts|m4v)$/i);
+        const isImage = file.type.startsWith('image');
+
+        if (isVideo) {
+          try {
+            const info = await extractThumbnailAndDurationFromVideo(file);
+            currentRoteiro.videos.push({
+              id: "v_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
+              title: cleanVideoTitle(file.name),
+              duration: info.durationFormatted,
+              seconds: info.durationSec,
+              type: "Testemunho",
+              image: info.thumbnail
+            });
+          } catch (err) {
+            console.error("Erro no lote de vídeos:", err);
+          }
+        } else if (isImage) {
+          const dataUrl = await readFileAsDataUrl(file);
+          currentRoteiro.videos.push({
+            id: "v_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
+            title: cleanVideoTitle(file.name),
+            duration: "02:00''",
+            seconds: 120,
+            type: "Testemunho",
+            image: dataUrl
+          });
+        }
+      }
+
+      renderVideosList();
+      calculateTotalTime();
+      saveCurrentRoteiro();
+      lucide.createIcons();
     }
 
     function addNewLembrete() {
