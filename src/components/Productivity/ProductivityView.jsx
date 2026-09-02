@@ -141,7 +141,10 @@ export default function ProductivityView({ darkMode }) {
           </div>
           <div className="flex items-center gap-2">
             <button 
-              onClick={() => window.open(tool.iframeUrl, '_blank')}
+              onClick={() => {
+                const url = tool.iframeUrl.includes('?') ? `${tool.iframeUrl}&_t=${Date.now()}` : `${tool.iframeUrl}?_t=${Date.now()}`;
+                window.open(url, '_blank');
+              }}
               className="p-1.5 px-2.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-colors flex items-center gap-1.5 text-xs font-medium border border-white/[0.06]"
               title="Abrir em tela cheia em nova guia"
             >
@@ -161,10 +164,10 @@ export default function ProductivityView({ darkMode }) {
         </div>
         
         <iframe 
-          src={tool.iframeUrl} 
+          src={tool.iframeUrl.includes('?') ? `${tool.iframeUrl}&_t=${Date.now()}` : `${tool.iframeUrl}?_t=${Date.now()}`}
           className="flex-1 w-full h-full border-none relative z-1 bg-[#1a1a1a]"
           title={tool.title}
-          allow="microphone; camera; display-capture; clipboard-read; clipboard-write"
+          allow="microphone; camera; display-capture; clipboard-read; clipboard-write; fullscreen"
         />
       </div>
     );
