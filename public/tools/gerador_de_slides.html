@@ -1098,40 +1098,49 @@ Regras Críticas:
 Lista de slides atuais:
 ${JSON.stringify(slidesData, null, 2)}`;
 
-            let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+            const modelsToTry = [
+                'gemini-flash-lite-latest',
+                'gemini-2.5-flash',
+                'gemini-2.0-flash',
+                'gemini-1.5-flash-latest',
+                'gemini-3.5-flash-lite',
+                'gemini-3.6-flash'
+            ];
+
+            const callGeminiValidation = async (modelIdx = 0) => {
+                const model = modelsToTry[modelIdx] || 'gemini-flash-lite-latest';
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+                const payload = {
                     contents: [{ parts: [{ text: prompt }] }],
                     generationConfig: {
-                        responseMimeType: "application/json"
+                        temperature: 0.2
                     }
-                })
-            });
+                };
 
-            let result;
-            if (!response.ok) {
-                // Try fallback 1.5-flash
-                const fallback = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: { responseMimeType: "application/json" }
-                    })
+                    body: JSON.stringify(payload)
                 });
-                if (!fallback.ok) {
-                    const err = await fallback.json().catch(() => ({}));
-                    throw new Error(err.error?.message || "Erro na validação da API Gemini");
-                }
-                result = await fallback.json();
-            } else {
-                result = await response.json();
-            }
 
-            const rawJson = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!res.ok) {
+                    let errData = {};
+                    try { errData = await res.json(); } catch(e) {}
+                    const errMsg = errData.error?.message || `HTTP ${res.status}`;
+                    if (modelIdx < modelsToTry.length - 1) {
+                        return callGeminiValidation(modelIdx + 1);
+                    }
+                    throw new Error(errMsg);
+                }
+                return await res.json();
+            };
+
+            const result = await callGeminiValidation(0);
+            let rawJson = result.candidates?.[0]?.content?.parts?.[0]?.text;
             if (!rawJson) throw new Error("A IA não retornou uma resposta válida.");
             
+            // Clean up any Markdown code block wrapping
+            rawJson = rawJson.replace(/```json\s*/gi, '').replace(/```\s*$/gi, '').trim();
             const parsed = JSON.parse(rawJson);
             if (parsed && Array.isArray(parsed.slides) && parsed.slides.length > 0) {
                 // Re-populate slides with validated structure
