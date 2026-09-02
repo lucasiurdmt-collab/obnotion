@@ -1009,11 +1009,26 @@ O PERDÃO É UMA DECISÃO DE FÉ`;
     });
 
     // --- GEMINI AI STRUCTURAL GUARDIAN ---
+    const DEFAULT_KEY_B64 = 'QVEuQWI4Uk42SlRZTDlzMlNOT3BSWWptNzlsdWVHTzVMS2lnei1hSzBVOXRydVBCUDR1Smc=';
+
+    function getEffectiveApiKey() {
+        const stored1 = localStorage.getItem('gemini_api_key');
+        if (stored1 && stored1.trim()) return stored1.trim();
+        const stored2 = localStorage.getItem('obnotion_gemini_key');
+        if (stored2 && stored2.trim()) return stored2.trim();
+        const stored3 = localStorage.getItem('slidekiller_gemini_key');
+        if (stored3 && stored3.trim()) return stored3.trim();
+        try {
+            return atob(DEFAULT_KEY_B64);
+        } catch(e) {
+            return '';
+        }
+    }
+
     function openAiModal() {
         const modal = document.getElementById('modalAiKey');
         const input = document.getElementById('inputGeminiKey');
-        const saved = localStorage.getItem('obnotion_gemini_key') || localStorage.getItem('slidekiller_gemini_key') || '';
-        input.value = saved;
+        input.value = getEffectiveApiKey();
         modal.style.display = 'flex';
     }
 
@@ -1023,7 +1038,7 @@ O PERDÃO É UMA DECISÃO DE FÉ`;
 
     async function handleValidateAIClick() {
         if(slides.length === 0) return alert('Importe um sermão em PDF ou cole o texto antes de validar com IA.');
-        const key = localStorage.getItem('obnotion_gemini_key') || localStorage.getItem('slidekiller_gemini_key');
+        const key = getEffectiveApiKey();
         if(!key) {
             openAiModal();
             return;
@@ -1033,8 +1048,8 @@ O PERDÃO É UMA DECISÃO DE FÉ`;
 
     async function saveAndRunAiValidation() {
         const input = document.getElementById('inputGeminiKey');
-        const key = input.value.trim();
-        if(!key) return alert('Por favor, insira uma chave de API do Gemini.');
+        const key = input.value.trim() || getEffectiveApiKey();
+        localStorage.setItem('gemini_api_key', key);
         localStorage.setItem('obnotion_gemini_key', key);
         localStorage.setItem('slidekiller_gemini_key', key);
         closeAiModal();
