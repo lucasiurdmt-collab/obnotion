@@ -78,8 +78,8 @@ export default function ProductivityView({ darkMode }) {
         'Editor visual estilo Canvas (drag-and-drop)',
         'Geração e exportação de arquivos PPTX nativos'
       ],
-      path: `${import.meta.env.BASE_URL}tools/gerador_de_slides.html?v=texto_e_pdf`,
-      iframeUrl: `${import.meta.env.BASE_URL}tools/gerador_de_slides.html?v=texto_e_pdf`
+      path: `${import.meta.env.BASE_URL}tools/gerador_de_slides.html?v=ai_val_v4`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/gerador_de_slides.html?v=ai_val_v4`
     },
     {
       id: 'biblia',
