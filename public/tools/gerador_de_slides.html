@@ -137,20 +137,57 @@
 
 <header>
     <h1><svg width="20" height="20" viewBox="0 0 24 24" fill="var(--primary)"><path d="M21 3H3C2 3 1 4 1 5V19C1 20 2 21 3 21H21C22 21 23 20 23 19V5C23 4 22 3 21 3ZM21 19H3V5H21V19Z"/><path d="M7 9L12 14L17 9H7Z"/></svg>
-        Gerador de Slides <span class="badge">PRO</span>
+        Slidekiller / Gerador de Slides <span class="badge">16:9 PRO</span>
     </h1>
-    <div style="display:flex; gap:10px; align-items:center;">
+    <div style="display:flex; gap:8px; align-items:center;">
         <button class="btn btn-outline" onclick="openNewSermonModal()" title="Importar outro sermão ou colar novo texto">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/></svg>
-            Novo Sermão / Colar Texto
+            <span>Novo / Colar</span>
         </button>
-        <input type="text" id="outFileName" value="Apresentacao.pptx" class="prop-input" style="width:180px; font-weight:500;" />
+
+        <!-- AI Validation Button -->
+        <button class="btn" id="btnValidateAI" onclick="handleValidateAIClick()" style="background: linear-gradient(135deg, #8b5cf6, #3b82f6); box-shadow: 0 2px 8px rgba(139,92,246,0.3);" title="Validar referências bíblicas e quebras de versículos com Inteligência Artificial">
+            <span>✨</span>
+            <span>Validar com IA</span>
+        </button>
+
+        <button class="btn-icon" id="btnConfigAI" onclick="openAiModal()" title="Configurar Chave da IA Gemini" style="font-size:14px; padding:6px;">
+            ⚙️
+        </button>
+
+        <input type="text" id="outFileName" value="Apresentacao.pptx" class="prop-input" style="width:170px; font-weight:500;" />
         <button class="btn" id="btnExport">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19 9H15V3H9V9H5L12 16L19 9ZM5 18V20H19V18H5Z"/></svg>
             Exportar PPTX
         </button>
     </div>
 </header>
+
+<!-- Modal de Chave da IA Gemini -->
+<div id="modalAiKey" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; backdrop-filter: blur(4px);">
+    <div style="background:var(--bg-panel); border:1px solid var(--border); border-radius:16px; padding:24px; max-width:460px; width:90%; box-shadow:0 20px 50px rgba(0,0,0,0.7); text-align:left;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="margin:0; font-size:16px; color:var(--text-light); display:flex; align-items:center; gap:8px; font-weight:700;">
+                ✨ Validação Estrutural com IA
+            </h3>
+            <button class="btn-icon" onclick="closeAiModal()" style="font-size:16px;">✕</button>
+        </div>
+        <p style="font-size:12px; color:var(--text-dim); margin-bottom:16px; line-height:1.5;">
+            A IA atua exclusivamente como <strong>Guardiã Estrutural do Sermão</strong>: ela valida e padroniza referências bíblicas e aperfeiçoa as quebras de versículos para a TV, <strong>sem alterar nenhuma palavra original nem inventar textos</strong>.
+        </p>
+        <div style="margin-bottom:16px;">
+            <label style="font-size:11px; font-weight:600; color:var(--text-dim); display:block; margin-bottom:6px;">Chave de API do Google Gemini:</label>
+            <input type="password" id="inputGeminiKey" placeholder="Cole sua chave AIzaSy..." class="prop-input" style="width:100%; box-sizing:border-box; font-family: monospace;" />
+            <small style="display:block; margin-top:6px; font-size:11px;">
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--primary); text-decoration:none; font-weight:600;">🔗 Obter chave gratuita no Google AI Studio</a>
+            </small>
+        </div>
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button class="btn btn-outline" onclick="closeAiModal()">Cancelar</button>
+            <button class="btn" id="btnSaveAiKey" onclick="saveAndRunAiValidation()">Salvar e Validar</button>
+        </div>
+    </div>
+</div>
 
 <div id="setup">
     <h2 style="margin-top:0; color:var(--text-light); font-weight:600;">Bem-vindo ao Estúdio de Apresentações</h2>
@@ -970,6 +1007,151 @@ O PERDÃO É UMA DECISÃO DE FÉ`;
         } catch(e) { alert("Erro: "+e.message); }
         btn.innerText = "💾 EXPORTAR PPTX";
     });
+
+    // --- GEMINI AI STRUCTURAL GUARDIAN ---
+    function openAiModal() {
+        const modal = document.getElementById('modalAiKey');
+        const input = document.getElementById('inputGeminiKey');
+        const saved = localStorage.getItem('obnotion_gemini_key') || localStorage.getItem('slidekiller_gemini_key') || '';
+        input.value = saved;
+        modal.style.display = 'flex';
+    }
+
+    function closeAiModal() {
+        document.getElementById('modalAiKey').style.display = 'none';
+    }
+
+    async function handleValidateAIClick() {
+        if(slides.length === 0) return alert('Importe um sermão em PDF ou cole o texto antes de validar com IA.');
+        const key = localStorage.getItem('obnotion_gemini_key') || localStorage.getItem('slidekiller_gemini_key');
+        if(!key) {
+            openAiModal();
+            return;
+        }
+        await executeAiValidation(key);
+    }
+
+    async function saveAndRunAiValidation() {
+        const input = document.getElementById('inputGeminiKey');
+        const key = input.value.trim();
+        if(!key) return alert('Por favor, insira uma chave de API do Gemini.');
+        localStorage.setItem('obnotion_gemini_key', key);
+        localStorage.setItem('slidekiller_gemini_key', key);
+        closeAiModal();
+        await executeAiValidation(key);
+    }
+
+    async function executeAiValidation(apiKey) {
+        const btn = document.getElementById('btnValidateAI');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `<span>⏳</span><span>Validando Estrutura...</span>`;
+        btn.style.opacity = '0.8';
+
+        try {
+            commitText();
+            const slidesData = slides.map((s, idx) => {
+                const textElements = s.elements.filter(e => e.type === 'text');
+                const refEl = textElements.find(e => e.isRef);
+                const bodyEl = textElements.find(e => !e.isRef);
+                return {
+                    index: idx + 1,
+                    type: s.type,
+                    reference: refEl ? refEl.content : '',
+                    content: bodyEl ? bodyEl.content : ''
+                };
+            });
+
+            const prompt = `Você é o Guardião Estrutural de Slides de Sermão e Culto (16:9 Full HD).
+Analise a estrutura dos slides deste sermão e atue estritamente corrigindo a quebra e padronização das referências bíblicas e textos.
+
+Regras Críticas:
+1. NÃO altere, não reescreva e não resuma nenhuma palavra do sermão original. Preserve 100% da mensagem do pastor.
+2. Referências Bíblicas: Devem ficar sempre em caixa alta, padronizadas no formato "LIVRO CAPÍTULO:VERSÍCULOS" (ex: "MATEUS 6: 14-15", "MARCOS 11: 25", "MATEUS 7: 21").
+3. Quebras de Versículos: Se um versículo bíblico ou reflexão ficou cortado de forma brusca no meio de uma frase, ajuste a quebra entre os slides para que cada slide termine em uma pontuação natural (. , ; ! ?).
+4. Retorne OBRIGATORIAMENTE um JSON estrito no seguinte formato:
+{
+  "slides": [
+    {
+      "index": 1,
+      "type": "verse" ou "reflection" ou "topic",
+      "reference": "MATEUS 6: 14-15",
+      "content": "Texto exato do slide..."
+    }
+  ]
+}
+
+Lista de slides atuais:
+${JSON.stringify(slidesData, null, 2)}`;
+
+            let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json"
+                    }
+                })
+            });
+
+            let result;
+            if (!response.ok) {
+                // Try fallback 1.5-flash
+                const fallback = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+                if (!fallback.ok) {
+                    const err = await fallback.json().catch(() => ({}));
+                    throw new Error(err.error?.message || "Erro na validação da API Gemini");
+                }
+                result = await fallback.json();
+            } else {
+                result = await response.json();
+            }
+
+            const rawJson = result.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!rawJson) throw new Error("A IA não retornou uma resposta válida.");
+            
+            const parsed = JSON.parse(rawJson);
+            if (parsed && Array.isArray(parsed.slides) && parsed.slides.length > 0) {
+                // Re-populate slides with validated structure
+                const newSlidesList = [];
+                for (const aiSlide of parsed.slides) {
+                    const s = newSlide(aiSlide.type || 'reflection');
+                    const textContent = aiSlide.content || '';
+                    const refContent = aiSlide.reference || '';
+
+                    if (aiSlide.type === 'verse') {
+                        if (refContent) s.elements.push(newTextEl(refContent, true, 'verse'));
+                        s.elements.push(newTextEl(textContent, false, 'verse'));
+                    } else if (aiSlide.type === 'topic') {
+                        s.elements.push(newTextEl(textContent, false, 'topic'));
+                    } else {
+                        s.elements.push(newTextEl(textContent, false, 'reflection'));
+                    }
+                    newSlidesList.push(s);
+                }
+
+                slides = newSlidesList;
+                setSlide(0);
+                renderFilmstrip();
+                alert('✨ Validação com IA concluída! Referências bíblicas e quebras de versículos aperfeiçoadas.');
+            } else {
+                alert('A IA analisou os slides e a estrutura já está ideal.');
+            }
+        } catch(err) {
+            console.error("Erro na validação IA:", err);
+            alert("Erro ao validar com IA: " + (err.message || err) + "\nVerifique sua chave de API nas configurações (⚙️).");
+        } finally {
+            btn.innerHTML = originalText;
+            btn.style.opacity = '1';
+        }
+    }
 </script>
 </body>
 </html>
