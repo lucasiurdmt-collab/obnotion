@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Púlpito do Pastor & Retorno de Slides em Tempo Real • Obnotion</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+            }
+          },
+          fontFamily: {
+            sans: ['"Inter"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            bebas: ['"Bebas Neue"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Firebase Compat for Real-time Cloud Sync -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- PDF.js & PPTX Viewer Helpers -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background-color: #080a12;
+      font-family: 'Inter', -apple-system, sans-serif;
+      touch-action: manipulation;
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 9999px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+    /* Slide Highlight Golden Keywords */
+    .hl-gold {
+      color: #fbbf24;
+      text-shadow: 0 2px 10px rgba(251, 191, 36, 0.4);
+    }
+    
+    /* Touch Feedback */
+    .tap-active:active {
+      transform: scale(0.98);
+      filter: brightness(1.2);
+    }
+  </style>
+</head>
+<body class="h-screen w-screen flex flex-col overflow-hidden select-none bg-[#080a12] text-slate-100">
+
+  <!-- ========================================== -->
+  <!-- 1. TOP HEADER & MODE SELECTOR              -->
+  <!-- ========================================== -->
+  <header id="mainHeader" class="h-12 border-b border-purple-500/20 bg-[#0c0f1d] px-3 flex items-center justify-between shrink-0 z-30">
+    <div class="flex items-center gap-3">
+      <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/25 font-black text-xs">
+        <i data-lucide="cast" class="w-3.5 h-3.5"></i>
+      </div>
+      <div>
+        <h1 class="text-xs md:text-sm font-bold text-white flex items-center gap-2">
+          Púlpito & Retorno ao Vivo
+          <span id="connectionBadge" class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            AO VIVO
+          </span>
+        </h1>
+      </div>
+    </div>
+
+    <!-- Mode Switcher (Pastor Tablet vs Cabine Operador) -->
+    <div class="flex items-center gap-1 bg-[#12162a] p-1 rounded-xl border border-purple-500/25">
+      <button onclick="switchViewMode('pulpit')" id="btn-mode-pulpit" class="px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm" title="Modo Tablet para o Pastor">
+        <i data-lucide="tablet" class="w-3.5 h-3.5"></i>
+        <span>📱 Púlpito do Pastor</span>
+      </button>
+      <button onclick="switchViewMode('operator')" id="btn-mode-operator" class="px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5" title="Modo Operador de Mídia / Telão">
+        <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
+        <span>🖥️ Cabine / Operador</span>
+      </button>
+    </div>
+
+    <!-- Quick Tools & Clock -->
+    <div class="flex items-center gap-2">
+      <div id="liveClock" class="font-mono text-xs font-bold text-purple-300 bg-purple-950/40 px-2.5 py-1 rounded-lg border border-purple-500/30">
+        00:00:00
+      </div>
+      <button onclick="toggleFullScreen()" class="p-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-zinc-300 hover:text-white text-xs border border-white/[0.1] transition-all" title="Tela Cheia">
+        <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
+  </header>
+
+
+  <!-- ========================================== -->
+  <!-- 2. MODO PÚLPITO (TABLET DO PASTOR)        -->
+  <!-- Exatamente conforme o desenho do pastor:  -->
+  <!-- [ ▲ VOLTA ]                                -->
+  <!-- [ SLIDE PPTX DO VERSÍCULO ]                -->
+  <!-- [ ▼ AVANÇA ]                               -->
+  <!-- ========================================== -->
+  <main id="pulpitView" class="flex-1 flex flex-col bg-[#05060c] relative overflow-hidden select-none">
+    
+    <!-- 🔼 BOTÃO SUPERIOR: VOLTA (GRANDE & TÁTIL) -->
+    <button 
+      onclick="prevSlide()" 
+      class="h-20 sm:h-24 w-full bg-gradient-to-b from-indigo-950/80 to-[#0e1329]/90 hover:from-indigo-900/90 hover:to-[#141b38] active:bg-indigo-600 border-b-2 border-indigo-500/30 flex items-center justify-center gap-3 text-indigo-200 hover:text-white transition-all tap-active shrink-0 shadow-lg"
+      title="Retroceder Versículo"
+    >
+      <div class="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center shadow-inner">
+        <i data-lucide="chevron-up" class="w-7 h-7 text-indigo-300"></i>
+      </div>
+      <span class="text-xl sm:text-2xl font-black font-bebas tracking-widest uppercase">▲ V O L T A</span>
+    </button>
+
+    <!-- 🖼️ ÁREA CENTRAL: ARQUIVO PPTX / VERSÍCULO BÍBLICO DO PASTOR -->
+    <div class="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 relative overflow-hidden bg-gradient-to-b from-[#080b18] via-[#050711] to-[#080b18]">
+      
+      <!-- Slide Card Container (16:9 HD Proporção de Leitura) -->
+      <div class="w-full max-w-4xl h-full flex flex-col items-center justify-center text-center p-6 sm:p-10 rounded-3xl bg-black/60 border-2 border-purple-500/30 shadow-2xl relative">
+        
+        <!-- Header Info (Slide Index & Indicator) -->
+        <div class="absolute top-4 left-6 right-6 flex items-center justify-between border-b border-white/[0.08] pb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span id="pulpitSlideBadge" class="font-mono text-xs sm:text-sm font-bold text-purple-300">
+              SLIDE 1 DE 1
+            </span>
+          </div>
+          <div id="pulpitTypeBadge" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-200 border border-purple-500/30">
+            VERSÍCULO BÍBLICO
+          </div>
+        </div>
+
+        <!-- Biblical Reference Header (ex: MATEUS 6:14-15) -->
+        <div id="pulpitRefDisplay" class="font-bebas text-2xl sm:text-4xl text-purple-400 tracking-wider font-bold mb-4 mt-6">
+          MATEUS 6:14-15
+        </div>
+
+        <!-- Main Slide Text (Big High-Contrast Typography for Sermon Reading) -->
+        <div id="pulpitTextDisplay" class="font-sans font-extrabold text-2xl sm:text-4xl md:text-5xl leading-tight sm:leading-snug text-white max-w-3xl overflow-y-auto custom-scrollbar my-auto">
+          "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
+        </div>
+
+        <!-- Footer Progress Bar -->
+        <div class="w-full bg-white/[0.08] h-1.5 rounded-full overflow-hidden absolute bottom-0 left-0 right-0">
+          <div id="pulpitProgressBar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full transition-all duration-300" style="width: 10%;"></div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 🔽 BOTÃO INFERIOR: AVANÇA (GRANDE & TÁTIL) -->
+    <button 
+      onclick="nextSlide()" 
+      class="h-24 sm:h-28 w-full bg-gradient-to-t from-purple-950/90 to-[#120f26]/90 hover:from-purple-900 hover:to-[#1c183b] active:bg-purple-600 border-t-2 border-purple-500/40 flex items-center justify-center gap-3 text-purple-200 hover:text-white transition-all tap-active shrink-0 shadow-2xl"
+      title="Avançar Próximo Versículo"
+    >
+      <div class="w-12 h-12 rounded-full bg-purple-500/20 border border-purple-400/40 flex items-center justify-center shadow-inner">
+        <i data-lucide="chevron-down" class="w-8 h-8 text-purple-300"></i>
+      </div>
+      <span class="text-2xl sm:text-3xl font-black font-bebas tracking-widest uppercase">▼ A V A N Ç A</span>
+    </button>
+
+  </main>
+
+
+  <!-- ========================================== -->
+  <!-- 3. MODO OPERADOR / CABINE (COMPUTADOR)    -->
+  <!-- Retorno em tempo real, Telão & Controles  -->
+  <!-- ========================================== -->
+  <main id="operatorView" class="flex-1 flex overflow-hidden bg-[#070913] hidden">
+    
+    <!-- LEFT: RETORNO AO VIVO & CONTROLE DO TELÃO -->
+    <div class="flex-1 flex flex-col p-4 space-y-4 overflow-y-auto custom-scrollbar">
+      
+      <!-- Top Banner Status -->
+      <div class="p-4 rounded-2xl bg-[#0f1429] border border-purple-500/30 flex items-center justify-between shadow-xl">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-purple-300">
+            <i data-lucide="radio" class="w-5 h-5 animate-pulse"></i>
+          </div>
+          <div>
+            <div class="text-xs text-zinc-400 font-medium">Status do Pastor no Púlpito</div>
+            <div id="operatorPastorStatus" class="text-sm font-bold text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              Pastor está no <span id="opActiveSlideNum" class="text-purple-300 font-mono">Slide 1 de 1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Projector / TV Screen Trigger Buttons -->
+        <div class="flex items-center gap-2">
+          <button onclick="toggleBlackout()" id="btnBlackout" class="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold border border-zinc-700 flex items-center gap-1.5 transition-all">
+            <i data-lucide="eye-off" class="w-4 h-4"></i>
+            <span id="blackoutLabel">Blackout Telão</span>
+          </button>
+
+          <button onclick="openProjectorWindow()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 flex items-center gap-1.5 transition-all active:scale-95">
+            <i data-lucide="projector" class="w-4 h-4"></i>
+            <span>📺 Abrir Janela do Telão (HDMI)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Slide Mirrored View (O que está no Tablet do Pastor) -->
+      <div class="p-4 rounded-2xl bg-[#0b0e1e] border border-white/[0.08] space-y-3">
+        <div class="flex items-center justify-between text-xs font-bold text-zinc-400">
+          <span class="flex items-center gap-1.5 uppercase tracking-wider text-purple-300">
+            <i data-lucide="tablet" class="w-4 h-4"></i> Retorno em Tempo Real do Tablet do Pastor
+          </span>
+          <label class="flex items-center gap-2 cursor-pointer text-[11px] text-zinc-300">
+            <input type="checkbox" id="checkAutoSync" checked class="accent-purple-500 rounded" />
+            <span>Auto-Projetar com o Pastor</span>
+          </label>
+        </div>
+
+        <!-- Mirrored Screen Box -->
+        <div class="w-full aspect-video bg-black rounded-2xl border-2 border-purple-500/40 p-8 flex flex-col items-center justify-center text-center shadow-2xl relative">
+          <div id="opMirroredRef" class="font-bebas text-3xl sm:text-4xl text-purple-400 font-bold mb-2">
+            MATEUS 6:14-15
+          </div>
+          <div id="opMirroredText" class="font-sans font-extrabold text-xl sm:text-3xl text-white max-w-2xl leading-snug">
+            "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
+          </div>
+          <div class="absolute bottom-3 right-4 font-mono text-xs text-purple-400 font-bold bg-purple-950/60 px-2 py-0.5 rounded border border-purple-500/30">
+            RETORNO DO PÚLPITO
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid of Slides (Miniaturas de todos os versículos) -->
+      <div class="space-y-2">
+        <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+          Lista de Slides do Sermão (<span id="totalSlidesCount">0</span>)
+        </div>
+        
+        <div id="operatorSlidesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          <!-- Dynamic Slide Cards -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: CARREGADOR DE PPTX & VERSÍCULOS -->
+    <aside class="w-80 bg-[#0c0f20] border-l border-purple-500/20 p-4 flex flex-col justify-between shrink-0 space-y-4">
+      <div class="space-y-3">
+        <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5 pb-2 border-b border-purple-500/20">
+          <i data-lucide="file-plus" class="w-4 h-4 text-purple-400"></i> Carregar Novo Sermão
+        </h3>
+
+        <!-- Option 1: Paste Text / Verses -->
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-bold text-zinc-300">Colar Esboço / Versículos Bíblicos:</label>
+          <textarea 
+            id="inputSermonText" 
+            rows="6" 
+            placeholder="Cole o sermão do pastor ou versículos aqui:&#10;Ex: MATEUS 6:14-15&#10;Porque, se perdoardes...&#10;&#10;MARCOS 11:25&#10;E, quando estiverdes orando..." 
+            class="w-full bg-[#12162c] border border-purple-500/30 rounded-xl p-2.5 text-xs text-white outline-none focus:border-purple-400 font-mono resize-none"
+          ></textarea>
+          <button onclick="generateSlidesFromText()" class="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all">
+            ⚡ Carregar e Sincronizar com o Tablet
+          </button>
+        </div>
+
+        <!-- Option 2: Upload PDF/PPTX -->
+        <div class="pt-2 border-t border-white/[0.08] space-y-2">
+          <label class="text-[11px] font-bold text-zinc-300">Ou Importar Arquivo PDF:</label>
+          <input type="file" id="pdfFileInput" accept="application/pdf" class="hidden" onchange="handlePdfUpload(event)" />
+          <button onclick="document.getElementById('pdfFileInput').click()" class="w-full py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.1] text-zinc-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all">
+            <i data-lucide="upload" class="w-3.5 h-3.5 text-purple-400"></i>
+            <span>Importar Arquivo PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Control Helper -->
+      <div class="p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-[11px] text-purple-200 space-y-1">
+        <div class="font-bold flex items-center gap-1 text-purple-300">
+          <i data-lucide="info" class="w-3.5 h-3.5"></i> Sincronização em Tempo Real:
+        </div>
+        <p class="text-zinc-400 text-[10px] leading-relaxed">
+          Tanto o pastor no tablet quanto você no computador estão conectados na mesma sala. Qualquer toque do pastor reflete aqui instantaneamente.
+        </p>
+      </div>
+    </aside>
+
+  </main>
+
+
+  <!-- ========================================== -->
+  <!-- 4. JAVASCRIPT & REALTIME SYNCHRONIZATION   -->
+  <!-- ========================================== -->
+  <script>
+    // --- FIREBASE REALTIME SETUP ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyBVjIRp2UaWydMB03EMGGC3DjiJds0FVKU",
+      authDomain: "obnotion-ebfdd.firebaseapp.com",
+      projectId: "obnotion-ebfdd",
+      storageBucket: "obnotion-ebfdd.firebasestorage.app",
+      messagingSenderId: "535947512706",
+      appId: "1:535947512706:web:bc6aa1ffb0765301505d9b"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const liveDocRef = db.collection('pulpito_rooms').doc('culto_central');
+    const localChannel = new BroadcastChannel('obnotion_pulpito_live_channel');
+
+    // --- STATE ---
+    let currentSlideIdx = 0;
+    let isBlackout = false;
+    let projectorWindow = null;
+    let currentMode = 'pulpit'; // 'pulpit' | 'operator' | 'projector'
+
+    let slides = [
+      {
+        reference: "MATEUS 6:14-15",
+        text: "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós.",
+        type: "verse"
+      },
+      {
+        reference: "MATEUS 6:15",
+        text: "Se, porém, não perdoardes aos homens as suas ofensas, tampouco vosso Pai vos perdoará as vossas ofensas.",
+        type: "verse"
+      },
+      {
+        reference: "MARCOS 11:25",
+        text: "E, quando estiverdes orando, se tendes alguma coisa contra alguém, perdoai, para que vosso Pai celestial vos perdoe.",
+        type: "verse"
+      }
+    ];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      startClock();
+      setupLiveSync();
+      renderAllViews();
+
+      // Check URL parameters (e.g. ?mode=operator or ?mode=projector)
+      const urlParams = new URLSearchParams(window.location.search);
+      const modeParam = urlParams.get('mode');
+      if (modeParam === 'operator') {
+        switchViewMode('operator');
+      } else if (modeParam === 'projector') {
+        renderProjectorModeOnly();
+      }
+
+      // Keyboard navigation
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+          nextSlide();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          prevSlide();
+        } else if (e.key === 'b' || e.key === 'B') {
+          toggleBlackout();
+        }
+      });
+    });
+
+    // --- REALTIME SYNCHRONIZATION ENGINE ---
+    function setupLiveSync() {
+      // 1. Listen to Cloud Firestore changes in real-time
+      liveDocRef.onSnapshot((doc) => {
+        if (doc.exists) {
+          const data = doc.data();
+          if (data.slides && Array.isArray(data.slides)) {
+            slides = data.slides;
+          }
+          if (typeof data.currentSlideIdx === 'number') {
+            currentSlideIdx = Math.max(0, Math.min(data.currentSlideIdx, slides.length - 1));
+          }
+          if (typeof data.isBlackout === 'boolean') {
+            isBlackout = data.isBlackout;
+          }
+          renderAllViews();
+        }
+      }, (err) => {
+        console.warn("Firestore sync offline fallback:", err);
+      });
+
+      // 2. Listen to Local Tab Broadcast Channel (Zero Latency)
+      localChannel.onmessage = (msg) => {
+        if (msg.data) {
+          if (msg.data.slides) slides = msg.data.slides;
+          if (typeof msg.data.currentSlideIdx === 'number') currentSlideIdx = msg.data.currentSlideIdx;
+          if (typeof msg.data.isBlackout === 'boolean') isBlackout = msg.data.isBlackout;
+          renderAllViews();
+        }
+      };
+    }
+
+    async function broadcastLiveState() {
+      renderAllViews();
+      
+      const payload = {
+        slides: slides,
+        currentSlideIdx: currentSlideIdx,
+        isBlackout: isBlackout,
+        timestamp: Date.now()
+      };
+
+      // Local broadcast
+      localChannel.postMessage(payload);
+
+      // Cloud Firestore broadcast
+      try {
+        await liveDocRef.set(payload, { merge: true });
+      } catch(e) {
+        console.warn("Cloud sync error:", e);
+      }
+    }
+
+    // --- NAVIGATION ---
+    function nextSlide() {
+      if (currentSlideIdx < slides.length - 1) {
+        currentSlideIdx++;
+        broadcastLiveState();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlideIdx > 0) {
+        currentSlideIdx--;
+        broadcastLiveState();
+      }
+    }
+
+    function goToSlide(idx) {
+      currentSlideIdx = Math.max(0, Math.min(idx, slides.length - 1));
+      broadcastLiveState();
+    }
+
+    function toggleBlackout() {
+      isBlackout = !isBlackout;
+      broadcastLiveState();
+    }
+
+    // --- RENDERING ---
+    function renderAllViews() {
+      const cur = slides[currentSlideIdx] || { reference: "", text: "Nenhum slide carregado.", type: "verse" };
+
+      // 1. Pulpit Tablet View
+      document.getElementById('pulpitRefDisplay').textContent = cur.reference || "PALAVRA DE DEUS";
+      document.getElementById('pulpitTextDisplay').textContent = cur.text || "";
+      document.getElementById('pulpitSlideBadge').textContent = `SLIDE ${currentSlideIdx + 1} DE ${slides.length}`;
+      document.getElementById('pulpitTypeBadge').textContent = cur.type === 'verse' ? 'VERSÍCULO BÍBLICO' : 'MENSAGEM';
+      
+      const pct = slides.length > 1 ? ((currentSlideIdx + 1) / slides.length) * 100 : 100;
+      document.getElementById('pulpitProgressBar').style.width = `${pct}%`;
+
+      // 2. Operator Cabine View
+      document.getElementById('opActiveSlideNum').textContent = `Slide ${currentSlideIdx + 1} de ${slides.length}`;
+      document.getElementById('opMirroredRef').textContent = cur.reference || "PALAVRA DE DEUS";
+      document.getElementById('opMirroredText').textContent = isBlackout ? "⚫ TELÃO EM BLACKOUT (APAGADO)" : (cur.text || "");
+      document.getElementById('totalSlidesCount').textContent = slides.length;
+
+      const blackoutBtn = document.getElementById('btnBlackout');
+      const blackoutLabel = document.getElementById('blackoutLabel');
+      if (isBlackout) {
+        blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold border border-rose-500 flex items-center gap-1.5 transition-all shadow-lg shadow-rose-600/30";
+        blackoutLabel.textContent = "Reativar Telão";
+      } else {
+        blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold border border-zinc-700 flex items-center gap-1.5 transition-all";
+        blackoutLabel.textContent = "Blackout Telão";
+      }
+
+      // Render Operator Thumbnails Grid
+      const grid = document.getElementById('operatorSlidesGrid');
+      grid.innerHTML = '';
+      slides.forEach((s, i) => {
+        const isAct = i === currentSlideIdx;
+        const card = document.createElement('div');
+        card.className = `p-3 rounded-2xl border ${isAct ? 'border-purple-400 bg-purple-950/60 shadow-lg shadow-purple-600/30 ring-2 ring-purple-500' : 'border-white/[0.08] bg-[#101426] hover:border-purple-500/40'} cursor-pointer flex flex-col justify-between h-28 transition-all group select-none`;
+        card.onclick = () => goToSlide(i);
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between text-[10px] font-mono font-bold ${isAct ? 'text-purple-300' : 'text-zinc-500'}">
+              <span>SLIDE ${i + 1}</span>
+              ${isAct ? '<span class="px-1.5 py-0.2 rounded bg-purple-500 text-white font-sans text-[9px] font-black animate-pulse">PASTOR AQUI</span>' : ''}
+            </div>
+            <div class="text-xs font-bold text-white truncate mt-1">${s.reference || 'Versículo'}</div>
+          </div>
+          <div class="text-[10px] text-zinc-400 line-clamp-2 leading-tight">${s.text}</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // --- MODE SWITCHER ---
+    function switchViewMode(mode) {
+      currentMode = mode;
+      const pulpit = document.getElementById('pulpitView');
+      const operator = document.getElementById('operatorView');
+
+      const btnP = document.getElementById('btn-mode-pulpit');
+      const btnO = document.getElementById('btn-mode-operator');
+
+      if (mode === 'pulpit') {
+        pulpit.classList.remove('hidden');
+        operator.classList.add('hidden');
+        btnP.className = "px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
+        btnO.className = "px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
+      } else {
+        pulpit.classList.add('hidden');
+        operator.classList.remove('hidden');
+        btnO.className = "px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
+        btnP.className = "px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
+      }
+      lucide.createIcons();
+    }
+
+    // --- GENERATE SLIDES FROM TEXT ---
+    function generateSlidesFromText() {
+      const raw = document.getElementById('inputSermonText').value.trim();
+      if (!raw) return alert('Por favor, cole algum versículo ou texto do sermão.');
+
+      const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      const newSlides = [];
+
+      let curRef = "";
+      let curText = [];
+
+      const refRegex = /^(?:[1-3]\s*)?[A-ZÀ-Úa-zà-ú]{3,15}\s*\d{1,3}\s*:\s*\d{1,3}(?:\s*[-–]\s*\d{1,3})?/i;
+
+      lines.forEach(line => {
+        if (refRegex.test(line)) {
+          if (curRef || curText.length > 0) {
+            newSlides.push({
+              reference: curRef.toUpperCase() || "PALAVRA DE DEUS",
+              text: curText.join(' '),
+              type: "verse"
+            });
+            curText = [];
+          }
+          curRef = line;
+        } else {
+          curText.push(line);
+        }
+      });
+
+      if (curRef || curText.length > 0) {
+        newSlides.push({
+          reference: curRef.toUpperCase() || "PALAVRA DE DEUS",
+          text: curText.join(' '),
+          type: "verse"
+        });
+      }
+
+      if (newSlides.length > 0) {
+        slides = newSlides;
+        currentSlideIdx = 0;
+        broadcastLiveState();
+        alert(`✓ ${newSlides.length} slides gerados e sincronizados com sucesso no Tablet do Pastor!`);
+      }
+    }
+
+    // --- PDF UPLOAD PARSER ---
+    async function handlePdfUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function() {
+        const typedarray = new Uint8Array(this.result);
+        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+        let fullText = "";
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const strings = content.items.map(item => item.str);
+          fullText += strings.join(' ') + "\n";
+        }
+
+        document.getElementById('inputSermonText').value = fullText;
+        generateSlidesFromText();
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // --- PROJECTOR FULLSCREEN OUTPUT (FOR TV / HDMI) ---
+    function openProjectorWindow() {
+      const projectorUrl = window.location.pathname + '?mode=projector&_t=' + Date.now();
+      window.open(projectorUrl, 'ObnotionProjector', 'width=1280,height=720,menubar=no,toolbar=no,location=no,status=no');
+    }
+
+    function renderProjectorModeOnly() {
+      document.getElementById('mainHeader').style.display = 'none';
+      document.getElementById('operatorView').style.display = 'none';
+      document.getElementById('pulpitView').className = "h-screen w-screen flex flex-col items-center justify-center bg-black p-8 text-center";
+      document.getElementById('pulpitView').innerHTML = `
+        <div id="projContainer" class="w-full h-full flex flex-col items-center justify-center p-8 text-center">
+          <div id="pulpitRefDisplay" class="font-bebas text-5xl sm:text-7xl text-purple-400 font-bold mb-6 tracking-widest"></div>
+          <div id="pulpitTextDisplay" class="font-sans font-black text-4xl sm:text-6xl text-white max-w-5xl leading-tight"></div>
+        </div>
+      `;
+    }
+
+    // --- CLOCK ---
+    function startClock() {
+      setInterval(() => {
+        const now = new Date();
+        document.getElementById('liveClock').textContent = now.toTimeString().split(' ')[0];
+      }, 1000);
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+      }
+    }
+  </script>
+</body>
+</html>

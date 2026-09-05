@@ -1,10 +1,29 @@
 import React, { useState } from 'react';
-import { Presentation, FileSpreadsheet, Wand2, ExternalLink, X, Maximize, Play, Palette, Sparkles, Layers, Image as ImageIcon, BookMarked, Clapperboard, Scissors, Film } from 'lucide-react';
+import { Presentation, FileSpreadsheet, Wand2, ExternalLink, X, Maximize, Play, Palette, Sparkles, Layers, Image as ImageIcon, BookMarked, Clapperboard, Scissors, Film, Cast, Radio, Tv, Tablet } from 'lucide-react';
 
 export default function ProductivityView({ darkMode }) {
   const [activeTool, setActiveTool] = useState(null);
 
   const tools = [
+    {
+      id: 'pulpito',
+      title: 'Púlpito do Pastor & Retorno de Slides (Altar & Telão)',
+      icon: Tablet,
+      color: 'text-violet-400',
+      bgColor: 'bg-violet-500/10',
+      borderColor: 'border-violet-500/30',
+      tag: 'NOVO • AO VIVO & TEMPO REAL',
+      tagColor: 'bg-violet-500/15 text-violet-300 border-violet-500/30',
+      description: 'Sistema em tempo real para o Púlpito do Pastor e Cabine de Transmissão. O pastor avança/retrocede versículos no tablet com botões gigantes e a cabine acompanha instantaneamente para projetar no telão.',
+      features: [
+        'Mesmo endereço web para o Pastor e para a Cabine com sincronização na nuvem e local (< 30ms)',
+        'Interface do Pastor (Tablet): Botão Superior VOLTA, Versículo Central e Botão Inferior AVANÇA',
+        'Painel da Cabine: Retorno ao vivo do slide ativo do pastor, lista de miniaturas e Blackout',
+        'Saída para Telão (HDMI / Segundo Monitor / OBS / vMix) com 1 clique'
+      ],
+      path: `${import.meta.env.BASE_URL}tools/pulpito_retorno.html`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/pulpito_retorno.html`
+    },
     {
       id: 'cinecut',
       title: 'CineCut Pro (CapCut Open-Source • OpenCut)',
@@ -12,7 +31,7 @@ export default function ProductivityView({ darkMode }) {
       color: 'text-cyan-400',
       bgColor: 'bg-cyan-500/10',
       borderColor: 'border-cyan-500/30',
-      tag: 'NOVO • CAPCUT OPEN-SOURCE',
+      tag: 'CAPCUT OPEN-SOURCE',
       tagColor: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
       description: 'Estúdio profissional de edição de vídeo de código aberto (OpenCut). Faça cortes, edite Reels/Shorts (9:16), vídeos de cultos (16:9), adicione legendas, efeitos e transições com processamento local privado (WASM/GPU).',
       features: [
