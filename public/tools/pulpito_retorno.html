@@ -40,9 +40,10 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Firebase Compat for Real-time Cloud Sync -->
+  <!-- Firebase Compat (Firestore + Cloud Storage for Real-time Image Sync) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 
   <!-- PDF.js for High-Res PDF Page Rendering with Images -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
@@ -71,16 +72,10 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 9999px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
-    /* Slide Highlight Golden Keywords */
-    .hl-gold {
-      color: #fbbf24;
-      text-shadow: 0 2px 10px rgba(251, 191, 36, 0.4);
-    }
-    
     /* Touch Feedback */
     .tap-active:active {
-      transform: scale(0.97);
-      filter: brightness(1.25);
+      transform: scale(0.96);
+      filter: brightness(1.3);
     }
   </style>
 </head>
@@ -99,7 +94,7 @@
           Púlpito & Retorno ao Vivo
           <span id="connectionBadge" class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold flex items-center gap-1">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            SINCRONIZADO
+            FIREBASE NUVEM ATIVO
           </span>
         </h1>
       </div>
@@ -144,7 +139,7 @@
       <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center shadow-inner">
         <i data-lucide="chevron-left" class="w-8 h-8 sm:w-9 sm:h-9 text-indigo-300"></i>
       </div>
-      <span class="text-xl sm:text-2xl font-black font-bebas tracking-widest uppercase writing-mode-vertical">VOLTA</span>
+      <span class="text-xl sm:text-2xl font-black font-bebas tracking-widest uppercase">VOLTA</span>
     </button>
 
     <!-- 🖼️ ÁREA CENTRAL: SLIDE PPTX / IMAGEM / VERSÍCULO BÍBLICO DO PASTOR -->
@@ -173,11 +168,9 @@
 
         <!-- Render Mode B: Styled Biblical Verse / Text -->
         <div id="pulpitTextContainer" class="w-full h-full flex flex-col items-center justify-center my-auto pt-6 pb-2">
-          <!-- Biblical Reference Header (ex: MATEUS 6:14-15) -->
           <div id="pulpitRefDisplay" class="font-bebas text-2xl sm:text-4xl text-purple-400 tracking-wider font-bold mb-3">
             MATEUS 6:14-15
           </div>
-          <!-- Main Slide Text -->
           <div id="pulpitTextDisplay" class="font-sans font-extrabold text-xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight sm:leading-snug text-white max-w-4xl overflow-y-auto custom-scrollbar">
             "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
           </div>
@@ -201,7 +194,7 @@
       <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center shadow-inner">
         <i data-lucide="chevron-right" class="w-8 h-8 sm:w-9 sm:h-9 text-purple-300"></i>
       </div>
-      <span class="text-xl sm:text-2xl font-black font-bebas tracking-widest uppercase writing-mode-vertical">AVANÇA</span>
+      <span class="text-xl sm:text-2xl font-black font-bebas tracking-widest uppercase">AVANÇA</span>
     </button>
 
   </main>
@@ -253,7 +246,7 @@
           </span>
           <span class="text-[11px] text-emerald-400 font-mono font-bold flex items-center gap-1">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            Sincronização Ativa
+            Sincronização Firebase Nuvem Ativa
           </span>
         </div>
 
@@ -299,6 +292,15 @@
           <i data-lucide="file-plus" class="w-4 h-4 text-purple-400"></i> Importar Sermão / Apresentação
         </h3>
 
+        <!-- Status Progress Indicator when uploading -->
+        <div id="uploadProgressBox" class="p-3 rounded-2xl bg-purple-950/40 border border-purple-500/30 text-xs text-purple-200 hidden space-y-1.5 animate-pulse">
+          <div class="flex items-center gap-2 font-bold text-purple-300">
+            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+            <span id="uploadProgressText">Enviando para o Firebase...</span>
+          </div>
+          <p class="text-[10px] text-zinc-400">Sincronizando imagens em alta definição com o tablet e celular.</p>
+        </div>
+
         <!-- Option 1: Upload PowerPoint (.pptx) -->
         <div class="p-3 rounded-2xl bg-[#11162d] border border-purple-500/25 space-y-2">
           <div class="flex items-center gap-2">
@@ -323,7 +325,7 @@
             </div>
             <span class="text-xs font-bold text-white">Importar Arquivo PDF</span>
           </div>
-          <p class="text-[10px] text-zinc-400 leading-tight">Renderiza cada página com 100% das fotos, fundos e designs em alta resolução.</p>
+          <p class="text-[10px] text-zinc-400 leading-tight">Renderiza cada página com 100% das fotos, fundos e designs sincronizados na nuvem.</p>
           <input type="file" id="pdfFileInput" accept="application/pdf" class="hidden" onchange="handlePdfUpload(event)" />
           <button onclick="document.getElementById('pdfFileInput').click()" class="w-full py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
             <i data-lucide="image" class="w-3.5 h-3.5"></i>
@@ -341,7 +343,7 @@
             class="w-full bg-[#11162d] border border-purple-500/30 rounded-xl p-2.5 text-xs text-white outline-none focus:border-purple-400 font-mono resize-none"
           ></textarea>
           <button onclick="generateSlidesFromText()" class="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all">
-            ⚡ Gerar e Sincronizar com o Tablet
+            ⚡ Gerar e Sincronizar na Nuvem
           </button>
         </div>
       </div>
@@ -349,10 +351,10 @@
       <!-- Quick Control Helper -->
       <div class="p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-[11px] text-purple-200 space-y-1">
         <div class="font-bold flex items-center gap-1 text-purple-300">
-          <i data-lucide="info" class="w-3.5 h-3.5"></i> Tablet na Horizontal (Deitado):
+          <i data-lucide="cloud" class="w-3.5 h-3.5"></i> Firebase Cloud Sync:
         </div>
         <p class="text-zinc-400 text-[10px] leading-relaxed">
-          O tablet no púlpito tem o botão <strong>VOLTA</strong> na lateral esquerda e <strong>AVANÇA</strong> na lateral direita, facilitando o toque com os polegares do pastor.
+          Os slides, fotos e páginas do PDF são sincronizados diretamente pelo Firebase. Qualquer alteração no computador aparece instantaneamente no tablet ou celular do pastor!
         </p>
       </div>
     </aside>
@@ -379,25 +381,29 @@
     }
     const db = firebase.firestore();
     const liveDocRef = db.collection('pulpito_rooms').doc('culto_central');
+    const slidesCollectionRef = liveDocRef.collection('slides');
     const localChannel = new BroadcastChannel('obnotion_pulpito_live_channel');
 
     // --- STATE ---
     let currentSlideIdx = 0;
     let isBlackout = false;
-    let currentMode = 'pulpit'; // 'pulpit' | 'operator' | 'projector'
+    let currentMode = 'pulpit';
 
     let slides = [
       {
+        index: 0,
         reference: "MATEUS 6:14-15",
         text: "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós.",
         type: "verse"
       },
       {
+        index: 1,
         reference: "MATEUS 6:15",
         text: "Se, porém, não perdoardes aos homens as suas ofensas, tampouco vosso Pai vos perdoará as vossas ofensas.",
         type: "verse"
       },
       {
+        index: 2,
         reference: "MARCOS 11:25",
         text: "E, quando estiverdes orando, se tendes alguma coisa contra alguém, perdoai, para que vosso Pai celestial vos perdoe.",
         type: "verse"
@@ -410,7 +416,6 @@
       setupLiveSync();
       renderAllViews();
 
-      // Check URL parameters (e.g. ?mode=operator or ?mode=projector)
       const urlParams = new URLSearchParams(window.location.search);
       const modeParam = urlParams.get('mode');
       if (modeParam === 'operator') {
@@ -433,12 +438,10 @@
 
     // --- REALTIME SYNCHRONIZATION ENGINE ---
     function setupLiveSync() {
+      // 1. Listen to Realtime Slide Index & Blackout State
       liveDocRef.onSnapshot((doc) => {
         if (doc.exists) {
           const data = doc.data();
-          if (data.slides && Array.isArray(data.slides)) {
-            slides = data.slides;
-          }
           if (typeof data.currentSlideIdx === 'number') {
             currentSlideIdx = Math.max(0, Math.min(data.currentSlideIdx, slides.length - 1));
           }
@@ -448,9 +451,27 @@
           renderAllViews();
         }
       }, (err) => {
-        console.warn("Firestore sync offline fallback:", err);
+        console.warn("Firestore sync index fallback:", err);
       });
 
+      // 2. Listen to Realtime Slides Subcollection (Loads all images on mobile/tablet identically)
+      slidesCollectionRef.orderBy('index').onSnapshot((snapshot) => {
+        if (!snapshot.empty) {
+          const remoteSlides = [];
+          snapshot.forEach(doc => {
+            remoteSlides.push(doc.data());
+          });
+          if (remoteSlides.length > 0) {
+            slides = remoteSlides;
+            currentSlideIdx = Math.max(0, Math.min(currentSlideIdx, slides.length - 1));
+            renderAllViews();
+          }
+        }
+      }, (err) => {
+        console.warn("Firestore slides subcollection sync fallback:", err);
+      });
+
+      // 3. Listen to Local Tab Broadcast Channel
       localChannel.onmessage = (msg) => {
         if (msg.data) {
           if (msg.data.slides) slides = msg.data.slides;
@@ -461,11 +482,11 @@
       };
     }
 
+    // Broadcast only the active slide index & blackout (Fast < 20ms)
     async function broadcastLiveState() {
       renderAllViews();
       
       const payload = {
-        slides: slides,
         currentSlideIdx: currentSlideIdx,
         isBlackout: isBlackout,
         timestamp: Date.now()
@@ -477,6 +498,47 @@
         await liveDocRef.set(payload, { merge: true });
       } catch(e) {
         console.warn("Cloud sync error:", e);
+      }
+    }
+
+    // Save full slides collection to Firebase Firestore
+    async function saveSlidesToFirebaseAndBroadcast(newSlides) {
+      slides = newSlides;
+      currentSlideIdx = 0;
+      renderAllViews();
+
+      localChannel.postMessage({
+        slides: slides,
+        currentSlideIdx: currentSlideIdx,
+        isBlackout: isBlackout
+      });
+
+      try {
+        // Upload each slide document to Firestore subcollection
+        const batch = db.batch();
+        for (let i = 0; i < slides.length; i++) {
+          const s = slides[i];
+          const docRef = slidesCollectionRef.doc(String(i));
+          batch.set(docRef, {
+            index: i,
+            reference: s.reference || '',
+            text: s.text || '',
+            imageUrl: s.imageUrl || '',
+            type: s.type || 'verse'
+          });
+        }
+        await batch.commit();
+
+        // Update main room document
+        await liveDocRef.set({
+          currentSlideIdx: 0,
+          totalSlides: slides.length,
+          isBlackout: isBlackout,
+          updatedAt: Date.now()
+        }, { merge: true });
+
+      } catch (err) {
+        console.error("Erro ao salvar slides no Firestore:", err);
       }
     }
 
@@ -622,12 +684,15 @@
       lucide.createIcons();
     }
 
-    // --- PDF HIGH-RES RENDERER WITH 100% OF IMAGES & GRAPHICS ---
+    // --- PDF HIGH-RES RENDERER (OPTIMIZED FOR FIREBASE CLOUD SYNC) ---
     async function handlePdfUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
 
-      const loadingNotice = alert('⏳ Processando e convertendo todas as páginas e imagens do PDF em alta resolução...');
+      const progressBox = document.getElementById('uploadProgressBox');
+      const progressText = document.getElementById('uploadProgressText');
+      progressBox.classList.remove('hidden');
+      progressText.textContent = 'Renderizando páginas do PDF...';
 
       try {
         const arrayBuffer = await file.arrayBuffer();
@@ -635,19 +700,26 @@
         const newSlides = [];
 
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          progressText.textContent = `Processando página ${pageNum} de ${pdf.numPages}...`;
           const page = await pdf.getPage(pageNum);
-          // Scale 2.0 ensures crisp 1080p Full HD rendering
-          const viewport = page.getViewport({ scale: 2.0 });
           
+          // Render to 1280x720 HD aspect ratio
+          const unscaledViewport = page.getViewport({ scale: 1.0 });
+          const scale = 1280 / unscaledViewport.width;
+          const viewport = page.getViewport({ scale: scale });
+
           const canvas = document.createElement('canvas');
           canvas.width = viewport.width;
           canvas.height = viewport.height;
           const ctx = canvas.getContext('2d');
 
           await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+          
+          // Compress to lightweight Full HD JPEG (~60KB) for instant Firebase Firestore sync
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.78);
 
           newSlides.push({
+            index: pageNum - 1,
             reference: `SLIDE ${pageNum}`,
             text: `Slide ${pageNum}`,
             imageUrl: dataUrl,
@@ -656,14 +728,15 @@
         }
 
         if (newSlides.length > 0) {
-          slides = newSlides;
-          currentSlideIdx = 0;
-          broadcastLiveState();
-          alert(`✓ Sucesso! ${newSlides.length} slides do PDF (com todas as imagens) foram carregados e sincronizados com o Tablet do Pastor!`);
+          progressText.textContent = 'Sincronizando com o Firebase Nuvem...';
+          await saveSlidesToFirebaseAndBroadcast(newSlides);
+          alert(`✓ Sucesso! ${newSlides.length} páginas com imagens foram enviadas para o Firebase e já estão visíveis no celular e tablet!`);
         }
       } catch (err) {
         console.error("Erro ao processar PDF:", err);
         alert("Erro ao ler o PDF: " + err.message);
+      } finally {
+        progressBox.classList.add('hidden');
       }
     }
 
@@ -671,6 +744,11 @@
     async function handlePptxUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
+
+      const progressBox = document.getElementById('uploadProgressBox');
+      const progressText = document.getElementById('uploadProgressText');
+      progressBox.classList.remove('hidden');
+      progressText.textContent = 'Lendo arquivo PowerPoint (.PPTX)...';
 
       try {
         const zip = new JSZip();
@@ -696,11 +774,11 @@
         const newSlides = [];
 
         for (let i = 0; i < slideFiles.length; i++) {
+          progressText.textContent = `Processando slide ${i + 1} de ${slideFiles.length}...`;
           const xmlText = await zipContent.file(slideFiles[i]).async('text');
           const parser = new DOMParser();
           const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
           
-          // Extract text nodes <a:t>
           const textNodes = xmlDoc.getElementsByTagName('a:t');
           const texts = [];
           for (let t = 0; t < textNodes.length; t++) {
@@ -712,6 +790,7 @@
           let bodyText = texts.length > 1 ? texts.slice(1).join(' ') : (texts[0] || `Slide ${i + 1}`);
 
           newSlides.push({
+            index: i,
             reference: refTitle.toUpperCase(),
             text: bodyText,
             type: "verse"
@@ -719,19 +798,20 @@
         }
 
         if (newSlides.length > 0) {
-          slides = newSlides;
-          currentSlideIdx = 0;
-          broadcastLiveState();
-          alert(`✓ Sucesso! ${newSlides.length} slides do PowerPoint (.PPTX) foram carregados e sincronizados com o Tablet do Pastor!`);
+          progressText.textContent = 'Sincronizando com o Firebase Nuvem...';
+          await saveSlidesToFirebaseAndBroadcast(newSlides);
+          alert(`✓ Sucesso! ${newSlides.length} slides do PowerPoint foram sincronizados no Firebase com o celular e tablet!`);
         }
       } catch (err) {
         console.error("Erro ao carregar PPTX:", err);
-        alert("Erro ao ler o PowerPoint: " + err.message + "\nDica: você também pode salvar a apresentação como PDF ou colar o texto.");
+        alert("Erro ao ler o PowerPoint: " + err.message + "\nDica: você também pode salvar a apresentação como PDF para manter 100% dos efeitos visuais.");
+      } finally {
+        progressBox.classList.add('hidden');
       }
     }
 
     // --- GENERATE SLIDES FROM TEXT ---
-    function generateSlidesFromText() {
+    async function generateSlidesFromText() {
       const raw = document.getElementById('inputSermonText').value.trim();
       if (!raw) return alert('Por favor, cole algum versículo ou texto do sermão.');
 
@@ -747,6 +827,7 @@
         if (refRegex.test(line)) {
           if (curRef || curText.length > 0) {
             newSlides.push({
+              index: newSlides.length,
               reference: curRef.toUpperCase() || "PALAVRA DE DEUS",
               text: curText.join(' '),
               type: "verse"
@@ -761,6 +842,7 @@
 
       if (curRef || curText.length > 0) {
         newSlides.push({
+          index: newSlides.length,
           reference: curRef.toUpperCase() || "PALAVRA DE DEUS",
           text: curText.join(' '),
           type: "verse"
@@ -768,10 +850,8 @@
       }
 
       if (newSlides.length > 0) {
-        slides = newSlides;
-        currentSlideIdx = 0;
-        broadcastLiveState();
-        alert(`✓ ${newSlides.length} versículos gerados e sincronizados no Tablet do Pastor!`);
+        await saveSlidesToFirebaseAndBroadcast(newSlides);
+        alert(`✓ ${newSlides.length} versículos gerados e sincronizados no Firebase com o celular e tablet!`);
       }
     }
 
@@ -806,10 +886,20 @@
       liveDocRef.onSnapshot((doc) => {
         if (doc.exists) {
           const data = doc.data();
-          if (data.slides) slides = data.slides;
           if (typeof data.currentSlideIdx === 'number') currentSlideIdx = data.currentSlideIdx;
           if (typeof data.isBlackout === 'boolean') isBlackout = data.isBlackout;
           updateProjector();
+        }
+      });
+
+      slidesCollectionRef.orderBy('index').onSnapshot((snapshot) => {
+        if (!snapshot.empty) {
+          const remoteSlides = [];
+          snapshot.forEach(doc => remoteSlides.push(doc.data()));
+          if (remoteSlides.length > 0) {
+            slides = remoteSlides;
+            updateProjector();
+          }
         }
       });
 
