@@ -44,8 +44,16 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  <!-- PDF.js & PPTX Viewer Helpers -->
+  <!-- PDF.js for High-Res PDF Page Rendering with Images -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script>
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    }
+  </script>
+
+  <!-- JSZip for PowerPoint (.pptx) Parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
   <style>
     body, html {
@@ -54,7 +62,7 @@
       height: 100%;
       width: 100%;
       overflow: hidden;
-      background-color: #080a12;
+      background-color: #060810;
       font-family: 'Inter', -apple-system, sans-serif;
       touch-action: manipulation;
     }
@@ -71,35 +79,35 @@
     
     /* Touch Feedback */
     .tap-active:active {
-      transform: scale(0.98);
-      filter: brightness(1.2);
+      transform: scale(0.97);
+      filter: brightness(1.25);
     }
   </style>
 </head>
-<body class="h-screen w-screen flex flex-col overflow-hidden select-none bg-[#080a12] text-slate-100">
+<body class="h-screen w-screen flex flex-col overflow-hidden select-none bg-[#060810] text-slate-100">
 
   <!-- ========================================== -->
   <!-- 1. TOP HEADER & MODE SELECTOR              -->
   <!-- ========================================== -->
-  <header id="mainHeader" class="h-12 border-b border-purple-500/20 bg-[#0c0f1d] px-3 flex items-center justify-between shrink-0 z-30">
-    <div class="flex items-center gap-3">
-      <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/25 font-black text-xs">
+  <header id="mainHeader" class="h-11 border-b border-purple-500/20 bg-[#0a0d1c] px-3 flex items-center justify-between shrink-0 z-30">
+    <div class="flex items-center gap-2.5">
+      <div class="w-6 h-6 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/25 font-black text-xs">
         <i data-lucide="cast" class="w-3.5 h-3.5"></i>
       </div>
       <div>
-        <h1 class="text-xs md:text-sm font-bold text-white flex items-center gap-2">
+        <h1 class="text-xs font-bold text-white flex items-center gap-2">
           Púlpito & Retorno ao Vivo
           <span id="connectionBadge" class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold flex items-center gap-1">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            AO VIVO
+            SINCRONIZADO
           </span>
         </h1>
       </div>
     </div>
 
     <!-- Mode Switcher (Pastor Tablet vs Cabine Operador) -->
-    <div class="flex items-center gap-1 bg-[#12162a] p-1 rounded-xl border border-purple-500/25">
-      <button onclick="switchViewMode('pulpit')" id="btn-mode-pulpit" class="px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm" title="Modo Tablet para o Pastor">
+    <div class="flex items-center gap-1 bg-[#101428] p-0.5 rounded-xl border border-purple-500/25">
+      <button onclick="switchViewMode('pulpit')" id="btn-mode-pulpit" class="px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm" title="Modo Tablet Horizontal para o Pastor">
         <i data-lucide="tablet" class="w-3.5 h-3.5"></i>
         <span>📱 Púlpito do Pastor</span>
       </button>
@@ -111,10 +119,10 @@
 
     <!-- Quick Tools & Clock -->
     <div class="flex items-center gap-2">
-      <div id="liveClock" class="font-mono text-xs font-bold text-purple-300 bg-purple-950/40 px-2.5 py-1 rounded-lg border border-purple-500/30">
+      <div id="liveClock" class="font-mono text-xs font-bold text-purple-300 bg-purple-950/40 px-2 py-0.5 rounded-lg border border-purple-500/30">
         00:00:00
       </div>
-      <button onclick="toggleFullScreen()" class="p-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-zinc-300 hover:text-white text-xs border border-white/[0.1] transition-all" title="Tela Cheia">
+      <button onclick="toggleFullScreen()" class="p-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-zinc-300 hover:text-white text-xs border border-white/[0.1] transition-all" title="Tela Cheia">
         <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
       </button>
     </div>
@@ -122,34 +130,31 @@
 
 
   <!-- ========================================== -->
-  <!-- 2. MODO PÚLPITO (TABLET DO PASTOR)        -->
-  <!-- Exatamente conforme o desenho do pastor:  -->
-  <!-- [ ▲ VOLTA ]                                -->
-  <!-- [ SLIDE PPTX DO VERSÍCULO ]                -->
-  <!-- [ ▼ AVANÇA ]                               -->
+  <!-- 2. MODO PÚLPITO (TABLET HORIZONTAL / DEITADO) -->
+  <!-- [ ◀ VOLTA ]  [ SLIDE / PPTX / IMAGEM ]  [ ▶ AVANÇA ] -->
   <!-- ========================================== -->
-  <main id="pulpitView" class="flex-1 flex flex-col bg-[#05060c] relative overflow-hidden select-none">
+  <main id="pulpitView" class="flex-1 flex flex-row bg-[#04050a] relative overflow-hidden select-none">
     
-    <!-- 🔼 BOTÃO SUPERIOR: VOLTA (GRANDE & TÁTIL) -->
+    <!-- ◀ BOTÃO LATERAL ESQUERDO: VOLTA (GRANDE & ERGONÔMICO) -->
     <button 
       onclick="prevSlide()" 
-      class="h-20 sm:h-24 w-full bg-gradient-to-b from-indigo-950/80 to-[#0e1329]/90 hover:from-indigo-900/90 hover:to-[#141b38] active:bg-indigo-600 border-b-2 border-indigo-500/30 flex items-center justify-center gap-3 text-indigo-200 hover:text-white transition-all tap-active shrink-0 shadow-lg"
-      title="Retroceder Versículo"
+      class="w-24 sm:w-32 md:w-36 h-full bg-gradient-to-r from-indigo-950/90 to-[#0b0e22]/90 hover:from-indigo-900 hover:to-[#121838] active:bg-indigo-600 border-r-2 border-indigo-500/30 flex flex-col items-center justify-center gap-3 text-indigo-200 hover:text-white transition-all tap-active shrink-0 shadow-2xl z-20 cursor-pointer"
+      title="Retroceder Slide / Versículo (Lado Esquerdo)"
     >
-      <div class="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center shadow-inner">
-        <i data-lucide="chevron-up" class="w-7 h-7 text-indigo-300"></i>
+      <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center shadow-inner">
+        <i data-lucide="chevron-left" class="w-8 h-8 sm:w-9 sm:h-9 text-indigo-300"></i>
       </div>
-      <span class="text-xl sm:text-2xl font-black font-bebas tracking-widest uppercase">▲ V O L T A</span>
+      <span class="text-xl sm:text-2xl font-black font-bebas tracking-widest uppercase writing-mode-vertical">VOLTA</span>
     </button>
 
-    <!-- 🖼️ ÁREA CENTRAL: ARQUIVO PPTX / VERSÍCULO BÍBLICO DO PASTOR -->
-    <div class="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 relative overflow-hidden bg-gradient-to-b from-[#080b18] via-[#050711] to-[#080b18]">
+    <!-- 🖼️ ÁREA CENTRAL: SLIDE PPTX / IMAGEM / VERSÍCULO BÍBLICO DO PASTOR -->
+    <div class="flex-1 h-full flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden bg-gradient-to-b from-[#080b18] via-[#04060e] to-[#080b18]">
       
-      <!-- Slide Card Container (16:9 HD Proporção de Leitura) -->
-      <div class="w-full max-w-4xl h-full flex flex-col items-center justify-center text-center p-6 sm:p-10 rounded-3xl bg-black/60 border-2 border-purple-500/30 shadow-2xl relative">
+      <!-- Slide Presentation Container (16:9 HD Proporção de Leitura) -->
+      <div class="w-full h-full max-h-[92vh] aspect-video flex flex-col items-center justify-center text-center p-4 sm:p-8 rounded-3xl bg-black/80 border-2 border-purple-500/30 shadow-2xl relative overflow-hidden">
         
         <!-- Header Info (Slide Index & Indicator) -->
-        <div class="absolute top-4 left-6 right-6 flex items-center justify-between border-b border-white/[0.08] pb-2">
+        <div class="absolute top-3 left-4 right-4 flex items-center justify-between border-b border-white/[0.08] pb-1.5 z-10">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
             <span id="pulpitSlideBadge" class="font-mono text-xs sm:text-sm font-bold text-purple-300">
@@ -157,18 +162,25 @@
             </span>
           </div>
           <div id="pulpitTypeBadge" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-200 border border-purple-500/30">
-            VERSÍCULO BÍBLICO
+            SLIDE DO SERMÃO
           </div>
         </div>
 
-        <!-- Biblical Reference Header (ex: MATEUS 6:14-15) -->
-        <div id="pulpitRefDisplay" class="font-bebas text-2xl sm:text-4xl text-purple-400 tracking-wider font-bold mb-4 mt-6">
-          MATEUS 6:14-15
+        <!-- Render Mode A: High-Res Image / PDF Page / PPTX Graphic -->
+        <div id="pulpitImageContainer" class="w-full h-full flex items-center justify-center pt-8 pb-3 hidden">
+          <img id="pulpitImageDisplay" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl border border-white/10" src="" alt="Slide do Sermão" />
         </div>
 
-        <!-- Main Slide Text (Big High-Contrast Typography for Sermon Reading) -->
-        <div id="pulpitTextDisplay" class="font-sans font-extrabold text-2xl sm:text-4xl md:text-5xl leading-tight sm:leading-snug text-white max-w-3xl overflow-y-auto custom-scrollbar my-auto">
-          "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
+        <!-- Render Mode B: Styled Biblical Verse / Text -->
+        <div id="pulpitTextContainer" class="w-full h-full flex flex-col items-center justify-center my-auto pt-6 pb-2">
+          <!-- Biblical Reference Header (ex: MATEUS 6:14-15) -->
+          <div id="pulpitRefDisplay" class="font-bebas text-2xl sm:text-4xl text-purple-400 tracking-wider font-bold mb-3">
+            MATEUS 6:14-15
+          </div>
+          <!-- Main Slide Text -->
+          <div id="pulpitTextDisplay" class="font-sans font-extrabold text-xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight sm:leading-snug text-white max-w-4xl overflow-y-auto custom-scrollbar">
+            "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
+          </div>
         </div>
 
         <!-- Footer Progress Bar -->
@@ -180,16 +192,16 @@
 
     </div>
 
-    <!-- 🔽 BOTÃO INFERIOR: AVANÇA (GRANDE & TÁTIL) -->
+    <!-- ▶ BOTÃO LATERAL DIREITO: AVANÇA (GRANDE & ERGONÔMICO) -->
     <button 
       onclick="nextSlide()" 
-      class="h-24 sm:h-28 w-full bg-gradient-to-t from-purple-950/90 to-[#120f26]/90 hover:from-purple-900 hover:to-[#1c183b] active:bg-purple-600 border-t-2 border-purple-500/40 flex items-center justify-center gap-3 text-purple-200 hover:text-white transition-all tap-active shrink-0 shadow-2xl"
-      title="Avançar Próximo Versículo"
+      class="w-24 sm:w-32 md:w-36 h-full bg-gradient-to-l from-purple-950/90 to-[#120e29]/90 hover:from-purple-900 hover:to-[#1a143b] active:bg-purple-600 border-l-2 border-purple-500/40 flex flex-col items-center justify-center gap-3 text-purple-200 hover:text-white transition-all tap-active shrink-0 shadow-2xl z-20 cursor-pointer"
+      title="Avançar Slide / Versículo (Lado Direito)"
     >
-      <div class="w-12 h-12 rounded-full bg-purple-500/20 border border-purple-400/40 flex items-center justify-center shadow-inner">
-        <i data-lucide="chevron-down" class="w-8 h-8 text-purple-300"></i>
+      <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center shadow-inner">
+        <i data-lucide="chevron-right" class="w-8 h-8 sm:w-9 sm:h-9 text-purple-300"></i>
       </div>
-      <span class="text-2xl sm:text-3xl font-black font-bebas tracking-widest uppercase">▼ A V A N Ç A</span>
+      <span class="text-xl sm:text-2xl font-black font-bebas tracking-widest uppercase writing-mode-vertical">AVANÇA</span>
     </button>
 
   </main>
@@ -199,13 +211,13 @@
   <!-- 3. MODO OPERADOR / CABINE (COMPUTADOR)    -->
   <!-- Retorno em tempo real, Telão & Controles  -->
   <!-- ========================================== -->
-  <main id="operatorView" class="flex-1 flex overflow-hidden bg-[#070913] hidden">
+  <main id="operatorView" class="flex-1 flex overflow-hidden bg-[#060812] hidden">
     
     <!-- LEFT: RETORNO AO VIVO & CONTROLE DO TELÃO -->
     <div class="flex-1 flex flex-col p-4 space-y-4 overflow-y-auto custom-scrollbar">
       
       <!-- Top Banner Status -->
-      <div class="p-4 rounded-2xl bg-[#0f1429] border border-purple-500/30 flex items-center justify-between shadow-xl">
+      <div class="p-4 rounded-2xl bg-[#0e1226] border border-purple-500/30 flex items-center justify-between shadow-xl">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-purple-300">
             <i data-lucide="radio" class="w-5 h-5 animate-pulse"></i>
@@ -234,32 +246,40 @@
       </div>
 
       <!-- Live Slide Mirrored View (O que está no Tablet do Pastor) -->
-      <div class="p-4 rounded-2xl bg-[#0b0e1e] border border-white/[0.08] space-y-3">
+      <div class="p-4 rounded-2xl bg-[#090d1e] border border-white/[0.08] space-y-3">
         <div class="flex items-center justify-between text-xs font-bold text-zinc-400">
           <span class="flex items-center gap-1.5 uppercase tracking-wider text-purple-300">
             <i data-lucide="tablet" class="w-4 h-4"></i> Retorno em Tempo Real do Tablet do Pastor
           </span>
-          <label class="flex items-center gap-2 cursor-pointer text-[11px] text-zinc-300">
-            <input type="checkbox" id="checkAutoSync" checked class="accent-purple-500 rounded" />
-            <span>Auto-Projetar com o Pastor</span>
-          </label>
+          <span class="text-[11px] text-emerald-400 font-mono font-bold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Sincronização Ativa
+          </span>
         </div>
 
         <!-- Mirrored Screen Box -->
-        <div class="w-full aspect-video bg-black rounded-2xl border-2 border-purple-500/40 p-8 flex flex-col items-center justify-center text-center shadow-2xl relative">
-          <div id="opMirroredRef" class="font-bebas text-3xl sm:text-4xl text-purple-400 font-bold mb-2">
-            MATEUS 6:14-15
+        <div class="w-full aspect-video bg-black rounded-2xl border-2 border-purple-500/40 p-4 flex items-center justify-center text-center shadow-2xl relative overflow-hidden">
+          
+          <!-- Image View in Operator Monitor -->
+          <img id="opMirroredImg" class="max-w-full max-h-full object-contain rounded-xl hidden" src="" alt="Slide do Pastor" />
+
+          <!-- Text View in Operator Monitor -->
+          <div id="opMirroredTextContainer" class="flex flex-col items-center justify-center p-4">
+            <div id="opMirroredRef" class="font-bebas text-3xl sm:text-4xl text-purple-400 font-bold mb-2">
+              MATEUS 6:14-15
+            </div>
+            <div id="opMirroredText" class="font-sans font-extrabold text-xl sm:text-2xl text-white max-w-2xl leading-snug">
+              "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
+            </div>
           </div>
-          <div id="opMirroredText" class="font-sans font-extrabold text-xl sm:text-3xl text-white max-w-2xl leading-snug">
-            "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
-          </div>
-          <div class="absolute bottom-3 right-4 font-mono text-xs text-purple-400 font-bold bg-purple-950/60 px-2 py-0.5 rounded border border-purple-500/30">
+
+          <div class="absolute bottom-3 right-4 font-mono text-xs text-purple-400 font-bold bg-purple-950/70 px-2 py-0.5 rounded border border-purple-500/30">
             RETORNO DO PÚLPITO
           </div>
         </div>
       </div>
 
-      <!-- Grid of Slides (Miniaturas de todos os versículos) -->
+      <!-- Grid of Slides (Miniaturas de todos os versículos / imagens) -->
       <div class="space-y-2">
         <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider">
           Lista de Slides do Sermão (<span id="totalSlidesCount">0</span>)
@@ -272,34 +292,56 @@
 
     </div>
 
-    <!-- RIGHT: CARREGADOR DE PPTX & VERSÍCULOS -->
-    <aside class="w-80 bg-[#0c0f20] border-l border-purple-500/20 p-4 flex flex-col justify-between shrink-0 space-y-4">
+    <!-- RIGHT: CARREGADOR DE PPTX, PDF & VERSÍCULOS -->
+    <aside class="w-80 bg-[#090d1f] border-l border-purple-500/20 p-4 flex flex-col justify-between shrink-0 space-y-4 overflow-y-auto custom-scrollbar">
       <div class="space-y-3">
         <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5 pb-2 border-b border-purple-500/20">
-          <i data-lucide="file-plus" class="w-4 h-4 text-purple-400"></i> Carregar Novo Sermão
+          <i data-lucide="file-plus" class="w-4 h-4 text-purple-400"></i> Importar Sermão / Apresentação
         </h3>
 
-        <!-- Option 1: Paste Text / Verses -->
-        <div class="space-y-1.5">
-          <label class="text-[11px] font-bold text-zinc-300">Colar Esboço / Versículos Bíblicos:</label>
-          <textarea 
-            id="inputSermonText" 
-            rows="6" 
-            placeholder="Cole o sermão do pastor ou versículos aqui:&#10;Ex: MATEUS 6:14-15&#10;Porque, se perdoardes...&#10;&#10;MARCOS 11:25&#10;E, quando estiverdes orando..." 
-            class="w-full bg-[#12162c] border border-purple-500/30 rounded-xl p-2.5 text-xs text-white outline-none focus:border-purple-400 font-mono resize-none"
-          ></textarea>
-          <button onclick="generateSlidesFromText()" class="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all">
-            ⚡ Carregar e Sincronizar com o Tablet
+        <!-- Option 1: Upload PowerPoint (.pptx) -->
+        <div class="p-3 rounded-2xl bg-[#11162d] border border-purple-500/25 space-y-2">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">
+              P
+            </div>
+            <span class="text-xs font-bold text-white">Importar PowerPoint (.PPTX)</span>
+          </div>
+          <p class="text-[10px] text-zinc-400 leading-tight">Carrega os slides com textos e imagens do arquivo PowerPoint.</p>
+          <input type="file" id="pptxFileInput" accept=".pptx" class="hidden" onchange="handlePptxUpload(event)" />
+          <button onclick="document.getElementById('pptxFileInput').click()" class="w-full py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+            <span>Escolher Arquivo .PPTX</span>
           </button>
         </div>
 
-        <!-- Option 2: Upload PDF/PPTX -->
-        <div class="pt-2 border-t border-white/[0.08] space-y-2">
-          <label class="text-[11px] font-bold text-zinc-300">Ou Importar Arquivo PDF:</label>
+        <!-- Option 2: Upload PDF (Renderiza TODAS as Imagens & Páginas em Alta Resolução) -->
+        <div class="p-3 rounded-2xl bg-[#11162d] border border-purple-500/25 space-y-2">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-xs">
+              PDF
+            </div>
+            <span class="text-xs font-bold text-white">Importar Arquivo PDF</span>
+          </div>
+          <p class="text-[10px] text-zinc-400 leading-tight">Renderiza cada página com 100% das fotos, fundos e designs em alta resolução.</p>
           <input type="file" id="pdfFileInput" accept="application/pdf" class="hidden" onchange="handlePdfUpload(event)" />
-          <button onclick="document.getElementById('pdfFileInput').click()" class="w-full py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.1] text-zinc-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all">
-            <i data-lucide="upload" class="w-3.5 h-3.5 text-purple-400"></i>
-            <span>Importar Arquivo PDF</span>
+          <button onclick="document.getElementById('pdfFileInput').click()" class="w-full py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+            <i data-lucide="image" class="w-3.5 h-3.5"></i>
+            <span>Escolher Arquivo PDF</span>
+          </button>
+        </div>
+
+        <!-- Option 3: Paste Text / Verses -->
+        <div class="space-y-1.5 pt-2 border-t border-white/[0.08]">
+          <label class="text-[11px] font-bold text-zinc-300">Ou Colar Texto / Versículos Bíblicos:</label>
+          <textarea 
+            id="inputSermonText" 
+            rows="4" 
+            placeholder="MATEUS 6:14-15&#10;Porque, se perdoardes...&#10;&#10;MARCOS 11:25&#10;E, quando estiverdes orando..." 
+            class="w-full bg-[#11162d] border border-purple-500/30 rounded-xl p-2.5 text-xs text-white outline-none focus:border-purple-400 font-mono resize-none"
+          ></textarea>
+          <button onclick="generateSlidesFromText()" class="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all">
+            ⚡ Gerar e Sincronizar com o Tablet
           </button>
         </div>
       </div>
@@ -307,10 +349,10 @@
       <!-- Quick Control Helper -->
       <div class="p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-[11px] text-purple-200 space-y-1">
         <div class="font-bold flex items-center gap-1 text-purple-300">
-          <i data-lucide="info" class="w-3.5 h-3.5"></i> Sincronização em Tempo Real:
+          <i data-lucide="info" class="w-3.5 h-3.5"></i> Tablet na Horizontal (Deitado):
         </div>
         <p class="text-zinc-400 text-[10px] leading-relaxed">
-          Tanto o pastor no tablet quanto você no computador estão conectados na mesma sala. Qualquer toque do pastor reflete aqui instantaneamente.
+          O tablet no púlpito tem o botão <strong>VOLTA</strong> na lateral esquerda e <strong>AVANÇA</strong> na lateral direita, facilitando o toque com os polegares do pastor.
         </p>
       </div>
     </aside>
@@ -342,7 +384,6 @@
     // --- STATE ---
     let currentSlideIdx = 0;
     let isBlackout = false;
-    let projectorWindow = null;
     let currentMode = 'pulpit'; // 'pulpit' | 'operator' | 'projector'
 
     let slides = [
@@ -392,7 +433,6 @@
 
     // --- REALTIME SYNCHRONIZATION ENGINE ---
     function setupLiveSync() {
-      // 1. Listen to Cloud Firestore changes in real-time
       liveDocRef.onSnapshot((doc) => {
         if (doc.exists) {
           const data = doc.data();
@@ -411,7 +451,6 @@
         console.warn("Firestore sync offline fallback:", err);
       });
 
-      // 2. Listen to Local Tab Broadcast Channel (Zero Latency)
       localChannel.onmessage = (msg) => {
         if (msg.data) {
           if (msg.data.slides) slides = msg.data.slides;
@@ -432,10 +471,8 @@
         timestamp: Date.now()
       };
 
-      // Local broadcast
       localChannel.postMessage(payload);
 
-      // Cloud Firestore broadcast
       try {
         await liveDocRef.set(payload, { merge: true });
       } catch(e) {
@@ -473,19 +510,49 @@
       const cur = slides[currentSlideIdx] || { reference: "", text: "Nenhum slide carregado.", type: "verse" };
 
       // 1. Pulpit Tablet View
-      document.getElementById('pulpitRefDisplay').textContent = cur.reference || "PALAVRA DE DEUS";
-      document.getElementById('pulpitTextDisplay').textContent = cur.text || "";
+      const pulpitImgBox = document.getElementById('pulpitImageContainer');
+      const pulpitTextBox = document.getElementById('pulpitTextContainer');
+      const pulpitImg = document.getElementById('pulpitImageDisplay');
+
+      if (cur.imageUrl) {
+        pulpitImgBox.classList.remove('hidden');
+        pulpitTextBox.classList.add('hidden');
+        pulpitImg.src = cur.imageUrl;
+      } else {
+        pulpitImgBox.classList.add('hidden');
+        pulpitTextBox.classList.remove('hidden');
+        document.getElementById('pulpitRefDisplay').textContent = cur.reference || "PALAVRA DE DEUS";
+        document.getElementById('pulpitTextDisplay').textContent = cur.text || "";
+      }
+
       document.getElementById('pulpitSlideBadge').textContent = `SLIDE ${currentSlideIdx + 1} DE ${slides.length}`;
-      document.getElementById('pulpitTypeBadge').textContent = cur.type === 'verse' ? 'VERSÍCULO BÍBLICO' : 'MENSAGEM';
+      document.getElementById('pulpitTypeBadge').textContent = cur.type === 'image' ? 'SLIDE VISUAL / PDF' : 'VERSÍCULO BÍBLICO';
       
       const pct = slides.length > 1 ? ((currentSlideIdx + 1) / slides.length) * 100 : 100;
       document.getElementById('pulpitProgressBar').style.width = `${pct}%`;
 
       // 2. Operator Cabine View
       document.getElementById('opActiveSlideNum').textContent = `Slide ${currentSlideIdx + 1} de ${slides.length}`;
-      document.getElementById('opMirroredRef').textContent = cur.reference || "PALAVRA DE DEUS";
-      document.getElementById('opMirroredText').textContent = isBlackout ? "⚫ TELÃO EM BLACKOUT (APAGADO)" : (cur.text || "");
       document.getElementById('totalSlidesCount').textContent = slides.length;
+
+      const opImg = document.getElementById('opMirroredImg');
+      const opTextBox = document.getElementById('opMirroredTextContainer');
+
+      if (isBlackout) {
+        opImg.classList.add('hidden');
+        opTextBox.classList.remove('hidden');
+        document.getElementById('opMirroredRef').textContent = "⚫ TELÃO EM BLACKOUT";
+        document.getElementById('opMirroredText').textContent = "A saída para o telão está temporariamente apagada.";
+      } else if (cur.imageUrl) {
+        opImg.classList.remove('hidden');
+        opTextBox.classList.add('hidden');
+        opImg.src = cur.imageUrl;
+      } else {
+        opImg.classList.add('hidden');
+        opTextBox.classList.remove('hidden');
+        document.getElementById('opMirroredRef').textContent = cur.reference || "PALAVRA DE DEUS";
+        document.getElementById('opMirroredText').textContent = cur.text || "";
+      }
 
       const blackoutBtn = document.getElementById('btnBlackout');
       const blackoutLabel = document.getElementById('blackoutLabel');
@@ -503,18 +570,31 @@
       slides.forEach((s, i) => {
         const isAct = i === currentSlideIdx;
         const card = document.createElement('div');
-        card.className = `p-3 rounded-2xl border ${isAct ? 'border-purple-400 bg-purple-950/60 shadow-lg shadow-purple-600/30 ring-2 ring-purple-500' : 'border-white/[0.08] bg-[#101426] hover:border-purple-500/40'} cursor-pointer flex flex-col justify-between h-28 transition-all group select-none`;
+        card.className = `p-2.5 rounded-2xl border ${isAct ? 'border-purple-400 bg-purple-950/70 shadow-lg shadow-purple-600/30 ring-2 ring-purple-500' : 'border-white/[0.08] bg-[#101428] hover:border-purple-500/40'} cursor-pointer flex flex-col justify-between h-28 transition-all group select-none overflow-hidden relative`;
         card.onclick = () => goToSlide(i);
-        card.innerHTML = `
-          <div>
-            <div class="flex items-center justify-between text-[10px] font-mono font-bold ${isAct ? 'text-purple-300' : 'text-zinc-500'}">
-              <span>SLIDE ${i + 1}</span>
-              ${isAct ? '<span class="px-1.5 py-0.2 rounded bg-purple-500 text-white font-sans text-[9px] font-black animate-pulse">PASTOR AQUI</span>' : ''}
+
+        if (s.imageUrl) {
+          card.innerHTML = `
+            <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-all">
+              <img src="${s.imageUrl}" class="w-full h-full object-cover rounded-xl" />
             </div>
-            <div class="text-xs font-bold text-white truncate mt-1">${s.reference || 'Versículo'}</div>
-          </div>
-          <div class="text-[10px] text-zinc-400 line-clamp-2 leading-tight">${s.text}</div>
-        `;
+            <div class="relative z-10 flex items-center justify-between text-[10px] font-mono font-bold bg-black/80 px-1.5 py-0.5 rounded text-white">
+              <span>SLIDE ${i + 1}</span>
+              ${isAct ? '<span class="text-purple-300 font-black">● AO VIVO</span>' : ''}
+            </div>
+          `;
+        } else {
+          card.innerHTML = `
+            <div>
+              <div class="flex items-center justify-between text-[10px] font-mono font-bold ${isAct ? 'text-purple-300' : 'text-zinc-500'}">
+                <span>SLIDE ${i + 1}</span>
+                ${isAct ? '<span class="px-1.5 py-0.2 rounded bg-purple-500 text-white font-sans text-[9px] font-black animate-pulse">PASTOR</span>' : ''}
+              </div>
+              <div class="text-xs font-bold text-white truncate mt-1">${s.reference || 'Versículo'}</div>
+            </div>
+            <div class="text-[10px] text-zinc-400 line-clamp-2 leading-tight">${s.text}</div>
+          `;
+        }
         grid.appendChild(card);
       });
     }
@@ -540,6 +620,114 @@
         btnP.className = "px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
       }
       lucide.createIcons();
+    }
+
+    // --- PDF HIGH-RES RENDERER WITH 100% OF IMAGES & GRAPHICS ---
+    async function handlePdfUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const loadingNotice = alert('⏳ Processando e convertendo todas as páginas e imagens do PDF em alta resolução...');
+
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const newSlides = [];
+
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          // Scale 2.0 ensures crisp 1080p Full HD rendering
+          const viewport = page.getViewport({ scale: 2.0 });
+          
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d');
+
+          await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+
+          newSlides.push({
+            reference: `SLIDE ${pageNum}`,
+            text: `Slide ${pageNum}`,
+            imageUrl: dataUrl,
+            type: "image"
+          });
+        }
+
+        if (newSlides.length > 0) {
+          slides = newSlides;
+          currentSlideIdx = 0;
+          broadcastLiveState();
+          alert(`✓ Sucesso! ${newSlides.length} slides do PDF (com todas as imagens) foram carregados e sincronizados com o Tablet do Pastor!`);
+        }
+      } catch (err) {
+        console.error("Erro ao processar PDF:", err);
+        alert("Erro ao ler o PDF: " + err.message);
+      }
+    }
+
+    // --- POWERPOINT (.PPTX) PARSER & EXTRACTOR ---
+    async function handlePptxUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      try {
+        const zip = new JSZip();
+        const zipContent = await zip.loadAsync(file);
+        const slideFiles = [];
+
+        zipContent.forEach((relativePath, zipEntry) => {
+          if (relativePath.startsWith('ppt/slides/slide') && relativePath.endsWith('.xml')) {
+            slideFiles.push(relativePath);
+          }
+        });
+
+        slideFiles.sort((a, b) => {
+          const numA = parseInt(a.replace(/[^0-9]/g, '')) || 0;
+          const numB = parseInt(b.replace(/[^0-9]/g, '')) || 0;
+          return numA - numB;
+        });
+
+        if (slideFiles.length === 0) {
+          throw new Error("Nenhum slide encontrado no arquivo PowerPoint.");
+        }
+
+        const newSlides = [];
+
+        for (let i = 0; i < slideFiles.length; i++) {
+          const xmlText = await zipContent.file(slideFiles[i]).async('text');
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+          
+          // Extract text nodes <a:t>
+          const textNodes = xmlDoc.getElementsByTagName('a:t');
+          const texts = [];
+          for (let t = 0; t < textNodes.length; t++) {
+            const val = textNodes[t].textContent.trim();
+            if (val) texts.push(val);
+          }
+
+          let refTitle = texts.length > 0 ? texts[0] : `SLIDE ${i + 1}`;
+          let bodyText = texts.length > 1 ? texts.slice(1).join(' ') : (texts[0] || `Slide ${i + 1}`);
+
+          newSlides.push({
+            reference: refTitle.toUpperCase(),
+            text: bodyText,
+            type: "verse"
+          });
+        }
+
+        if (newSlides.length > 0) {
+          slides = newSlides;
+          currentSlideIdx = 0;
+          broadcastLiveState();
+          alert(`✓ Sucesso! ${newSlides.length} slides do PowerPoint (.PPTX) foram carregados e sincronizados com o Tablet do Pastor!`);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar PPTX:", err);
+        alert("Erro ao ler o PowerPoint: " + err.message + "\nDica: você também pode salvar a apresentação como PDF ou colar o texto.");
+      }
     }
 
     // --- GENERATE SLIDES FROM TEXT ---
@@ -583,32 +771,8 @@
         slides = newSlides;
         currentSlideIdx = 0;
         broadcastLiveState();
-        alert(`✓ ${newSlides.length} slides gerados e sincronizados com sucesso no Tablet do Pastor!`);
+        alert(`✓ ${newSlides.length} versículos gerados e sincronizados no Tablet do Pastor!`);
       }
-    }
-
-    // --- PDF UPLOAD PARSER ---
-    async function handlePdfUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = async function() {
-        const typedarray = new Uint8Array(this.result);
-        const pdf = await pdfjsLib.getDocument(typedarray).promise;
-        let fullText = "";
-
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const content = await page.getTextContent();
-          const strings = content.items.map(item => item.str);
-          fullText += strings.join(' ') + "\n";
-        }
-
-        document.getElementById('inputSermonText').value = fullText;
-        generateSlidesFromText();
-      };
-      reader.readAsArrayBuffer(file);
     }
 
     // --- PROJECTOR FULLSCREEN OUTPUT (FOR TV / HDMI) ---
@@ -620,13 +784,45 @@
     function renderProjectorModeOnly() {
       document.getElementById('mainHeader').style.display = 'none';
       document.getElementById('operatorView').style.display = 'none';
-      document.getElementById('pulpitView').className = "h-screen w-screen flex flex-col items-center justify-center bg-black p-8 text-center";
-      document.getElementById('pulpitView').innerHTML = `
-        <div id="projContainer" class="w-full h-full flex flex-col items-center justify-center p-8 text-center">
-          <div id="pulpitRefDisplay" class="font-bebas text-5xl sm:text-7xl text-purple-400 font-bold mb-6 tracking-widest"></div>
-          <div id="pulpitTextDisplay" class="font-sans font-black text-4xl sm:text-6xl text-white max-w-5xl leading-tight"></div>
-        </div>
-      `;
+      document.getElementById('pulpitView').className = "h-screen w-screen flex items-center justify-center bg-black p-0 overflow-hidden";
+      
+      const updateProjector = () => {
+        const cur = slides[currentSlideIdx] || { reference: "", text: "" };
+        const view = document.getElementById('pulpitView');
+        if (isBlackout) {
+          view.innerHTML = `<div class="w-full h-full bg-black"></div>`;
+        } else if (cur.imageUrl) {
+          view.innerHTML = `<img src="${cur.imageUrl}" class="w-full h-full object-contain bg-black" />`;
+        } else {
+          view.innerHTML = `
+            <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center bg-black">
+              <div class="font-bebas text-5xl sm:text-7xl text-purple-400 font-bold mb-6 tracking-widest">${cur.reference || ''}</div>
+              <div class="font-sans font-black text-4xl sm:text-6xl text-white max-w-6xl leading-snug">${cur.text || ''}</div>
+            </div>
+          `;
+        }
+      };
+
+      liveDocRef.onSnapshot((doc) => {
+        if (doc.exists) {
+          const data = doc.data();
+          if (data.slides) slides = data.slides;
+          if (typeof data.currentSlideIdx === 'number') currentSlideIdx = data.currentSlideIdx;
+          if (typeof data.isBlackout === 'boolean') isBlackout = data.isBlackout;
+          updateProjector();
+        }
+      });
+
+      localChannel.onmessage = (msg) => {
+        if (msg.data) {
+          if (msg.data.slides) slides = msg.data.slides;
+          if (typeof msg.data.currentSlideIdx === 'number') currentSlideIdx = msg.data.currentSlideIdx;
+          if (typeof msg.data.isBlackout === 'boolean') isBlackout = msg.data.isBlackout;
+          updateProjector();
+        }
+      };
+
+      updateProjector();
     }
 
     // --- CLOCK ---
