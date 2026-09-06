@@ -134,13 +134,13 @@
   <main id="pastorView" class="flex-1 flex flex-row bg-[#04050a] relative overflow-hidden select-none hidden">
     
     <!-- 🖼️ ÁREA CENTRAL: SLIDE PPTX / IMAGEM / VERSÍCULO BÍBLICO DO PASTOR -->
-    <div class="flex-1 h-full flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden bg-gradient-to-b from-[#080b18] via-[#04060e] to-[#080b18]">
+    <div class="flex-1 h-full flex flex-col items-center justify-center p-1 sm:p-2 relative overflow-hidden bg-gradient-to-b from-[#080b18] via-[#04060e] to-[#080b18]">
       
-      <!-- Slide Presentation Container (16:9 HD Proporção de Leitura) -->
-      <div class="w-full h-full max-h-[92vh] aspect-video flex flex-col items-center justify-center text-center p-4 sm:p-8 rounded-3xl bg-black/80 border-2 border-purple-500/30 shadow-2xl relative overflow-hidden">
+      <!-- Slide Presentation Container (Preenche quase toda a tela do tablet) -->
+      <div class="w-full h-full max-h-[98vh] flex flex-col items-center justify-center text-center p-2 sm:p-4 rounded-2xl bg-black/90 border border-purple-500/30 shadow-2xl relative overflow-hidden">
         
         <!-- Header Info (Slide Index & Indicator) -->
-        <div class="absolute top-3 left-4 right-4 flex items-center justify-between border-b border-white/[0.08] pb-1.5 z-10">
+        <div class="absolute top-2 left-4 right-4 flex items-center justify-between border-b border-white/[0.08] pb-1 z-10">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
             <span id="pastorSlideBadge" class="font-mono text-xs sm:text-sm font-bold text-purple-300">
@@ -153,23 +153,23 @@
         </div>
 
         <!-- Render Mode A: High-Res Image / PDF Page / PPTX Graphic -->
-        <div id="pastorImageContainer" class="w-full h-full flex items-center justify-center pt-8 pb-3 hidden">
-          <img id="pastorImageDisplay" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl border border-white/10" src="" alt="Slide do Sermão" />
+        <div id="pastorImageContainer" class="w-full h-full flex items-center justify-center pt-6 pb-2 hidden">
+          <img id="pastorImageDisplay" class="w-full h-full object-contain rounded-lg shadow-2xl" src="" alt="Slide do Sermão" />
         </div>
 
         <!-- Render Mode B: Styled Biblical Verse / Text / Song -->
-        <div id="pastorTextContainer" class="w-full h-full flex flex-col items-center justify-center my-auto relative pt-6 pb-2">
+        <div id="pastorTextContainer" class="w-full h-full flex flex-col items-center justify-center my-auto relative pt-6 pb-4">
           <!-- Referência (versículos - fica no topo) -->
-          <div id="pastorRefDisplay" class="font-bebas text-2xl sm:text-4xl text-purple-400 tracking-wider font-bold mb-3"></div>
-          <div id="pastorTextDisplay" class="font-sans font-extrabold text-xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight sm:leading-snug text-white max-w-4xl overflow-y-auto custom-scrollbar whitespace-pre-wrap">
+          <div id="pastorRefDisplay" class="font-bebas text-3xl sm:text-5xl text-purple-400 tracking-wider font-bold mb-3"></div>
+          <div id="pastorTextDisplay" class="font-sans font-black text-2xl sm:text-4xl md:text-5xl lg:text-7xl leading-tight sm:leading-snug text-white max-w-6xl overflow-y-auto custom-scrollbar whitespace-pre-wrap">
             "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
           </div>
           <!-- Badge de música (fica no canto inferior direito - apenas para músicas) -->
           <div id="pastorSongTitleBadge" class="hidden absolute bottom-3 right-4 flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center text-black shadow-lg flex-shrink-0">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <div class="w-9 h-9 rounded-full bg-yellow-400 flex items-center justify-center text-black shadow-lg flex-shrink-0">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             </div>
-            <span id="pastorSongTitleText" class="font-sans font-black text-base text-yellow-400 uppercase tracking-wider border-b-2 border-yellow-400 pb-0.5 pr-2"></span>
+            <span id="pastorSongTitleText" class="font-sans font-black text-lg text-yellow-400 uppercase tracking-wider border-b-2 border-yellow-400 pb-0.5 pr-2"></span>
           </div>
         </div>
 
@@ -235,9 +235,9 @@
             <span id="blackoutLabel">Blackout Telão</span>
           </button>
 
-          <button onclick="openProjectorWindow()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 flex items-center gap-1.5 transition-all active:scale-95">
-            <i data-lucide="projector" class="w-4 h-4"></i>
-            <span>📺 Abrir Janela do Telão (vMix - Aperte G p/ Fundo Verde)</span>
+          <button onclick="openVmixModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 flex items-center gap-1.5 transition-all active:scale-95">
+            <i data-lucide="cast" class="w-4 h-4"></i>
+            <span>📡 Telão & vMix (Links / HDMI)</span>
           </button>
         </div>
       </div>
@@ -752,9 +752,9 @@
           progressText.textContent = `Processando página ${pageNum} de ${pdf.numPages}...`;
           const page = await pdf.getPage(pageNum);
           
-          // Render to 960px width (plenty sharp for tablets) to keep Base64 lightweight for Firestore
+          // Render to 1800px width (Ultra HD sharp for tablets, TVs, and vMix)
           const unscaledViewport = page.getViewport({ scale: 1.0 });
-          const scale = 960 / unscaledViewport.width;
+          const scale = 1800 / unscaledViewport.width;
           const viewport = page.getViewport({ scale: scale });
 
           const canvas = document.createElement('canvas');
@@ -764,11 +764,11 @@
 
           await page.render({ canvasContext: ctx, viewport: viewport }).promise;
           
-          // Compress to JPEG (0.65 quality) for instant Firebase Firestore sync (~30KB-60KB)
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.65);
+          // Compress to JPEG (0.80 quality) - Crisp, ultra sharp text and photos
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.80);
 
           newSlides.push({
-            reference: `${file.name.replace('.pdf','').toUpperCase()} • P${pageNum}`,
+            reference: `${file.name.replace(/\.pdf$/i,'').toUpperCase()} • P${pageNum}`,
             text: `Slide ${pageNum}`,
             imageUrl: dataUrl,
             type: "image",
@@ -928,16 +928,38 @@
     function renderProjectorModeOnly() {
       document.getElementById('mainHeader').style.display = 'none';
       document.getElementById('operatorView').style.display = 'none';
-      document.getElementById('pulpitView').className = "h-screen w-screen flex items-center justify-center p-0 overflow-hidden bg-black transition-colors";
-      let isGreenScreen = false;
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const isVmixMode = urlParams.get('mode') === 'vmix';
+      const bgParam = urlParams.get('bg'); // 'transparent', 'green', 'black'
+      
+      let currentBg = 'black';
+      if (isVmixMode || bgParam === 'transparent') {
+        currentBg = 'transparent';
+      } else if (bgParam === 'green') {
+        currentBg = 'green';
+      }
+      
+      document.body.style.backgroundColor = currentBg === 'transparent' ? 'transparent' : (currentBg === 'green' ? '#00FF00' : '#000000');
+      document.getElementById('pulpitView').className = "h-screen w-screen flex items-center justify-center p-0 overflow-hidden transition-colors";
       
       const updateProjector = () => {
         const cur = slides[currentSlideIdx] || { reference: "", text: "" };
         const view = document.getElementById('pulpitView');
-        view.style.backgroundColor = isGreenScreen ? '#00FF00' : '#000000';
+        
+        if (currentBg === 'transparent') {
+          view.style.backgroundColor = 'transparent';
+          document.body.style.backgroundColor = 'transparent';
+        } else if (currentBg === 'green') {
+          view.style.backgroundColor = '#00FF00';
+          document.body.style.backgroundColor = '#00FF00';
+        } else {
+          view.style.backgroundColor = '#000000';
+          document.body.style.backgroundColor = '#000000';
+        }
         
         if (isBlackout) {
-          view.innerHTML = `<div class="w-full h-full flex items-center justify-center">
+          view.innerHTML = currentBg === 'transparent' ? '' : `<div class="w-full h-full flex items-center justify-center">
             <span class="text-white/20 font-mono text-sm uppercase">BLACKOUT</span>
           </div>`;
         } else if (cur.imageUrl) {
@@ -945,7 +967,7 @@
         } else if (cur.type === 'song') {
           view.innerHTML = `
             <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center relative">
-              <div class="font-sans font-black text-5xl sm:text-[80px] text-white uppercase max-w-[90%] leading-snug tracking-wide" style="text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0px 5px 10px rgba(0,0,0,0.8);">
+              <div class="font-sans font-black text-5xl sm:text-[80px] text-white uppercase max-w-[90%] leading-snug tracking-wide" style="text-shadow: 3px 3px 0 #000, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 0px 5px 10px rgba(0,0,0,0.8);">
                 ${cur.text ? cur.text.replace(/\n/g, '<br>') : ''}
               </div>
               
@@ -964,8 +986,8 @@
         } else {
           view.innerHTML = `
             <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center">
-              <div class="font-bebas text-5xl sm:text-7xl text-purple-400 font-bold mb-6 tracking-widest drop-shadow-lg">${cur.reference || ''}</div>
-              <div class="font-sans font-black text-4xl sm:text-6xl text-white max-w-6xl leading-snug drop-shadow-2xl whitespace-pre-wrap">${cur.text || ''}</div>
+              <div class="font-bebas text-5xl sm:text-7xl text-purple-400 font-bold mb-6 tracking-widest drop-shadow-lg" style="text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;">${cur.reference || ''}</div>
+              <div class="font-sans font-black text-4xl sm:text-6xl text-white max-w-6xl leading-snug drop-shadow-2xl whitespace-pre-wrap" style="text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;">${cur.text || ''}</div>
             </div>
           `;
         }
@@ -973,7 +995,9 @@
 
       window.addEventListener('keydown', (e) => {
         if (e.key === 'g' || e.key === 'G') {
-          isGreenScreen = !isGreenScreen;
+          if (currentBg === 'green') currentBg = 'transparent';
+          else if (currentBg === 'transparent') currentBg = 'black';
+          else currentBg = 'green';
           updateProjector();
         }
       });
@@ -1209,6 +1233,110 @@
         if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
       }
     }
+
+    // --- VMIX & TELÃO MODAL HELPERS ---
+    function openVmixModal() {
+      document.getElementById('vmixModal').classList.remove('hidden');
+    }
+
+    function closeVmixModal() {
+      document.getElementById('vmixModal').classList.add('hidden');
+    }
+
+    function copyVmixUrl(type) {
+      const baseUrl = window.location.origin + window.location.pathname;
+      let url = baseUrl;
+      if (type === 'transparent') {
+        url = baseUrl + '?mode=vmix';
+      } else if (type === 'green') {
+        url = baseUrl + '?mode=projector&bg=green';
+      } else if (type === 'black') {
+        url = baseUrl + '?mode=projector&bg=black';
+      } else if (type === 'tablet') {
+        url = baseUrl + '?mode=receptor';
+      }
+      
+      navigator.clipboard.writeText(url).then(() => {
+        alert("✓ Link copiado para a área de transferência!\n\n" + url);
+      }).catch(() => {
+        prompt("Copie o link abaixo para colocar no vMix ou Navegador:", url);
+      });
+    }
   </script>
+
+  <!-- ========================================== -->
+  <!-- MODAL: INTEGRAÇÃO VMIX & TELÃO              -->
+  <!-- ========================================== -->
+  <div id="vmixModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#0b0f24] border border-purple-500/30 rounded-3xl max-w-xl w-full p-6 space-y-5 shadow-2xl relative">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-purple-600/20 text-purple-300 flex items-center justify-center">
+            <i data-lucide="cast" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Integração vMix & Telão Externo</h3>
+            <p class="text-[11px] text-zinc-400">Escolha o formato ideal para a transmissão ou projeção:</p>
+          </div>
+        </div>
+        <button onclick="closeVmixModal()" class="w-8 h-8 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-400 hover:text-white flex items-center justify-center transition-colors">
+          ✕
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <!-- Option 1: vMix Web Browser (Transparente - Sem Chroma Key) -->
+        <div class="p-3.5 rounded-2xl bg-[#111736] border border-purple-500/30 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-emerald-400 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 1. vMix Web Browser (Fundo 100% Transparente)
+            </span>
+            <span class="text-[10px] font-mono text-purple-300 font-bold bg-purple-950/60 px-2 py-0.5 rounded">RECOMENDADO</span>
+          </div>
+          <p class="text-[11px] text-zinc-400">
+            No vMix, clique em <b>Add Input ➔ Web Browser</b> e cole este link. O fundo já vem transparente, sem precisar de Chroma Key!
+          </p>
+          <button onclick="copyVmixUrl('transparent')" class="w-full py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold flex items-center justify-center gap-1.5 transition-all">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Link Transparente p/ vMix
+          </button>
+        </div>
+
+        <!-- Option 2: vMix Chroma Key (Fundo Verde) -->
+        <div class="p-3.5 rounded-2xl bg-[#111736] border border-white/[0.08] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-amber-300 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span> 2. vMix Chroma Key (Fundo Verde #00FF00)
+            </span>
+          </div>
+          <p class="text-[11px] text-zinc-400">
+            Se preferir usar o Colour Key / Chroma Key tradicional do vMix ou mesa de corte:
+          </p>
+          <button onclick="copyVmixUrl('green')" class="w-full py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold flex items-center justify-center gap-1.5 transition-all">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Link Fundo Verde (#00FF00)
+          </button>
+        </div>
+
+        <!-- Option 3: HDMI 2º Monitor / Janela Telão -->
+        <div class="p-3.5 rounded-2xl bg-[#111736] border border-white/[0.08] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-white flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-purple-400"></span> 3. Projetor / HDMI (2º Monitor)
+            </span>
+          </div>
+          <p class="text-[11px] text-zinc-400">
+            Abre uma janela limpa em tela cheia para você arrastar para o segundo monitor ou cabo HDMI da igreja:
+          </p>
+          <div class="flex items-center gap-2">
+            <button onclick="openProjectorWindow(); closeVmixModal();" class="flex-1 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center justify-center gap-1.5 transition-all shadow-lg shadow-purple-600/30">
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Abrir Janela do Telão
+            </button>
+            <button onclick="copyVmixUrl('black')" class="py-2 px-3 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 font-bold border border-white/[0.1] transition-all" title="Copiar Link Fundo Preto">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
