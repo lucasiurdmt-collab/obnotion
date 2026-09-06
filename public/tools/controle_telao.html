@@ -424,7 +424,9 @@
       const modeParam = urlParams.get('mode');
       if (modeParam === 'operator') {
         switchViewMode('operator');
-      } else if (modeParam === 'projector') {
+      } else if (modeParam === 'pastor' || modeParam === 'receptor') {
+        switchViewMode('pastor');
+      } else if (modeParam === 'projector' || modeParam === 'telao') {
         renderProjectorModeOnly();
       }
 
@@ -440,6 +442,8 @@
       });
     });
 
+    let isLocalWriting = false;
+
     // --- REALTIME SYNCHRONIZATION ENGINE ---
     function setupLiveSync() {
       // 1. Listen to Realtime Slide Index & Blackout State
@@ -447,7 +451,7 @@
         if (doc.exists) {
           const data = doc.data();
           if (typeof data.currentSlideIdx === 'number') {
-            currentSlideIdx = Math.max(0, Math.min(data.currentSlideIdx, slides.length - 1));
+            currentSlideIdx = data.currentSlideIdx;
           }
           if (typeof data.isBlackout === 'boolean') {
             isBlackout = data.isBlackout;
@@ -459,29 +463,26 @@
       });
 
       // 2. Listen to Realtime Slides Subcollection (Loads all images on mobile/tablet identically)
-      // O operador não precisa escutar a própria gravação (evita loop e travamentos)
-      if (currentMode !== 'operator') {
-        slidesCollectionRef.orderBy('index').onSnapshot((snapshot) => {
-          if (!snapshot.empty) {
-            const remoteSlides = [];
-            snapshot.forEach(doc => {
-              remoteSlides.push(doc.data());
-            });
-            if (remoteSlides.length > 0) {
-              slides = remoteSlides;
-              currentSlideIdx = Math.max(0, Math.min(currentSlideIdx, slides.length - 1));
-              renderAllViews();
-            }
+      slidesCollectionRef.orderBy('index').onSnapshot((snapshot) => {
+        if (isLocalWriting) return;
+        if (!snapshot.empty) {
+          const remoteSlides = [];
+          snapshot.forEach(doc => {
+            remoteSlides.push(doc.data());
+          });
+          if (remoteSlides.length > 0) {
+            slides = remoteSlides;
+            renderAllViews();
           }
-        }, (err) => {
-          console.warn("Firestore slides subcollection sync fallback:", err);
-        });
-      }
+        }
+      }, (err) => {
+        console.warn("Firestore slides subcollection sync fallback:", err);
+      });
 
       // 3. Listen to Local Tab Broadcast Channel
       localChannel.onmessage = (msg) => {
         if (msg.data) {
-          if (msg.data.slides && currentMode !== 'operator') slides = msg.data.slides;
+          if (msg.data.slides && !isLocalWriting) slides = msg.data.slides;
           if (typeof msg.data.currentSlideIdx === 'number') currentSlideIdx = msg.data.currentSlideIdx;
           if (typeof msg.data.isBlackout === 'boolean') isBlackout = msg.data.isBlackout;
           renderAllViews();
@@ -520,6 +521,7 @@
         isBlackout: isBlackout
       });
 
+      isLocalWriting = true;
       try {
         // 1. Apagar slides antigos para evitar lixo
         const oldSlidesSnap = await slidesCollectionRef.get();
@@ -553,6 +555,10 @@
 
       } catch (err) {
         console.error("Erro ao salvar slides no Firestore:", err);
+      } finally {
+        setTimeout(() => {
+          isLocalWriting = false;
+        }, 500);
       }
     }
 
