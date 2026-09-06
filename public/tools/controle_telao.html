@@ -324,17 +324,20 @@
         </div>
       </div>
 
-      <!-- ── SEÇÃO VERSÍCULOS / TEXTO ── -->
+      <!-- ── SEÇÃO RECADOS / VERSÍCULOS ── -->
       <div class="p-3 space-y-2 border-b border-purple-500/20">
-        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Versículos / Texto:</div>
+        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest flex items-center justify-between">
+          <span>Recados / Versículos:</span>
+        </div>
         <textarea
           id="inputSermonText"
-          rows="4"
-          placeholder="MATEUS 6:14-15&#10;Porque, se perdoardes...&#10;&#10;MARCOS 11:25&#10;E, quando estiverdes orando..."
+          rows="3"
+          placeholder="Digite um recado:&#10;Faltam 5 minutos!&#10;&#10;Ou versículo:&#10;MATEUS 6:14&#10;Porque, se perdoardes..."
           class="w-full bg-[#11162d] border border-purple-500/30 rounded-xl p-2.5 text-xs text-white outline-none focus:border-purple-400 font-mono resize-none"
         ></textarea>
-        <button onclick="generateSlidesFromText()" class="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all">
-          ⚡ Gerar e Sincronizar
+        <button onclick="generateSlidesFromText()" class="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all flex items-center justify-center gap-1.5">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          <span>Enviar Recado / Versículo</span>
         </button>
       </div>
 
@@ -615,8 +618,8 @@
           badge.classList.remove('hidden');
           document.getElementById('pastorSongTitleText').textContent = cur.reference || '';
         } else {
-          // Versículo/texto: referência no topo, sem badge
-          document.getElementById('pastorRefDisplay').textContent = cur.reference || 'PALAVRA DE DEUS';
+          // Versículo/texto/recado: se houver referência bíblica coloca no topo, senão deixa vazio
+          document.getElementById('pastorRefDisplay').textContent = cur.reference || '';
           document.getElementById('pastorTextDisplay').textContent = cur.text || '';
           const badge = document.getElementById('pastorSongTitleBadge');
           if (badge) badge.classList.add('hidden');
@@ -624,7 +627,7 @@
       }
 
       document.getElementById('pastorSlideBadge').textContent = `SLIDE ${currentSlideIdx + 1} DE ${slides.length}`;
-      document.getElementById('pastorTypeBadge').textContent = cur.type === 'image' ? 'SLIDE VISUAL / PDF' : (cur.type === 'song' ? 'LETRA DE MÚSICA' : 'VERSÍCULO BÍBLICO');
+      document.getElementById('pastorTypeBadge').textContent = cur.type === 'image' ? 'SLIDE VISUAL / PDF' : (cur.type === 'song' ? 'LETRA DE MÚSICA' : (cur.reference ? 'VERSÍCULO BÍBLICO' : 'TEXTO / RECADO'));
       
       const pct = slides.length > 1 ? ((currentSlideIdx + 1) / slides.length) * 100 : 100;
       document.getElementById('pastorProgressBar').style.width = `${pct}%`;
@@ -657,8 +660,7 @@
       } else {
         opImg.classList.add('hidden');
         opTextBox.classList.remove('hidden');
-        // Para versículos/texto: título normal no topo
-        document.getElementById('opMirroredRef').textContent = cur.reference || 'PALAVRA DE DEUS';
+        document.getElementById('opMirroredRef').textContent = cur.reference || '';
         document.getElementById('opMirroredText').textContent = cur.text || '';
         const badge = document.getElementById('opSongTitleBadge');
         if (badge) badge.classList.add('hidden');
@@ -873,10 +875,10 @@
       }
     }
 
-    // --- GENERATE SLIDES FROM TEXT ---
+    // --- GENERATE SLIDES FROM TEXT / RECADOS ---
     async function generateSlidesFromText() {
       const raw = document.getElementById('inputSermonText').value.trim();
-      if (!raw) return alert('Por favor, cole algum versículo ou texto do sermão.');
+      if (!raw) return alert('Por favor, digite ou cole algum texto, recado ou versículo.');
 
       const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
       const newSlides = [];
@@ -891,8 +893,8 @@
           if (curRef || curText.length > 0) {
             newSlides.push({
               index: newSlides.length,
-              reference: curRef.toUpperCase() || "PALAVRA DE DEUS",
-              text: curText.join(' '),
+              reference: curRef ? curRef.toUpperCase() : "",
+              text: curText.join('\n'),
               type: "verse"
             });
           }
@@ -906,16 +908,17 @@
       if (curRef || curText.length > 0) {
         newSlides.push({
           index: newSlides.length,
-          reference: curRef.toUpperCase() || "PALAVRA DE DEUS",
-          text: curText.join(' '),
+          reference: curRef ? curRef.toUpperCase() : "",
+          text: curText.join('\n'),
           type: "verse"
         });
       }
 
       if (newSlides.length > 0) {
         currentSlideIdx = 0;
+        isBlackout = false;
+        renderAllViews();
         await saveSlidesToFirebaseAndBroadcast(newSlides);
-        alert(`✓ ${newSlides.length} versículos gerados e sincronizados no Firebase com o celular e tablet!`);
       }
     }
 
