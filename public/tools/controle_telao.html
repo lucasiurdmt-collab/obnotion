@@ -56,6 +56,9 @@
 
   <!-- JSZip for PowerPoint (.pptx) Parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  
+  <!-- Fuzzysort for typo-tolerant song search -->
+  <script src="https://cdn.jsdelivr.net/npm/fuzzysort@3.0.0/fuzzysort.min.js"></script>
 
   <style>
     body, html {
@@ -248,8 +251,25 @@
         </div>
       </div>
 
+      <!-- Buscar Música (Holyrics) -->
+      <div class="p-4 rounded-2xl bg-[#090d1e] border border-white/[0.08] space-y-3 relative z-30">
+        <div class="flex items-center justify-between text-xs font-bold text-zinc-400">
+          <span class="flex items-center gap-1.5 uppercase tracking-wider text-amber-300">
+            <i data-lucide="music" class="w-4 h-4"></i> Buscar Música (Base Holyrics)
+          </span>
+          <span id="songsDbStatus" class="text-[10px] text-zinc-500 font-mono">Carregando base...</span>
+        </div>
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-zinc-500"></i>
+          <input type="text" id="songSearchInput" oninput="handleSongSearch(event)" placeholder="Busque por título, artista ou trecho da letra (ex: 'rendido estou')..." class="w-full bg-[#11162d] border border-white/[0.1] rounded-xl py-2.5 pl-9 pr-4 text-sm text-white placeholder-zinc-500 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all" />
+        </div>
+        <!-- Search Results Dropdown -->
+        <div id="songSearchResults" class="absolute w-full mt-1 bg-[#11162d] border border-white/[0.1] rounded-xl shadow-2xl overflow-y-auto custom-scrollbar flex flex-col gap-1 hidden" style="max-height: 350px; z-index: 50;">
+        </div>
+      </div>
+
       <!-- Grid of Slides (Miniaturas de todos os versículos / imagens) -->
-      <div class="space-y-2">
+      <div class="space-y-2 relative z-10">
         <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider">
           Lista de Slides do Sermão (<span id="totalSlidesCount">0</span>)
         </div>
@@ -930,6 +950,96 @@
         const now = new Date();
         document.getElementById('liveClock').textContent = now.toTimeString().split(' ')[0];
       }, 1000);
+    }
+
+    // --- HOLYRICS MUSIC SEARCH ---
+    let songsDatabase = [];
+    async function loadSongsDatabase() {
+      try {
+        const res = await fetch('../assets/holyrics_songs.json');
+        const data = await res.json();
+        songsDatabase = data.map(song => {
+           const text = song.lyrics && song.lyrics.full_text ? song.lyrics.full_text : "";
+           return {
+             ...song,
+             _searchable: song.title + " " + (song.artist || "") + " " + text
+           };
+        });
+        document.getElementById('songsDbStatus').textContent = `${songsDatabase.length} músicas`;
+        document.getElementById('songsDbStatus').classList.replace('text-zinc-500', 'text-emerald-400');
+      } catch (err) {
+        document.getElementById('songsDbStatus').textContent = "Falha ao carregar Músicas";
+        document.getElementById('songsDbStatus').classList.replace('text-zinc-500', 'text-rose-400');
+        console.error("Erro carregando holyrics_songs.json:", err);
+      }
+    }
+
+    if (currentMode !== 'projector') {
+      loadSongsDatabase();
+    }
+
+    function handleSongSearch(e) {
+      const query = e.target.value.trim();
+      const dropdown = document.getElementById('songSearchResults');
+      if (query.length < 2) {
+        dropdown.classList.add('hidden');
+        return;
+      }
+      
+      const results = fuzzysort.go(query, songsDatabase, {
+        key: '_searchable',
+        limit: 15
+      });
+      
+      if (results.length === 0) {
+        dropdown.innerHTML = `<div class="p-3 text-xs text-zinc-500 text-center">Nenhuma música encontrada...</div>`;
+      } else {
+        dropdown.innerHTML = results.map(res => {
+          const song = res.obj;
+          const text = song.lyrics && song.lyrics.full_text ? song.lyrics.full_text : "";
+          let snippet = text.substring(0, 70).replace(/\n/g, ' - ') + '...';
+          return `
+            <div class="p-3 border-b border-white/[0.05] hover:bg-white/[0.05] cursor-pointer transition-colors" onclick="addSongToPresentation('${song.id}')">
+              <div class="text-sm font-bold text-white">${song.title || 'Sem Título'} <span class="text-xs text-zinc-400 font-normal ml-2">${song.artist || ''}</span></div>
+              <div class="text-[10px] text-zinc-500 mt-0.5 truncate">${snippet}</div>
+            </div>
+          `;
+        }).join('');
+      }
+      dropdown.classList.remove('hidden');
+    }
+
+    function addSongToPresentation(songId) {
+      const song = songsDatabase.find(s => s.id == songId);
+      if (!song) return;
+      
+      const titleSlide = {
+        reference: song.title || "Louvor",
+        text: song.artist || "",
+        type: "verse"
+      };
+      
+      let newSlides = [titleSlide];
+      
+      if (song.lyrics && song.lyrics.paragraphs) {
+        song.lyrics.paragraphs.forEach(p => {
+          if (!p.text || !p.text.trim()) return;
+          newSlides.push({
+            reference: song.title || "Louvor",
+            text: p.text.trim(),
+            type: "verse"
+          });
+        });
+      }
+      
+      slides = slides.concat(newSlides);
+      currentSlideIdx = slides.length - newSlides.length; // Jump to the title slide
+      
+      renderAllViews();
+      saveSlidesToFirebaseAndBroadcast();
+      
+      document.getElementById('songSearchInput').value = '';
+      document.getElementById('songSearchResults').classList.add('hidden');
     }
 
     function toggleFullScreen() {
