@@ -747,6 +747,7 @@
         }
 
         if (newSlides.length > 0) {
+          currentSlideIdx = 0;
           progressText.textContent = 'Sincronizando com o Firebase Nuvem...';
           await saveSlidesToFirebaseAndBroadcast(newSlides);
           alert(`✓ Sucesso! ${newSlides.length} páginas com imagens foram enviadas para o Firebase e já estão visíveis no celular e tablet!`);
@@ -780,44 +781,35 @@
           }
         });
 
+        // Sort slides logically (slide1.xml, slide2.xml...)
         slideFiles.sort((a, b) => {
-          const numA = parseInt(a.replace(/[^0-9]/g, '')) || 0;
-          const numB = parseInt(b.replace(/[^0-9]/g, '')) || 0;
+          const numA = parseInt(a.replace(/\D/g, ''));
+          const numB = parseInt(b.replace(/\D/g, ''));
           return numA - numB;
         });
 
-        if (slideFiles.length === 0) {
-          throw new Error("Nenhum slide encontrado no arquivo PowerPoint.");
-        }
-
         const newSlides = [];
-
         for (let i = 0; i < slideFiles.length; i++) {
-          progressText.textContent = `Processando slide ${i + 1} de ${slideFiles.length}...`;
-          const xmlText = await zipContent.file(slideFiles[i]).async('text');
-          const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+          progressText.textContent = `Extraindo texto do Slide ${i + 1} de ${slideFiles.length}...`;
+          const xmlText = await zipContent.file(slideFiles[i]).async('string');
           
-          const textNodes = xmlDoc.getElementsByTagName('a:t');
-          const texts = [];
-          for (let t = 0; t < textNodes.length; t++) {
-            const val = textNodes[t].textContent.trim();
-            if (val) texts.push(val);
+          // Regex to extract all text nodes in the slide XML
+          const textMatches = [...xmlText.matchAll(/<a:t>([^<]+)<\/a:t>/g)];
+          let slideText = textMatches.map(m => m[1]).join(' ');
+
+          if (slideText.trim()) {
+            newSlides.push({
+              index: newSlides.length,
+              reference: `SLIDE ${i + 1}`,
+              text: slideText.trim(),
+              type: "verse"
+            });
           }
-
-          let refTitle = texts.length > 0 ? texts[0] : `SLIDE ${i + 1}`;
-          let bodyText = texts.length > 1 ? texts.slice(1).join(' ') : (texts[0] || `Slide ${i + 1}`);
-
-          newSlides.push({
-            index: i,
-            reference: refTitle.toUpperCase(),
-            text: bodyText,
-            type: "verse"
-          });
         }
 
         if (newSlides.length > 0) {
-          progressText.textContent = 'Sincronizando com o Firebase Nuvem...';
+          currentSlideIdx = 0;
+          progressText.textContent = 'Sincronizando textos do PPTX com o Firebase...';
           await saveSlidesToFirebaseAndBroadcast(newSlides);
           alert(`✓ Sucesso! ${newSlides.length} slides de TEXTO foram extraídos do PowerPoint e sincronizados.\n\n⚠️ NOTA SOBRE IMAGENS:\nPara que o sistema preserve fundos e converta seus slides exatamente como imagens para o tablet, abra seu PowerPoint, clique em "Salvar Como PDF" e importe o PDF aqui!`);
         }
@@ -851,9 +843,9 @@
               text: curText.join(' '),
               type: "verse"
             });
-            curText = [];
           }
           curRef = line;
+          curText = [];
         } else {
           curText.push(line);
         }
@@ -869,6 +861,7 @@
       }
 
       if (newSlides.length > 0) {
+        currentSlideIdx = 0;
         await saveSlidesToFirebaseAndBroadcast(newSlides);
         alert(`✓ ${newSlides.length} versículos gerados e sincronizados no Firebase com o celular e tablet!`);
       }
@@ -1049,8 +1042,13 @@
         });
       }
       
+      const oldLength = slides.length;
       slides = slides.concat(newSlides);
-      currentSlideIdx = slides.length - newSlides.length; // Jump to the title slide
+      
+      // Apenas pula para a música nova se a lista estava vazia
+      if (oldLength === 0) {
+        currentSlideIdx = 0;
+      }
       
       renderAllViews();
       saveSlidesToFirebaseAndBroadcast(slides);
