@@ -157,13 +157,19 @@
           <img id="pastorImageDisplay" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl border border-white/10" src="" alt="Slide do Sermão" />
         </div>
 
-        <!-- Render Mode B: Styled Biblical Verse / Text -->
-        <div id="pastorTextContainer" class="w-full h-full flex flex-col items-center justify-center my-auto pt-6 pb-2">
-          <div id="pastorRefDisplay" class="font-bebas text-2xl sm:text-4xl text-purple-400 tracking-wider font-bold mb-3">
-            MATEUS 6:14-15
-          </div>
+        <!-- Render Mode B: Styled Biblical Verse / Text / Song -->
+        <div id="pastorTextContainer" class="w-full h-full flex flex-col items-center justify-center my-auto relative pt-6 pb-2">
+          <!-- Referência (versículos - fica no topo) -->
+          <div id="pastorRefDisplay" class="font-bebas text-2xl sm:text-4xl text-purple-400 tracking-wider font-bold mb-3"></div>
           <div id="pastorTextDisplay" class="font-sans font-extrabold text-xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight sm:leading-snug text-white max-w-4xl overflow-y-auto custom-scrollbar whitespace-pre-wrap">
             "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
+          </div>
+          <!-- Badge de música (fica no canto inferior direito - apenas para músicas) -->
+          <div id="pastorSongTitleBadge" class="hidden absolute bottom-3 right-4 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center text-black shadow-lg flex-shrink-0">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </div>
+            <span id="pastorSongTitleText" class="font-sans font-black text-base text-yellow-400 uppercase tracking-wider border-b-2 border-yellow-400 pb-0.5 pr-2"></span>
           </div>
         </div>
 
@@ -612,8 +618,20 @@
       } else {
         pastorImgBox.classList.add('hidden');
         pastorTextBox.classList.remove('hidden');
-        document.getElementById('pastorRefDisplay').textContent = cur.reference || "PALAVRA DE DEUS";
-        document.getElementById('pastorTextDisplay').textContent = cur.text || "";
+        if (cur.type === 'song') {
+          // Música: sem título no topo, badge amarelo no canto inferior
+          document.getElementById('pastorRefDisplay').textContent = '';
+          document.getElementById('pastorTextDisplay').textContent = cur.text || '';
+          const badge = document.getElementById('pastorSongTitleBadge');
+          badge.classList.remove('hidden');
+          document.getElementById('pastorSongTitleText').textContent = cur.reference || '';
+        } else {
+          // Versículo/texto: referência no topo, sem badge
+          document.getElementById('pastorRefDisplay').textContent = cur.reference || 'PALAVRA DE DEUS';
+          document.getElementById('pastorTextDisplay').textContent = cur.text || '';
+          const badge = document.getElementById('pastorSongTitleBadge');
+          if (badge) badge.classList.add('hidden');
+        }
       }
 
       document.getElementById('pastorSlideBadge').textContent = `SLIDE ${currentSlideIdx + 1} DE ${slides.length}`;
@@ -738,6 +756,7 @@
       try {
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const pdfId = `pdf_${Date.now()}`;
         const newSlides = [];
 
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
@@ -760,19 +779,33 @@
           const dataUrl = canvas.toDataURL('image/jpeg', 0.65);
 
           newSlides.push({
-            index: pageNum - 1,
-            reference: `SLIDE ${pageNum}`,
+            reference: `${file.name.replace('.pdf','').toUpperCase()} • P${pageNum}`,
             text: `Slide ${pageNum}`,
             imageUrl: dataUrl,
-            type: "image"
+            type: "image",
+            pdfId: pdfId
           });
         }
 
         if (newSlides.length > 0) {
-          currentSlideIdx = 0;
+          // Contar PDFs distintos já carregados (max 3)
+          const existingPdfIds = [...new Set(slides.filter(s => s.pdfId).map(s => s.pdfId))];
+          if (existingPdfIds.length >= 3) {
+            // Remover o PDF mais antigo para dar espaço
+            const oldestId = existingPdfIds[0];
+            slides = slides.filter(s => s.pdfId !== oldestId);
+            alert(`⚠️ Limite de 3 PDFs atingido. O PDF mais antigo foi removido automaticamente.`);
+          }
+          
+          // Acumular - adicionar ao final da lista existente
+          const combinedSlides = slides.concat(newSlides);
+          // Re-indexar
+          combinedSlides.forEach((s, i) => s.index = i);
+          
+          currentSlideIdx = slides.length; // Pular para o início do novo PDF
           progressText.textContent = 'Sincronizando com o Firebase Nuvem...';
-          await saveSlidesToFirebaseAndBroadcast(newSlides);
-          alert(`✓ Sucesso! ${newSlides.length} páginas com imagens foram enviadas para o Firebase e já estão visíveis no celular e tablet!`);
+          await saveSlidesToFirebaseAndBroadcast(combinedSlides);
+          alert(`✓ PDF adicionado! ${newSlides.length} páginas carregadas. Total: ${combinedSlides.length} slides.`);
         }
       } catch (err) {
         console.error("Erro ao processar PDF:", err);
