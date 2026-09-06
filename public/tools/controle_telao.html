@@ -255,12 +255,18 @@
           <img id="opMirroredImg" class="max-w-full max-h-full object-contain rounded-xl hidden" src="" alt="Slide do Pastor" />
 
           <!-- Text View in Operator Monitor -->
-          <div id="opMirroredTextContainer" class="flex flex-col items-center justify-center p-4">
-            <div id="opMirroredRef" class="font-bebas text-3xl sm:text-4xl text-purple-400 font-bold mb-2">
-              MATEUS 6:14-15
-            </div>
+          <div id="opMirroredTextContainer" class="flex flex-col w-full h-full relative items-center justify-center p-4">
+            <!-- Referência normal (versículos/texto) -->
+            <div id="opMirroredRef" class="font-bebas text-3xl sm:text-4xl text-purple-400 font-bold mb-2"></div>
             <div id="opMirroredText" class="font-sans font-black text-2xl sm:text-3xl text-white max-w-2xl leading-snug whitespace-pre-wrap overflow-y-auto custom-scrollbar line-clamp-4">
               "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
+            </div>
+            <!-- Título de música (apenas para type=song, fica no canto inferior direito) -->
+            <div id="opSongTitleBadge" class="hidden absolute bottom-2 right-3 flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-yellow-400 flex items-center justify-center text-black shadow-lg flex-shrink-0">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              </div>
+              <span id="opSongTitleText" class="font-sans font-black text-sm text-yellow-400 uppercase tracking-wider border-b-2 border-yellow-400 pb-0.5 pr-1"></span>
             </div>
           </div>
 
@@ -566,6 +572,10 @@
       if (currentSlideIdx < slides.length - 1) {
         currentSlideIdx++;
         broadcastLiveState();
+      } else if (slides.length > 0 && slides[0].type === 'song') {
+        // Último slide de uma música -> apagar telão automaticamente
+        isBlackout = true;
+        broadcastLiveState();
       }
     }
 
@@ -628,11 +638,23 @@
         opImg.classList.remove('hidden');
         opTextBox.classList.add('hidden');
         opImg.src = cur.imageUrl;
+      } else if (cur.type === 'song') {
+        opImg.classList.add('hidden');
+        opTextBox.classList.remove('hidden');
+        // Para músicas: sem título no topo, letra centralizada, título no canto inferior
+        document.getElementById('opMirroredRef').textContent = '';
+        document.getElementById('opMirroredText').textContent = cur.text || '';
+        const badge = document.getElementById('opSongTitleBadge');
+        badge.classList.remove('hidden');
+        document.getElementById('opSongTitleText').textContent = cur.reference || '';
       } else {
         opImg.classList.add('hidden');
         opTextBox.classList.remove('hidden');
-        document.getElementById('opMirroredRef').textContent = cur.reference || "PALAVRA DE DEUS";
-        document.getElementById('opMirroredText').textContent = cur.text || "";
+        // Para versículos/texto: título normal no topo
+        document.getElementById('opMirroredRef').textContent = cur.reference || 'PALAVRA DE DEUS';
+        document.getElementById('opMirroredText').textContent = cur.text || '';
+        const badge = document.getElementById('opSongTitleBadge');
+        if (badge) badge.classList.add('hidden');
       }
 
       const blackoutBtn = document.getElementById('btnBlackout');
