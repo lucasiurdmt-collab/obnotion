@@ -459,26 +459,29 @@
       });
 
       // 2. Listen to Realtime Slides Subcollection (Loads all images on mobile/tablet identically)
-      slidesCollectionRef.orderBy('index').onSnapshot((snapshot) => {
-        if (!snapshot.empty) {
-          const remoteSlides = [];
-          snapshot.forEach(doc => {
-            remoteSlides.push(doc.data());
-          });
-          if (remoteSlides.length > 0) {
-            slides = remoteSlides;
-            currentSlideIdx = Math.max(0, Math.min(currentSlideIdx, slides.length - 1));
-            renderAllViews();
+      // O operador não precisa escutar a própria gravação (evita loop e travamentos)
+      if (currentMode !== 'operator') {
+        slidesCollectionRef.orderBy('index').onSnapshot((snapshot) => {
+          if (!snapshot.empty) {
+            const remoteSlides = [];
+            snapshot.forEach(doc => {
+              remoteSlides.push(doc.data());
+            });
+            if (remoteSlides.length > 0) {
+              slides = remoteSlides;
+              currentSlideIdx = Math.max(0, Math.min(currentSlideIdx, slides.length - 1));
+              renderAllViews();
+            }
           }
-        }
-      }, (err) => {
-        console.warn("Firestore slides subcollection sync fallback:", err);
-      });
+        }, (err) => {
+          console.warn("Firestore slides subcollection sync fallback:", err);
+        });
+      }
 
       // 3. Listen to Local Tab Broadcast Channel
       localChannel.onmessage = (msg) => {
         if (msg.data) {
-          if (msg.data.slides) slides = msg.data.slides;
+          if (msg.data.slides && currentMode !== 'operator') slides = msg.data.slides;
           if (typeof msg.data.currentSlideIdx === 'number') currentSlideIdx = msg.data.currentSlideIdx;
           if (typeof msg.data.isBlackout === 'boolean') isBlackout = msg.data.isBlackout;
           renderAllViews();
@@ -508,8 +511,8 @@
     // Save full slides collection to Firebase Firestore
     async function saveSlidesToFirebaseAndBroadcast(newSlides) {
       slides = newSlides;
-      currentSlideIdx = 0;
       renderAllViews();
+      renderPdfLibrary();
 
       localChannel.postMessage({
         slides: slides,
@@ -526,7 +529,7 @@
         });
         await Promise.all(deletePromises);
 
-        // 2. Salvar novos slides (gravando um a um para evitar limite de tamanho de batch do Firestore)
+        // 2. Salvar novos slides (gravando com pdfId preservado)
         const savePromises = slides.map(async (s, i) => {
           const docRef = slidesCollectionRef.doc(String(i));
           await docRef.set({
@@ -534,14 +537,15 @@
             reference: s.reference || '',
             text: s.text || '',
             imageUrl: s.imageUrl || '',
-            type: s.type || 'verse'
+            type: s.type || 'verse',
+            pdfId: s.pdfId || ''
           });
         });
         await Promise.all(savePromises);
 
         // 3. Atualizar documento principal da sala
         await liveDocRef.set({
-          currentSlideIdx: 0,
+          currentSlideIdx: currentSlideIdx,
           totalSlides: slides.length,
           isBlackout: isBlackout,
           updatedAt: Date.now()
@@ -549,8 +553,6 @@
 
       } catch (err) {
         console.error("Erro ao salvar slides no Firestore:", err);
-        alert("Erro ao sincronizar com a nuvem (O slide pode ser muito pesado). " + err.message);
-        throw err; // Lança o erro para que funções externas (como handlePdfUpload) não exibam mensagem de sucesso.
       }
     }
 
@@ -769,33 +771,38 @@
         }
 
         if (newSlides.length > 0) {
-          // Contar PDFs distintos já carregados (max 3)
-          const existingPdfIds = [...new Set(slides.filter(s => s.pdfId).map(s => s.pdfId))];
-          if (existingPdfIds.length >= 3) {
-            // Remover o PDF mais antigo para dar espaço
-            const oldestId = existingPdfIds[0];
-            slides = slides.filter(s => s.pdfId !== oldestId);
-            alert(`⚠️ Limite de 3 PDFs atingido. O PDF mais antigo foi removido automaticamente.`);
+          // Limite de 3 PDFs: se já houver 3, remove o mais antigo
+          if (pdfLibrary.length >= 3) {
+            pdfLibrary.shift();
           }
           
-          // Acumular - adicionar ao final da lista existente
-          const combinedSlides = slides.concat(newSlides);
-          // Re-indexar
-          combinedSlides.forEach((s, i) => s.index = i);
+          const cleanName = file.name.replace(/\.pdf$/i, '');
           
-          currentSlideIdx = slides.length; // Pular para o início do novo PDF
-          progressText.textContent = 'Sincronizando com o Firebase Nuvem...';
-          await saveSlidesToFirebaseAndBroadcast(combinedSlides);
+          // Registrar na biblioteca de PDFs com os slides COMPLETOS guardados
+          pdfLibrary.push({ 
+            id: pdfId, 
+            name: cleanName, 
+            pageCount: newSlides.length,
+            slides: newSlides
+          });
           
-          // Registrar na biblioteca de PDFs
-          pdfLibrary.push({ id: pdfId, name: file.name.replace('.pdf', '').replace('.PDF', ''), pageCount: newSlides.length });
           renderPdfLibrary();
+
+          // Ativar este PDF imediatamente na tela
+          slides = newSlides;
+          currentSlideIdx = 0;
+          isBlackout = false;
+          
+          progressText.textContent = 'Sincronizando com a Nuvem...';
+          renderAllViews();
+          await saveSlidesToFirebaseAndBroadcast(slides);
         }
       } catch (err) {
         console.error("Erro ao processar PDF:", err);
         alert("Erro ao ler o PDF: " + err.message);
       } finally {
         progressBox.classList.add('hidden');
+        if (e.target) e.target.value = '';
       }
     }
 
@@ -1007,54 +1014,76 @@
 
     // --- HOLYRICS MUSIC SEARCH ---
     // --- PDF LIBRARY (metadados persistem em memória) ---
-    let pdfLibrary = []; // [{id, name, pageCount}]
+    let pdfLibrary = []; // [{id, name, pageCount, slides: [...]}]
 
     function renderPdfLibrary() {
       const listEl = document.getElementById('pdfLibraryList');
+      if (!listEl) return;
       if (pdfLibrary.length === 0) {
         listEl.innerHTML = '<div class="text-[10px] text-zinc-600 italic px-1">Nenhum PDF carregado ainda...</div>';
         return;
       }
-      listEl.innerHTML = pdfLibrary.map(pdf => `
-        <div class="flex items-center gap-2 p-2.5 rounded-xl bg-[#11162d] border border-rose-500/30 hover:border-rose-400/60 hover:bg-rose-500/10 cursor-pointer transition-all group" onclick="jumpToPdf('${pdf.id}')">
-          <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-300 flex items-center justify-center text-[9px] font-black flex-shrink-0 leading-none">PDF</div>
-          <div class="flex-1 min-w-0">
-            <div class="text-xs font-bold text-white truncate group-hover:text-rose-200 transition-colors">${pdf.name}</div>
-            <div class="text-[9px] text-zinc-500">${pdf.pageCount} páginas</div>
+      
+      const currentPdfId = (slides.length > 0 && slides[0].pdfId) ? slides[0].pdfId : null;
+      
+      listEl.innerHTML = pdfLibrary.map(pdf => {
+        const isActive = (currentPdfId === pdf.id);
+        const activeClasses = isActive 
+          ? 'bg-rose-500/25 border-rose-400 ring-1 ring-rose-400 text-white shadow-lg' 
+          : 'bg-[#11162d] border-rose-500/30 hover:border-rose-400/60 hover:bg-rose-500/10 text-white';
+          
+        return `
+          <div class="flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition-all ${activeClasses} group" onclick="jumpToPdf('${pdf.id}')">
+            <div class="w-8 h-8 rounded-lg ${isActive ? 'bg-rose-500 text-white' : 'bg-rose-500/20 text-rose-300'} flex items-center justify-center text-[9px] font-black flex-shrink-0 leading-none">PDF</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-bold truncate group-hover:text-rose-200 transition-colors">${pdf.name}</div>
+              <div class="text-[9px] text-zinc-400">${pdf.pageCount} páginas ${isActive ? '• <span class="text-rose-300 font-bold">ATIVO</span>' : ''}</div>
+            </div>
+            <button onclick="event.stopPropagation(); removePdf('${pdf.id}')" class="w-5 h-5 rounded flex items-center justify-center text-zinc-500 hover:text-rose-400 hover:bg-rose-500/20 transition-all flex-shrink-0 text-xs" title="Remover PDF">✕</button>
           </div>
-          <button onclick="event.stopPropagation(); removePdf('${pdf.id}')" class="w-5 h-5 rounded flex items-center justify-center text-zinc-600 hover:text-rose-400 hover:bg-rose-500/10 transition-all flex-shrink-0 text-xs" title="Remover PDF">✕</button>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function jumpToPdf(pdfId) {
-      // Encontrar primeiro slide desse PDF na lista atual
-      const idx = slides.findIndex(s => s.pdfId === pdfId);
-      if (idx !== -1) {
-        currentSlideIdx = idx;
-        isBlackout = false;
-        broadcastLiveState();
-      }
+      const pdf = pdfLibrary.find(p => p.id === pdfId);
+      if (!pdf || !pdf.slides || pdf.slides.length === 0) return;
+      
+      // Carrega os slides do PDF selecionado
+      slides = pdf.slides;
+      slides.forEach((s, i) => s.index = i);
+      currentSlideIdx = 0;
+      isBlackout = false;
+      renderAllViews();
+      renderPdfLibrary();
+      saveSlidesToFirebaseAndBroadcast(slides);
     }
 
     function removePdf(pdfId) {
-      slides = slides.filter(s => s.pdfId !== pdfId);
-      slides.forEach((s, i) => s.index = i);
       pdfLibrary = pdfLibrary.filter(p => p.id !== pdfId);
-      if (currentSlideIdx >= slides.length) currentSlideIdx = Math.max(0, slides.length - 1);
       renderPdfLibrary();
-      renderAllViews();
-      saveSlidesToFirebaseAndBroadcast(slides);
+      
+      if (slides.length > 0 && slides[0].pdfId === pdfId) {
+        if (pdfLibrary.length > 0) {
+          jumpToPdf(pdfLibrary[0].id);
+        } else {
+          slides = [];
+          currentSlideIdx = 0;
+          renderAllViews();
+          saveSlidesToFirebaseAndBroadcast(slides);
+        }
+      }
     }
 
     function clearAllPdfs() {
-      slides = slides.filter(s => s.type !== 'image');
-      slides.forEach((s, i) => s.index = i);
       pdfLibrary = [];
-      if (currentSlideIdx >= slides.length) currentSlideIdx = Math.max(0, slides.length - 1);
       renderPdfLibrary();
-      renderAllViews();
-      saveSlidesToFirebaseAndBroadcast(slides);
+      if (slides.length > 0 && slides[0].type === 'image') {
+        slides = [];
+        currentSlideIdx = 0;
+        renderAllViews();
+        saveSlidesToFirebaseAndBroadcast(slides);
+      }
     }
 
     let songsDatabase = [];
@@ -1154,16 +1183,14 @@
         });
       }
       
-      // MANTER os slides de PDF — só substituir as músicas
-      const pdfSlides = slides.filter(s => s.type === 'image');
-      // PDFs primeiro, música nova por último
-      slides = pdfSlides.concat(newSongSlides);
-      // Reindexar
+      // Músicas ativam imediatamente a sua própria lista de estrofes (o PDF fica salvo na biblioteca lateral)
+      slides = newSongSlides;
       slides.forEach((s, i) => s.index = i);
-      // Pular para o primeiro slide da música nova
-      currentSlideIdx = pdfSlides.length;
+      currentSlideIdx = 0;
+      isBlackout = false;
       
       renderAllViews();
+      renderPdfLibrary();
       saveSlidesToFirebaseAndBroadcast(slides);
       
       document.getElementById('songSearchInput').value = '';
