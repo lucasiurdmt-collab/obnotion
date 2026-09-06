@@ -578,7 +578,7 @@
       if (currentSlideIdx < slides.length - 1) {
         currentSlideIdx++;
         broadcastLiveState();
-      } else if (slides.length > 0 && slides[0].type === 'song') {
+      } else if (slides.length > 0 && slides[currentSlideIdx] && slides[currentSlideIdx].type === 'song') {
         // Último slide de uma música -> apagar telão automaticamente
         isBlackout = true;
         broadcastLiveState();
@@ -1098,12 +1098,12 @@
       if (!song) return;
       
       // Sem slide de título - vai direto pras estrofes
-      let newSlides = [];
+      let newSongSlides = [];
       
       if (song.lyrics && song.lyrics.paragraphs) {
         song.lyrics.paragraphs.forEach(p => {
           if (!p.text || !p.text.trim()) return;
-          newSlides.push({
+          newSongSlides.push({
             reference: song.title || "Louvor",
             text: p.text.trim(),
             type: "song"
@@ -1111,18 +1111,22 @@
         });
       }
       
-      if (newSlides.length === 0) {
-        // Fallback se não tiver parágrafos
-        newSlides.push({
+      if (newSongSlides.length === 0) {
+        newSongSlides.push({
           reference: song.title || "Louvor",
           text: song.artist || "",
           type: "song"
         });
       }
       
-      // SUBSTITUIR a lista de slides (não acumular)
-      slides = newSlides;
-      currentSlideIdx = 0;
+      // MANTER os slides de PDF — só substituir as músicas
+      const pdfSlides = slides.filter(s => s.type === 'image');
+      // PDFs primeiro, música nova por último
+      slides = pdfSlides.concat(newSongSlides);
+      // Reindexar
+      slides.forEach((s, i) => s.index = i);
+      // Pular para o primeiro slide da música nova
+      currentSlideIdx = pdfSlides.length;
       
       renderAllViews();
       saveSlidesToFirebaseAndBroadcast(slides);
