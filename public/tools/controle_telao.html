@@ -6,7 +6,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Púlpito do Pastor & Retorno de Slides em Tempo Real • Obnotion</title>
+  <title>Controle de Telão e Retorno • Obnotion</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -103,13 +103,13 @@
 
     <!-- Mode Switcher (Pastor Tablet vs Cabine Operador) -->
     <div class="flex items-center gap-1 bg-[#101428] p-0.5 rounded-xl border border-purple-500/25">
-      <button onclick="switchViewMode('pulpit')" id="btn-mode-pulpit" class="px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm" title="Modo Tablet Horizontal para o Pastor">
-        <i data-lucide="tablet" class="w-3.5 h-3.5"></i>
-        <span>📱 Púlpito do Pastor</span>
+      <button onclick="switchViewMode('operator')" id="btn-mode-operator" class="px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm" title="Painel de Controle de Mídia">
+        <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+        <span>🎛️ Controle (Operador)</span>
       </button>
-      <button onclick="switchViewMode('operator')" id="btn-mode-operator" class="px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5" title="Modo Operador de Mídia / Telão">
+      <button onclick="switchViewMode('pastor')" id="btn-mode-pulpit" class="px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5" title="Modo Visualização (Sem botões)">
         <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
-        <span>🖥️ Cabine / Operador</span>
+        <span>📺 Receptor (Pastor/Telão)</span>
       </button>
     </div>
 
@@ -126,23 +126,10 @@
 
 
   <!-- ========================================== -->
-  <!-- 2. MODO PÚLPITO (TABLET HORIZONTAL / DEITADO) -->
-  <!-- [ ◀ VOLTA ]  [ SLIDE / PPTX / IMAGEM ]  [ ▶ AVANÇA ] -->
+  <!-- 2. MODO PASTOR (SOMENTE TELA / SEM BOTÕES) -->
   <!-- ========================================== -->
-  <main id="pulpitView" class="flex-1 flex flex-row bg-[#04050a] relative overflow-hidden select-none">
+  <main id="pastorView" class="flex-1 flex flex-row bg-[#04050a] relative overflow-hidden select-none hidden">
     
-    <!-- ◀ BOTÃO LATERAL ESQUERDO: VOLTA (GRANDE & ERGONÔMICO) -->
-    <button 
-      onclick="prevSlide()" 
-      class="w-24 sm:w-32 md:w-36 h-full bg-gradient-to-r from-indigo-950/90 to-[#0b0e22]/90 hover:from-indigo-900 hover:to-[#121838] active:bg-indigo-600 border-r-2 border-indigo-500/30 flex flex-col items-center justify-center gap-3 text-indigo-200 hover:text-white transition-all tap-active shrink-0 shadow-2xl z-20 cursor-pointer"
-      title="Retroceder Slide / Versículo (Lado Esquerdo)"
-    >
-      <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center shadow-inner">
-        <i data-lucide="chevron-left" class="w-8 h-8 sm:w-9 sm:h-9 text-indigo-300"></i>
-      </div>
-      <span class="text-xl sm:text-2xl font-black font-bebas tracking-widest uppercase">VOLTA</span>
-    </button>
-
     <!-- 🖼️ ÁREA CENTRAL: SLIDE PPTX / IMAGEM / VERSÍCULO BÍBLICO DO PASTOR -->
     <div class="flex-1 h-full flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden bg-gradient-to-b from-[#080b18] via-[#04060e] to-[#080b18]">
       
@@ -153,50 +140,38 @@
         <div class="absolute top-3 left-4 right-4 flex items-center justify-between border-b border-white/[0.08] pb-1.5 z-10">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span id="pulpitSlideBadge" class="font-mono text-xs sm:text-sm font-bold text-purple-300">
+            <span id="pastorSlideBadge" class="font-mono text-xs sm:text-sm font-bold text-purple-300">
               SLIDE 1 DE 1
             </span>
           </div>
-          <div id="pulpitTypeBadge" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-200 border border-purple-500/30">
-            SLIDE DO SERMÃO
+          <div id="pastorTypeBadge" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-200 border border-purple-500/30">
+            SLIDE AO VIVO
           </div>
         </div>
 
         <!-- Render Mode A: High-Res Image / PDF Page / PPTX Graphic -->
-        <div id="pulpitImageContainer" class="w-full h-full flex items-center justify-center pt-8 pb-3 hidden">
-          <img id="pulpitImageDisplay" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl border border-white/10" src="" alt="Slide do Sermão" />
+        <div id="pastorImageContainer" class="w-full h-full flex items-center justify-center pt-8 pb-3 hidden">
+          <img id="pastorImageDisplay" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl border border-white/10" src="" alt="Slide do Sermão" />
         </div>
 
         <!-- Render Mode B: Styled Biblical Verse / Text -->
-        <div id="pulpitTextContainer" class="w-full h-full flex flex-col items-center justify-center my-auto pt-6 pb-2">
-          <div id="pulpitRefDisplay" class="font-bebas text-2xl sm:text-4xl text-purple-400 tracking-wider font-bold mb-3">
+        <div id="pastorTextContainer" class="w-full h-full flex flex-col items-center justify-center my-auto pt-6 pb-2">
+          <div id="pastorRefDisplay" class="font-bebas text-2xl sm:text-4xl text-purple-400 tracking-wider font-bold mb-3">
             MATEUS 6:14-15
           </div>
-          <div id="pulpitTextDisplay" class="font-sans font-extrabold text-xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight sm:leading-snug text-white max-w-4xl overflow-y-auto custom-scrollbar">
+          <div id="pastorTextDisplay" class="font-sans font-extrabold text-xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight sm:leading-snug text-white max-w-4xl overflow-y-auto custom-scrollbar">
             "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
           </div>
         </div>
 
         <!-- Footer Progress Bar -->
         <div class="w-full bg-white/[0.08] h-1.5 rounded-full overflow-hidden absolute bottom-0 left-0 right-0">
-          <div id="pulpitProgressBar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full transition-all duration-300" style="width: 10%;"></div>
+          <div id="pastorProgressBar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full transition-all duration-300" style="width: 10%;"></div>
         </div>
 
       </div>
 
     </div>
-
-    <!-- ▶ BOTÃO LATERAL DIREITO: AVANÇA (GRANDE & ERGONÔMICO) -->
-    <button 
-      onclick="nextSlide()" 
-      class="w-24 sm:w-32 md:w-36 h-full bg-gradient-to-l from-purple-950/90 to-[#120e29]/90 hover:from-purple-900 hover:to-[#1a143b] active:bg-purple-600 border-l-2 border-purple-500/40 flex flex-col items-center justify-center gap-3 text-purple-200 hover:text-white transition-all tap-active shrink-0 shadow-2xl z-20 cursor-pointer"
-      title="Avançar Slide / Versículo (Lado Direito)"
-    >
-      <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center shadow-inner">
-        <i data-lucide="chevron-right" class="w-8 h-8 sm:w-9 sm:h-9 text-purple-300"></i>
-      </div>
-      <span class="text-xl sm:text-2xl font-black font-bebas tracking-widest uppercase">AVANÇA</span>
-    </button>
 
   </main>
 
@@ -205,7 +180,7 @@
   <!-- 3. MODO OPERADOR / CABINE (COMPUTADOR)    -->
   <!-- Retorno em tempo real, Telão & Controles  -->
   <!-- ========================================== -->
-  <main id="operatorView" class="flex-1 flex overflow-hidden bg-[#060812] hidden">
+  <main id="operatorView" class="flex-1 flex overflow-hidden bg-[#060812]">
     
     <!-- LEFT: RETORNO AO VIVO & CONTROLE DO TELÃO -->
     <div class="flex-1 flex flex-col p-4 space-y-4 overflow-y-auto custom-scrollbar">
@@ -234,7 +209,7 @@
 
           <button onclick="openProjectorWindow()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 flex items-center gap-1.5 transition-all active:scale-95">
             <i data-lucide="projector" class="w-4 h-4"></i>
-            <span>📺 Abrir Janela do Telão (HDMI)</span>
+            <span>📺 Abrir Janela do Telão (vMix - Aperte G p/ Fundo Verde)</span>
           </button>
         </div>
       </div>
@@ -394,14 +369,14 @@
       }
     });
 
-    const liveDocRef = db.collection('pulpito_rooms').doc('culto_central');
+    const liveDocRef = db.collection('pulpito_rooms').doc('telao_principal');
     const slidesCollectionRef = liveDocRef.collection('slides');
-    const localChannel = new BroadcastChannel('obnotion_pulpito_live_channel');
+    const localChannel = new BroadcastChannel('obnotion_telao_live_channel');
 
     // --- STATE ---
     let currentSlideIdx = 0;
     let isBlackout = false;
-    let currentMode = 'pulpit';
+    let currentMode = 'operator';
 
     let slides = [
       {
@@ -593,27 +568,27 @@
     function renderAllViews() {
       const cur = slides[currentSlideIdx] || { reference: "", text: "Nenhum slide carregado.", type: "verse" };
 
-      // 1. Pulpit Tablet View
-      const pulpitImgBox = document.getElementById('pulpitImageContainer');
-      const pulpitTextBox = document.getElementById('pulpitTextContainer');
-      const pulpitImg = document.getElementById('pulpitImageDisplay');
+      // 1. Pastor Tablet View
+      const pastorImgBox = document.getElementById('pastorImageContainer');
+      const pastorTextBox = document.getElementById('pastorTextContainer');
+      const pastorImg = document.getElementById('pastorImageDisplay');
 
       if (cur.imageUrl) {
-        pulpitImgBox.classList.remove('hidden');
-        pulpitTextBox.classList.add('hidden');
-        pulpitImg.src = cur.imageUrl;
+        pastorImgBox.classList.remove('hidden');
+        pastorTextBox.classList.add('hidden');
+        pastorImg.src = cur.imageUrl;
       } else {
-        pulpitImgBox.classList.add('hidden');
-        pulpitTextBox.classList.remove('hidden');
-        document.getElementById('pulpitRefDisplay').textContent = cur.reference || "PALAVRA DE DEUS";
-        document.getElementById('pulpitTextDisplay').textContent = cur.text || "";
+        pastorImgBox.classList.add('hidden');
+        pastorTextBox.classList.remove('hidden');
+        document.getElementById('pastorRefDisplay').textContent = cur.reference || "PALAVRA DE DEUS";
+        document.getElementById('pastorTextDisplay').textContent = cur.text || "";
       }
 
-      document.getElementById('pulpitSlideBadge').textContent = `SLIDE ${currentSlideIdx + 1} DE ${slides.length}`;
-      document.getElementById('pulpitTypeBadge').textContent = cur.type === 'image' ? 'SLIDE VISUAL / PDF' : 'VERSÍCULO BÍBLICO';
+      document.getElementById('pastorSlideBadge').textContent = `SLIDE ${currentSlideIdx + 1} DE ${slides.length}`;
+      document.getElementById('pastorTypeBadge').textContent = cur.type === 'image' ? 'SLIDE VISUAL / PDF' : 'VERSÍCULO BÍBLICO';
       
       const pct = slides.length > 1 ? ((currentSlideIdx + 1) / slides.length) * 100 : 100;
-      document.getElementById('pulpitProgressBar').style.width = `${pct}%`;
+      document.getElementById('pastorProgressBar').style.width = `${pct}%`;
 
       // 2. Operator Cabine View
       document.getElementById('opActiveSlideNum').textContent = `Slide ${currentSlideIdx + 1} de ${slides.length}`;
@@ -686,19 +661,19 @@
     // --- MODE SWITCHER ---
     function switchViewMode(mode) {
       currentMode = mode;
-      const pulpit = document.getElementById('pulpitView');
+      const pastor = document.getElementById('pastorView');
       const operator = document.getElementById('operatorView');
 
       const btnP = document.getElementById('btn-mode-pulpit');
       const btnO = document.getElementById('btn-mode-operator');
 
-      if (mode === 'pulpit') {
-        pulpit.classList.remove('hidden');
+      if (mode === 'pastor') {
+        pastor.classList.remove('hidden');
         operator.classList.add('hidden');
         btnP.className = "px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
         btnO.className = "px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
       } else {
-        pulpit.classList.add('hidden');
+        pastor.classList.add('hidden');
         operator.classList.remove('hidden');
         btnO.className = "px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
         btnP.className = "px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
@@ -886,24 +861,36 @@
     function renderProjectorModeOnly() {
       document.getElementById('mainHeader').style.display = 'none';
       document.getElementById('operatorView').style.display = 'none';
-      document.getElementById('pulpitView').className = "h-screen w-screen flex items-center justify-center bg-black p-0 overflow-hidden";
+      document.getElementById('pulpitView').className = "h-screen w-screen flex items-center justify-center p-0 overflow-hidden bg-black transition-colors";
+      let isGreenScreen = false;
       
       const updateProjector = () => {
         const cur = slides[currentSlideIdx] || { reference: "", text: "" };
         const view = document.getElementById('pulpitView');
+        view.style.backgroundColor = isGreenScreen ? '#00FF00' : '#000000';
+        
         if (isBlackout) {
-          view.innerHTML = `<div class="w-full h-full bg-black"></div>`;
+          view.innerHTML = `<div class="w-full h-full flex items-center justify-center">
+            <span class="text-white/20 font-mono text-sm uppercase">BLACKOUT</span>
+          </div>`;
         } else if (cur.imageUrl) {
-          view.innerHTML = `<img src="${cur.imageUrl}" class="w-full h-full object-contain bg-black" />`;
+          view.innerHTML = `<img src="${cur.imageUrl}" class="w-full h-full object-contain" />`;
         } else {
           view.innerHTML = `
-            <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center bg-black">
-              <div class="font-bebas text-5xl sm:text-7xl text-purple-400 font-bold mb-6 tracking-widest">${cur.reference || ''}</div>
-              <div class="font-sans font-black text-4xl sm:text-6xl text-white max-w-6xl leading-snug">${cur.text || ''}</div>
+            <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center">
+              <div class="font-bebas text-5xl sm:text-7xl text-purple-400 font-bold mb-6 tracking-widest drop-shadow-lg">${cur.reference || ''}</div>
+              <div class="font-sans font-black text-4xl sm:text-6xl text-white max-w-6xl leading-snug drop-shadow-2xl">${cur.text || ''}</div>
             </div>
           `;
         }
       };
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'g' || e.key === 'G') {
+          isGreenScreen = !isGreenScreen;
+          updateProjector();
+        }
+      });
 
       liveDocRef.onSnapshot((doc) => {
         if (doc.exists) {

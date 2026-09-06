@@ -137,6 +137,25 @@ export default function ProductivityView({ darkMode }) {
       ],
       path: `${import.meta.env.BASE_URL}tools/planilhas/index.html`,
       iframeUrl: `${import.meta.env.BASE_URL}tools/planilhas/index.html`
+    },
+    {
+      id: 'telao',
+      title: 'Controle de Mídia (Holyrics/vMix)',
+      icon: Tv,
+      color: 'text-indigo-400',
+      bgColor: 'bg-indigo-500/10',
+      borderColor: 'border-indigo-500/30',
+      tag: 'TELÃO & PROJEÇÃO',
+      tagColor: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30',
+      description: 'Painel completo de controle de mídia e letras para igrejas. Gerencie letras, versículos e apresentações e transmita para o telão (HTML) ou envie para o pastor no altar (como receptor).',
+      features: [
+        'Painel do Operador centralizado (clique para exibir na hora)',
+        'Integração com vMix via Janela HTML (Chroma Key Verde opcional)',
+        'Visão "Receptor" limpa para o Pastor ou Telão (sem botões)',
+        'Sincronização Cloud via Firebase para múltiplos dispositivos'
+      ],
+      path: `${import.meta.env.BASE_URL}tools/controle_telao.html`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/controle_telao.html`
     }
   ];
 
