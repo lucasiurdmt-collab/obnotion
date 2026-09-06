@@ -6,7 +6,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Controle de Telão e Retorno • Obnotion</title>
+  <title>Controle de TelÃ£o e Retorno â€¢ Obnotion</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -95,7 +95,7 @@
       </div>
       <div>
         <h1 class="text-xs font-bold text-white flex items-center gap-2">
-          Púlpito & Retorno ao Vivo
+          PÃºlpito & Retorno ao Vivo
           <span id="connectionBadge" class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold flex items-center gap-1">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             FIREBASE NUVEM ATIVO
@@ -106,13 +106,13 @@
 
     <!-- Mode Switcher (Pastor Tablet vs Cabine Operador) -->
     <div class="flex items-center gap-1 bg-[#101428] p-0.5 rounded-xl border border-purple-500/25">
-      <button onclick="switchViewMode('operator')" id="btn-mode-operator" class="px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm" title="Painel de Controle de Mídia">
+      <button onclick="switchViewMode('operator')" id="btn-mode-operator" class="px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm" title="Painel de Controle de MÃ­dia">
         <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
-        <span>🎛️ Controle (Operador)</span>
+        <span>ðŸŽ›ï¸ Controle (Operador)</span>
       </button>
-      <button onclick="switchViewMode('pastor')" id="btn-mode-pulpit" class="px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5" title="Modo Visualização (Sem botões)">
+      <button onclick="switchViewMode('pastor')" id="btn-mode-pulpit" class="px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5" title="Modo VisualizaÃ§Ã£o (Sem botÃµes)">
         <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
-        <span>📺 Receptor (Pastor/Telão)</span>
+        <span>ðŸ“º Receptor (Pastor/TelÃ£o)</span>
       </button>
     </div>
 
@@ -129,14 +129,14 @@
 
 
   <!-- ========================================== -->
-  <!-- 2. MODO PASTOR (SOMENTE TELA / SEM BOTÕES) -->
+  <!-- 2. MODO PASTOR (SOMENTE TELA / SEM BOTÃ•ES) -->
   <!-- ========================================== -->
   <main id="pastorView" class="flex-1 flex flex-row bg-[#04050a] relative overflow-hidden select-none hidden">
     
-    <!-- 🖼️ ÁREA CENTRAL: SLIDE PPTX / IMAGEM / VERSÍCULO BÍBLICO DO PASTOR -->
+    <!-- ðŸ–¼ï¸ ÃREA CENTRAL: SLIDE PPTX / IMAGEM / VERSÃCULO BÃBLICO DO PASTOR -->
     <div class="flex-1 h-full flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden bg-gradient-to-b from-[#080b18] via-[#04060e] to-[#080b18]">
       
-      <!-- Slide Presentation Container (16:9 HD Proporção de Leitura) -->
+      <!-- Slide Presentation Container (16:9 HD ProporÃ§Ã£o de Leitura) -->
       <div class="w-full h-full max-h-[92vh] aspect-video flex flex-col items-center justify-center text-center p-4 sm:p-8 rounded-3xl bg-black/80 border-2 border-purple-500/30 shadow-2xl relative overflow-hidden">
         
         <!-- Header Info (Slide Index & Indicator) -->
@@ -154,7 +154,7 @@
 
         <!-- Render Mode A: High-Res Image / PDF Page / PPTX Graphic -->
         <div id="pastorImageContainer" class="w-full h-full flex items-center justify-center pt-8 pb-3 hidden">
-          <img id="pastorImageDisplay" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl border border-white/10" src="" alt="Slide do Sermão" />
+          <img id="pastorImageDisplay" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl border border-white/10" src="" alt="Slide do SermÃ£o" />
         </div>
 
         <!-- Render Mode B: Styled Biblical Verse / Text -->
@@ -162,8 +162,8 @@
           <div id="pastorRefDisplay" class="font-bebas text-2xl sm:text-4xl text-purple-400 tracking-wider font-bold mb-3">
             MATEUS 6:14-15
           </div>
-          <div id="pastorTextDisplay" class="font-sans font-extrabold text-xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight sm:leading-snug text-white max-w-4xl overflow-y-auto custom-scrollbar">
-            "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
+          <div id="pastorTextDisplay" class="font-sans font-extrabold text-xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight sm:leading-snug text-white max-w-4xl overflow-y-auto custom-scrollbar whitespace-pre-wrap">
+            "Porque, se perdoardes aos homens as suas ofensas, tambÃ©m vosso Pai celestial vos perdoarÃ¡ a vÃ³s."
           </div>
         </div>
 
@@ -181,30 +181,30 @@
 
   <!-- ========================================== -->
   <!-- 3. MODO OPERADOR / CABINE (COMPUTADOR)    -->
-  <!-- Retorno em tempo real, Telão & Controles  -->
+  <!-- Retorno em tempo real, TelÃ£o & Controles  -->
   <!-- ========================================== -->
   <main id="operatorView" class="flex-1 flex overflow-x-auto overflow-y-hidden bg-[#060812]">
-    <!-- LEFT: BASE DE MÚSICAS HOLYRICS -->
+    <!-- LEFT: BASE DE MÃšSICAS HOLYRICS -->
     <aside class="w-72 bg-[#090d1f] border-r border-purple-500/20 flex flex-col shrink-0 z-20">
       <div class="p-4 space-y-3 bg-[#0a0f25] border-b border-purple-500/20 shrink-0 shadow-md">
         <div class="flex items-center justify-between text-xs font-bold text-zinc-400">
           <span class="flex items-center gap-1.5 uppercase tracking-wider text-amber-300">
-            <i data-lucide="music" class="w-4 h-4"></i> Músicas (Holyrics)
+            <i data-lucide="music" class="w-4 h-4"></i> MÃºsicas (Holyrics)
           </span>
           <span id="songsDbStatus" class="text-[10px] text-zinc-500 font-mono">Carregando...</span>
         </div>
         <div class="relative">
           <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-zinc-500"></i>
-          <input type="text" id="songSearchInput" oninput="handleSongSearch(event)" placeholder="Buscar (título, artista, letra)..." class="w-full bg-[#11162d] border border-white/[0.1] rounded-xl py-2.5 pl-9 pr-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all" />
+          <input type="text" id="songSearchInput" oninput="handleSongSearch(event)" placeholder="Buscar (tÃ­tulo, artista, letra)..." class="w-full bg-[#11162d] border border-white/[0.1] rounded-xl py-2.5 pl-9 pr-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all" />
         </div>
       </div>
       <div id="holyricsSongList" class="flex-1 overflow-y-auto custom-scrollbar bg-[#060812]">
         <!-- Full list of songs -->
-        <div class="p-4 text-xs text-zinc-500 text-center">Carregando lista de músicas...</div>
+        <div class="p-4 text-xs text-zinc-500 text-center">Carregando lista de mÃºsicas...</div>
       </div>
     </aside>
 
-    <!-- CENTER: RETORNO AO VIVO & CONTROLE DO TELÃO -->
+    <!-- CENTER: RETORNO AO VIVO & CONTROLE DO TELÃƒO -->
     <div class="flex-1 flex flex-col p-4 space-y-4 overflow-y-auto custom-scrollbar">
 
       <!-- Top Banner Status -->
@@ -214,10 +214,10 @@
             <i data-lucide="radio" class="w-5 h-5 animate-pulse"></i>
           </div>
           <div>
-            <div class="text-xs text-zinc-400 font-medium">Status do Pastor no Púlpito</div>
+            <div class="text-xs text-zinc-400 font-medium">Status do Pastor no PÃºlpito</div>
             <div id="operatorPastorStatus" class="text-sm font-bold text-white flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-              Pastor está no <span id="opActiveSlideNum" class="text-purple-300 font-mono">Slide 1 de 1</span>
+              Pastor estÃ¡ no <span id="opActiveSlideNum" class="text-purple-300 font-mono">Slide 1 de 1</span>
             </div>
           </div>
         </div>
@@ -226,17 +226,17 @@
         <div class="flex items-center gap-2">
           <button onclick="toggleBlackout()" id="btnBlackout" class="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold border border-zinc-700 flex items-center gap-1.5 transition-all">
             <i data-lucide="eye-off" class="w-4 h-4"></i>
-            <span id="blackoutLabel">Blackout Telão</span>
+            <span id="blackoutLabel">Blackout TelÃ£o</span>
           </button>
 
           <button onclick="openProjectorWindow()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 flex items-center gap-1.5 transition-all active:scale-95">
             <i data-lucide="projector" class="w-4 h-4"></i>
-            <span>📺 Abrir Janela do Telão (vMix - Aperte G p/ Fundo Verde)</span>
+            <span>ðŸ“º Abrir Janela do TelÃ£o (vMix - Aperte G p/ Fundo Verde)</span>
           </button>
         </div>
       </div>
 
-      <!-- Live Slide Mirrored View (O que está no Tablet do Pastor) -->
+      <!-- Live Slide Mirrored View (O que estÃ¡ no Tablet do Pastor) -->
       <div class="p-4 rounded-2xl bg-[#090d1e] border border-white/[0.08] space-y-3">
         <div class="flex items-center justify-between text-xs font-bold text-zinc-400">
           <span class="flex items-center gap-1.5 uppercase tracking-wider text-purple-300">
@@ -244,7 +244,7 @@
           </span>
           <span class="text-[11px] text-emerald-400 font-mono font-bold flex items-center gap-1">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            Sincronização Firebase Nuvem Ativa
+            SincronizaÃ§Ã£o Firebase Nuvem Ativa
           </span>
         </div>
 
@@ -260,20 +260,20 @@
               MATEUS 6:14-15
             </div>
             <div id="opMirroredText" class="font-sans font-extrabold text-xl sm:text-2xl text-white max-w-2xl leading-snug">
-              "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
+              "Porque, se perdoardes aos homens as suas ofensas, tambÃ©m vosso Pai celestial vos perdoarÃ¡ a vÃ³s."
             </div>
           </div>
 
           <div class="absolute bottom-3 right-4 font-mono text-xs text-purple-400 font-bold bg-purple-950/70 px-2 py-0.5 rounded border border-purple-500/30">
-            RETORNO DO PÚLPITO
+            RETORNO DO PÃšLPITO
           </div>
         </div>
       </div>
 
-      <!-- Grid of Slides (Miniaturas de todos os versículos / imagens) -->
+      <!-- Grid of Slides (Miniaturas de todos os versÃ­culos / imagens) -->
       <div class="space-y-2 relative z-10">
         <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-          Lista de Slides do Sermão (<span id="totalSlidesCount">0</span>)
+          Lista de Slides do SermÃ£o (<span id="totalSlidesCount">0</span>)
         </div>
         
         <div id="operatorSlidesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -283,11 +283,11 @@
 
     </div>
 
-    <!-- RIGHT: CARREGADOR DE PPTX, PDF & VERSÍCULOS -->
+    <!-- RIGHT: CARREGADOR DE PPTX, PDF & VERSÃCULOS -->
     <aside class="w-80 bg-[#090d1f] border-l border-purple-500/20 p-4 flex flex-col justify-between shrink-0 space-y-4 overflow-y-auto custom-scrollbar">
       <div class="space-y-3">
         <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5 pb-2 border-b border-purple-500/20">
-          <i data-lucide="file-plus" class="w-4 h-4 text-purple-400"></i> Importar Sermão / Apresentação
+          <i data-lucide="file-plus" class="w-4 h-4 text-purple-400"></i> Importar SermÃ£o / ApresentaÃ§Ã£o
         </h3>
 
         <!-- Status Progress Indicator when uploading -->
@@ -296,7 +296,7 @@
             <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
             <span id="uploadProgressText">Enviando para o Firebase...</span>
           </div>
-          <p class="text-[10px] text-zinc-400">Sincronizando imagens em alta definição com o tablet e celular.</p>
+          <p class="text-[10px] text-zinc-400">Sincronizando imagens em alta definiÃ§Ã£o com o tablet e celular.</p>
         </div>
 
         <!-- Option 1: Upload PowerPoint (.pptx) -->
@@ -315,7 +315,7 @@
           </button>
         </div>
 
-        <!-- Option 2: Upload PDF (Renderiza TODAS as Imagens & Páginas em Alta Resolução) -->
+        <!-- Option 2: Upload PDF (Renderiza TODAS as Imagens & PÃ¡ginas em Alta ResoluÃ§Ã£o) -->
         <div class="p-3 rounded-2xl bg-[#11162d] border border-purple-500/25 space-y-2">
           <div class="flex items-center gap-2">
             <div class="w-6 h-6 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-xs">
@@ -323,7 +323,7 @@
             </div>
             <span class="text-xs font-bold text-white">Importar Arquivo PDF</span>
           </div>
-          <p class="text-[10px] text-zinc-400 leading-tight">Renderiza cada página com 100% das fotos, fundos e designs sincronizados na nuvem.</p>
+          <p class="text-[10px] text-zinc-400 leading-tight">Renderiza cada pÃ¡gina com 100% das fotos, fundos e designs sincronizados na nuvem.</p>
           <input type="file" id="pdfFileInput" accept="application/pdf" class="hidden" onchange="handlePdfUpload(event)" />
           <button onclick="document.getElementById('pdfFileInput').click()" class="w-full py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
             <i data-lucide="image" class="w-3.5 h-3.5"></i>
@@ -333,7 +333,7 @@
 
         <!-- Option 3: Paste Text / Verses -->
         <div class="space-y-1.5 pt-2 border-t border-white/[0.08]">
-          <label class="text-[11px] font-bold text-zinc-300">Ou Colar Texto / Versículos Bíblicos:</label>
+          <label class="text-[11px] font-bold text-zinc-300">Ou Colar Texto / VersÃ­culos BÃ­blicos:</label>
           <textarea 
             id="inputSermonText" 
             rows="4" 
@@ -341,7 +341,7 @@
             class="w-full bg-[#11162d] border border-purple-500/30 rounded-xl p-2.5 text-xs text-white outline-none focus:border-purple-400 font-mono resize-none"
           ></textarea>
           <button onclick="generateSlidesFromText()" class="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all">
-            ⚡ Gerar e Sincronizar na Nuvem
+            âš¡ Gerar e Sincronizar na Nuvem
           </button>
         </div>
       </div>
@@ -352,7 +352,7 @@
           <i data-lucide="cloud" class="w-3.5 h-3.5"></i> Firebase Cloud Sync:
         </div>
         <p class="text-zinc-400 text-[10px] leading-relaxed">
-          Os slides, fotos e páginas do PDF são sincronizados diretamente pelo Firebase. Qualquer alteração no computador aparece instantaneamente no tablet ou celular do pastor!
+          Os slides, fotos e pÃ¡ginas do PDF sÃ£o sincronizados diretamente pelo Firebase. Qualquer alteraÃ§Ã£o no computador aparece instantaneamente no tablet ou celular do pastor!
         </p>
       </div>
     </aside>
@@ -379,14 +379,14 @@
     }
     const db = firebase.firestore();
 
-    // Tenta garantir que estamos autenticados para que o Firestore não bloqueie a leitura/escrita
+    // Tenta garantir que estamos autenticados para que o Firestore nÃ£o bloqueie a leitura/escrita
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         console.log("Firebase Auth Conectado:", user.uid);
       } else {
-        console.log("Usuário não logado, tentando login anônimo para acesso ao banco...");
+        console.log("UsuÃ¡rio nÃ£o logado, tentando login anÃ´nimo para acesso ao banco...");
         firebase.auth().signInAnonymously().catch(err => {
-          console.warn("Aviso: Login anônimo falhou. Se as regras do Firestore exigirem login, a sincronização pode falhar.", err);
+          console.warn("Aviso: Login anÃ´nimo falhou. Se as regras do Firestore exigirem login, a sincronizaÃ§Ã£o pode falhar.", err);
         });
       }
     });
@@ -404,19 +404,19 @@
       {
         index: 0,
         reference: "MATEUS 6:14-15",
-        text: "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós.",
+        text: "Porque, se perdoardes aos homens as suas ofensas, tambÃ©m vosso Pai celestial vos perdoarÃ¡ a vÃ³s.",
         type: "verse"
       },
       {
         index: 1,
         reference: "MATEUS 6:15",
-        text: "Se, porém, não perdoardes aos homens as suas ofensas, tampouco vosso Pai vos perdoará as vossas ofensas.",
+        text: "Se, porÃ©m, nÃ£o perdoardes aos homens as suas ofensas, tampouco vosso Pai vos perdoarÃ¡ as vossas ofensas.",
         type: "verse"
       },
       {
         index: 2,
         reference: "MARCOS 11:25",
-        text: "E, quando estiverdes orando, se tendes alguma coisa contra alguém, perdoai, para que vosso Pai celestial vos perdoe.",
+        text: "E, quando estiverdes orando, se tendes alguma coisa contra alguÃ©m, perdoai, para que vosso Pai celestial vos perdoe.",
         type: "verse"
       }
     ];
@@ -557,7 +557,7 @@
       } catch (err) {
         console.error("Erro ao salvar slides no Firestore:", err);
         alert("Erro ao sincronizar com a nuvem (O slide pode ser muito pesado). " + err.message);
-        throw err; // Lança o erro para que funções externas (como handlePdfUpload) não exibam mensagem de sucesso.
+        throw err; // LanÃ§a o erro para que funÃ§Ãµes externas (como handlePdfUpload) nÃ£o exibam mensagem de sucesso.
       }
     }
 
@@ -607,7 +607,7 @@
       }
 
       document.getElementById('pastorSlideBadge').textContent = `SLIDE ${currentSlideIdx + 1} DE ${slides.length}`;
-      document.getElementById('pastorTypeBadge').textContent = cur.type === 'image' ? 'SLIDE VISUAL / PDF' : 'VERSÍCULO BÍBLICO';
+      document.getElementById('pastorTypeBadge').textContent = cur.type === 'image' ? 'SLIDE VISUAL / PDF' : 'VERSÃCULO BÃBLICO';
       
       const pct = slides.length > 1 ? ((currentSlideIdx + 1) / slides.length) * 100 : 100;
       document.getElementById('pastorProgressBar').style.width = `${pct}%`;
@@ -622,8 +622,8 @@
       if (isBlackout) {
         opImg.classList.add('hidden');
         opTextBox.classList.remove('hidden');
-        document.getElementById('opMirroredRef').textContent = "⚫ TELÃO EM BLACKOUT";
-        document.getElementById('opMirroredText').textContent = "A saída para o telão está temporariamente apagada.";
+        document.getElementById('opMirroredRef').textContent = "âš« TELÃƒO EM BLACKOUT";
+        document.getElementById('opMirroredText').textContent = "A saÃ­da para o telÃ£o estÃ¡ temporariamente apagada.";
       } else if (cur.imageUrl) {
         opImg.classList.remove('hidden');
         opTextBox.classList.add('hidden');
@@ -639,10 +639,10 @@
       const blackoutLabel = document.getElementById('blackoutLabel');
       if (isBlackout) {
         blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold border border-rose-500 flex items-center gap-1.5 transition-all shadow-lg shadow-rose-600/30";
-        blackoutLabel.textContent = "Reativar Telão";
+        blackoutLabel.textContent = "Reativar TelÃ£o";
       } else {
         blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold border border-zinc-700 flex items-center gap-1.5 transition-all";
-        blackoutLabel.textContent = "Blackout Telão";
+        blackoutLabel.textContent = "Blackout TelÃ£o";
       }
 
       // Render Operator Thumbnails Grid
@@ -661,7 +661,7 @@
             </div>
             <div class="relative z-10 flex items-center justify-between text-[10px] font-mono font-bold bg-black/80 px-1.5 py-0.5 rounded text-white">
               <span>SLIDE ${i + 1}</span>
-              ${isAct ? '<span class="text-purple-300 font-black">● AO VIVO</span>' : ''}
+              ${isAct ? '<span class="text-purple-300 font-black">â— AO VIVO</span>' : ''}
             </div>
           `;
         } else {
@@ -671,7 +671,7 @@
                 <span>SLIDE ${i + 1}</span>
                 ${isAct ? '<span class="px-1.5 py-0.2 rounded bg-purple-500 text-white font-sans text-[9px] font-black animate-pulse">PASTOR</span>' : ''}
               </div>
-              <div class="text-xs font-bold text-white truncate mt-1">${s.reference || 'Versículo'}</div>
+              <div class="text-xs font-bold text-white truncate mt-1">${s.reference || 'VersÃ­culo'}</div>
             </div>
             <div class="text-[10px] text-zinc-400 line-clamp-2 leading-tight">${s.text}</div>
           `;
@@ -711,7 +711,7 @@
       const progressBox = document.getElementById('uploadProgressBox');
       const progressText = document.getElementById('uploadProgressText');
       progressBox.classList.remove('hidden');
-      progressText.textContent = 'Renderizando páginas do PDF...';
+      progressText.textContent = 'Renderizando pÃ¡ginas do PDF...';
 
       try {
         const arrayBuffer = await file.arrayBuffer();
@@ -719,7 +719,7 @@
         const newSlides = [];
 
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-          progressText.textContent = `Processando página ${pageNum} de ${pdf.numPages}...`;
+          progressText.textContent = `Processando pÃ¡gina ${pageNum} de ${pdf.numPages}...`;
           const page = await pdf.getPage(pageNum);
           
           // Render to 960px width (plenty sharp for tablets) to keep Base64 lightweight for Firestore
@@ -750,7 +750,7 @@
           currentSlideIdx = 0;
           progressText.textContent = 'Sincronizando com o Firebase Nuvem...';
           await saveSlidesToFirebaseAndBroadcast(newSlides);
-          alert(`✓ Sucesso! ${newSlides.length} páginas com imagens foram enviadas para o Firebase e já estão visíveis no celular e tablet!`);
+          alert(`âœ“ Sucesso! ${newSlides.length} pÃ¡ginas com imagens foram enviadas para o Firebase e jÃ¡ estÃ£o visÃ­veis no celular e tablet!`);
         }
       } catch (err) {
         console.error("Erro ao processar PDF:", err);
@@ -811,11 +811,11 @@
           currentSlideIdx = 0;
           progressText.textContent = 'Sincronizando textos do PPTX com o Firebase...';
           await saveSlidesToFirebaseAndBroadcast(newSlides);
-          alert(`✓ Sucesso! ${newSlides.length} slides de TEXTO foram extraídos do PowerPoint e sincronizados.\n\n⚠️ NOTA SOBRE IMAGENS:\nPara que o sistema preserve fundos e converta seus slides exatamente como imagens para o tablet, abra seu PowerPoint, clique em "Salvar Como PDF" e importe o PDF aqui!`);
+          alert(`âœ“ Sucesso! ${newSlides.length} slides de TEXTO foram extraÃ­dos do PowerPoint e sincronizados.\n\nâš ï¸ NOTA SOBRE IMAGENS:\nPara que o sistema preserve fundos e converta seus slides exatamente como imagens para o tablet, abra seu PowerPoint, clique em "Salvar Como PDF" e importe o PDF aqui!`);
         }
       } catch (err) {
         console.error("Erro ao carregar PPTX:", err);
-        alert("Erro ao ler o PowerPoint: " + err.message + "\nDica: você também pode salvar a apresentação como PDF para manter 100% dos efeitos visuais.");
+        alert("Erro ao ler o PowerPoint: " + err.message + "\nDica: vocÃª tambÃ©m pode salvar a apresentaÃ§Ã£o como PDF para manter 100% dos efeitos visuais.");
       } finally {
         progressBox.classList.add('hidden');
       }
@@ -824,7 +824,7 @@
     // --- GENERATE SLIDES FROM TEXT ---
     async function generateSlidesFromText() {
       const raw = document.getElementById('inputSermonText').value.trim();
-      if (!raw) return alert('Por favor, cole algum versículo ou texto do sermão.');
+      if (!raw) return alert('Por favor, cole algum versÃ­culo ou texto do sermÃ£o.');
 
       const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
       const newSlides = [];
@@ -832,7 +832,7 @@
       let curRef = "";
       let curText = [];
 
-      const refRegex = /^(?:[1-3]\s*)?[A-ZÀ-Úa-zà-ú]{3,15}\s*\d{1,3}\s*:\s*\d{1,3}(?:\s*[-–]\s*\d{1,3})?/i;
+      const refRegex = /^(?:[1-3]\s*)?[A-ZÃ€-Ãša-zÃ -Ãº]{3,15}\s*\d{1,3}\s*:\s*\d{1,3}(?:\s*[-â€“]\s*\d{1,3})?/i;
 
       lines.forEach(line => {
         if (refRegex.test(line)) {
@@ -863,7 +863,7 @@
       if (newSlides.length > 0) {
         currentSlideIdx = 0;
         await saveSlidesToFirebaseAndBroadcast(newSlides);
-        alert(`✓ ${newSlides.length} versículos gerados e sincronizados no Firebase com o celular e tablet!`);
+        alert(`âœ“ ${newSlides.length} versÃ­culos gerados e sincronizados no Firebase com o celular e tablet!`);
       }
     }
 
@@ -890,11 +890,30 @@
           </div>`;
         } else if (cur.imageUrl) {
           view.innerHTML = `<img src="${cur.imageUrl}" class="w-full h-full object-contain" />`;
+        } else if (cur.type === 'song') {
+          view.innerHTML = `
+            <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center relative">
+              <div class="font-sans font-black text-5xl sm:text-[80px] text-white uppercase max-w-[90%] leading-snug tracking-wide" style="text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0px 5px 10px rgba(0,0,0,0.8);">
+                ${cur.text ? cur.text.replace(/\n/g, '<br>') : ''}
+              </div>
+              
+              <div class="absolute bottom-12 right-16 flex items-end">
+                <div class="w-[52px] h-[52px] rounded-full bg-[#FFD700] flex items-center justify-center text-black z-10 border-[3px] border-[#FFD700] shadow-xl">
+                  <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </div>
+                <div class="border-b-[5px] border-[#FFD700] pb-1.5 pl-16 pr-2 ml-[-25px] mb-2 flex-1 shadow-2xl">
+                  <div class="font-sans font-black text-3xl sm:text-[34px] text-[#FFD700] uppercase tracking-wider text-right" style="text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0px 4px 6px rgba(0,0,0,0.8);">
+                    ${cur.reference || ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
         } else {
           view.innerHTML = `
             <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center">
               <div class="font-bebas text-5xl sm:text-7xl text-purple-400 font-bold mb-6 tracking-widest drop-shadow-lg">${cur.reference || ''}</div>
-              <div class="font-sans font-black text-4xl sm:text-6xl text-white max-w-6xl leading-snug drop-shadow-2xl">${cur.text || ''}</div>
+              <div class="font-sans font-black text-4xl sm:text-6xl text-white max-w-6xl leading-snug drop-shadow-2xl whitespace-pre-wrap">${cur.text || ''}</div>
             </div>
           `;
         }
@@ -960,11 +979,11 @@
              _searchable: song.title + " " + (song.artist || "") + " " + text
            };
         });
-        document.getElementById('songsDbStatus').textContent = `${songsDatabase.length} músicas`;
+        document.getElementById('songsDbStatus').textContent = `${songsDatabase.length} mÃºsicas`;
         document.getElementById('songsDbStatus').classList.replace('text-zinc-500', 'text-emerald-400');
         renderSongList(songsDatabase);
       } catch (err) {
-        document.getElementById('songsDbStatus').textContent = "Falha ao carregar Músicas";
+        document.getElementById('songsDbStatus').textContent = "Falha ao carregar MÃºsicas";
         document.getElementById('songsDbStatus').classList.replace('text-zinc-500', 'text-rose-400');
         document.getElementById('holyricsSongList').innerHTML = `<div class="p-4 text-xs text-rose-500 text-center">Erro: ${err.message}</div>`;
         console.error("Erro carregando holyrics_songs.json:", err);
@@ -978,7 +997,7 @@
     function renderSongList(songs) {
       const listEl = document.getElementById('holyricsSongList');
       if (songs.length === 0) {
-        listEl.innerHTML = `<div class="p-4 text-xs text-zinc-500 text-center">Nenhuma música encontrada...</div>`;
+        listEl.innerHTML = `<div class="p-4 text-xs text-zinc-500 text-center">Nenhuma mÃºsica encontrada...</div>`;
         return;
       }
       
@@ -991,7 +1010,7 @@
         let snippet = text.substring(0, 70).replace(/\n/g, ' - ') + '...';
         html += `
           <div class="p-3 border-b border-white/[0.05] hover:bg-white/[0.05] cursor-pointer transition-colors" onclick="addSongToPresentation('${song.id}')">
-            <div class="text-sm font-bold text-white">${song.title || 'Sem Título'}</div>
+            <div class="text-sm font-bold text-white">${song.title || 'Sem TÃ­tulo'}</div>
             <div class="text-[10px] text-zinc-400 font-bold mb-1">${song.artist || 'Sem Artista'}</div>
             <div class="text-[10px] text-zinc-500 truncate">${snippet}</div>
           </div>
@@ -999,7 +1018,7 @@
       });
       
       if (songs.length > 100) {
-        html += `<div class="p-3 text-[10px] text-zinc-500 text-center font-bold">+ ${songs.length - 100} músicas (Use a busca para refinar)</div>`;
+        html += `<div class="p-3 text-[10px] text-zinc-500 text-center font-bold">+ ${songs.length - 100} mÃºsicas (Use a busca para refinar)</div>`;
       }
       listEl.innerHTML = html;
     }
@@ -1026,7 +1045,7 @@
       const titleSlide = {
         reference: song.title || "Louvor",
         text: song.artist || "",
-        type: "verse"
+        type: "song"
       };
       
       let newSlides = [titleSlide];
@@ -1037,7 +1056,7 @@
           newSlides.push({
             reference: song.title || "Louvor",
             text: p.text.trim(),
-            type: "verse"
+            type: "song"
           });
         });
       }
@@ -1045,7 +1064,7 @@
       const oldLength = slides.length;
       slides = slides.concat(newSlides);
       
-      // Apenas pula para a música nova se a lista estava vazia
+      // Apenas pula para a mÃºsica nova se a lista estava vazia
       if (oldLength === 0) {
         currentSlideIdx = 0;
       }
