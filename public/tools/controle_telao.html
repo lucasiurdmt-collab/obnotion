@@ -295,89 +295,62 @@
 
     </div>
 
-    <!-- RIGHT: CARREGADOR DE PPTX, PDF & VERSÍCULOS -->
-    <aside class="w-80 bg-[#090d1f] border-l border-purple-500/20 p-4 flex flex-col justify-between shrink-0 space-y-4 overflow-y-auto custom-scrollbar">
-      <div class="space-y-3">
-        <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5 pb-2 border-b border-purple-500/20">
-          <i data-lucide="file-plus" class="w-4 h-4 text-purple-400"></i> Importar Sermão / Apresentação
-        </h3>
+    <!-- RIGHT: PDFs + VERSÍCULOS -->
+    <aside class="w-72 bg-[#090d1f] border-l border-purple-500/20 flex flex-col shrink-0 overflow-y-auto custom-scrollbar">
 
-        <!-- Status Progress Indicator when uploading -->
-        <div id="uploadProgressBox" class="p-3 rounded-2xl bg-purple-950/40 border border-purple-500/30 text-xs text-purple-200 hidden space-y-1.5 animate-pulse">
-          <div class="flex items-center gap-2 font-bold text-purple-300">
-            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
-            <span id="uploadProgressText">Enviando para o Firebase...</span>
-          </div>
-          <p class="text-[10px] text-zinc-400">Sincronizando imagens em alta definição com o tablet e celular.</p>
-        </div>
-
-        <!-- Option 1: Upload PowerPoint (.pptx) -->
-        <div class="p-3 rounded-2xl bg-[#11162d] border border-purple-500/25 space-y-2">
-          <div class="flex items-center gap-2">
-            <div class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">
-              P
-            </div>
-            <span class="text-xs font-bold text-white">Importar PowerPoint (.PPTX)</span>
-          </div>
-          <p class="text-[10px] text-zinc-400 leading-tight">Carrega os slides com textos e imagens do arquivo PowerPoint.</p>
-          <input type="file" id="pptxFileInput" accept=".pptx" class="hidden" onchange="handlePptxUpload(event)" />
-          <button onclick="document.getElementById('pptxFileInput').click()" class="w-full py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
-            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-            <span>Escolher Arquivo .PPTX</span>
-          </button>
-        </div>
-
-        <!-- Option 2: Upload PDF (Renderiza TODAS as Imagens & Páginas em Alta Resolução) -->
-        <div class="p-3 rounded-2xl bg-[#11162d] border border-purple-500/25 space-y-2">
-          <div class="flex items-center gap-2">
-            <div class="w-6 h-6 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-xs">
-              PDF
-            </div>
-            <span class="text-xs font-bold text-white">Importar Arquivo PDF</span>
-          </div>
-          <p class="text-[10px] text-zinc-400 leading-tight">Renderiza cada página com 100% das fotos, fundos e designs sincronizados na nuvem.</p>
-          <input type="file" id="pdfFileInput" accept="application/pdf" class="hidden" onchange="handlePdfUpload(event)" />
-          <button onclick="document.getElementById('pdfFileInput').click()" class="w-full py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
-            <i data-lucide="image" class="w-3.5 h-3.5"></i>
-            <span>Escolher Arquivo PDF</span>
-          </button>
-          <!-- Lista de PDFs carregados -->
-          <div id="pdfLibrary" class="hidden space-y-1.5 mt-2 pt-2 border-t border-rose-500/20">
-            <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider flex items-center justify-between">
-              <span>PDFs Carregados</span>
-              <button onclick="clearAllPdfs()" class="text-rose-400 hover:text-rose-300 text-[9px] font-bold uppercase tracking-wider transition-colors">Limpar todos</button>
-            </div>
-            <div id="pdfLibraryList" class="space-y-1"></div>
-          </div>
-        </div>
-
-        <!-- Option 3: Paste Text / Verses -->
-        <div class="space-y-1.5 pt-2 border-t border-white/[0.08]">
-          <label class="text-[11px] font-bold text-zinc-300">Ou Colar Texto / Versículos Bíblicos:</label>
-          <textarea 
-            id="inputSermonText" 
-            rows="4" 
-            placeholder="MATEUS 6:14-15&#10;Porque, se perdoardes...&#10;&#10;MARCOS 11:25&#10;E, quando estiverdes orando..." 
-            class="w-full bg-[#11162d] border border-purple-500/30 rounded-xl p-2.5 text-xs text-white outline-none focus:border-purple-400 font-mono resize-none"
-          ></textarea>
-          <button onclick="generateSlidesFromText()" class="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all">
-            ⚡ Gerar e Sincronizar na Nuvem
-          </button>
+      <!-- Upload progress -->
+      <div id="uploadProgressBox" class="hidden m-3 p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 text-xs text-purple-200 space-y-1.5 animate-pulse">
+        <div class="flex items-center gap-2 font-bold text-purple-300">
+          <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+          <span id="uploadProgressText">Enviando...</span>
         </div>
       </div>
 
-      <!-- Quick Control Helper -->
-      <div class="p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-[11px] text-purple-200 space-y-1">
-        <div class="font-bold flex items-center gap-1 text-purple-300">
-          <i data-lucide="cloud" class="w-3.5 h-3.5"></i> Firebase Cloud Sync:
+      <!-- ── SEÇÃO PDF ── -->
+      <div class="p-3 space-y-2 border-b border-purple-500/20">
+        <!-- Botão principal Adicionar PDF -->
+        <input type="file" id="pdfFileInput" accept="application/pdf" class="hidden" onchange="handlePdfUpload(event)" />
+        <button onclick="document.getElementById('pdfFileInput').click()" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-rose-600/30">
+          <i data-lucide="file-plus" class="w-4 h-4"></i>
+          Adicionar PDF +
+        </button>
+
+        <!-- Lista de PDFs adicionados -->
+        <div id="pdfLibrary" class="space-y-1.5">
+          <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest px-1">PDFs Adicionados:</div>
+          <div id="pdfLibraryList" class="space-y-1.5">
+            <div class="text-[10px] text-zinc-600 italic px-1">Nenhum PDF carregado ainda...</div>
+          </div>
         </div>
-        <p class="text-zinc-400 text-[10px] leading-relaxed">
-          Os slides, fotos e páginas do PDF são sincronizados diretamente pelo Firebase. Qualquer alteração no computador aparece instantaneamente no tablet ou celular do pastor!
-        </p>
       </div>
+
+      <!-- ── SEÇÃO VERSÍCULOS / TEXTO ── -->
+      <div class="p-3 space-y-2 border-b border-purple-500/20">
+        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Versículos / Texto:</div>
+        <textarea
+          id="inputSermonText"
+          rows="4"
+          placeholder="MATEUS 6:14-15&#10;Porque, se perdoardes...&#10;&#10;MARCOS 11:25&#10;E, quando estiverdes orando..."
+          class="w-full bg-[#11162d] border border-purple-500/30 rounded-xl p-2.5 text-xs text-white outline-none focus:border-purple-400 font-mono resize-none"
+        ></textarea>
+        <button onclick="generateSlidesFromText()" class="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all">
+          ⚡ Gerar e Sincronizar
+        </button>
+      </div>
+
+      <!-- ── PPTX (colapsado / compacto) ── -->
+      <div class="p-3">
+        <input type="file" id="pptxFileInput" accept=".pptx" class="hidden" onchange="handlePptxUpload(event)" />
+        <button onclick="document.getElementById('pptxFileInput').click()" class="w-full py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+          <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+          Importar PowerPoint (.PPTX)
+        </button>
+      </div>
+
     </aside>
 
   </main>
+
 
 
   <!-- ========================================== -->
@@ -1038,20 +1011,18 @@
 
     function renderPdfLibrary() {
       const listEl = document.getElementById('pdfLibraryList');
-      const libraryEl = document.getElementById('pdfLibrary');
       if (pdfLibrary.length === 0) {
-        libraryEl.classList.add('hidden');
+        listEl.innerHTML = '<div class="text-[10px] text-zinc-600 italic px-1">Nenhum PDF carregado ainda...</div>';
         return;
       }
-      libraryEl.classList.remove('hidden');
       listEl.innerHTML = pdfLibrary.map(pdf => `
-        <div class="flex items-center gap-1.5 p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 cursor-pointer transition-colors group" onclick="jumpToPdf('${pdf.id}')">
-          <div class="w-6 h-6 rounded bg-rose-500/20 text-rose-300 flex items-center justify-center text-[9px] font-black flex-shrink-0">PDF</div>
+        <div class="flex items-center gap-2 p-2.5 rounded-xl bg-[#11162d] border border-rose-500/30 hover:border-rose-400/60 hover:bg-rose-500/10 cursor-pointer transition-all group" onclick="jumpToPdf('${pdf.id}')">
+          <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-300 flex items-center justify-center text-[9px] font-black flex-shrink-0 leading-none">PDF</div>
           <div class="flex-1 min-w-0">
-            <div class="text-xs font-bold text-white truncate">${pdf.name}</div>
-            <div class="text-[9px] text-zinc-400">${pdf.pageCount} páginas</div>
+            <div class="text-xs font-bold text-white truncate group-hover:text-rose-200 transition-colors">${pdf.name}</div>
+            <div class="text-[9px] text-zinc-500">${pdf.pageCount} páginas</div>
           </div>
-          <button onclick="event.stopPropagation(); removePdf('${pdf.id}')" class="text-zinc-600 hover:text-rose-400 transition-colors flex-shrink-0" title="Remover PDF">✕</button>
+          <button onclick="event.stopPropagation(); removePdf('${pdf.id}')" class="w-5 h-5 rounded flex items-center justify-center text-zinc-600 hover:text-rose-400 hover:bg-rose-500/10 transition-all flex-shrink-0 text-xs" title="Remover PDF">✕</button>
         </div>
       `).join('');
     }
