@@ -1042,13 +1042,8 @@
       const song = songsDatabase.find(s => s.id == songId);
       if (!song) return;
       
-      const titleSlide = {
-        reference: song.title || "Louvor",
-        text: song.artist || "",
-        type: "song"
-      };
-      
-      let newSlides = [titleSlide];
+      // Sem slide de título - vai direto pras estrofes
+      let newSlides = [];
       
       if (song.lyrics && song.lyrics.paragraphs) {
         song.lyrics.paragraphs.forEach(p => {
@@ -1061,13 +1056,18 @@
         });
       }
       
-      const oldLength = slides.length;
-      slides = slides.concat(newSlides);
-      
-      // Apenas pula para a música nova se a lista estava vazia
-      if (oldLength === 0) {
-        currentSlideIdx = 0;
+      if (newSlides.length === 0) {
+        // Fallback se não tiver parágrafos
+        newSlides.push({
+          reference: song.title || "Louvor",
+          text: song.artist || "",
+          type: "song"
+        });
       }
+      
+      // SUBSTITUIR a lista de slides (não acumular)
+      slides = newSlides;
+      currentSlideIdx = 0;
       
       renderAllViews();
       saveSlidesToFirebaseAndBroadcast(slides);
