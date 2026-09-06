@@ -594,6 +594,13 @@
       broadcastLiveState();
     }
 
+    function formatReference(ref) {
+      if (!ref) return '';
+      const clean = ref.trim();
+      if (clean.toUpperCase() === 'PALAVRA DE DEUS') return '';
+      return clean;
+    }
+
     // --- RENDERING ---
     function renderAllViews() {
       const cur = slides[currentSlideIdx] || { reference: "", text: "Nenhum slide carregado.", type: "verse" };
@@ -616,10 +623,10 @@
           document.getElementById('pastorTextDisplay').textContent = cur.text || '';
           const badge = document.getElementById('pastorSongTitleBadge');
           badge.classList.remove('hidden');
-          document.getElementById('pastorSongTitleText').textContent = cur.reference || '';
+          document.getElementById('pastorSongTitleText').textContent = formatReference(cur.reference);
         } else {
           // Versículo/texto/recado: se houver referência bíblica coloca no topo, senão deixa vazio
-          document.getElementById('pastorRefDisplay').textContent = cur.reference || '';
+          document.getElementById('pastorRefDisplay').textContent = formatReference(cur.reference);
           document.getElementById('pastorTextDisplay').textContent = cur.text || '';
           const badge = document.getElementById('pastorSongTitleBadge');
           if (badge) badge.classList.add('hidden');
@@ -627,7 +634,7 @@
       }
 
       document.getElementById('pastorSlideBadge').textContent = `SLIDE ${currentSlideIdx + 1} DE ${slides.length}`;
-      document.getElementById('pastorTypeBadge').textContent = cur.type === 'image' ? 'SLIDE VISUAL / PDF' : (cur.type === 'song' ? 'LETRA DE MÚSICA' : (cur.reference ? 'VERSÍCULO BÍBLICO' : 'TEXTO / RECADO'));
+      document.getElementById('pastorTypeBadge').textContent = cur.type === 'image' ? 'SLIDE VISUAL / PDF' : (cur.type === 'song' ? 'LETRA DE MÚSICA' : (formatReference(cur.reference) ? 'VERSÍCULO BÍBLICO' : 'TEXTO / RECADO'));
       
       const pct = slides.length > 1 ? ((currentSlideIdx + 1) / slides.length) * 100 : 100;
       document.getElementById('pastorProgressBar').style.width = `${pct}%`;
@@ -656,11 +663,11 @@
         document.getElementById('opMirroredText').textContent = cur.text || '';
         const badge = document.getElementById('opSongTitleBadge');
         badge.classList.remove('hidden');
-        document.getElementById('opSongTitleText').textContent = cur.reference || '';
+        document.getElementById('opSongTitleText').textContent = formatReference(cur.reference);
       } else {
         opImg.classList.add('hidden');
         opTextBox.classList.remove('hidden');
-        document.getElementById('opMirroredRef').textContent = cur.reference || '';
+        document.getElementById('opMirroredRef').textContent = formatReference(cur.reference);
         document.getElementById('opMirroredText').textContent = cur.text || '';
         const badge = document.getElementById('opSongTitleBadge');
         if (badge) badge.classList.add('hidden');
@@ -702,7 +709,7 @@
                 <span>SLIDE ${i + 1}</span>
                 ${isAct ? '<span class="px-1.5 py-0.2 rounded bg-purple-500 text-white font-sans text-[9px] font-black animate-pulse">PASTOR</span>' : ''}
               </div>
-              <div class="text-xs font-bold text-white truncate mt-1">${s.reference || 'Versículo'}</div>
+              <div class="text-xs font-bold text-white truncate mt-1">${formatReference(s.reference) || (s.type === 'song' ? 'Música' : 'Recado')}</div>
             </div>
             <div class="text-[10px] text-zinc-400 line-clamp-2 leading-tight">${s.text}</div>
           `;
