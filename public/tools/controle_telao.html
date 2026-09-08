@@ -598,8 +598,12 @@
           if (data.activeSlide) {
             currentLiveSlide = data.activeSlide;
           }
-          if (data.materialsManifest) {
+          if (data.materialsManifest && Array.isArray(data.materialsManifest.pdfs) && Array.isArray(data.materialsManifest.videos)) {
             materialsManifest = data.materialsManifest;
+            const modal = document.getElementById('pastorMaterialsModal');
+            if (modal && !modal.classList.contains('hidden')) {
+              renderMaterialsModal();
+            }
           }
           if (data.videoControl) {
             if (data.videoControl.action === 'play') isPastorVideoPlaying = true;
@@ -646,7 +650,13 @@
           if (typeof msg.data.currentSlideIdx === 'number') currentSlideIdx = msg.data.currentSlideIdx;
           if (typeof msg.data.isBlackout === 'boolean') isBlackout = msg.data.isBlackout;
           if (msg.data.activeSlide) currentLiveSlide = msg.data.activeSlide;
-          if (msg.data.materialsManifest) materialsManifest = msg.data.materialsManifest;
+          if (msg.data.materialsManifest && Array.isArray(msg.data.materialsManifest.pdfs) && Array.isArray(msg.data.materialsManifest.videos)) {
+            materialsManifest = msg.data.materialsManifest;
+            const modal = document.getElementById('pastorMaterialsModal');
+            if (modal && !modal.classList.contains('hidden')) {
+              renderMaterialsModal();
+            }
+          }
           if (msg.data.videoControl) {
             if (msg.data.videoControl.action === 'play') isPastorVideoPlaying = true;
             else if (msg.data.videoControl.action === 'pause') isPastorVideoPlaying = false;
@@ -674,6 +684,22 @@
       };
     }
 
+    async function broadcastMaterialsManifest() {
+      if (currentMode !== 'operator') return;
+      const manifest = getMaterialsManifest();
+      materialsManifest = manifest;
+      const payload = {
+        materialsManifest: manifest,
+        timestamp: Date.now()
+      };
+      localChannel.postMessage(payload);
+      try {
+        await liveDocRef.set(payload, { merge: true });
+      } catch (err) {
+        console.warn("Error broadcasting materials manifest:", err);
+      }
+    }
+
     // Broadcast instantâneo do slide ativo (< 20ms)
     async function broadcastLiveState() {
       renderAllViews();
@@ -693,9 +719,13 @@
           type: cur.type || 'verse',
           pdfId: cur.pdfId || ''
         },
-        materialsManifest: getMaterialsManifest(),
         timestamp: Date.now()
       };
+
+      // Apenas o modo operador transmite a lista de materiais para a nuvem
+      if (currentMode === 'operator' && (pdfLibrary.length > 0 || videoLibrary.length > 0)) {
+        payload.materialsManifest = getMaterialsManifest();
+      }
 
       localChannel.postMessage(payload);
 
@@ -728,9 +758,12 @@
           type: cur.type || 'verse',
           pdfId: cur.pdfId || ''
         },
-        materialsManifest: getMaterialsManifest(),
         timestamp: Date.now()
       };
+
+      if (currentMode === 'operator' && (pdfLibrary.length > 0 || videoLibrary.length > 0)) {
+        livePayload.materialsManifest = getMaterialsManifest();
+      }
 
       localChannel.postMessage({
         slides: slides,
@@ -1079,6 +1112,7 @@
           progressText.textContent = 'Sincronizando com a Nuvem...';
           renderAllViews();
           await saveSlidesToFirebaseAndBroadcast(slides);
+          await broadcastMaterialsManifest();
         }
       } catch (err) {
         console.error("Erro ao processar PDF:", err);
@@ -1410,6 +1444,7 @@
     function removePdf(pdfId) {
       pdfLibrary = pdfLibrary.filter(p => p.id !== pdfId);
       renderPdfLibrary();
+      broadcastMaterialsManifest();
       
       if (slides.length > 0 && slides[0].pdfId === pdfId) {
         if (pdfLibrary.length > 0) {
@@ -1428,6 +1463,7 @@
     function clearAllPdfs() {
       pdfLibrary = [];
       renderPdfLibrary();
+      broadcastMaterialsManifest();
       if (slides.length > 0 && slides[0].type === 'image') {
         slides = [];
         currentSlideIdx = 0;
@@ -1459,6 +1495,7 @@
 
       // Ativa este vídeo imediatamente no telão
       jumpToVideo(videoId);
+      broadcastMaterialsManifest();
 
       if (e.target) e.target.value = '';
     }
@@ -1522,6 +1559,7 @@
     function removeVideo(videoId) {
       videoLibrary = videoLibrary.filter(v => v.id !== videoId);
       renderVideoLibrary();
+      broadcastMaterialsManifest();
 
       if (slides.length > 0 && slides[0].type === 'video' && slides[0].videoId === videoId) {
         if (videoLibrary.length > 0) {
@@ -1598,6 +1636,17 @@
       if (modal) modal.classList.remove('hidden');
       renderMaterialsModal();
       lucide.createIcons();
+      
+      // Busca atualizada imediata da nuvem para garantir
+      liveDocRef.get().then((doc) => {
+        if (doc.exists) {
+          const d = doc.data();
+          if (d.materialsManifest && Array.isArray(d.materialsManifest.pdfs) && Array.isArray(d.materialsManifest.videos)) {
+            materialsManifest = d.materialsManifest;
+            renderMaterialsModal();
+          }
+        }
+      }).catch((e) => console.warn("Fetch manifest on open modal error:", e));
     }
 
     function closePastorMaterialsModal() {
