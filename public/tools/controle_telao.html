@@ -722,8 +722,8 @@
         timestamp: Date.now()
       };
 
-      // Apenas o modo operador transmite a lista de materiais para a nuvem
-      if (currentMode === 'operator' && (pdfLibrary.length > 0 || videoLibrary.length > 0)) {
+      // Sempre transmitir o manifesto de materiais para o tablet do pastor
+      if (currentMode === 'operator') {
         payload.materialsManifest = getMaterialsManifest();
       }
 
@@ -761,7 +761,8 @@
         timestamp: Date.now()
       };
 
-      if (currentMode === 'operator' && (pdfLibrary.length > 0 || videoLibrary.length > 0)) {
+      // Sempre transmitir o manifesto de materiais
+      if (currentMode === 'operator') {
         livePayload.materialsManifest = getMaterialsManifest();
       }
 
@@ -1301,14 +1302,15 @@
             <span class="text-white/20 font-mono text-sm uppercase">BLACKOUT</span>
           </div>`;
         } else if (cur.type === 'video' || cur.videoUrl) {
-          let videoEl = document.getElementById('projectorVideoPlayer');
-          if (!videoEl || videoEl.dataset.videoId !== (cur.videoId || cur.reference)) {
-            view.innerHTML = `
-              <div class="w-full h-full flex items-center justify-center bg-black">
-                <video id="projectorVideoPlayer" data-video-id="${cur.videoId || cur.reference}" src="${cur.videoUrl || ''}" class="w-full h-full object-contain" autoplay playsinline></video>
-              </div>
-            `;
-          }
+          // blob:// URLs são locais ao tab que os criou — não podem ser transmitidos para outra janela/aba.
+          // O vídeo deve ser reproduzido pelo vMix (fonte de navegador) no mesmo computador da cabine.
+          view.innerHTML = `
+            <div class="w-full h-full flex flex-col items-center justify-center bg-black gap-6">
+              <svg class="w-20 h-20 text-purple-400 opacity-70" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <div class="text-purple-300 font-mono text-sm uppercase tracking-widest opacity-90">Vídeo em transmissão pelo vMix</div>
+              <div class="text-zinc-500 text-xs font-mono">${cur.reference || cur.videoId || ''}</div>
+            </div>
+          `;
         } else if (cur.imageUrl) {
           view.innerHTML = `<img src="${cur.imageUrl}" class="w-full h-full object-contain" />`;
         } else if (cur.type === 'song') {
@@ -1882,6 +1884,7 @@
       renderPdfLibrary();
       renderVideoLibrary();
       saveSlidesToFirebaseAndBroadcast(slides);
+      broadcastMaterialsManifest();
       
       const searchInput = document.getElementById('songSearchInput');
       if (searchInput) searchInput.value = '';
