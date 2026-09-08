@@ -398,11 +398,23 @@
 
       <!-- ── SEÇÃO VÍDEOS MP4 ── -->
       <div class="p-3 space-y-2 border-b border-purple-500/20">
-        <!-- Botão principal Adicionar Vídeo -->
+        <!-- Status do Servidor de Vídeos -->
+        <div id="videoServerStatus" class="flex items-center gap-2 px-1 text-[10px]">
+          <span id="videoServerDot" class="w-2 h-2 rounded-full bg-zinc-600"></span>
+          <span id="videoServerText" class="text-zinc-500 font-mono">Servidor: verificando...</span>
+        </div>
+
+        <!-- Botão Buscar do Servidor -->
+        <button onclick="loadVideosFromServer()" id="btnLoadFromServer" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-600/30 cursor-pointer">
+          <i data-lucide="server" class="w-4 h-4"></i>
+          Buscar Vídeos do Servidor
+        </button>
+
+        <!-- Botão Upload Local (fallback) -->
         <input type="file" id="videoFileInput" accept="video/mp4,video/webm,video/quicktime,video/mkv" class="hidden" onchange="handleVideoUpload(event)" />
-        <button onclick="document.getElementById('videoFileInput').click()" class="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-purple-600/30 cursor-pointer">
-          <i data-lucide="video" class="w-4 h-4"></i>
-          Adicionar Vídeo MP4 +
+        <button onclick="document.getElementById('videoFileInput').click()" class="w-full py-2 rounded-xl bg-purple-600/40 hover:bg-purple-600 text-purple-200 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer border border-purple-500/30">
+          <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+          Upload Local (só Chrome)
         </button>
 
         <!-- Lista de Vídeos adicionados -->
@@ -517,6 +529,7 @@
       const modeParam = urlParams.get('mode');
       if (modeParam === 'operator') {
         switchViewMode('operator');
+        checkVideoServer();
       } else if (modeParam === 'pastor' || modeParam === 'receptor') {
         switchViewMode('pastor');
       } else if (modeParam === 'projector' || modeParam === 'telao' || modeParam === 'vmix') {
@@ -1478,6 +1491,89 @@
     }
 
     // --- VIDEO MP4 LOCAL LIBRARY & PLAYBACK CONTROLLER ---
+    let videoServerBaseUrl = ''; // preenchido pelo checkVideoServer
+
+    async function checkVideoServer() {
+      const dot = document.getElementById('videoServerDot');
+      const txt = document.getElementById('videoServerText');
+      if (!dot || !txt) return;
+
+      try {
+        const res = await fetch('http://localhost:9090/api/videos', { signal: AbortSignal.timeout(3000) });
+        if (res.ok) {
+          const data = await res.json();
+          videoServerBaseUrl = data.serverUrl || 'http://localhost:9090';
+          dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+          txt.className = 'text-emerald-400 font-mono';
+          txt.textContent = `Servidor ONLINE • ${data.videos.length} vídeo(s)`;
+          return true;
+        }
+      } catch (e) {
+        // Servidor offline
+      }
+      dot.className = 'w-2 h-2 rounded-full bg-zinc-600';
+      txt.className = 'text-zinc-500 font-mono';
+      txt.textContent = 'Servidor OFFLINE — execute INICIAR_SERVIDOR_VIDEO.bat';
+      videoServerBaseUrl = '';
+      return false;
+    }
+
+    async function loadVideosFromServer() {
+      const btn = document.getElementById('btnLoadFromServer');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Buscando...';
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      }
+
+      try {
+        const res = await fetch('http://localhost:9090/api/videos', { signal: AbortSignal.timeout(5000) });
+        if (!res.ok) throw new Error('Servidor retornou erro');
+        const data = await res.json();
+        videoServerBaseUrl = data.serverUrl || 'http://localhost:9090';
+
+        if (!data.videos || data.videos.length === 0) {
+          alert('Nenhum vídeo encontrado!\n\nColoque seus vídeos (.mp4) na pasta:\nC:\\Users\\' + (navigator.userAgent.includes('Windows') ? '' : '') + 'SeuUsuário\\ObnotionVideos');
+          return;
+        }
+
+        let addedCount = 0;
+        for (const v of data.videos) {
+          // Não adicionar duplicatas (verifica por nome)
+          if (videoLibrary.find(existing => existing.name === v.name)) continue;
+
+          videoLibrary.push({
+            id: 'srv_' + Date.now() + '_' + addedCount,
+            name: v.name,
+            videoUrl: v.url, // URL HTTP do servidor — funciona em TUDO!
+            size: v.size,
+            isServerVideo: true
+          });
+          addedCount++;
+        }
+
+        renderVideoLibrary();
+        broadcastMaterialsManifest();
+        checkVideoServer();
+
+        if (addedCount > 0) {
+          alert(`✅ ${addedCount} vídeo(s) carregado(s) do servidor!\n\nAgora funcionam no vMix, tablet e projetor.`);
+        } else {
+          alert('Todos os vídeos do servidor já estão na lista.');
+        }
+
+      } catch (e) {
+        alert('❌ Servidor de vídeos não encontrado!\n\nExecute o arquivo:\nINICIAR_SERVIDOR_VIDEO.bat\n\nE coloque os vídeos na pasta ObnotionVideos.');
+        checkVideoServer();
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i data-lucide="server" class="w-4 h-4"></i> Buscar Vídeos do Servidor';
+          if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+      }
+    }
+
     function handleVideoUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1492,7 +1588,8 @@
         id: videoId,
         name: cleanName,
         videoUrl: videoUrl,
-        size: sizeMb
+        size: sizeMb,
+        isServerVideo: false
       });
 
       renderVideoLibrary();
