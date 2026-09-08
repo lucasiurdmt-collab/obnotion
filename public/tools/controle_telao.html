@@ -236,7 +236,13 @@
 
 
   <!-- ========================================== -->
-  <!-- 3. MODO OPERADOR / CABINE (COMPUTADOR)    -->
+  <!-- 3. MODO PROJETOR / TELÃO / VMIX (2ª TELA)   -->
+  <!-- ========================================== -->
+  <main id="projectorView" class="h-screen w-screen flex items-center justify-center p-0 overflow-hidden transition-colors hidden"></main>
+
+
+  <!-- ========================================== -->
+  <!-- 4. MODO OPERADOR / CABINE (COMPUTADOR)    -->
   <!-- Retorno em tempo real, Telão & Controles  -->
   <!-- ========================================== -->
   <main id="operatorView" class="flex-1 flex overflow-x-auto overflow-y-hidden bg-[#060812]">
@@ -513,7 +519,7 @@
         switchViewMode('operator');
       } else if (modeParam === 'pastor' || modeParam === 'receptor') {
         switchViewMode('pastor');
-      } else if (modeParam === 'projector' || modeParam === 'telao') {
+      } else if (modeParam === 'projector' || modeParam === 'telao' || modeParam === 'vmix') {
         renderProjectorModeOnly();
       }
 
@@ -978,20 +984,23 @@
       currentMode = mode;
       const pastor = document.getElementById('pastorView');
       const operator = document.getElementById('operatorView');
+      const projector = document.getElementById('projectorView');
 
       const btnP = document.getElementById('btn-mode-pulpit');
       const btnO = document.getElementById('btn-mode-operator');
 
+      if (projector) projector.classList.add('hidden');
+
       if (mode === 'pastor') {
-        pastor.classList.remove('hidden');
-        operator.classList.add('hidden');
-        btnP.className = "px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
-        btnO.className = "px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
+        if (pastor) pastor.classList.remove('hidden');
+        if (operator) operator.classList.add('hidden');
+        if (btnP) btnP.className = "px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
+        if (btnO) btnO.className = "px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
       } else {
-        pastor.classList.add('hidden');
-        operator.classList.remove('hidden');
-        btnO.className = "px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
-        btnP.className = "px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
+        if (pastor) pastor.classList.add('hidden');
+        if (operator) operator.classList.remove('hidden');
+        if (btnO) btnO.className = "px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
+        if (btnP) btnP.className = "px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
       }
       lucide.createIcons();
     }
@@ -1195,8 +1204,18 @@
     }
 
     function renderProjectorModeOnly() {
-      document.getElementById('mainHeader').style.display = 'none';
-      document.getElementById('operatorView').style.display = 'none';
+      const header = document.getElementById('mainHeader');
+      if (header) header.style.display = 'none';
+      const opView = document.getElementById('operatorView');
+      if (opView) opView.style.display = 'none';
+      const pastorView = document.getElementById('pastorView');
+      if (pastorView) pastorView.style.display = 'none';
+      
+      const projectorView = document.getElementById('projectorView');
+      if (projectorView) {
+        projectorView.classList.remove('hidden');
+        projectorView.style.display = 'flex';
+      }
       
       const urlParams = new URLSearchParams(window.location.search);
       const isVmixMode = urlParams.get('mode') === 'vmix';
@@ -1210,7 +1229,6 @@
       }
       
       document.body.style.backgroundColor = currentBg === 'transparent' ? 'transparent' : (currentBg === 'green' ? '#00FF00' : '#000000');
-      document.getElementById('pulpitView').className = "h-screen w-screen flex items-center justify-center p-0 overflow-hidden transition-colors";
       
       let lastVideoActionTimestamp = 0;
       function handleVideoControlAction(ctrl) {
@@ -1230,7 +1248,8 @@
 
       const updateProjector = () => {
         const cur = currentLiveSlide || slides[currentSlideIdx] || { reference: "", text: "" };
-        const view = document.getElementById('pulpitView');
+        const view = document.getElementById('projectorView');
+        if (!view) return;
         
         if (currentBg === 'transparent') {
           view.style.backgroundColor = 'transparent';
@@ -1260,14 +1279,14 @@
           view.innerHTML = `<img src="${cur.imageUrl}" class="w-full h-full object-contain" />`;
         } else if (cur.type === 'song') {
           view.innerHTML = `
-            <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center relative">
+            <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center relative select-none">
               <div class="font-sans font-black text-5xl sm:text-[80px] text-white uppercase max-w-[90%] leading-snug tracking-wide" style="text-shadow: 3px 3px 0 #000, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 0px 5px 10px rgba(0,0,0,0.8);">
                 ${cur.text ? cur.text.replace(/\n/g, '<br>') : ''}
               </div>
               
               <div class="absolute bottom-12 right-16 flex items-end">
                 <div class="w-[52px] h-[52px] rounded-full bg-[#FFD700] flex items-center justify-center text-black z-10 border-[3px] border-[#FFD700] shadow-xl">
-                  <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                  <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                 </div>
                 <div class="border-b-[5px] border-[#FFD700] pb-1.5 pl-16 pr-2 ml-[-25px] mb-2 flex-1 shadow-2xl">
                   <div class="font-sans font-black text-3xl sm:text-[34px] text-[#FFD700] uppercase tracking-wider text-right" style="text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0px 4px 6px rgba(0,0,0,0.8);">
@@ -1280,7 +1299,7 @@
         } else {
           const ref = formatReference(cur.reference);
           view.innerHTML = `
-            <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center">
+            <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center select-none">
               ${ref ? `<div class="font-bebas text-5xl sm:text-7xl text-purple-400 font-bold mb-6 tracking-widest drop-shadow-lg" style="text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;">${ref}</div>` : ''}
               <div class="font-sans font-black text-4xl sm:text-6xl text-white max-w-6xl leading-snug drop-shadow-2xl whitespace-pre-wrap" style="text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;">${cur.text || ''}</div>
             </div>
