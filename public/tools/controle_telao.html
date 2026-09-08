@@ -131,45 +131,89 @@
   <!-- ========================================== -->
   <!-- 2. MODO PASTOR (SOMENTE TELA / SEM BOTÕES) -->
   <!-- ========================================== -->
-  <main id="pastorView" class="flex-1 flex flex-row bg-[#04050a] relative overflow-hidden select-none hidden">
+  <!-- ========================================== -->
+  <!-- 2. MODO PASTOR (PÚLPITO / TABLET / RETORNO)-->
+  <!-- ========================================== -->
+  <main id="pastorView" class="flex-1 flex flex-row bg-[#04050a] relative overflow-hidden select-none hidden items-center justify-between">
     
-    <!-- 🖼️ ÁREA CENTRAL: SLIDE PPTX / IMAGEM / VERSÍCULO BÍBLICO DO PASTOR -->
+    <!-- ◀ BOTÃO VOLTAR (LADO ESQUERDO) -->
+    <button onclick="prevSlide()" class="w-16 sm:w-20 md:w-24 h-full flex flex-col items-center justify-center bg-white/[0.02] hover:bg-purple-600/20 active:bg-purple-600/40 text-purple-300/60 hover:text-white transition-all border-r border-white/[0.06] group select-none shrink-0 z-20 cursor-pointer" title="Slide Anterior">
+      <i data-lucide="chevron-left" class="w-8 h-8 sm:w-10 sm:h-10 group-hover:-translate-x-1 transition-transform"></i>
+      <span class="text-[10px] sm:text-xs font-black uppercase tracking-widest mt-1">Volta</span>
+    </button>
+
+    <!-- 🖼️ ÁREA CENTRAL: SLIDE / VÍDEO / VERSÍCULO -->
     <div class="flex-1 h-full flex flex-col items-center justify-center p-1 sm:p-2 relative overflow-hidden bg-gradient-to-b from-[#080b18] via-[#04060e] to-[#080b18]">
       
       <!-- Slide Presentation Container (Preenche quase toda a tela do tablet) -->
       <div class="w-full h-full max-h-[98vh] flex flex-col items-center justify-center text-center p-2 sm:p-4 rounded-2xl bg-black/90 border border-purple-500/30 shadow-2xl relative overflow-hidden">
         
-        <!-- Header Info (Slide Index & Indicator) -->
-        <div class="absolute top-2 left-4 right-4 flex items-center justify-between border-b border-white/[0.08] pb-1 z-10">
+        <!-- Header Info (Slide Index, Indicador & Botão de Materiais) -->
+        <div class="absolute top-2 left-3 right-3 flex items-center justify-between border-b border-white/[0.08] pb-1.5 z-10">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
             <span id="pastorSlideBadge" class="font-mono text-xs sm:text-sm font-bold text-purple-300">
               SLIDE 1 DE 1
             </span>
+            <span id="pastorTypeBadge" class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-200 border border-purple-500/30 hidden sm:inline-block">
+              SLIDE AO VIVO
+            </span>
           </div>
-          <div id="pastorTypeBadge" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-200 border border-purple-500/30">
-            SLIDE AO VIVO
-          </div>
+
+          <!-- BOTÃO GAVETA DE MATERIAIS PARA O PASTOR -->
+          <button onclick="openPastorMaterialsModal()" class="px-3 py-1 rounded-xl bg-purple-600/40 hover:bg-purple-600 active:scale-95 text-white text-xs font-bold flex items-center gap-1.5 border border-purple-500/40 transition-all shadow-md">
+            <i data-lucide="folder-open" class="w-3.5 h-3.5 text-purple-300"></i>
+            <span>📑 Escolher Material</span>
+          </button>
         </div>
 
         <!-- Render Mode A: High-Res Image / PDF Page / PPTX Graphic -->
-        <div id="pastorImageContainer" class="w-full h-full flex items-center justify-center pt-6 pb-2 hidden">
+        <div id="pastorImageContainer" class="w-full h-full flex items-center justify-center pt-8 pb-2 hidden">
           <img id="pastorImageDisplay" class="w-full h-full object-contain rounded-lg shadow-2xl" src="" alt="Slide do Sermão" />
         </div>
 
         <!-- Render Mode B: Styled Biblical Verse / Text / Song -->
-        <div id="pastorTextContainer" class="w-full h-full flex flex-col items-center justify-center my-auto relative pt-6 pb-4">
-          <!-- Referência (versículos - fica no topo) -->
+        <div id="pastorTextContainer" class="w-full h-full flex flex-col items-center justify-center my-auto relative pt-8 pb-4">
           <div id="pastorRefDisplay" class="font-bebas text-3xl sm:text-5xl text-purple-400 tracking-wider font-bold mb-3"></div>
           <div id="pastorTextDisplay" class="font-sans font-black text-2xl sm:text-4xl md:text-5xl lg:text-7xl leading-tight sm:leading-snug text-white max-w-6xl overflow-y-auto custom-scrollbar whitespace-pre-wrap">
             "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
           </div>
-          <!-- Badge de música (fica no canto inferior direito - apenas para músicas) -->
+          <!-- Badge de música (apenas para músicas) -->
           <div id="pastorSongTitleBadge" class="hidden absolute bottom-3 right-4 flex items-center gap-2">
             <div class="w-9 h-9 rounded-full bg-yellow-400 flex items-center justify-center text-black shadow-lg flex-shrink-0">
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             </div>
             <span id="pastorSongTitleText" class="font-sans font-black text-lg text-yellow-400 uppercase tracking-wider border-b-2 border-yellow-400 pb-0.5 pr-2"></span>
+          </div>
+        </div>
+
+        <!-- Render Mode C: Video Player Controller on Pastor Screen -->
+        <div id="pastorVideoContainer" class="w-full h-full flex flex-col items-center justify-center my-auto p-4 space-y-4 hidden pt-8">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-purple-600/30 border-2 border-purple-500/50 flex items-center justify-center text-purple-300 shadow-2xl animate-pulse">
+            <svg class="w-8 h-8 sm:w-10 sm:h-10 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          
+          <div class="space-y-1 text-center max-w-2xl">
+            <span class="text-[10px] sm:text-xs font-mono font-bold text-purple-300 uppercase tracking-widest bg-purple-950/80 px-3 py-1 rounded-full border border-purple-500/30">
+              🔴 VÍDEO EM REPRODUÇÃO NO TELÃO (vMix)
+            </span>
+            <div id="pastorVideoTitle" class="text-lg sm:text-2xl md:text-3xl font-black text-white truncate pt-1">
+              Nome do Vídeo
+            </div>
+          </div>
+
+          <!-- Video Playback Action Buttons for Pastor -->
+          <div class="flex items-center gap-3 pt-2">
+            <button id="pastorBtnVideoPlayPause" onclick="togglePastorVideoPlayback()" class="px-6 py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 active:scale-95 text-white font-black text-sm sm:text-base flex items-center gap-2 shadow-2xl shadow-purple-600/40 transition-all cursor-pointer">
+              <span id="pastorVideoPlayPauseIcon">⏸️</span>
+              <span id="pastorVideoPlayPauseLabel">PAUSAR VÍDEO</span>
+            </button>
+            <button onclick="restartPastorVideoPlayback()" class="px-4 py-3 rounded-2xl bg-white/[0.08] hover:bg-white/[0.15] active:scale-95 text-zinc-200 font-bold text-sm flex items-center gap-1.5 border border-white/[0.1] transition-all cursor-pointer" title="Reiniciar Vídeo">
+              <span>🔄 Reiniciar</span>
+            </button>
+          </div>
+          <div class="text-[10px] text-zinc-400 font-mono">
+            Áudio e imagem transmitidos diretamente pelo telão
           </div>
         </div>
 
@@ -181,6 +225,12 @@
       </div>
 
     </div>
+
+    <!-- ▶ BOTÃO AVANÇAR (LADO DIREITO) -->
+    <button onclick="nextSlide()" class="w-16 sm:w-20 md:w-24 h-full flex flex-col items-center justify-center bg-white/[0.02] hover:bg-purple-600/20 active:bg-purple-600/40 text-purple-300/60 hover:text-white transition-all border-l border-white/[0.06] group select-none shrink-0 z-20 cursor-pointer" title="Próximo Slide">
+      <i data-lucide="chevron-right" class="w-8 h-8 sm:w-10 sm:h-10 group-hover:translate-x-1 transition-transform"></i>
+      <span class="text-[10px] sm:text-xs font-black uppercase tracking-widest mt-1">Avança</span>
+    </button>
 
   </main>
 
@@ -260,6 +310,22 @@
           <!-- Image View in Operator Monitor -->
           <img id="opMirroredImg" class="max-w-full max-h-full object-contain rounded-xl hidden" src="" alt="Slide do Pastor" />
 
+          <!-- Video View in Operator Monitor -->
+          <div id="opMirroredVideoContainer" class="flex flex-col w-full h-full relative items-center justify-center p-4 space-y-2 hidden">
+            <div class="w-12 h-12 rounded-2xl bg-purple-600/30 border border-purple-500 flex items-center justify-center text-purple-300 animate-pulse">
+              <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div class="text-[10px] font-mono font-bold text-purple-300 uppercase tracking-widest bg-purple-950/80 px-2.5 py-0.5 rounded border border-purple-500/30">
+              🔴 VÍDEO EM REPRODUÇÃO NO TELÃO
+            </div>
+            <div id="opMirroredVideoTitle" class="text-sm sm:text-base font-black text-white truncate max-w-md">
+              Nome do Vídeo
+            </div>
+            <div class="text-[10px] text-zinc-400 font-mono">
+              Áudio e imagem transmitidos diretamente pelo vMix / telão
+            </div>
+          </div>
+
           <!-- Text View in Operator Monitor -->
           <div id="opMirroredTextContainer" class="flex flex-col w-full h-full relative items-center justify-center p-4">
             <!-- Referência normal (versículos/texto) -->
@@ -310,7 +376,7 @@
       <div class="p-3 space-y-2 border-b border-purple-500/20">
         <!-- Botão principal Adicionar PDF -->
         <input type="file" id="pdfFileInput" accept="application/pdf" class="hidden" onchange="handlePdfUpload(event)" />
-        <button onclick="document.getElementById('pdfFileInput').click()" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-rose-600/30">
+        <button onclick="document.getElementById('pdfFileInput').click()" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-rose-600/30 cursor-pointer">
           <i data-lucide="file-plus" class="w-4 h-4"></i>
           Adicionar PDF +
         </button>
@@ -320,6 +386,24 @@
           <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest px-1">PDFs Adicionados:</div>
           <div id="pdfLibraryList" class="space-y-1.5">
             <div class="text-[10px] text-zinc-600 italic px-1">Nenhum PDF carregado ainda...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SEÇÃO VÍDEOS MP4 ── -->
+      <div class="p-3 space-y-2 border-b border-purple-500/20">
+        <!-- Botão principal Adicionar Vídeo -->
+        <input type="file" id="videoFileInput" accept="video/mp4,video/webm,video/quicktime,video/mkv" class="hidden" onchange="handleVideoUpload(event)" />
+        <button onclick="document.getElementById('videoFileInput').click()" class="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-purple-600/30 cursor-pointer">
+          <i data-lucide="video" class="w-4 h-4"></i>
+          Adicionar Vídeo MP4 +
+        </button>
+
+        <!-- Lista de Vídeos adicionados -->
+        <div id="videoLibrary" class="space-y-1.5">
+          <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest px-1">Vídeos Adicionados:</div>
+          <div id="videoLibraryList" class="space-y-1.5">
+            <div class="text-[10px] text-zinc-600 italic px-1">Nenhum vídeo carregado ainda...</div>
           </div>
         </div>
       </div>
@@ -471,6 +555,11 @@
 
     let isLocalWriting = false;
     let currentLiveSlide = null;
+    let videoLibrary = []; // [{ id, name, videoUrl, size }]
+    let isPastorVideoPlaying = true;
+    let lastVideoActionTimestamp = 0;
+    let lastRequestedMaterialTimestamp = 0;
+    let materialsManifest = { pdfs: [], videos: [] };
 
     // --- SCREEN WAKE LOCK (Impede tablet/celular de desligar a tela no culto) ---
     async function requestWakeLock() {
@@ -503,6 +592,24 @@
           if (data.activeSlide) {
             currentLiveSlide = data.activeSlide;
           }
+          if (data.materialsManifest) {
+            materialsManifest = data.materialsManifest;
+          }
+          if (data.videoControl) {
+            if (data.videoControl.action === 'play') isPastorVideoPlaying = true;
+            else if (data.videoControl.action === 'pause') isPastorVideoPlaying = false;
+            else if (data.videoControl.action === 'restart') isPastorVideoPlaying = true;
+            updatePastorVideoButtonUI();
+          }
+          if (data.requestMaterial && data.requestMaterial.timestamp > lastRequestedMaterialTimestamp) {
+            lastRequestedMaterialTimestamp = data.requestMaterial.timestamp;
+            if (currentMode === 'operator') {
+              const req = data.requestMaterial;
+              if (req.type === 'pdf') jumpToPdf(req.id);
+              else if (req.type === 'video') jumpToVideo(req.id);
+              else if (req.type === 'song') addSongToPresentation(req.id);
+            }
+          }
           renderAllViews();
         }
       }, (err) => {
@@ -533,8 +640,31 @@
           if (typeof msg.data.currentSlideIdx === 'number') currentSlideIdx = msg.data.currentSlideIdx;
           if (typeof msg.data.isBlackout === 'boolean') isBlackout = msg.data.isBlackout;
           if (msg.data.activeSlide) currentLiveSlide = msg.data.activeSlide;
+          if (msg.data.materialsManifest) materialsManifest = msg.data.materialsManifest;
+          if (msg.data.videoControl) {
+            if (msg.data.videoControl.action === 'play') isPastorVideoPlaying = true;
+            else if (msg.data.videoControl.action === 'pause') isPastorVideoPlaying = false;
+            else if (msg.data.videoControl.action === 'restart') isPastorVideoPlaying = true;
+            updatePastorVideoButtonUI();
+          }
+          if (msg.data.requestMaterial && msg.data.requestMaterial.timestamp > lastRequestedMaterialTimestamp) {
+            lastRequestedMaterialTimestamp = msg.data.requestMaterial.timestamp;
+            if (currentMode === 'operator') {
+              const req = msg.data.requestMaterial;
+              if (req.type === 'pdf') jumpToPdf(req.id);
+              else if (req.type === 'video') jumpToVideo(req.id);
+              else if (req.type === 'song') addSongToPresentation(req.id);
+            }
+          }
           renderAllViews();
         }
+      };
+    }
+
+    function getMaterialsManifest() {
+      return {
+        pdfs: pdfLibrary.map(p => ({ id: p.id, name: p.name, pageCount: p.pageCount })),
+        videos: videoLibrary.map(v => ({ id: v.id, name: v.name, size: v.size }))
       };
     }
 
@@ -552,9 +682,12 @@
           reference: cur.reference || '',
           text: cur.text || '',
           imageUrl: cur.imageUrl || '',
+          videoUrl: cur.videoUrl || '',
+          videoId: cur.videoId || '',
           type: cur.type || 'verse',
           pdfId: cur.pdfId || ''
         },
+        materialsManifest: getMaterialsManifest(),
         timestamp: Date.now()
       };
 
@@ -567,11 +700,12 @@
       }
     }
 
-    // Salvar e transmitir nova apresentação (música ou PDF)
+    // Salvar e transmitir nova apresentação (música ou PDF ou Vídeo)
     async function saveSlidesToFirebaseAndBroadcast(newSlides) {
       slides = newSlides;
       renderAllViews();
       renderPdfLibrary();
+      renderVideoLibrary();
 
       const cur = slides[currentSlideIdx] || { reference: "", text: "", type: "verse" };
 
@@ -583,9 +717,12 @@
           reference: cur.reference || '',
           text: cur.text || '',
           imageUrl: cur.imageUrl || '',
+          videoUrl: cur.videoUrl || '',
+          videoId: cur.videoId || '',
           type: cur.type || 'verse',
           pdfId: cur.pdfId || ''
         },
+        materialsManifest: getMaterialsManifest(),
         timestamp: Date.now()
       };
 
@@ -618,6 +755,8 @@
             reference: s.reference || '',
             text: s.text || '',
             imageUrl: s.imageUrl || '',
+            videoUrl: s.videoUrl || '',
+            videoId: s.videoId || '',
             type: s.type || 'verse',
             pdfId: s.pdfId || ''
           });
@@ -678,65 +817,93 @@
       // 1. Pastor Tablet View
       const pastorImgBox = document.getElementById('pastorImageContainer');
       const pastorTextBox = document.getElementById('pastorTextContainer');
+      const pastorVideoBox = document.getElementById('pastorVideoContainer');
       const pastorImg = document.getElementById('pastorImageDisplay');
 
-      if (cur.imageUrl) {
-        pastorImgBox.classList.remove('hidden');
-        pastorTextBox.classList.add('hidden');
-        pastorImg.src = cur.imageUrl;
+      if (cur.type === 'video' || cur.videoUrl) {
+        if (pastorImgBox) pastorImgBox.classList.add('hidden');
+        if (pastorTextBox) pastorTextBox.classList.add('hidden');
+        if (pastorVideoBox) pastorVideoBox.classList.remove('hidden');
+        document.getElementById('pastorVideoTitle').textContent = cur.reference || 'Vídeo MP4';
+        document.getElementById('pastorSlideBadge').textContent = 'VÍDEO AO VIVO';
+        document.getElementById('pastorTypeBadge').textContent = 'VÍDEO MP4';
+        updatePastorVideoButtonUI();
+      } else if (cur.imageUrl) {
+        if (pastorVideoBox) pastorVideoBox.classList.add('hidden');
+        if (pastorTextBox) pastorTextBox.classList.add('hidden');
+        if (pastorImgBox) pastorImgBox.classList.remove('hidden');
+        if (pastorImg) pastorImg.src = cur.imageUrl;
+        document.getElementById('pastorSlideBadge').textContent = `SLIDE ${currentSlideIdx + 1} DE ${slides.length}`;
+        document.getElementById('pastorTypeBadge').textContent = 'SLIDE VISUAL / PDF';
       } else {
-        pastorImgBox.classList.add('hidden');
-        pastorTextBox.classList.remove('hidden');
+        if (pastorVideoBox) pastorVideoBox.classList.add('hidden');
+        if (pastorImgBox) pastorImgBox.classList.add('hidden');
+        if (pastorTextBox) pastorTextBox.classList.remove('hidden');
         if (cur.type === 'song') {
           // Música: sem título no topo, badge amarelo no canto inferior
           document.getElementById('pastorRefDisplay').textContent = '';
           document.getElementById('pastorTextDisplay').textContent = cur.text || '';
           const badge = document.getElementById('pastorSongTitleBadge');
-          badge.classList.remove('hidden');
+          if (badge) badge.classList.remove('hidden');
           document.getElementById('pastorSongTitleText').textContent = formatReference(cur.reference);
+          document.getElementById('pastorTypeBadge').textContent = 'LETRA DE MÚSICA';
         } else {
           // Versículo/texto/recado: se houver referência bíblica coloca no topo, senão deixa vazio
           document.getElementById('pastorRefDisplay').textContent = formatReference(cur.reference);
           document.getElementById('pastorTextDisplay').textContent = cur.text || '';
           const badge = document.getElementById('pastorSongTitleBadge');
           if (badge) badge.classList.add('hidden');
+          document.getElementById('pastorTypeBadge').textContent = formatReference(cur.reference) ? 'VERSÍCULO BÍBLICO' : 'TEXTO / RECADO';
         }
+        document.getElementById('pastorSlideBadge').textContent = `SLIDE ${currentSlideIdx + 1} DE ${slides.length}`;
       }
 
-      document.getElementById('pastorSlideBadge').textContent = `SLIDE ${currentSlideIdx + 1} DE ${slides.length}`;
-      document.getElementById('pastorTypeBadge').textContent = cur.type === 'image' ? 'SLIDE VISUAL / PDF' : (cur.type === 'song' ? 'LETRA DE MÚSICA' : (formatReference(cur.reference) ? 'VERSÍCULO BÍBLICO' : 'TEXTO / RECADO'));
-      
       const pct = slides.length > 1 ? ((currentSlideIdx + 1) / slides.length) * 100 : 100;
-      document.getElementById('pastorProgressBar').style.width = `${pct}%`;
+      const progBar = document.getElementById('pastorProgressBar');
+      if (progBar) progBar.style.width = `${pct}%`;
 
       // 2. Operator Cabine View
-      document.getElementById('opActiveSlideNum').textContent = `Slide ${currentSlideIdx + 1} de ${slides.length}`;
-      document.getElementById('totalSlidesCount').textContent = slides.length;
+      const opSlideNum = document.getElementById('opActiveSlideNum');
+      if (opSlideNum) opSlideNum.textContent = (cur.type === 'video') ? 'Vídeo MP4' : `Slide ${currentSlideIdx + 1} de ${slides.length}`;
+      const opTotalCount = document.getElementById('totalSlidesCount');
+      if (opTotalCount) opTotalCount.textContent = slides.length;
 
       const opImg = document.getElementById('opMirroredImg');
       const opTextBox = document.getElementById('opMirroredTextContainer');
+      const opVideoBox = document.getElementById('opMirroredVideoContainer');
 
       if (isBlackout) {
-        opImg.classList.add('hidden');
-        opTextBox.classList.remove('hidden');
+        if (opImg) opImg.classList.add('hidden');
+        if (opVideoBox) opVideoBox.classList.add('hidden');
+        if (opTextBox) opTextBox.classList.remove('hidden');
         document.getElementById('opMirroredRef').textContent = "⚫ TELÃO EM BLACKOUT";
         document.getElementById('opMirroredText').textContent = "A saída para o telão está temporariamente apagada.";
+      } else if (cur.type === 'video' || cur.videoUrl) {
+        if (opImg) opImg.classList.add('hidden');
+        if (opTextBox) opTextBox.classList.add('hidden');
+        if (opVideoBox) opVideoBox.classList.remove('hidden');
+        document.getElementById('opMirroredVideoTitle').textContent = cur.reference || 'Vídeo MP4';
       } else if (cur.imageUrl) {
-        opImg.classList.remove('hidden');
-        opTextBox.classList.add('hidden');
-        opImg.src = cur.imageUrl;
+        if (opVideoBox) opVideoBox.classList.add('hidden');
+        if (opTextBox) opTextBox.classList.add('hidden');
+        if (opImg) {
+          opImg.classList.remove('hidden');
+          opImg.src = cur.imageUrl;
+        }
       } else if (cur.type === 'song') {
-        opImg.classList.add('hidden');
-        opTextBox.classList.remove('hidden');
+        if (opImg) opImg.classList.add('hidden');
+        if (opVideoBox) opVideoBox.classList.add('hidden');
+        if (opTextBox) opTextBox.classList.remove('hidden');
         // Para músicas: sem título no topo, letra centralizada, título no canto inferior
         document.getElementById('opMirroredRef').textContent = '';
         document.getElementById('opMirroredText').textContent = cur.text || '';
         const badge = document.getElementById('opSongTitleBadge');
-        badge.classList.remove('hidden');
+        if (badge) badge.classList.remove('hidden');
         document.getElementById('opSongTitleText').textContent = formatReference(cur.reference);
       } else {
-        opImg.classList.add('hidden');
-        opTextBox.classList.remove('hidden');
+        if (opImg) opImg.classList.add('hidden');
+        if (opVideoBox) opVideoBox.classList.add('hidden');
+        if (opTextBox) opTextBox.classList.remove('hidden');
         document.getElementById('opMirroredRef').textContent = formatReference(cur.reference);
         document.getElementById('opMirroredText').textContent = cur.text || '';
         const badge = document.getElementById('opSongTitleBadge');
@@ -745,47 +912,65 @@
 
       const blackoutBtn = document.getElementById('btnBlackout');
       const blackoutLabel = document.getElementById('blackoutLabel');
-      if (isBlackout) {
-        blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold border border-rose-500 flex items-center gap-1.5 transition-all shadow-lg shadow-rose-600/30";
-        blackoutLabel.textContent = "Reativar Telão";
-      } else {
-        blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold border border-zinc-700 flex items-center gap-1.5 transition-all";
-        blackoutLabel.textContent = "Blackout Telão";
+      if (blackoutBtn && blackoutLabel) {
+        if (isBlackout) {
+          blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold border border-rose-500 flex items-center gap-1.5 transition-all shadow-lg shadow-rose-600/30";
+          blackoutLabel.textContent = "Reativar Telão";
+        } else {
+          blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold border border-zinc-700 flex items-center gap-1.5 transition-all";
+          blackoutLabel.textContent = "Blackout Telão";
+        }
       }
 
       // Render Operator Thumbnails Grid
       const grid = document.getElementById('operatorSlidesGrid');
-      grid.innerHTML = '';
-      slides.forEach((s, i) => {
-        const isAct = i === currentSlideIdx;
-        const card = document.createElement('div');
-        card.className = `p-2.5 rounded-2xl border ${isAct ? 'border-purple-400 bg-purple-950/70 shadow-lg shadow-purple-600/30 ring-2 ring-purple-500' : 'border-white/[0.08] bg-[#101428] hover:border-purple-500/40'} cursor-pointer flex flex-col justify-between h-28 transition-all group select-none overflow-hidden relative`;
-        card.onclick = () => goToSlide(i);
+      if (grid) {
+        grid.innerHTML = '';
+        slides.forEach((s, i) => {
+          const isAct = i === currentSlideIdx;
+          const card = document.createElement('div');
+          card.className = `p-2.5 rounded-2xl border ${isAct ? 'border-purple-400 bg-purple-950/70 shadow-lg shadow-purple-600/30 ring-2 ring-purple-500' : 'border-white/[0.08] bg-[#101428] hover:border-purple-500/40'} cursor-pointer flex flex-col justify-between h-28 transition-all group select-none overflow-hidden relative`;
+          card.onclick = () => goToSlide(i);
 
-        if (s.imageUrl) {
-          card.innerHTML = `
-            <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-all">
-              <img src="${s.imageUrl}" class="w-full h-full object-cover rounded-xl" />
-            </div>
-            <div class="relative z-10 flex items-center justify-between text-[10px] font-mono font-bold bg-black/80 px-1.5 py-0.5 rounded text-white">
-              <span>SLIDE ${i + 1}</span>
-              ${isAct ? '<span class="text-purple-300 font-black">● AO VIVO</span>' : ''}
-            </div>
-          `;
-        } else {
-          card.innerHTML = `
-            <div>
+          if (s.type === 'video' || s.videoUrl) {
+            card.innerHTML = `
               <div class="flex items-center justify-between text-[10px] font-mono font-bold ${isAct ? 'text-purple-300' : 'text-zinc-500'}">
-                <span>SLIDE ${i + 1}</span>
-                ${isAct ? '<span class="px-1.5 py-0.2 rounded bg-purple-500 text-white font-sans text-[9px] font-black animate-pulse">PASTOR</span>' : ''}
+                <span>VÍDEO</span>
+                ${isAct ? '<span class="text-purple-300 font-black">● AO VIVO</span>' : ''}
               </div>
-              <div class="text-xs font-bold text-white truncate mt-1">${formatReference(s.reference) || (s.type === 'song' ? 'Música' : 'Recado')}</div>
-            </div>
-            <div class="text-[10px] text-zinc-400 line-clamp-2 leading-tight">${s.text}</div>
-          `;
-        }
-        grid.appendChild(card);
-      });
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-purple-600/30 flex items-center justify-center text-purple-300">
+                  <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+                <div class="text-xs font-bold text-white truncate flex-1">${s.reference || 'Vídeo'}</div>
+              </div>
+              <div class="text-[9px] text-purple-300 font-mono">Reproduzindo com áudio</div>
+            `;
+          } else if (s.imageUrl) {
+            card.innerHTML = `
+              <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-all">
+                <img src="${s.imageUrl}" class="w-full h-full object-cover rounded-xl" />
+              </div>
+              <div class="relative z-10 flex items-center justify-between text-[10px] font-mono font-bold bg-black/80 px-1.5 py-0.5 rounded text-white">
+                <span>SLIDE ${i + 1}</span>
+                ${isAct ? '<span class="text-purple-300 font-black">● AO VIVO</span>' : ''}
+              </div>
+            `;
+          } else {
+            card.innerHTML = `
+              <div>
+                <div class="flex items-center justify-between text-[10px] font-mono font-bold ${isAct ? 'text-purple-300' : 'text-zinc-500'}">
+                  <span>SLIDE ${i + 1}</span>
+                  ${isAct ? '<span class="px-1.5 py-0.2 rounded bg-purple-500 text-white font-sans text-[9px] font-black animate-pulse">PASTOR</span>' : ''}
+                </div>
+                <div class="text-xs font-bold text-white truncate mt-1">${formatReference(s.reference) || (s.type === 'song' ? 'Música' : 'Recado')}</div>
+              </div>
+              <div class="text-[10px] text-zinc-400 line-clamp-2 leading-tight">${s.text}</div>
+            `;
+          }
+          grid.appendChild(card);
+        });
+      }
     }
 
     // --- MODE SWITCHER ---
@@ -1027,6 +1212,22 @@
       document.body.style.backgroundColor = currentBg === 'transparent' ? 'transparent' : (currentBg === 'green' ? '#00FF00' : '#000000');
       document.getElementById('pulpitView').className = "h-screen w-screen flex items-center justify-center p-0 overflow-hidden transition-colors";
       
+      let lastVideoActionTimestamp = 0;
+      function handleVideoControlAction(ctrl) {
+        if (!ctrl || !ctrl.action || (ctrl.timestamp && ctrl.timestamp <= lastVideoActionTimestamp)) return;
+        if (ctrl.timestamp) lastVideoActionTimestamp = ctrl.timestamp;
+        const videoEl = document.getElementById('projectorVideoPlayer');
+        if (!videoEl) return;
+        if (ctrl.action === 'play') {
+          videoEl.play().catch(e => console.warn("Video play error:", e));
+        } else if (ctrl.action === 'pause') {
+          videoEl.pause();
+        } else if (ctrl.action === 'restart') {
+          videoEl.currentTime = 0;
+          videoEl.play().catch(e => console.warn("Video restart error:", e));
+        }
+      }
+
       const updateProjector = () => {
         const cur = currentLiveSlide || slides[currentSlideIdx] || { reference: "", text: "" };
         const view = document.getElementById('pulpitView');
@@ -1046,6 +1247,15 @@
           view.innerHTML = currentBg === 'transparent' ? '' : `<div class="w-full h-full flex items-center justify-center">
             <span class="text-white/20 font-mono text-sm uppercase">BLACKOUT</span>
           </div>`;
+        } else if (cur.type === 'video' || cur.videoUrl) {
+          let videoEl = document.getElementById('projectorVideoPlayer');
+          if (!videoEl || videoEl.dataset.videoId !== (cur.videoId || cur.reference)) {
+            view.innerHTML = `
+              <div class="w-full h-full flex items-center justify-center bg-black">
+                <video id="projectorVideoPlayer" data-video-id="${cur.videoId || cur.reference}" src="${cur.videoUrl || ''}" class="w-full h-full object-contain" autoplay playsinline></video>
+              </div>
+            `;
+          }
         } else if (cur.imageUrl) {
           view.innerHTML = `<img src="${cur.imageUrl}" class="w-full h-full object-contain" />`;
         } else if (cur.type === 'song') {
@@ -1093,6 +1303,7 @@
           if (typeof data.currentSlideIdx === 'number') currentSlideIdx = data.currentSlideIdx;
           if (typeof data.isBlackout === 'boolean') isBlackout = data.isBlackout;
           if (data.activeSlide) currentLiveSlide = data.activeSlide;
+          if (data.videoControl) handleVideoControlAction(data.videoControl);
           updateProjector();
         }
       });
@@ -1114,6 +1325,7 @@
           if (typeof msg.data.currentSlideIdx === 'number') currentSlideIdx = msg.data.currentSlideIdx;
           if (typeof msg.data.isBlackout === 'boolean') isBlackout = msg.data.isBlackout;
           if (msg.data.activeSlide) currentLiveSlide = msg.data.activeSlide;
+          if (msg.data.videoControl) handleVideoControlAction(msg.data.videoControl);
           updateProjector();
         }
       };
@@ -1129,7 +1341,6 @@
       }, 1000);
     }
 
-    // --- HOLYRICS MUSIC SEARCH ---
     // --- PDF LIBRARY (metadados persistem em memória) ---
     let pdfLibrary = []; // [{id, name, pageCount, slides: [...]}]
 
@@ -1173,6 +1384,7 @@
       isBlackout = false;
       renderAllViews();
       renderPdfLibrary();
+      renderVideoLibrary();
       saveSlidesToFirebaseAndBroadcast(slides);
     }
 
@@ -1183,6 +1395,8 @@
       if (slides.length > 0 && slides[0].pdfId === pdfId) {
         if (pdfLibrary.length > 0) {
           jumpToPdf(pdfLibrary[0].id);
+        } else if (videoLibrary.length > 0) {
+          jumpToVideo(videoLibrary[0].id);
         } else {
           slides = [];
           currentSlideIdx = 0;
@@ -1203,6 +1417,296 @@
       }
     }
 
+    // --- VIDEO MP4 LOCAL LIBRARY & PLAYBACK CONTROLLER ---
+    function handleVideoUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const videoId = 'vid_' + Date.now();
+      const videoUrl = URL.createObjectURL(file);
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+      const cleanName = file.name.replace(/\.[^/.]+$/, "");
+
+      // Adiciona à lista de vídeos
+      videoLibrary.push({
+        id: videoId,
+        name: cleanName,
+        videoUrl: videoUrl,
+        size: sizeMb
+      });
+
+      renderVideoLibrary();
+      renderPdfLibrary();
+
+      // Ativa este vídeo imediatamente no telão
+      jumpToVideo(videoId);
+
+      if (e.target) e.target.value = '';
+    }
+
+    function renderVideoLibrary() {
+      const listEl = document.getElementById('videoLibraryList');
+      if (!listEl) return;
+      if (videoLibrary.length === 0) {
+        listEl.innerHTML = '<div class="text-[10px] text-zinc-600 italic px-1">Nenhum vídeo carregado ainda...</div>';
+        return;
+      }
+
+      const currentVideoId = (slides.length > 0 && slides[0].type === 'video' && slides[0].videoId) ? slides[0].videoId : null;
+
+      listEl.innerHTML = videoLibrary.map(v => {
+        const isActive = (currentVideoId === v.id);
+        const activeClasses = isActive 
+          ? 'bg-purple-500/25 border-purple-400 ring-1 ring-purple-400 text-white shadow-lg' 
+          : 'bg-[#11162d] border-purple-500/30 hover:border-purple-400/60 hover:bg-purple-500/10 text-white';
+
+        return `
+          <div class="flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition-all ${activeClasses} group" onclick="jumpToVideo('${v.id}')">
+            <div class="w-8 h-8 rounded-lg ${isActive ? 'bg-purple-500 text-white' : 'bg-purple-600/20 text-purple-300'} flex items-center justify-center text-[10px] font-black flex-shrink-0 leading-none">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-bold truncate group-hover:text-purple-200 transition-colors">${v.name}</div>
+              <div class="text-[9px] text-zinc-400">${v.size} ${isActive ? '• <span class="text-purple-300 font-bold">AO VIVO</span>' : ''}</div>
+            </div>
+            <button onclick="event.stopPropagation(); removeVideo('${v.id}')" class="w-5 h-5 rounded flex items-center justify-center text-zinc-500 hover:text-purple-400 hover:bg-purple-500/20 transition-all flex-shrink-0 text-xs" title="Remover Vídeo">✕</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function jumpToVideo(videoId) {
+      const video = videoLibrary.find(v => v.id === videoId);
+      if (!video) return;
+
+      const newSlides = [{
+        index: 0,
+        reference: video.name,
+        text: "",
+        videoUrl: video.videoUrl,
+        videoId: video.id,
+        type: "video"
+      }];
+
+      slides = newSlides;
+      currentSlideIdx = 0;
+      isBlackout = false;
+      isPastorVideoPlaying = true;
+      updatePastorVideoButtonUI();
+
+      renderAllViews();
+      renderPdfLibrary();
+      renderVideoLibrary();
+      saveSlidesToFirebaseAndBroadcast(slides);
+    }
+
+    function removeVideo(videoId) {
+      videoLibrary = videoLibrary.filter(v => v.id !== videoId);
+      renderVideoLibrary();
+
+      if (slides.length > 0 && slides[0].type === 'video' && slides[0].videoId === videoId) {
+        if (videoLibrary.length > 0) {
+          jumpToVideo(videoLibrary[0].id);
+        } else if (pdfLibrary.length > 0) {
+          jumpToPdf(pdfLibrary[0].id);
+        } else {
+          slides = [];
+          currentSlideIdx = 0;
+          renderAllViews();
+          saveSlidesToFirebaseAndBroadcast(slides);
+        }
+      }
+    }
+
+    function updatePastorVideoButtonUI() {
+      const icon = document.getElementById('pastorVideoPlayPauseIcon');
+      const label = document.getElementById('pastorVideoPlayPauseLabel');
+      const btn = document.getElementById('pastorBtnVideoPlayPause');
+      if (!btn || !label || !icon) return;
+
+      if (isPastorVideoPlaying) {
+        icon.textContent = '⏸️';
+        label.textContent = 'PAUSAR VÍDEO';
+        btn.className = "px-6 py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 active:scale-95 text-white font-black text-sm sm:text-base flex items-center gap-2 shadow-2xl shadow-purple-600/40 transition-all cursor-pointer";
+      } else {
+        icon.textContent = '▶️';
+        label.textContent = 'DAR PLAY NO VÍDEO';
+        btn.className = "px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm sm:text-base flex items-center gap-2 shadow-2xl shadow-emerald-600/40 transition-all cursor-pointer";
+      }
+    }
+
+    async function togglePastorVideoPlayback() {
+      isPastorVideoPlaying = !isPastorVideoPlaying;
+      updatePastorVideoButtonUI();
+
+      const ctrlPayload = {
+        videoControl: {
+          action: isPastorVideoPlaying ? 'play' : 'pause',
+          timestamp: Date.now()
+        }
+      };
+
+      localChannel.postMessage(ctrlPayload);
+      try {
+        await liveDocRef.set(ctrlPayload, { merge: true });
+      } catch (err) {
+        console.warn("Video control broadcast error:", err);
+      }
+    }
+
+    async function restartPastorVideoPlayback() {
+      isPastorVideoPlaying = true;
+      updatePastorVideoButtonUI();
+
+      const ctrlPayload = {
+        videoControl: {
+          action: 'restart',
+          timestamp: Date.now()
+        }
+      };
+
+      localChannel.postMessage(ctrlPayload);
+      try {
+        await liveDocRef.set(ctrlPayload, { merge: true });
+      } catch (err) {
+        console.warn("Video control broadcast error:", err);
+      }
+    }
+
+    // --- PASTOR MATERIALS DRAWER MODAL ---
+    function openPastorMaterialsModal() {
+      const modal = document.getElementById('pastorMaterialsModal');
+      if (modal) modal.classList.remove('hidden');
+      renderMaterialsModal();
+      lucide.createIcons();
+    }
+
+    function closePastorMaterialsModal() {
+      const modal = document.getElementById('pastorMaterialsModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function renderMaterialsModal() {
+      // 1. Render PDFs
+      const pdfListEl = document.getElementById('pastorModalPdfList');
+      const pdfCountEl = document.getElementById('pastorModalPdfCount');
+      const activePdfId = (slides.length > 0 && slides[0].pdfId) ? slides[0].pdfId : null;
+
+      const pdfs = (pdfLibrary && pdfLibrary.length > 0) ? pdfLibrary : (materialsManifest.pdfs || []);
+      if (pdfCountEl) pdfCountEl.textContent = `${pdfs.length} arquivo${pdfs.length !== 1 ? 's' : ''}`;
+
+      if (pdfs.length === 0) {
+        pdfListEl.innerHTML = '<div class="text-xs text-zinc-500 italic p-3 bg-[#0d122b] rounded-2xl border border-white/[0.05] col-span-full">Nenhum PDF carregado no momento.</div>';
+      } else {
+        pdfListEl.innerHTML = pdfs.map(pdf => {
+          const isActive = activePdfId === pdf.id;
+          return `
+            <div onclick="requestSelectMaterial('pdf', '${pdf.id}')" class="flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${isActive ? 'bg-rose-600/30 border-rose-400 ring-2 ring-rose-400 text-white' : 'bg-[#11162d] border-rose-500/30 hover:border-rose-400/60 hover:bg-rose-500/10 text-white'} active:scale-95 shadow-md">
+              <div class="w-10 h-10 rounded-xl ${isActive ? 'bg-rose-500 text-white' : 'bg-rose-500/20 text-rose-300'} flex items-center justify-center font-black text-xs flex-shrink-0">PDF</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold truncate">${pdf.name}</div>
+                <div class="text-xs text-zinc-400">${pdf.pageCount} páginas ${isActive ? '• <span class="text-rose-300 font-bold">EM EXIBIÇÃO</span>' : ''}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 2. Render Videos
+      const videoListEl = document.getElementById('pastorModalVideoList');
+      const videoCountEl = document.getElementById('pastorModalVideoCount');
+      const activeVideoId = (slides.length > 0 && slides[0].type === 'video' && slides[0].videoId) ? slides[0].videoId : null;
+
+      const videos = (videoLibrary && videoLibrary.length > 0) ? videoLibrary : (materialsManifest.videos || []);
+      if (videoCountEl) videoCountEl.textContent = `${videos.length} vídeo${videos.length !== 1 ? 's' : ''}`;
+
+      if (videos.length === 0) {
+        videoListEl.innerHTML = '<div class="text-xs text-zinc-500 italic p-3 bg-[#0d122b] rounded-2xl border border-white/[0.05] col-span-full">Nenhum vídeo carregado no momento.</div>';
+      } else {
+        videoListEl.innerHTML = videos.map(v => {
+          const isActive = activeVideoId === v.id;
+          return `
+            <div onclick="requestSelectMaterial('video', '${v.id}')" class="flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${isActive ? 'bg-purple-600/30 border-purple-400 ring-2 ring-purple-400 text-white' : 'bg-[#11162d] border-purple-500/30 hover:border-purple-400/60 hover:bg-purple-500/10 text-white'} active:scale-95 shadow-md">
+              <div class="w-10 h-10 rounded-xl ${isActive ? 'bg-purple-500 text-white' : 'bg-purple-600/20 text-purple-300'} flex items-center justify-center font-black text-xs flex-shrink-0">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold truncate">${v.name}</div>
+                <div class="text-xs text-zinc-400">${v.size || 'Vídeo MP4'} ${isActive ? '• <span class="text-purple-300 font-bold">AO VIVO NO TELÃO</span>' : ''}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 3. Render Songs
+      renderPastorModalSongs(songsDatabase.slice(0, 20));
+    }
+
+    function renderPastorModalSongs(songs) {
+      const songListEl = document.getElementById('pastorModalSongList');
+      if (!songListEl) return;
+
+      if (!songs || songs.length === 0) {
+        songListEl.innerHTML = '<div class="text-xs text-zinc-500 italic p-3 bg-[#0d122b] rounded-2xl border border-white/[0.05] col-span-full">Nenhuma música encontrada.</div>';
+        return;
+      }
+
+      songListEl.innerHTML = songs.map(song => {
+        return `
+          <div onclick="requestSelectMaterial('song', '${song.id}')" class="p-3 rounded-2xl border border-amber-500/20 bg-[#11162d] hover:bg-amber-500/10 hover:border-amber-400/50 cursor-pointer active:scale-95 transition-all text-white shadow-sm">
+            <div class="text-xs font-bold truncate text-amber-200">${song.title || 'Sem Título'}</div>
+            <div class="text-[10px] text-zinc-400 truncate">${song.artist || ''}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handlePastorModalSongSearch(e) {
+      const query = e.target.value.trim();
+      if (query.length < 2) {
+        renderPastorModalSongs(songsDatabase.slice(0, 20));
+        return;
+      }
+      const results = fuzzysort.go(query, songsDatabase, {
+        key: '_searchable',
+        limit: 20
+      });
+      renderPastorModalSongs(results.map(r => r.obj));
+    }
+
+    async function requestSelectMaterial(type, id) {
+      closePastorMaterialsModal();
+
+      // Se estiver na mesma aba / máquina que tem os arquivos carregados
+      if (type === 'pdf') {
+        const p = pdfLibrary.find(item => item.id === id);
+        if (p) jumpToPdf(id);
+      } else if (type === 'video') {
+        const v = videoLibrary.find(item => item.id === id);
+        if (v) jumpToVideo(id);
+      } else if (type === 'song') {
+        addSongToPresentation(id);
+      }
+
+      // Broadcast do pedido para o Firestore & canal local para sincronizar remotamente
+      const reqPayload = {
+        requestMaterial: {
+          type: type,
+          id: id,
+          timestamp: Date.now()
+        }
+      };
+
+      localChannel.postMessage(reqPayload);
+      try {
+        await liveDocRef.set(reqPayload, { merge: true });
+      } catch (err) {
+        console.warn("Request material broadcast error:", err);
+      }
+    }
+
+    // --- HOLYRICS MUSIC SEARCH ---
     let songsDatabase = [];
     async function loadSongsDatabase() {
       try {
@@ -1308,9 +1812,11 @@
       
       renderAllViews();
       renderPdfLibrary();
+      renderVideoLibrary();
       saveSlidesToFirebaseAndBroadcast(slides);
       
-      document.getElementById('songSearchInput').value = '';
+      const searchInput = document.getElementById('songSearchInput');
+      if (searchInput) searchInput.value = '';
     }
 
     function toggleFullScreen() {
@@ -1423,6 +1929,93 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: ESCOLHER MATERIAL (PASTOR / TABLET) -->
+  <!-- ========================================== -->
+  <div id="pastorMaterialsModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 select-none">
+    <div class="bg-[#0b0f24] border-2 border-purple-500/40 rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col p-4 sm:p-6 space-y-4 shadow-2xl relative overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-purple-600/30 text-purple-300 flex items-center justify-center border border-purple-500/40">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-black text-white">📑 Escolher Material do Culto</h3>
+            <p class="text-xs text-purple-300/80">Toque em qualquer item para exibir no telão e no seu púlpito:</p>
+          </div>
+        </div>
+        <button onclick="closePastorMaterialsModal()" class="w-10 h-10 rounded-2xl bg-white/[0.08] hover:bg-white/[0.15] text-zinc-300 hover:text-white flex items-center justify-center transition-all cursor-pointer font-bold text-lg">
+          ✕
+        </button>
+      </div>
+
+      <!-- Scrollable Materials Content -->
+      <div class="flex-1 overflow-y-auto custom-scrollbar space-y-5 pr-1">
+        
+        <!-- SECTION 1: SERMÕES & PDFs -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="file-text" class="w-4 h-4"></i> Sermões & Slides em PDF
+            </span>
+            <span id="pastorModalPdfCount" class="text-[10px] font-mono text-zinc-400">0 arquivos</span>
+          </div>
+          <div id="pastorModalPdfList" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div class="text-xs text-zinc-500 italic p-3 bg-[#0d122b] rounded-2xl border border-white/[0.05]">Nenhum PDF carregado no momento.</div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: VÍDEOS MP4 -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="video" class="w-4 h-4"></i> Vídeos MP4
+            </span>
+            <span id="pastorModalVideoCount" class="text-[10px] font-mono text-zinc-400">0 vídeos</span>
+          </div>
+          <div id="pastorModalVideoList" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div class="text-xs text-zinc-500 italic p-3 bg-[#0d122b] rounded-2xl border border-white/[0.05]">Nenhum vídeo carregado no momento.</div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: MÚSICAS & LOUVORES (HOLYRICS) -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="music" class="w-4 h-4"></i> Músicas & Louvores (Holyrics)
+            </span>
+            <span class="text-[10px] font-mono text-zinc-400">Busca rápida</span>
+          </div>
+          <!-- Campo de busca de música dentro do modal do pastor -->
+          <div class="relative">
+            <input
+              type="text"
+              id="pastorModalSongSearch"
+              oninput="handlePastorModalSongSearch(event)"
+              placeholder="Buscar música pelo título ou letra..."
+              class="w-full bg-[#11162d] border border-purple-500/30 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-500 outline-none focus:border-purple-400 font-sans"
+            />
+          </div>
+          <div id="pastorModalSongList" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto custom-scrollbar">
+            <!-- Renderizado dinamicamente -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="pt-2 border-t border-white/[0.08] flex items-center justify-between text-xs text-zinc-400 shrink-0">
+        <span class="text-[11px] font-mono">Dica: você também pode usar os botões laterais [VOLTA] e [AVANÇA]</span>
+        <button onclick="closePastorMaterialsModal()" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold transition-all shadow-md cursor-pointer">
+          Concluir / Voltar
+        </button>
+      </div>
+
     </div>
   </div>
 </body>
