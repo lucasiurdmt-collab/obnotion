@@ -212,7 +212,14 @@
               <span>🔄 Reiniciar</span>
             </button>
           </div>
-          <div class="text-[10px] text-zinc-400 font-mono">
+          
+          <!-- Volume Control -->
+          <div class="flex items-center gap-3 w-full max-w-xs mt-4 bg-black/40 p-3 rounded-xl border border-white/10">
+            <i data-lucide="volume-2" class="w-5 h-5 text-zinc-400"></i>
+            <input type="range" id="pastorVideoVolumeSlider" min="0" max="1" step="0.05" value="1" oninput="setPastorVideoVolume(this.value)" class="w-full accent-purple-500 cursor-pointer">
+          </div>
+          
+          <div class="text-[10px] text-zinc-400 font-mono mt-2">
             Áudio e imagem transmitidos diretamente pelo telão
           </div>
         </div>
@@ -327,7 +334,14 @@
             <div id="opMirroredVideoTitle" class="text-sm sm:text-base font-black text-white truncate max-w-md">
               Nome do Vídeo
             </div>
-            <div class="text-[10px] text-zinc-400 font-mono">
+
+            <!-- Volume Control in Operator View -->
+            <div class="flex items-center gap-2 w-full max-w-[200px] mt-2 bg-black/40 p-2 rounded-lg border border-white/10" onmousedown="event.stopPropagation()">
+              <i data-lucide="volume-2" class="w-4 h-4 text-zinc-400"></i>
+              <input type="range" id="opVideoVolumeSlider" min="0" max="1" step="0.05" value="1" oninput="setPastorVideoVolume(this.value)" class="w-full accent-purple-500 cursor-pointer h-1">
+            </div>
+
+            <div class="text-[10px] text-zinc-400 font-mono mt-1">
               Áudio e imagem transmitidos diretamente pelo vMix / telão
             </div>
           </div>
@@ -609,6 +623,13 @@
             if (data.videoControl.action === 'play') isPastorVideoPlaying = true;
             else if (data.videoControl.action === 'pause') isPastorVideoPlaying = false;
             else if (data.videoControl.action === 'restart') isPastorVideoPlaying = true;
+            else if (data.videoControl.action === 'volume') {
+              window.currentVideoVolume = data.videoControl.volume;
+              const s1 = document.getElementById('pastorVideoVolumeSlider');
+              if (s1) s1.value = data.videoControl.volume;
+              const s2 = document.getElementById('opVideoVolumeSlider');
+              if (s2) s2.value = data.videoControl.volume;
+            }
             updatePastorVideoButtonUI();
           }
           if (data.requestMaterial && data.requestMaterial.timestamp > lastRequestedMaterialTimestamp) {
@@ -661,6 +682,13 @@
             if (msg.data.videoControl.action === 'play') isPastorVideoPlaying = true;
             else if (msg.data.videoControl.action === 'pause') isPastorVideoPlaying = false;
             else if (msg.data.videoControl.action === 'restart') isPastorVideoPlaying = true;
+            else if (msg.data.videoControl.action === 'volume') {
+              window.currentVideoVolume = msg.data.videoControl.volume;
+              const s1 = document.getElementById('pastorVideoVolumeSlider');
+              if (s1) s1.value = msg.data.videoControl.volume;
+              const s2 = document.getElementById('opVideoVolumeSlider');
+              if (s2) s2.value = msg.data.videoControl.volume;
+            }
             updatePastorVideoButtonUI();
           }
           if (msg.data.requestMaterial && msg.data.requestMaterial.timestamp > lastRequestedMaterialTimestamp) {
@@ -1269,8 +1297,14 @@
       function handleVideoControlAction(ctrl) {
         if (!ctrl || !ctrl.action || (ctrl.timestamp && ctrl.timestamp <= lastVideoActionTimestamp)) return;
         if (ctrl.timestamp) lastVideoActionTimestamp = ctrl.timestamp;
+        
+        if (ctrl.action === 'volume' && typeof ctrl.volume !== 'undefined') {
+          window.currentVideoVolume = ctrl.volume;
+        }
+
         const videoEl = document.getElementById('projectorVideoPlayer');
         if (!videoEl) return;
+
         if (ctrl.action === 'play') {
           videoEl.play().catch(e => console.warn("Video play error:", e));
         } else if (ctrl.action === 'pause') {
@@ -1278,6 +1312,8 @@
         } else if (ctrl.action === 'restart') {
           videoEl.currentTime = 0;
           videoEl.play().catch(e => console.warn("Video restart error:", e));
+        } else if (ctrl.action === 'volume' && typeof ctrl.volume !== 'undefined') {
+          videoEl.volume = ctrl.volume;
         }
       }
 
@@ -1313,6 +1349,11 @@
                   onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full flex flex-col items-center justify-center bg-black gap-6\\'><svg class=\\'w-20 h-20 text-purple-400 opacity-70\\' fill=\\'currentColor\\' viewBox=\\'0 0 24 24\\'><path d=\\'M8 5v14l11-7z\\'/></svg><div class=\\'text-purple-300 font-mono text-sm uppercase tracking-widest opacity-90\\'>Vídeo disponível apenas no computador da cabine</div></div>'"></video>
               </div>
             `;
+            // Aplica volume atual ao novo elemento de vídeo
+            videoEl = document.getElementById('projectorVideoPlayer');
+            if (videoEl && typeof window.currentVideoVolume !== 'undefined') {
+              videoEl.volume = window.currentVideoVolume;
+            }
           }
         } else if (cur.imageUrl) {
           view.innerHTML = `<img src="${cur.imageUrl}" class="w-full h-full object-contain" />`;
@@ -1632,6 +1673,25 @@
         await liveDocRef.set(ctrlPayload, { merge: true });
       } catch (err) {
         console.warn("Video control broadcast error:", err);
+      }
+    }
+
+    async function setPastorVideoVolume(volume) {
+      window.currentVideoVolume = parseFloat(volume);
+      
+      const ctrlPayload = {
+        videoControl: {
+          action: 'volume',
+          volume: window.currentVideoVolume,
+          timestamp: Date.now()
+        }
+      };
+
+      localChannel.postMessage(ctrlPayload);
+      try {
+        await liveDocRef.set(ctrlPayload, { merge: true });
+      } catch (err) {
+        console.warn("Video volume broadcast error:", err);
       }
     }
 
