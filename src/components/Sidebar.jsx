@@ -40,16 +40,7 @@ export default function Sidebar({
   booksMonthCount
 }) {
   const menuItems = [
-    { id: 'dashboard', label: 'Início (IA)', icon: LayoutDashboard, badge: null },
-    { id: 'notes', label: 'Notas & Grafo', icon: FileText, badge: notesCount },
-    { id: 'finance', label: 'Finanças', icon: DollarSign, badge: null },
-    { id: 'books', label: 'Biblioteca', icon: BookOpen, badge: booksMonthCount > 0 ? `${booksMonthCount} este mês` : null, badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-    { id: 'tasks', label: 'Tarefas & Kanban', icon: CheckSquare, badge: tasksPendingCount > 0 ? tasksPendingCount : null, badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-    { id: 'calendar', label: 'Calendário & Rotina', icon: Calendar, badge: null },
-    { id: 'habits', label: 'Hábitos', icon: Flame, badge: null },
-    { id: 'journal', label: 'Diário Pessoal', icon: BookHeart, badge: null },
-    { id: 'productivity', label: 'Produtividade', icon: Wand2, badge: null },
-    { id: 'settings', label: 'Configurações', icon: Settings, badge: null },
+    { id: 'productivity', label: 'Produtividade', icon: Wand2, badge: null }
   ];
 
   const formatSeconds = (sec) => {
