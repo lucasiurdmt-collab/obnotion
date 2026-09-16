@@ -25,44 +25,6 @@ export default function ProductivityView({ darkMode }) {
       iframeUrl: `${import.meta.env.BASE_URL}tools/pulpito_retorno.html`
     },
     {
-      id: 'cinecut',
-      title: 'CineCut Pro (CapCut Open-Source • OpenCut)',
-      icon: Scissors,
-      color: 'text-cyan-400',
-      bgColor: 'bg-cyan-500/10',
-      borderColor: 'border-cyan-500/30',
-      tag: 'CAPCUT OPEN-SOURCE',
-      tagColor: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
-      description: 'Estúdio profissional de edição de vídeo de código aberto (OpenCut). Faça cortes, edite Reels/Shorts (9:16), vídeos de cultos (16:9), adicione legendas, efeitos e transições com processamento local privado (WASM/GPU).',
-      features: [
-        'Editor completo estilo CapCut baseado no motor OpenCut (Rust + WASM)',
-        'Ideal para cortes de testemunhos, pregações, Reels, Shorts e TikTok',
-        'Processamento 100% local e privado direto no navegador com aceleração de GPU',
-        'Linha do tempo multicamadas, textos, áudio, transições e exportação 4K'
-      ],
-      path: `${import.meta.env.BASE_URL}tools/cinecut_studio.html`,
-      iframeUrl: `${import.meta.env.BASE_URL}tools/cinecut_studio.html`
-    },
-    {
-      id: 'photogimp',
-      title: 'PhotoGIMP Studio Pro (GIMP + Photoshop Diolinux)',
-      icon: Palette,
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-500/10',
-      borderColor: 'border-blue-500/30',
-      tag: 'NOVO • PHOTOGIMP PRO',
-      tagColor: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
-      description: 'Estúdio de design e edição de imagem profissional baseado no projeto PhotoGIMP (Diolinux). Interface, ferramentas e atalhos idênticos ao Adobe Photoshop com suporte a arquivos PSD, camadas, filtros e exportação de alta resolução.',
-      features: [
-        'Interface e atalhos de teclado 100% mapeados no padrão Adobe Photoshop',
-        'Suporte nativo a arquivos PSD, PNG, JPG, WebP e camadas com máscaras',
-        'Ferramentas avançadas: Pincéis, varinha mágica, caneta, curvas e filtros',
-        'Acesso direto à documentação oficial e patch do Diolinux PhotoGIMP'
-      ],
-      path: `${import.meta.env.BASE_URL}tools/photogimp_studio.html`,
-      iframeUrl: `${import.meta.env.BASE_URL}tools/photogimp_studio.html`
-    },
-    {
       id: 'roteiros',
       title: 'Montador de Roteiros & Vídeos (Rundown Pro)',
       icon: Clapperboard,
@@ -99,25 +61,6 @@ export default function ProductivityView({ darkMode }) {
       ],
       path: `${import.meta.env.BASE_URL}tools/gerador_de_slides.html?v=ai_val_v4`,
       iframeUrl: `${import.meta.env.BASE_URL}tools/gerador_de_slides.html?v=ai_val_v4`
-    },
-    {
-      id: 'biblia',
-      title: 'Bíblia de Estudo Exegética (Léxico, Pais da Igreja & Prática)',
-      icon: BookMarked,
-      color: 'text-amber-400',
-      bgColor: 'bg-amber-500/10',
-      borderColor: 'border-amber-500/30',
-      tag: 'EXEGESE & PATRÍSTICA',
-      tagColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
-      description: 'Texto bíblico fluido em português com consulta interativa palavra por palavra. Ao clicar, revela o original em hebraico/grego, comentários dos antigos Pais da Igreja e aplicação prática evangélica.',
-      features: [
-        'Leitura limpa e contínua do texto bíblico em português (ARA)',
-        'Clique em qualquer palavra para abrir o Hebraico/Grego e Strong',
-        'Comentários dos Pais da Igreja (Agostinho, Crisóstomo) e Reformadores',
-        'Aplicação prática para a vida cristã e exegese pastoral com IA'
-      ],
-      path: `${import.meta.env.BASE_URL}tools/biblia_interlinear.html?v=exegetica`,
-      iframeUrl: `${import.meta.env.BASE_URL}tools/biblia_interlinear.html?v=exegetica`
     },
     {
       id: 'planilhas',
