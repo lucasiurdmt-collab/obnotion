@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letras para Impressão</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Georgia:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* Print styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #print-area, #print-area * {
+                visibility: visible;
+            }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                /* Metade da folha A4 em retrato (top half) ou A5 */
+                /* width: 210mm; height: 148mm; para A5 paisagem, mas A4 retrato com meia folha é: */
+                height: 148mm;
+                overflow: hidden;
+            }
+            .no-print {
+                display: none !important;
+            }
+            /* Reset any UI borders/backgrounds for print */
+            #print-area {
+                border: none !important;
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .print-block:hover .block-actions {
+                display: none !important;
+            }
+        }
+
+        /* Editor styles */
+        .print-paper {
+            font-family: 'Georgia', serif;
+            font-style: italic;
+            font-weight: bold;
+            text-transform: uppercase;
+            width: 210mm;
+            min-height: 148mm; /* Metade de um A4 */
+            max-height: 148mm; /* Restringir para metade do A4 visualmente no editor */
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 0 auto;
+            padding: 20mm;
+            overflow: hidden; /* Corta se passar da metade */
+            color: black;
+        }
+
+        .print-block {
+            position: relative;
+            margin-bottom: 1em;
+            white-space: pre-wrap;
+            line-height: 1.5;
+            outline: none;
+        }
+        
+        .print-title {
+            color: #cc0000;
+            font-size: 1.2em;
+            margin-bottom: 1.5em;
+            outline: none;
+        }
+
+        .print-block.chorus {
+            color: #cc0000;
+        }
+
+        .block-actions {
+            position: absolute;
+            right: -10px;
+            top: 0;
+            transform: translateX(100%);
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .print-block:hover .block-actions {
+            display: flex;
+        }
+
+        .action-btn {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #374151;
+            font-family: sans-serif;
+            text-transform: none;
+            font-style: normal;
+            font-weight: normal;
+            white-space: nowrap;
+        }
+        .action-btn:hover {
+            background: #e5e7eb;
+        }
+        
+        .action-btn.red { color: #cc0000; font-weight: bold; }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col md:flex-row overflow-hidden">
+
+    <!-- Sidebar: Search -->
+    <div class="w-full md:w-80 bg-white border-r border-gray-200 flex flex-col h-full no-print shadow-lg z-10">
+        <div class="p-4 border-b border-gray-200 bg-gray-50">
+            <h1 class="text-lg font-bold text-gray-800 mb-2">Letras para Impressão</h1>
+            <p class="text-xs text-gray-500 mb-4">Selecione uma música e prepare para imprimir em meia folha A4.</p>
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="Buscar música..." 
+                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm"
+            >
+        </div>
+        <div class="flex-1 overflow-y-auto" id="songList">
+            <div class="p-4 text-sm text-gray-500 text-center" id="loadingMsg">Carregando músicas...</div>
+        </div>
+    </div>
+
+    <!-- Main Content: Editor & Preview -->
+    <div class="flex-1 flex flex-col h-full bg-gray-200 overflow-y-auto">
+        <div class="p-4 bg-white border-b border-gray-200 flex justify-between items-center no-print sticky top-0 z-10 shadow-sm">
+            <div class="text-sm text-gray-600">
+                <strong>Dica:</strong> Clique nos textos para editar. Passe o mouse sobre as estrofes para Duplicar, Pintar de Vermelho ou Excluir.
+            </div>
+            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow font-bold flex items-center gap-2 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                Imprimir (Meia Folha)
+            </button>
+        </div>
+
+        <div class="p-8 flex-1 overflow-y-auto relative flex justify-center no-print pb-32">
+            <div id="print-area">
+                <div class="print-paper" id="paper">
+                    <div class="text-center text-gray-400 mt-20 no-print" id="emptyState">
+                        Nenhuma música selecionada.<br>Busque e clique em uma música na lista ao lado.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allSongs = [];
+        let searchTimeout = null;
+
+        // Load songs
+        fetch('../assets/holyrics_songs.json')
+            .then(response => response.json())
+            .then(data => {
+                allSongs = data;
+                document.getElementById('loadingMsg').style.display = 'none';
+                renderList(allSongs.slice(0, 100)); // Render first 100 by default
+            })
+            .catch(err => {
+                document.getElementById('loadingMsg').innerText = 'Erro ao carregar as músicas.';
+                console.error(err);
+            });
+
+        // Search logic
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.toLowerCase().trim();
+            searchTimeout = setTimeout(() => {
+                if (!query) {
+                    renderList(allSongs.slice(0, 100));
+                    return;
+                }
+                const filtered = allSongs.filter(s => 
+                    s.title?.toLowerCase().includes(query) || 
+                    s.author?.toLowerCase().includes(query) ||
+                    s.lyrics?.full_text?.toLowerCase().includes(query)
+                ).slice(0, 100);
+                renderList(filtered);
+            }, 300);
+        });
+
+        function renderList(songs) {
+            const listContainer = document.getElementById('songList');
+            listContainer.innerHTML = '';
+            
+            if (songs.length === 0) {
+                listContainer.innerHTML = '<div class="p-4 text-sm text-gray-500 text-center">Nenhuma música encontrada.</div>';
+                return;
+            }
+
+            songs.forEach(song => {
+                const div = document.createElement('div');
+                div.className = 'p-3 border-b border-gray-100 hover:bg-blue-50 cursor-pointer transition-colors';
+                div.innerHTML = `
+                    <div class="font-bold text-gray-800 text-sm truncate">${song.title || 'Sem Título'}</div>
+                    <div class="text-xs text-gray-500 truncate">${song.author || 'Autor Desconhecido'}</div>
+                `;
+                div.onclick = () => loadSong(song);
+                listContainer.appendChild(div);
+            });
+        }
+
+        function loadSong(song) {
+            const paper = document.getElementById('paper');
+            paper.innerHTML = '';
+
+            // Title
+            const titleEl = document.createElement('div');
+            titleEl.className = 'print-title';
+            titleEl.contentEditable = true;
+            titleEl.innerText = song.title || 'MÚSICA';
+            paper.appendChild(titleEl);
+
+            // Paragraphs
+            if (song.lyrics && song.lyrics.paragraphs) {
+                song.lyrics.paragraphs.forEach((p, index) => {
+                    if (p.text.trim()) {
+                        createBlock(paper, p.text, p.description?.toLowerCase().includes('coro') || p.description?.toLowerCase().includes('refr'));
+                    }
+                });
+            } else if (song.lyrics && song.lyrics.full_text) {
+                const parts = song.lyrics.full_text.split('\n\n');
+                parts.forEach(part => {
+                    if(part.trim()) createBlock(paper, part.trim(), false);
+                });
+            }
+        }
+
+        function createBlock(parent, text, isChorus) {
+            const block = document.createElement('div');
+            block.className = 'print-block group ' + (isChorus ? 'chorus' : '');
+            block.contentEditable = true;
+            block.innerText = text;
+
+            // Prevent enter creating divs
+            block.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    document.execCommand('insertLineBreak');
+                    e.preventDefault();
+                }
+            });
+
+            // Actions wrapper (non-editable)
+            const actions = document.createElement('div');
+            actions.className = 'block-actions no-print';
+            actions.contentEditable = false;
+
+            // Toggle Color btn
+            const colorBtn = document.createElement('button');
+            colorBtn.className = 'action-btn red';
+            colorBtn.innerText = 'Coro (Vermelho)';
+            colorBtn.onclick = (e) => {
+                e.stopPropagation();
+                block.classList.toggle('chorus');
+            };
+
+            // Duplicate btn
+            const dupBtn = document.createElement('button');
+            dupBtn.className = 'action-btn';
+            dupBtn.innerText = 'Duplicar';
+            dupBtn.onclick = (e) => {
+                e.stopPropagation();
+                const newBlock = createBlock(parent, block.innerText, block.classList.contains('chorus'));
+                parent.insertBefore(newBlock, block.nextSibling);
+            };
+
+            // Remove btn
+            const rmBtn = document.createElement('button');
+            rmBtn.className = 'action-btn';
+            rmBtn.innerText = 'Excluir';
+            rmBtn.onclick = (e) => {
+                e.stopPropagation();
+                block.remove();
+            };
+
+            actions.appendChild(colorBtn);
+            actions.appendChild(dupBtn);
+            actions.appendChild(rmBtn);
+            
+            block.appendChild(actions);
+            parent.appendChild(block);
+
+            return block;
+        }
+    </script>
+</body>
+</html>

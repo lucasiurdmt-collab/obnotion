@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Presentation, FileSpreadsheet, Wand2, ExternalLink, X, Maximize, Play, Palette, Sparkles, Layers, Image as ImageIcon, BookMarked, Clapperboard, Scissors, Film, Cast, Radio, Tv, Tablet } from 'lucide-react';
+import { Presentation, FileSpreadsheet, Wand2, ExternalLink, X, Maximize, Play, Palette, Sparkles, Layers, Image as ImageIcon, BookMarked, Clapperboard, Scissors, Film, Cast, Radio, Tv, Tablet, Music } from 'lucide-react';
 
 export default function ProductivityView({ darkMode }) {
   const [activeTool, setActiveTool] = useState(null);
@@ -156,6 +156,25 @@ export default function ProductivityView({ darkMode }) {
       ],
       path: `${import.meta.env.BASE_URL}tools/controle_telao.html`,
       iframeUrl: `${import.meta.env.BASE_URL}tools/controle_telao.html`
+    },
+    {
+      id: 'letras_impressao',
+      title: 'Letras de Músicas (Impressão A4)',
+      icon: Music,
+      color: 'text-pink-400',
+      bgColor: 'bg-pink-500/10',
+      borderColor: 'border-pink-500/30',
+      tag: 'NOVO • IMPRESSÃO',
+      tagColor: 'bg-pink-500/15 text-pink-300 border-pink-500/30',
+      description: 'Sistema para buscar, editar e imprimir letras de músicas no formato exato (metade da folha A4, fonte itálica, coro em vermelho). Ideal para pastores que leem no papel.',
+      features: [
+        'Busca rápida em milhares de letras de músicas',
+        'Formatação automática (caixa alta, itálico, negrito)',
+        'Edição fácil: duplique estrofes ou marque o coro de vermelho',
+        'Impressão formatada para ocupar exatamente metade da folha A4'
+      ],
+      path: `${import.meta.env.BASE_URL}tools/letras_impressao.html`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/letras_impressao.html`
     }
   ];
 
