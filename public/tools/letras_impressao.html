@@ -11,33 +11,27 @@
         
         /* Print styles */
         @media print {
-            body * {
-                visibility: hidden;
-            }
-            #print-area, #print-area * {
-                visibility: visible;
-            }
-            #print-area {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                /* Metade da folha A4 em retrato (top half) ou A5 */
-                /* width: 210mm; height: 148mm; para A5 paisagem, mas A4 retrato com meia folha é: */
-                height: 148mm;
-                overflow: hidden;
+            body {
+                background: white;
             }
             .no-print {
                 display: none !important;
             }
-            /* Reset any UI borders/backgrounds for print */
             #print-area {
-                border: none !important;
-                background: white !important;
-                padding: 0 !important;
-                margin: 0 !important;
+                width: 100%;
+                height: 148mm;
             }
-            .print-block:hover .block-actions {
+            .print-paper {
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 10mm !important;
+                width: 100% !important;
+                max-height: none !important;
+            }
+            .print-block {
+                padding-right: 0 !important;
+            }
+            .block-actions {
                 display: none !important;
             }
         }
@@ -48,29 +42,49 @@
             font-style: italic;
             font-weight: bold;
             text-transform: uppercase;
+            font-size: 20pt; /* Letra grande para fácil leitura */
             width: 210mm;
             min-height: 148mm; /* Metade de um A4 */
             max-height: 148mm; /* Restringir para metade do A4 visualmente no editor */
             background: white;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             margin: 0 auto;
-            padding: 20mm;
-            overflow: hidden; /* Corta se passar da metade */
+            padding: 15mm;
+            position: relative;
             color: black;
+            overflow-y: visible; /* Remover hidden para nao cortar botoes */
         }
+        
+        /* Linha guia para mostrar limite da folha */
+        .print-paper::after {
+            content: 'LIMITE DA MEIA FOLHA (CORTE)';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            border-bottom: 2px dashed #ff0000;
+            color: #ff0000;
+            font-size: 10px;
+            font-family: sans-serif;
+            text-align: center;
+            font-style: normal;
+            font-weight: bold;
+        }
+        @media print { .print-paper::after { display: none; } }
 
         .print-block {
             position: relative;
             margin-bottom: 1em;
             white-space: pre-wrap;
-            line-height: 1.5;
+            line-height: 1.4;
             outline: none;
+            padding-right: 100px; /* espaco para botoes */
         }
         
         .print-title {
             color: #cc0000;
-            font-size: 1.2em;
-            margin-bottom: 1.5em;
+            font-size: 26pt;
+            margin-bottom: 1.2em;
             outline: none;
         }
 
@@ -80,12 +94,16 @@
 
         .block-actions {
             position: absolute;
-            right: -10px;
+            right: 0;
             top: 0;
-            transform: translateX(100%);
             display: none;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
+            background: rgba(255,255,255,0.95);
+            padding: 6px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 10;
         }
 
         .print-block:hover .block-actions {
@@ -96,8 +114,8 @@
             background: #f3f4f6;
             border: 1px solid #d1d5db;
             border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 12px;
+            padding: 6px 10px;
+            font-size: 13px;
             cursor: pointer;
             color: #374151;
             font-family: sans-serif;
