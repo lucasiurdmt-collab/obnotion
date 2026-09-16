@@ -4,7 +4,8 @@ import {
   CheckCircle2,
   Calendar,
   LayoutGrid,
-  Sparkles
+  Sparkles,
+  Users
 } from 'lucide-react';
 
 export default function BottomNav({
@@ -33,6 +34,17 @@ export default function BottomNav({
       >
         <Sparkles className="w-5 h-5" />
         <span className="text-[10px] tracking-tight mt-1">Produtividade</span>
+      </button>
+
+      {/* 2. Ganho de Almas */}
+      <button
+        onClick={() => setActiveTab('souls')}
+        className={`flex flex-col items-center justify-center flex-1 py-1 transition-all ${
+          activeTab === 'souls' ? 'text-violet-400 font-semibold' : 'text-zinc-500 hover:text-zinc-300'
+        }`}
+      >
+        <Users className="w-5 h-5" />
+        <span className="text-[10px] tracking-tight mt-1">Almas</span>
       </button>
     </nav>
   );

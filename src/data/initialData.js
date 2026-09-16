@@ -41,6 +41,7 @@ export const EMPTY_WORKSPACE_DATA = {
   calendarEvents: [],
   weeklySchedule: [],
   journalEntries: [],
+  souls: [],
   settings: {}
 };
 

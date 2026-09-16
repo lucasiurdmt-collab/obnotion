@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   User,
+  Users,
   X,
   Wand2
 } from 'lucide-react';
@@ -40,7 +41,8 @@ export default function Sidebar({
   booksMonthCount
 }) {
   const menuItems = [
-    { id: 'productivity', label: 'Produtividade', icon: Wand2, badge: null }
+    { id: 'productivity', label: 'Produtividade', icon: Wand2, badge: null },
+    { id: 'souls', label: 'Ganho de Almas', icon: Users, badge: null }
   ];
 
   const formatSeconds = (sec) => {
