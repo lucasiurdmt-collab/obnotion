@@ -27,6 +27,7 @@ export default function SoulsView({ souls = [], onUpdateSouls, darkMode }) {
   const [newPhone, setNewPhone] = useState('');
   const [newStatus, setNewStatus] = useState('bom');
   const [newPhoto, setNewPhoto] = useState(null);
+  const [newObservations, setNewObservations] = useState('');
 
   const fileInputRef = useRef(null);
 
@@ -85,6 +86,7 @@ export default function SoulsView({ souls = [], onUpdateSouls, darkMode }) {
       phone: newPhone.trim(),
       photoUrl: newPhoto,
       status: newStatus,
+      observations: newObservations.trim(),
       createdAt: new Date().toISOString(),
       attendances: []
     };
@@ -95,7 +97,13 @@ export default function SoulsView({ souls = [], onUpdateSouls, darkMode }) {
     setNewPhone('');
     setNewStatus('bom');
     setNewPhoto(null);
+    setNewObservations('');
     setIsAdding(false);
+  };
+
+  const handleUpdateObservations = (id, observations) => {
+    const updated = souls.map(s => s.id === id ? { ...s, observations } : s);
+    onUpdateSouls(updated);
   };
 
   const handleAttend = (id) => {
@@ -209,7 +217,7 @@ export default function SoulsView({ souls = [], onUpdateSouls, darkMode }) {
 
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Como ela está espiritualmente?</label>
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button type="button" onClick={() => setNewStatus('bom')} className={`flex-1 py-2 rounded-xl border font-bold text-sm flex items-center justify-center gap-2 transition-colors ${newStatus === 'bom' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : (darkMode ? 'border-zinc-800 text-zinc-500 hover:bg-zinc-800' : 'border-zinc-200 text-zinc-400 hover:bg-zinc-50')}`}>
                     Bom (Firme)
                   </button>
@@ -220,6 +228,17 @@ export default function SoulsView({ souls = [], onUpdateSouls, darkMode }) {
                     Ruim (Afastando)
                   </button>
                 </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Histórico / Anotações (Opcional)</label>
+                <textarea
+                  value={newObservations}
+                  onChange={e => setNewObservations(e.target.value)}
+                  placeholder="Ex: Teve crise de ansiedade, orar por cura, etc."
+                  rows={2}
+                  className={`w-full px-4 py-2.5 rounded-xl border ${darkMode ? 'bg-black/50 border-zinc-800 focus:border-blue-500' : 'bg-white border-zinc-300 focus:border-blue-500'} outline-none transition-colors resize-none`}
+                />
               </div>
 
               <div className="pt-2 flex justify-end">
@@ -310,25 +329,38 @@ export default function SoulsView({ souls = [], onUpdateSouls, darkMode }) {
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-zinc-500/20 flex items-center justify-between gap-2">
-                  <div className="flex bg-black/20 rounded-lg p-1 border border-zinc-700">
-                    <button onClick={() => handleUpdateStatus(soul.id, 'bom')} className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${soul.status === 'bom' ? 'bg-emerald-500 text-white' : 'hover:bg-zinc-800 text-zinc-500'}`} title="Marcar como Bom"></button>
-                    <button onClick={() => handleUpdateStatus(soul.id, 'medio')} className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${soul.status === 'medio' ? 'bg-amber-500 text-white' : 'hover:bg-zinc-800 text-zinc-500'}`} title="Marcar como Médio"></button>
-                    <button onClick={() => handleUpdateStatus(soul.id, 'ruim')} className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${soul.status === 'ruim' ? 'bg-rose-500 text-white' : 'hover:bg-zinc-800 text-zinc-500'}`} title="Marcar como Ruim"></button>
+                <div className="mt-4 pt-4 border-t border-zinc-500/20 flex flex-col gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Anotações do Atendimento</label>
+                    <textarea
+                      defaultValue={soul.observations || ''}
+                      onBlur={(e) => handleUpdateObservations(soul.id, e.target.value)}
+                      placeholder="Adicione anotações sobre como foi o último atendimento, pedidos de oração, etc..."
+                      rows={2}
+                      className={`w-full px-3 py-2 text-sm rounded-xl border ${darkMode ? 'bg-black/20 border-zinc-700 focus:border-blue-500' : 'bg-zinc-50 border-zinc-200 focus:border-blue-500'} outline-none transition-colors resize-none`}
+                    />
                   </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => handleDelete(soul.id)} className="px-3 py-2 rounded-lg text-xs font-bold text-zinc-500 hover:text-rose-500 hover:bg-rose-500/10 transition-colors">
-                      Excluir
-                    </button>
-                    <button
-                      onClick={() => handleAttend(soul.id)}
-                      disabled={isAttendedThisWeek}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${isAttendedThisWeek ? 'bg-emerald-500/20 text-emerald-500 border border-emerald-500/30 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20'}`}
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                      {isAttendedThisWeek ? 'Atendido (Semana)' : 'Marcar Atendimento'}
-                    </button>
+
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
+                    <div className="flex bg-black/20 rounded-lg p-1 border border-zinc-700 w-full sm:w-auto">
+                      <button onClick={() => handleUpdateStatus(soul.id, 'bom')} className={`flex-1 sm:w-8 h-8 rounded flex items-center justify-center transition-colors ${soul.status === 'bom' ? 'bg-emerald-500 text-white' : 'hover:bg-zinc-800 text-zinc-500'}`} title="Marcar como Bom">👍</button>
+                      <button onClick={() => handleUpdateStatus(soul.id, 'medio')} className={`flex-1 sm:w-8 h-8 rounded flex items-center justify-center transition-colors ${soul.status === 'medio' ? 'bg-amber-500 text-white' : 'hover:bg-zinc-800 text-zinc-500'}`} title="Marcar como Médio">😐</button>
+                      <button onClick={() => handleUpdateStatus(soul.id, 'ruim')} className={`flex-1 sm:w-8 h-8 rounded flex items-center justify-center transition-colors ${soul.status === 'ruim' ? 'bg-rose-500 text-white' : 'hover:bg-zinc-800 text-zinc-500'}`} title="Marcar como Ruim">👎</button>
+                    </div>
+                    
+                    <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+                      <button onClick={() => handleDelete(soul.id)} className="px-3 py-2 rounded-lg text-xs font-bold text-zinc-500 hover:text-rose-500 hover:bg-rose-500/10 transition-colors">
+                        Excluir
+                      </button>
+                      <button
+                        onClick={() => handleAttend(soul.id)}
+                        disabled={isAttendedThisWeek}
+                        className={`flex items-center justify-center flex-1 sm:flex-none gap-2 px-4 py-2.5 sm:py-2 rounded-lg text-xs font-bold transition-all ${isAttendedThisWeek ? 'bg-emerald-500/20 text-emerald-500 border border-emerald-500/30 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20'}`}
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        {isAttendedThisWeek ? 'Atendido (Semana)' : 'Marcar Atendimento'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
