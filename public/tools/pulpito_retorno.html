@@ -347,6 +347,20 @@
             ⚡ Gerar e Sincronizar na Nuvem
           </button>
         </div>
+
+        <!-- Option 4: Buscar Letras de Hinos -->
+        <div class="space-y-1.5 pt-2 border-t border-white/[0.08]">
+          <label class="text-[11px] font-bold text-zinc-300">Ou Buscar Letra de Hino / Música:</label>
+          <input 
+            type="text" 
+            id="hinoSearchInput" 
+            placeholder="Digite o nome do hino..." 
+            class="w-full bg-[#11162d] border border-emerald-500/30 rounded-xl p-2.5 text-xs text-white outline-none focus:border-emerald-400"
+          >
+          <div id="hinoSearchResults" class="max-h-32 overflow-y-auto custom-scrollbar bg-[#0a0d1c] border border-white/10 rounded-xl hidden">
+            <!-- Results injected here -->
+          </div>
+        </div>
       </div>
 
       <!-- Quick Control Helper -->
@@ -950,6 +964,98 @@
         document.documentElement.requestFullscreen().catch(() => {});
       } else {
         if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+      }
+    }
+    // --- HOLYRICS / LETRAS LOGIC ---
+    let holyricsSongs = [];
+    let holyricsSearchTimeout = null;
+
+    fetch('../assets/holyrics_songs.json')
+      .then(res => res.json())
+      .then(data => {
+        holyricsSongs = data;
+        console.log("Holyrics carregados: ", data.length);
+      })
+      .catch(err => console.error("Erro ao carregar holyrics_songs.json:", err));
+
+    const hinoSearchInput = document.getElementById('hinoSearchInput');
+    const hinoSearchResults = document.getElementById('hinoSearchResults');
+
+    if (hinoSearchInput) {
+      hinoSearchInput.addEventListener('input', (e) => {
+        clearTimeout(holyricsSearchTimeout);
+        const q = e.target.value.toLowerCase().trim();
+        
+        if (q.length < 2) {
+          hinoSearchResults.classList.add('hidden');
+          return;
+        }
+
+        holyricsSearchTimeout = setTimeout(() => {
+          const results = holyricsSongs.filter(s => 
+            (s.title && s.title.toLowerCase().includes(q)) || 
+            (s.author && s.author.toLowerCase().includes(q)) ||
+            (s.lyrics && s.lyrics.paragraphs && s.lyrics.paragraphs.some(p => p.lines && p.lines.some(l => l.toLowerCase().includes(q))))
+          ).slice(0, 20);
+
+          renderHinoResults(results);
+        }, 300);
+      });
+    }
+
+    function renderHinoResults(results) {
+      hinoSearchResults.innerHTML = '';
+      if (results.length === 0) {
+        hinoSearchResults.innerHTML = '<div class="p-2 text-xs text-zinc-500 text-center">Nenhum hino encontrado.</div>';
+      } else {
+        results.forEach((song, idx) => {
+          const btn = document.createElement('button');
+          btn.className = 'w-full text-left p-2 hover:bg-emerald-500/20 border-b border-white/5 transition-colors focus:outline-none';
+          btn.innerHTML = `<div class="text-xs font-bold text-emerald-400">${song.title}</div><div class="text-[10px] text-zinc-400">${song.author || 'Autor Desconhecido'}</div>`;
+          btn.onclick = () => loadHinoAsSlides(song);
+          hinoSearchResults.appendChild(btn);
+        });
+      }
+      hinoSearchResults.classList.remove('hidden');
+    }
+
+    async function loadHinoAsSlides(song) {
+      hinoSearchResults.classList.add('hidden');
+      hinoSearchInput.value = '';
+      
+      const newSlides = [];
+      
+      // Slide de Título
+      newSlides.push({
+        index: 0,
+        reference: "LOUVOR",
+        text: `${song.title}\n${song.author || ''}`.trim()
+      });
+
+      // Parágrafos
+      if (song.lyrics && song.lyrics.paragraphs) {
+        song.lyrics.paragraphs.forEach(p => {
+          if (p.lines && p.lines.length > 0) {
+            newSlides.push({
+              index: newSlides.length,
+              reference: song.title.toUpperCase(),
+              text: p.lines.join('\n')
+            });
+          }
+        });
+      }
+
+      if (newSlides.length > 0) {
+        document.getElementById('uploadProgressBox').classList.remove('hidden');
+        document.getElementById('uploadProgressText').textContent = 'Sincronizando Letra na Nuvem...';
+        try {
+          await saveSlidesToFirebaseAndBroadcast(newSlides);
+          alert(`✓ Hino "${song.title}" carregado e sincronizado com o Púlpito!`);
+        } catch (e) {
+          alert('Erro ao sincronizar hino: ' + e.message);
+        } finally {
+          document.getElementById('uploadProgressBox').classList.add('hidden');
+        }
       }
     }
   </script>
