@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR" class="dark h-full">
 <head>
   <meta charset="UTF-8">
@@ -6,7 +6,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>P�lpito do Pastor & Retorno de Slides em Tempo Real � Obnotion</title>
+  <title>P�lpito do Pastor & Retorno de Slides em Tempo Real � Obnotion</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -1994,55 +1994,19 @@
       </div>
 
       <div class="space-y-3 text-xs">
-        <!-- Option 1: vMix Web Browser (Transparente - Sem Chroma Key) -->
+        <!-- Option 1: vMix Web Browser (Transparente) -->
         <div class="p-3.5 rounded-2xl bg-[#111736] border border-purple-500/30 space-y-2">
           <div class="flex items-center justify-between">
             <span class="font-bold text-emerald-400 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 1. vMix Web Browser (Fundo 100% Transparente)
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Link Universal para vMix & Telões
             </span>
-            <span class="text-[10px] font-mono text-purple-300 font-bold bg-purple-950/60 px-2 py-0.5 rounded">RECOMENDADO</span>
           </div>
           <p class="text-[11px] text-zinc-400">
-            No vMix, clique em <b>Add Input ➔ Web Browser</b> e cole este link. O fundo já vem transparente, sem precisar de Chroma Key!
+            Cole este link no vMix (Add Input ➔ Web Browser) ou em qualquer PC/Navegador na igreja. As imagens e letras aparecerão instantaneamente (via Nuvem) sem depender de estar na mesma rede ou PC. O fundo para letras já é transparente.
           </p>
           <button onclick="copyVmixUrl('transparent')" class="w-full py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold flex items-center justify-center gap-1.5 transition-all">
-            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Link Transparente p/ vMix
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Link para vMix / Telão
           </button>
-        </div>
-
-        <!-- Option 2: vMix Chroma Key (Fundo Verde) -->
-        <div class="p-3.5 rounded-2xl bg-[#111736] border border-white/[0.08] space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-amber-300 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-amber-400"></span> 2. vMix Chroma Key (Fundo Verde #00FF00)
-            </span>
-          </div>
-          <p class="text-[11px] text-zinc-400">
-            Se preferir usar o Colour Key / Chroma Key tradicional do vMix ou mesa de corte:
-          </p>
-          <button onclick="copyVmixUrl('green')" class="w-full py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold flex items-center justify-center gap-1.5 transition-all">
-            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Link Fundo Verde (#00FF00)
-          </button>
-        </div>
-
-        <!-- Option 3: HDMI 2º Monitor / Janela Telão -->
-        <div class="p-3.5 rounded-2xl bg-[#111736] border border-white/[0.08] space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-white flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-purple-400"></span> 3. Projetor / HDMI (2º Monitor)
-            </span>
-          </div>
-          <p class="text-[11px] text-zinc-400">
-            Abre uma janela limpa em tela cheia para você arrastar para o segundo monitor ou cabo HDMI da igreja:
-          </p>
-          <div class="flex items-center gap-2">
-            <button onclick="openProjectorWindow(); closeVmixModal();" class="flex-1 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center justify-center gap-1.5 transition-all shadow-lg shadow-purple-600/30">
-              <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Abrir Janela do Telão
-            </button>
-            <button onclick="copyVmixUrl('black')" class="py-2 px-3 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 font-bold border border-white/[0.1] transition-all" title="Copiar Link Fundo Preto">
-              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-            </button>
-          </div>
         </div>
       </div>
     </div>
