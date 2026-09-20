@@ -6,7 +6,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Púlpito do Pastor & Retorno de Slides em Tempo Real • Obnotion</title>
+  <title>P�lpito do Pastor & Retorno de Slides em Tempo Real � Obnotion</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -56,6 +56,9 @@
 
   <!-- JSZip for PowerPoint (.pptx) Parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  
+  <!-- Fuzzysort for typo-tolerant song search -->
+  <script src="https://cdn.jsdelivr.net/npm/fuzzysort@3.0.0/fuzzysort.min.js"></script>
 
   <style>
     body, html {
@@ -103,13 +106,13 @@
 
     <!-- Mode Switcher (Pastor Tablet vs Cabine Operador) -->
     <div class="flex items-center gap-1 bg-[#101428] p-0.5 rounded-xl border border-purple-500/25">
-      <button onclick="switchViewMode('pulpit')" id="btn-mode-pulpit" class="px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm" title="Modo Tablet Horizontal para o Pastor">
-        <i data-lucide="tablet" class="w-3.5 h-3.5"></i>
-        <span>📱 Púlpito do Pastor</span>
+      <button onclick="switchViewMode('operator')" id="btn-mode-operator" class="px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm" title="Painel de Controle de Mídia">
+        <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+        <span>🎛️ Controle (Operador)</span>
       </button>
-      <button onclick="switchViewMode('operator')" id="btn-mode-operator" class="px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5" title="Modo Operador de Mídia / Telão">
+      <button onclick="switchViewMode('pastor')" id="btn-mode-pulpit" class="px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5" title="Modo Visualização (Sem botões)">
         <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
-        <span>🖥️ Cabine / Operador</span>
+        <span>📺 Receptor (Pastor/Telão)</span>
       </button>
     </div>
 
@@ -126,90 +129,153 @@
 
 
   <!-- ========================================== -->
-  <!-- 2. MODO PÚLPITO (TABLET HORIZONTAL / DEITADO) -->
-  <!-- [ ◀ VOLTA ]  [ SLIDE / PPTX / IMAGEM ]  [ ▶ AVANÇA ] -->
+  <!-- 2. MODO PASTOR (SOMENTE TELA / SEM BOTÕES) -->
   <!-- ========================================== -->
-  <main id="pulpitView" class="flex-1 flex flex-row bg-[#04050a] relative overflow-hidden select-none">
+  <!-- ========================================== -->
+  <!-- 2. MODO PASTOR (PÚLPITO / TABLET / RETORNO)-->
+  <!-- ========================================== -->
+  <main id="pastorView" class="flex-1 flex flex-row bg-[#04050a] relative overflow-hidden select-none hidden items-center justify-between">
     
-    <!-- ◀ BOTÃO LATERAL ESQUERDO: VOLTA (GRANDE & ERGONÔMICO) -->
-    <button 
-      onclick="prevSlide()" 
-      class="w-24 sm:w-32 md:w-36 h-full bg-gradient-to-r from-indigo-950/90 to-[#0b0e22]/90 hover:from-indigo-900 hover:to-[#121838] active:bg-indigo-600 border-r-2 border-indigo-500/30 flex flex-col items-center justify-center gap-3 text-indigo-200 hover:text-white transition-all tap-active shrink-0 shadow-2xl z-20 cursor-pointer"
-      title="Retroceder Slide / Versículo (Lado Esquerdo)"
-    >
-      <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center shadow-inner">
-        <i data-lucide="chevron-left" class="w-8 h-8 sm:w-9 sm:h-9 text-indigo-300"></i>
-      </div>
-      <span class="text-xl sm:text-2xl font-black font-bebas tracking-widest uppercase">VOLTA</span>
+    <!-- ◀ BOTÃO VOLTAR (LADO ESQUERDO) -->
+    <button onclick="prevSlide()" class="w-16 sm:w-20 md:w-24 h-full flex flex-col items-center justify-center bg-white/[0.02] hover:bg-purple-600/20 active:bg-purple-600/40 text-purple-300/60 hover:text-white transition-all border-r border-white/[0.06] group select-none shrink-0 z-20 cursor-pointer" title="Slide Anterior">
+      <i data-lucide="chevron-left" class="w-8 h-8 sm:w-10 sm:h-10 group-hover:-translate-x-1 transition-transform"></i>
+      <span class="text-[10px] sm:text-xs font-black uppercase tracking-widest mt-1">Volta</span>
     </button>
 
-    <!-- 🖼️ ÁREA CENTRAL: SLIDE PPTX / IMAGEM / VERSÍCULO BÍBLICO DO PASTOR -->
-    <div class="flex-1 h-full flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden bg-gradient-to-b from-[#080b18] via-[#04060e] to-[#080b18]">
+    <!-- 🖼️ ÁREA CENTRAL: SLIDE / VÍDEO / VERSÍCULO -->
+    <div class="flex-1 h-full flex flex-col items-center justify-center p-1 sm:p-2 relative overflow-hidden bg-gradient-to-b from-[#080b18] via-[#04060e] to-[#080b18]">
       
-      <!-- Slide Presentation Container (16:9 HD Proporção de Leitura) -->
-      <div class="w-full h-full max-h-[92vh] aspect-video flex flex-col items-center justify-center text-center p-4 sm:p-8 rounded-3xl bg-black/80 border-2 border-purple-500/30 shadow-2xl relative overflow-hidden">
+      <!-- Slide Presentation Container (Preenche quase toda a tela do tablet) -->
+      <div class="w-full h-full max-h-[98vh] flex flex-col items-center justify-center text-center p-2 sm:p-4 rounded-2xl bg-black/90 border border-purple-500/30 shadow-2xl relative overflow-hidden">
         
-        <!-- Header Info (Slide Index & Indicator) -->
-        <div class="absolute top-3 left-4 right-4 flex items-center justify-between border-b border-white/[0.08] pb-1.5 z-10">
+        <!-- Header Info (Slide Index, Indicador & Botão de Materiais) -->
+        <div class="absolute top-2 left-3 right-3 flex items-center justify-between border-b border-white/[0.08] pb-1.5 z-10">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span id="pulpitSlideBadge" class="font-mono text-xs sm:text-sm font-bold text-purple-300">
+            <span id="pastorSlideBadge" class="font-mono text-xs sm:text-sm font-bold text-purple-300">
               SLIDE 1 DE 1
             </span>
+            <span id="pastorTypeBadge" class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-200 border border-purple-500/30 hidden sm:inline-block">
+              SLIDE AO VIVO
+            </span>
           </div>
-          <div id="pulpitTypeBadge" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-200 border border-purple-500/30">
-            SLIDE DO SERMÃO
-          </div>
+
+          <!-- BOTÃO GAVETA DE MATERIAIS PARA O PASTOR -->
+          <button onclick="openPastorMaterialsModal()" class="px-3 py-1 rounded-xl bg-purple-600/40 hover:bg-purple-600 active:scale-95 text-white text-xs font-bold flex items-center gap-1.5 border border-purple-500/40 transition-all shadow-md">
+            <i data-lucide="folder-open" class="w-3.5 h-3.5 text-purple-300"></i>
+            <span>📑 Escolher Material</span>
+          </button>
         </div>
 
         <!-- Render Mode A: High-Res Image / PDF Page / PPTX Graphic -->
-        <div id="pulpitImageContainer" class="w-full h-full flex items-center justify-center pt-8 pb-3 hidden">
-          <img id="pulpitImageDisplay" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl border border-white/10" src="" alt="Slide do Sermão" />
+        <div id="pastorImageContainer" class="w-full h-full flex items-center justify-center pt-8 pb-2 hidden">
+          <img id="pastorImageDisplay" class="w-full h-full object-contain rounded-lg shadow-2xl" src="" alt="Slide do Sermão" />
         </div>
 
-        <!-- Render Mode B: Styled Biblical Verse / Text -->
-        <div id="pulpitTextContainer" class="w-full h-full flex flex-col items-center justify-center my-auto pt-6 pb-2">
-          <div id="pulpitRefDisplay" class="font-bebas text-2xl sm:text-4xl text-purple-400 tracking-wider font-bold mb-3">
-            MATEUS 6:14-15
-          </div>
-          <div id="pulpitTextDisplay" class="font-sans font-extrabold text-xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight sm:leading-snug text-white max-w-4xl overflow-y-auto custom-scrollbar">
+        <!-- Render Mode B: Styled Biblical Verse / Text / Song -->
+        <div id="pastorTextContainer" class="w-full h-full flex flex-col items-center justify-center my-auto relative pt-8 pb-4">
+          <div id="pastorRefDisplay" class="font-bebas text-3xl sm:text-5xl text-purple-400 tracking-wider font-bold mb-3"></div>
+          <div id="pastorTextDisplay" class="font-sans font-black text-2xl sm:text-4xl md:text-5xl lg:text-7xl leading-tight sm:leading-snug text-white max-w-6xl overflow-y-auto custom-scrollbar whitespace-pre-wrap">
             "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
+          </div>
+          <!-- Badge de música (apenas para músicas) -->
+          <div id="pastorSongTitleBadge" class="hidden absolute bottom-3 right-4 flex items-center gap-2">
+            <div class="w-9 h-9 rounded-full bg-yellow-400 flex items-center justify-center text-black shadow-lg flex-shrink-0">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </div>
+            <span id="pastorSongTitleText" class="font-sans font-black text-lg text-yellow-400 uppercase tracking-wider border-b-2 border-yellow-400 pb-0.5 pr-2"></span>
+          </div>
+        </div>
+
+        <!-- Render Mode C: Video Player Controller on Pastor Screen -->
+        <div id="pastorVideoContainer" class="w-full h-full flex flex-col items-center justify-center my-auto p-4 space-y-4 hidden pt-8">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-purple-600/30 border-2 border-purple-500/50 flex items-center justify-center text-purple-300 shadow-2xl animate-pulse">
+            <svg class="w-8 h-8 sm:w-10 sm:h-10 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          
+          <div class="space-y-1 text-center max-w-2xl">
+            <span class="text-[10px] sm:text-xs font-mono font-bold text-purple-300 uppercase tracking-widest bg-purple-950/80 px-3 py-1 rounded-full border border-purple-500/30">
+              🔴 VÍDEO EM REPRODUÇÃO NO TELÃO (vMix)
+            </span>
+            <div id="pastorVideoTitle" class="text-lg sm:text-2xl md:text-3xl font-black text-white truncate pt-1">
+              Nome do Vídeo
+            </div>
+          </div>
+
+          <!-- Video Playback Action Buttons for Pastor -->
+          <div class="flex items-center gap-3 pt-2">
+            <button id="pastorBtnVideoPlayPause" onclick="togglePastorVideoPlayback()" class="px-6 py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 active:scale-95 text-white font-black text-sm sm:text-base flex items-center gap-2 shadow-2xl shadow-purple-600/40 transition-all cursor-pointer">
+              <span id="pastorVideoPlayPauseIcon">⏸️</span>
+              <span id="pastorVideoPlayPauseLabel">PAUSAR VÍDEO</span>
+            </button>
+            <button onclick="restartPastorVideoPlayback()" class="px-4 py-3 rounded-2xl bg-white/[0.08] hover:bg-white/[0.15] active:scale-95 text-zinc-200 font-bold text-sm flex items-center gap-1.5 border border-white/[0.1] transition-all cursor-pointer" title="Reiniciar Vídeo">
+              <span>🔄 Reiniciar</span>
+            </button>
+          </div>
+          
+          <!-- Volume Control -->
+          <div class="flex items-center gap-3 w-full max-w-xs mt-4 bg-black/40 p-3 rounded-xl border border-white/10">
+            <i data-lucide="volume-2" class="w-5 h-5 text-zinc-400"></i>
+            <input type="range" id="pastorVideoVolumeSlider" min="0" max="1" step="0.05" value="1" oninput="setPastorVideoVolume(this.value)" class="w-full accent-purple-500 cursor-pointer">
+          </div>
+          
+          <div class="text-[10px] text-zinc-400 font-mono mt-2">
+            Áudio e imagem transmitidos diretamente pelo telão
           </div>
         </div>
 
         <!-- Footer Progress Bar -->
         <div class="w-full bg-white/[0.08] h-1.5 rounded-full overflow-hidden absolute bottom-0 left-0 right-0">
-          <div id="pulpitProgressBar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full transition-all duration-300" style="width: 10%;"></div>
+          <div id="pastorProgressBar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full transition-all duration-300" style="width: 10%;"></div>
         </div>
 
       </div>
 
     </div>
 
-    <!-- ▶ BOTÃO LATERAL DIREITO: AVANÇA (GRANDE & ERGONÔMICO) -->
-    <button 
-      onclick="nextSlide()" 
-      class="w-24 sm:w-32 md:w-36 h-full bg-gradient-to-l from-purple-950/90 to-[#120e29]/90 hover:from-purple-900 hover:to-[#1a143b] active:bg-purple-600 border-l-2 border-purple-500/40 flex flex-col items-center justify-center gap-3 text-purple-200 hover:text-white transition-all tap-active shrink-0 shadow-2xl z-20 cursor-pointer"
-      title="Avançar Slide / Versículo (Lado Direito)"
-    >
-      <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center shadow-inner">
-        <i data-lucide="chevron-right" class="w-8 h-8 sm:w-9 sm:h-9 text-purple-300"></i>
-      </div>
-      <span class="text-xl sm:text-2xl font-black font-bebas tracking-widest uppercase">AVANÇA</span>
+    <!-- ▶ BOTÃO AVANÇAR (LADO DIREITO) -->
+    <button onclick="nextSlide()" class="w-16 sm:w-20 md:w-24 h-full flex flex-col items-center justify-center bg-white/[0.02] hover:bg-purple-600/20 active:bg-purple-600/40 text-purple-300/60 hover:text-white transition-all border-l border-white/[0.06] group select-none shrink-0 z-20 cursor-pointer" title="Próximo Slide">
+      <i data-lucide="chevron-right" class="w-8 h-8 sm:w-10 sm:h-10 group-hover:translate-x-1 transition-transform"></i>
+      <span class="text-[10px] sm:text-xs font-black uppercase tracking-widest mt-1">Avança</span>
     </button>
 
   </main>
 
 
   <!-- ========================================== -->
-  <!-- 3. MODO OPERADOR / CABINE (COMPUTADOR)    -->
+  <!-- 3. MODO PROJETOR / TELÃO / VMIX (2ª TELA)   -->
+  <!-- ========================================== -->
+  <main id="projectorView" class="h-screen w-screen flex items-center justify-center p-0 overflow-hidden transition-colors hidden"></main>
+
+
+  <!-- ========================================== -->
+  <!-- 4. MODO OPERADOR / CABINE (COMPUTADOR)    -->
   <!-- Retorno em tempo real, Telão & Controles  -->
   <!-- ========================================== -->
-  <main id="operatorView" class="flex-1 flex overflow-hidden bg-[#060812] hidden">
-    
-    <!-- LEFT: RETORNO AO VIVO & CONTROLE DO TELÃO -->
+  <main id="operatorView" class="flex-1 flex overflow-x-auto overflow-y-hidden bg-[#060812]">
+    <!-- LEFT: BASE DE MÚSICAS HOLYRICS -->
+    <aside class="w-72 bg-[#090d1f] border-r border-purple-500/20 flex flex-col shrink-0 z-20">
+      <div class="p-4 space-y-3 bg-[#0a0f25] border-b border-purple-500/20 shrink-0 shadow-md">
+        <div class="flex items-center justify-between text-xs font-bold text-zinc-400">
+          <span class="flex items-center gap-1.5 uppercase tracking-wider text-amber-300">
+            <i data-lucide="music" class="w-4 h-4"></i> Músicas (Holyrics)
+          </span>
+          <span id="songsDbStatus" class="text-[10px] text-zinc-500 font-mono">Carregando...</span>
+        </div>
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-zinc-500"></i>
+          <input type="text" id="songSearchInput" oninput="handleSongSearch(event)" placeholder="Buscar (título, artista, letra)..." class="w-full bg-[#11162d] border border-white/[0.1] rounded-xl py-2.5 pl-9 pr-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all" />
+        </div>
+      </div>
+      <div id="holyricsSongList" class="flex-1 overflow-y-auto custom-scrollbar bg-[#060812]">
+        <!-- Full list of songs -->
+        <div class="p-4 text-xs text-zinc-500 text-center">Carregando lista de músicas...</div>
+      </div>
+    </aside>
+
+    <!-- CENTER: RETORNO AO VIVO & CONTROLE DO TELÃO -->
     <div class="flex-1 flex flex-col p-4 space-y-4 overflow-y-auto custom-scrollbar">
-      
+
       <!-- Top Banner Status -->
       <div class="p-4 rounded-2xl bg-[#0e1226] border border-purple-500/30 flex items-center justify-between shadow-xl">
         <div class="flex items-center gap-3">
@@ -232,9 +298,9 @@
             <span id="blackoutLabel">Blackout Telão</span>
           </button>
 
-          <button onclick="openProjectorWindow()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 flex items-center gap-1.5 transition-all active:scale-95">
-            <i data-lucide="projector" class="w-4 h-4"></i>
-            <span>📺 Abrir Janela do Telão (HDMI)</span>
+          <button onclick="openVmixModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 flex items-center gap-1.5 transition-all active:scale-95">
+            <i data-lucide="cast" class="w-4 h-4"></i>
+            <span>📡 Telão & vMix (Links / HDMI)</span>
           </button>
         </div>
       </div>
@@ -257,13 +323,42 @@
           <!-- Image View in Operator Monitor -->
           <img id="opMirroredImg" class="max-w-full max-h-full object-contain rounded-xl hidden" src="" alt="Slide do Pastor" />
 
-          <!-- Text View in Operator Monitor -->
-          <div id="opMirroredTextContainer" class="flex flex-col items-center justify-center p-4">
-            <div id="opMirroredRef" class="font-bebas text-3xl sm:text-4xl text-purple-400 font-bold mb-2">
-              MATEUS 6:14-15
+          <!-- Video View in Operator Monitor -->
+          <div id="opMirroredVideoContainer" class="flex flex-col w-full h-full relative items-center justify-center p-4 space-y-2 hidden">
+            <div class="w-12 h-12 rounded-2xl bg-purple-600/30 border border-purple-500 flex items-center justify-center text-purple-300 animate-pulse">
+              <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             </div>
-            <div id="opMirroredText" class="font-sans font-extrabold text-xl sm:text-2xl text-white max-w-2xl leading-snug">
+            <div class="text-[10px] font-mono font-bold text-purple-300 uppercase tracking-widest bg-purple-950/80 px-2.5 py-0.5 rounded border border-purple-500/30">
+              🔴 VÍDEO EM REPRODUÇÃO NO TELÃO
+            </div>
+            <div id="opMirroredVideoTitle" class="text-sm sm:text-base font-black text-white truncate max-w-md">
+              Nome do Vídeo
+            </div>
+
+            <!-- Volume Control in Operator View -->
+            <div class="flex items-center gap-2 w-full max-w-[200px] mt-2 bg-black/40 p-2 rounded-lg border border-white/10" onmousedown="event.stopPropagation()">
+              <i data-lucide="volume-2" class="w-4 h-4 text-zinc-400"></i>
+              <input type="range" id="opVideoVolumeSlider" min="0" max="1" step="0.05" value="1" oninput="setPastorVideoVolume(this.value)" class="w-full accent-purple-500 cursor-pointer h-1">
+            </div>
+
+            <div class="text-[10px] text-zinc-400 font-mono mt-1">
+              Áudio e imagem transmitidos diretamente pelo vMix / telão
+            </div>
+          </div>
+
+          <!-- Text View in Operator Monitor -->
+          <div id="opMirroredTextContainer" class="flex flex-col w-full h-full relative items-center justify-center p-4">
+            <!-- Referência normal (versículos/texto) -->
+            <div id="opMirroredRef" class="font-bebas text-3xl sm:text-4xl text-purple-400 font-bold mb-2"></div>
+            <div id="opMirroredText" class="font-sans font-black text-2xl sm:text-3xl text-white max-w-2xl leading-snug whitespace-pre-wrap overflow-y-auto custom-scrollbar line-clamp-4">
               "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
+            </div>
+            <!-- Título de música (apenas para type=song, fica no canto inferior direito) -->
+            <div id="opSongTitleBadge" class="hidden absolute bottom-2 right-3 flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-yellow-400 flex items-center justify-center text-black shadow-lg flex-shrink-0">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              </div>
+              <span id="opSongTitleText" class="font-sans font-black text-sm text-yellow-400 uppercase tracking-wider border-b-2 border-yellow-400 pb-0.5 pr-1"></span>
             </div>
           </div>
 
@@ -274,7 +369,7 @@
       </div>
 
       <!-- Grid of Slides (Miniaturas de todos os versículos / imagens) -->
-      <div class="space-y-2">
+      <div class="space-y-2 relative z-10">
         <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider">
           Lista de Slides do Sermão (<span id="totalSlidesCount">0</span>)
         </div>
@@ -286,95 +381,65 @@
 
     </div>
 
-    <!-- RIGHT: CARREGADOR DE PPTX, PDF & VERSÍCULOS -->
-    <aside class="w-80 bg-[#090d1f] border-l border-purple-500/20 p-4 flex flex-col justify-between shrink-0 space-y-4 overflow-y-auto custom-scrollbar">
-      <div class="space-y-3">
-        <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5 pb-2 border-b border-purple-500/20">
-          <i data-lucide="file-plus" class="w-4 h-4 text-purple-400"></i> Importar Sermão / Apresentação
-        </h3>
+    <!-- RIGHT: PDFs + VERSÍCULOS -->
+    <aside class="w-72 bg-[#090d1f] border-l border-purple-500/20 flex flex-col shrink-0 overflow-y-auto custom-scrollbar">
 
-        <!-- Status Progress Indicator when uploading -->
-        <div id="uploadProgressBox" class="p-3 rounded-2xl bg-purple-950/40 border border-purple-500/30 text-xs text-purple-200 hidden space-y-1.5 animate-pulse">
-          <div class="flex items-center gap-2 font-bold text-purple-300">
-            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
-            <span id="uploadProgressText">Enviando para o Firebase...</span>
-          </div>
-          <p class="text-[10px] text-zinc-400">Sincronizando imagens em alta definição com o tablet e celular.</p>
+      <!-- Upload progress -->
+      <div id="uploadProgressBox" class="hidden m-3 p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 text-xs text-purple-200 space-y-1.5 animate-pulse">
+        <div class="flex items-center gap-2 font-bold text-purple-300">
+          <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+          <span id="uploadProgressText">Enviando...</span>
         </div>
+      </div>
 
-        <!-- Option 1: Upload PowerPoint (.pptx) -->
-        <div class="p-3 rounded-2xl bg-[#11162d] border border-purple-500/25 space-y-2">
-          <div class="flex items-center gap-2">
-            <div class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">
-              P
-            </div>
-            <span class="text-xs font-bold text-white">Importar PowerPoint (.PPTX)</span>
-          </div>
-          <p class="text-[10px] text-zinc-400 leading-tight">Carrega os slides com textos e imagens do arquivo PowerPoint.</p>
-          <input type="file" id="pptxFileInput" accept=".pptx" class="hidden" onchange="handlePptxUpload(event)" />
-          <button onclick="document.getElementById('pptxFileInput').click()" class="w-full py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
-            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-            <span>Escolher Arquivo .PPTX</span>
-          </button>
-        </div>
+      <!-- ── SEÇÃO PDF ── -->
+      <div class="p-3 space-y-2 border-b border-purple-500/20">
+        <!-- Botão principal Adicionar PDF -->
+        <input type="file" id="pdfFileInput" accept="application/pdf" class="hidden" onchange="handlePdfUpload(event)" />
+        <button onclick="document.getElementById('pdfFileInput').click()" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-rose-600/30 cursor-pointer">
+          <i data-lucide="file-plus" class="w-4 h-4"></i>
+          Adicionar PDF +
+        </button>
 
-        <!-- Option 2: Upload PDF (Renderiza TODAS as Imagens & Páginas em Alta Resolução) -->
-        <div class="p-3 rounded-2xl bg-[#11162d] border border-purple-500/25 space-y-2">
-          <div class="flex items-center gap-2">
-            <div class="w-6 h-6 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-xs">
-              PDF
-            </div>
-            <span class="text-xs font-bold text-white">Importar Arquivo PDF</span>
-          </div>
-          <p class="text-[10px] text-zinc-400 leading-tight">Renderiza cada página com 100% das fotos, fundos e designs sincronizados na nuvem.</p>
-          <input type="file" id="pdfFileInput" accept="application/pdf" class="hidden" onchange="handlePdfUpload(event)" />
-          <button onclick="document.getElementById('pdfFileInput').click()" class="w-full py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
-            <i data-lucide="image" class="w-3.5 h-3.5"></i>
-            <span>Escolher Arquivo PDF</span>
-          </button>
-        </div>
-
-        <!-- Option 3: Paste Text / Verses -->
-        <div class="space-y-1.5 pt-2 border-t border-white/[0.08]">
-          <label class="text-[11px] font-bold text-zinc-300">Ou Colar Texto / Versículos Bíblicos:</label>
-          <textarea 
-            id="inputSermonText" 
-            rows="4" 
-            placeholder="MATEUS 6:14-15&#10;Porque, se perdoardes...&#10;&#10;MARCOS 11:25&#10;E, quando estiverdes orando..." 
-            class="w-full bg-[#11162d] border border-purple-500/30 rounded-xl p-2.5 text-xs text-white outline-none focus:border-purple-400 font-mono resize-none"
-          ></textarea>
-          <button onclick="generateSlidesFromText()" class="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all">
-            ⚡ Gerar e Sincronizar na Nuvem
-          </button>
-        </div>
-
-        <!-- Option 4: Buscar Letras de Hinos -->
-        <div class="space-y-1.5 pt-2 border-t border-white/[0.08]">
-          <label class="text-[11px] font-bold text-zinc-300">Ou Buscar Letra de Hino / Música:</label>
-          <input 
-            type="text" 
-            id="hinoSearchInput" 
-            placeholder="Digite o nome do hino..." 
-            class="w-full bg-[#11162d] border border-emerald-500/30 rounded-xl p-2.5 text-xs text-white outline-none focus:border-emerald-400"
-          >
-          <div id="hinoSearchResults" class="max-h-32 overflow-y-auto custom-scrollbar bg-[#0a0d1c] border border-white/10 rounded-xl hidden">
-            <!-- Results injected here -->
+        <!-- Lista de PDFs adicionados -->
+        <div id="pdfLibrary" class="space-y-1.5">
+          <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest px-1">PDFs Adicionados:</div>
+          <div id="pdfLibraryList" class="space-y-1.5">
+            <div class="text-[10px] text-zinc-600 italic px-1">Nenhum PDF carregado ainda...</div>
           </div>
         </div>
       </div>
 
-      <!-- Quick Control Helper -->
-      <div class="p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-[11px] text-purple-200 space-y-1">
-        <div class="font-bold flex items-center gap-1 text-purple-300">
-          <i data-lucide="cloud" class="w-3.5 h-3.5"></i> Firebase Cloud Sync:
+      <!-- ── SEÇÃO RECADOS / VERSÍCULOS ── -->
+      <div class="p-3 space-y-2 border-b border-purple-500/20">
+        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest flex items-center justify-between">
+          <span>Recados / Versículos:</span>
         </div>
-        <p class="text-zinc-400 text-[10px] leading-relaxed">
-          Os slides, fotos e páginas do PDF são sincronizados diretamente pelo Firebase. Qualquer alteração no computador aparece instantaneamente no tablet ou celular do pastor!
-        </p>
+        <textarea
+          id="inputSermonText"
+          rows="3"
+          placeholder="Digite um recado:&#10;Faltam 5 minutos!&#10;&#10;Ou versículo:&#10;MATEUS 6:14&#10;Porque, se perdoardes..."
+          class="w-full bg-[#11162d] border border-purple-500/30 rounded-xl p-2.5 text-xs text-white outline-none focus:border-purple-400 font-mono resize-none"
+        ></textarea>
+        <button onclick="generateSlidesFromText()" class="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all flex items-center justify-center gap-1.5">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          <span>Enviar Recado / Versículo</span>
+        </button>
       </div>
+
+      <!-- ── PPTX (colapsado / compacto) ── -->
+      <div class="p-3">
+        <input type="file" id="pptxFileInput" accept=".pptx" class="hidden" onchange="handlePptxUpload(event)" />
+        <button onclick="document.getElementById('pptxFileInput').click()" class="w-full py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+          <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+          Importar PowerPoint (.PPTX)
+        </button>
+      </div>
+
     </aside>
 
   </main>
+
 
 
   <!-- ========================================== -->
@@ -408,14 +473,14 @@
       }
     });
 
-    const liveDocRef = db.collection('pulpito_rooms').doc('culto_central');
+    const liveDocRef = db.collection('pulpito_rooms').doc('telao_principal');
     const slidesCollectionRef = liveDocRef.collection('slides');
-    const localChannel = new BroadcastChannel('obnotion_pulpito_live_channel');
+    const localChannel = new BroadcastChannel('obnotion_telao_live_channel');
 
     // --- STATE ---
     let currentSlideIdx = 0;
     let isBlackout = false;
-    let currentMode = 'pulpit';
+    let currentMode = 'operator';
 
     let slides = [
       {
@@ -448,33 +513,115 @@
       const modeParam = urlParams.get('mode');
       if (modeParam === 'operator') {
         switchViewMode('operator');
-      } else if (modeParam === 'projector') {
+      } else if (modeParam === 'pastor' || modeParam === 'receptor') {
+        switchViewMode('pastor');
+      } else if (modeParam === 'projector' || modeParam === 'telao' || modeParam === 'vmix') {
         renderProjectorModeOnly();
       }
 
-      // Keyboard navigation
+      // Prevenir tela do tablet/celular de desligar durante o culto
+      requestWakeLock();
+
+      // Monitor de conexão online/offline
+      window.addEventListener('online', () => {
+        const badge = document.getElementById('connectionBadge');
+        if (badge) {
+          badge.className = "text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold flex items-center gap-1";
+          badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> FIREBASE NUVEM ATIVO';
+        }
+      });
+      window.addEventListener('offline', () => {
+        const badge = document.getElementById('connectionBadge');
+        if (badge) {
+          badge.className = "text-[9px] font-mono px-1.5 py-0.2 rounded bg-rose-500/15 text-rose-400 border border-rose-500/30 font-bold flex items-center gap-1";
+          badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> SEM INTERNET';
+        }
+      });
+
+      // Keyboard navigation (seguro contra digitação em inputs)
       window.addEventListener('keydown', (e) => {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+        
         if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+          e.preventDefault();
           nextSlide();
         } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
           prevSlide();
         } else if (e.key === 'b' || e.key === 'B') {
+          e.preventDefault();
           toggleBlackout();
         }
       });
     });
 
-    // --- REALTIME SYNCHRONIZATION ENGINE ---
+    let isLocalWriting = false;
+    let currentLiveSlide = null;
+    let videoLibrary = []; // [{ id, name, videoUrl, size }]
+    let isPastorVideoPlaying = true;
+    let lastVideoActionTimestamp = 0;
+    let lastRequestedMaterialTimestamp = 0;
+    let materialsManifest = { pdfs: [], videos: [] };
+
+    // --- SCREEN WAKE LOCK (Impede tablet/celular de desligar a tela no culto) ---
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          await navigator.wakeLock.request('screen');
+        }
+      } catch (err) {
+        // Ignora silenciosamente se o navegador não permitir
+      }
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        requestWakeLock();
+      }
+    });
+
+    // --- REALTIME SYNCHRONIZATION ENGINE (LATÊNCIA < 20ms - SEM GLITCH) ---
     function setupLiveSync() {
-      // 1. Listen to Realtime Slide Index & Blackout State
+      // 1. Escuta o documento mestre em tempo real (atualização instantânea do slide ativo)
       liveDocRef.onSnapshot((doc) => {
         if (doc.exists) {
           const data = doc.data();
           if (typeof data.currentSlideIdx === 'number') {
-            currentSlideIdx = Math.max(0, Math.min(data.currentSlideIdx, slides.length - 1));
+            currentSlideIdx = data.currentSlideIdx;
           }
           if (typeof data.isBlackout === 'boolean') {
             isBlackout = data.isBlackout;
+          }
+          if (data.activeSlide) {
+            currentLiveSlide = data.activeSlide;
+          }
+          if (data.materialsManifest && Array.isArray(data.materialsManifest.pdfs) && Array.isArray(data.materialsManifest.videos)) {
+            materialsManifest = data.materialsManifest;
+            const modal = document.getElementById('pastorMaterialsModal');
+            if (modal && !modal.classList.contains('hidden')) {
+              renderMaterialsModal();
+            }
+          }
+          if (data.videoControl) {
+            if (data.videoControl.action === 'play') isPastorVideoPlaying = true;
+            else if (data.videoControl.action === 'pause') isPastorVideoPlaying = false;
+            else if (data.videoControl.action === 'restart') isPastorVideoPlaying = true;
+            else if (data.videoControl.action === 'volume') {
+              window.currentVideoVolume = data.videoControl.volume;
+              const s1 = document.getElementById('pastorVideoVolumeSlider');
+              if (s1) s1.value = data.videoControl.volume;
+              const s2 = document.getElementById('opVideoVolumeSlider');
+              if (s2) s2.value = data.videoControl.volume;
+            }
+            updatePastorVideoButtonUI();
+          }
+          if (data.requestMaterial && data.requestMaterial.timestamp > lastRequestedMaterialTimestamp) {
+            lastRequestedMaterialTimestamp = data.requestMaterial.timestamp;
+            if (currentMode === 'operator') {
+              const req = data.requestMaterial;
+              if (req.type === 'pdf') jumpToPdf(req.id);
+              else if (req.type === 'video') jumpToVideo(req.id);
+              else if (req.type === 'song') addSongToPresentation(req.id);
+            }
           }
           renderAllViews();
         }
@@ -482,8 +629,9 @@
         console.warn("Firestore sync index fallback:", err);
       });
 
-      // 2. Listen to Realtime Slides Subcollection (Loads all images on mobile/tablet identically)
+      // 2. Escuta a subcoleção de slides em segundo plano para miniaturas do operador
       slidesCollectionRef.orderBy('index').onSnapshot((snapshot) => {
+        if (isLocalWriting) return;
         if (!snapshot.empty) {
           const remoteSlides = [];
           snapshot.forEach(doc => {
@@ -491,7 +639,6 @@
           });
           if (remoteSlides.length > 0) {
             slides = remoteSlides;
-            currentSlideIdx = Math.max(0, Math.min(currentSlideIdx, slides.length - 1));
             renderAllViews();
           }
         }
@@ -499,26 +646,96 @@
         console.warn("Firestore slides subcollection sync fallback:", err);
       });
 
-      // 3. Listen to Local Tab Broadcast Channel
+      // 3. Canal ultra-rápido entre abas locais (< 5ms)
       localChannel.onmessage = (msg) => {
         if (msg.data) {
-          if (msg.data.slides) slides = msg.data.slides;
+          if (msg.data.slides && !isLocalWriting) slides = msg.data.slides;
           if (typeof msg.data.currentSlideIdx === 'number') currentSlideIdx = msg.data.currentSlideIdx;
           if (typeof msg.data.isBlackout === 'boolean') isBlackout = msg.data.isBlackout;
+          if (msg.data.activeSlide) currentLiveSlide = msg.data.activeSlide;
+          if (msg.data.materialsManifest && Array.isArray(msg.data.materialsManifest.pdfs) && Array.isArray(msg.data.materialsManifest.videos)) {
+            materialsManifest = msg.data.materialsManifest;
+            const modal = document.getElementById('pastorMaterialsModal');
+            if (modal && !modal.classList.contains('hidden')) {
+              renderMaterialsModal();
+            }
+          }
+          if (msg.data.videoControl) {
+            if (msg.data.videoControl.action === 'play') isPastorVideoPlaying = true;
+            else if (msg.data.videoControl.action === 'pause') isPastorVideoPlaying = false;
+            else if (msg.data.videoControl.action === 'restart') isPastorVideoPlaying = true;
+            else if (msg.data.videoControl.action === 'volume') {
+              window.currentVideoVolume = msg.data.videoControl.volume;
+              const s1 = document.getElementById('pastorVideoVolumeSlider');
+              if (s1) s1.value = msg.data.videoControl.volume;
+              const s2 = document.getElementById('opVideoVolumeSlider');
+              if (s2) s2.value = msg.data.videoControl.volume;
+            }
+            updatePastorVideoButtonUI();
+          }
+          if (msg.data.requestMaterial && msg.data.requestMaterial.timestamp > lastRequestedMaterialTimestamp) {
+            lastRequestedMaterialTimestamp = msg.data.requestMaterial.timestamp;
+            if (currentMode === 'operator') {
+              const req = msg.data.requestMaterial;
+              if (req.type === 'pdf') jumpToPdf(req.id);
+              else if (req.type === 'video') jumpToVideo(req.id);
+              else if (req.type === 'song') addSongToPresentation(req.id);
+            }
+          }
           renderAllViews();
         }
       };
     }
 
-    // Broadcast only the active slide index & blackout (Fast < 20ms)
+    function getMaterialsManifest() {
+      return {
+        pdfs: pdfLibrary.map(p => ({ id: p.id, name: p.name, pageCount: p.pageCount })),
+        videos: videoLibrary.map(v => ({ id: v.id, name: v.name, size: v.size }))
+      };
+    }
+
+    async function broadcastMaterialsManifest() {
+      if (currentMode !== 'operator') return;
+      const manifest = getMaterialsManifest();
+      materialsManifest = manifest;
+      const payload = {
+        materialsManifest: manifest,
+        timestamp: Date.now()
+      };
+      localChannel.postMessage(payload);
+      try {
+        await liveDocRef.set(payload, { merge: true });
+      } catch (err) {
+        console.warn("Error broadcasting materials manifest:", err);
+      }
+    }
+
+    // Broadcast instantâneo do slide ativo (< 20ms)
     async function broadcastLiveState() {
       renderAllViews();
       
+      const cur = slides[currentSlideIdx] || currentLiveSlide || { reference: "", text: "", type: "verse" };
+      
       const payload = {
         currentSlideIdx: currentSlideIdx,
+        totalSlides: slides.length,
         isBlackout: isBlackout,
+        activeSlide: {
+          reference: cur.reference || '',
+          text: cur.text || '',
+          imageUrl: cur.imageUrl || '',
+          videoUrl: cur.videoUrl || '',
+          videoId: cur.videoId || '',
+          type: cur.type || 'verse',
+          pdfId: cur.pdfId || ''
+        },
         timestamp: Date.now()
       };
+
+      // Sempre transmitir o manifesto de materiais para o tablet do pastor
+      if (currentMode === 'operator') {
+        payload.materialsManifest = getMaterialsManifest();
+      }
 
       localChannel.postMessage(payload);
 
@@ -529,20 +746,51 @@
       }
     }
 
-    // Save full slides collection to Firebase Firestore
+    // Salvar e transmitir nova apresentação (música ou PDF ou Vídeo)
     async function saveSlidesToFirebaseAndBroadcast(newSlides) {
       slides = newSlides;
-      currentSlideIdx = 0;
       renderAllViews();
+      renderPdfLibrary();
+      renderVideoLibrary();
+
+      const cur = slides[currentSlideIdx] || { reference: "", text: "", type: "verse" };
+
+      const livePayload = {
+        currentSlideIdx: currentSlideIdx,
+        totalSlides: slides.length,
+        isBlackout: isBlackout,
+        activeSlide: {
+          reference: cur.reference || '',
+          text: cur.text || '',
+          imageUrl: cur.imageUrl || '',
+          videoUrl: cur.videoUrl || '',
+          videoId: cur.videoId || '',
+          type: cur.type || 'verse',
+          pdfId: cur.pdfId || ''
+        },
+        timestamp: Date.now()
+      };
+
+      // Sempre transmitir o manifesto de materiais
+      if (currentMode === 'operator') {
+        livePayload.materialsManifest = getMaterialsManifest();
+      }
 
       localChannel.postMessage({
         slides: slides,
-        currentSlideIdx: currentSlideIdx,
-        isBlackout: isBlackout
+        ...livePayload
       });
 
+      // 1. Atualizar liveDocRef IMEDIATAMENTE (Latência < 20ms para o tablet mudar instantaneamente sem loop)
       try {
-        // 1. Apagar slides antigos para evitar lixo
+        await liveDocRef.set(livePayload, { merge: true });
+      } catch (err) {
+        console.warn("Live broadcast error:", err);
+      }
+
+      // 2. Gravar coleção completa de slides em background
+      isLocalWriting = true;
+      try {
         const oldSlidesSnap = await slidesCollectionRef.get();
         const deletePromises = [];
         oldSlidesSnap.forEach(doc => {
@@ -550,7 +798,6 @@
         });
         await Promise.all(deletePromises);
 
-        // 2. Salvar novos slides (gravando um a um para evitar limite de tamanho de batch do Firestore)
         const savePromises = slides.map(async (s, i) => {
           const docRef = slidesCollectionRef.doc(String(i));
           await docRef.set({
@@ -558,23 +805,19 @@
             reference: s.reference || '',
             text: s.text || '',
             imageUrl: s.imageUrl || '',
-            type: s.type || 'verse'
+            videoUrl: s.videoUrl || '',
+            videoId: s.videoId || '',
+            type: s.type || 'verse',
+            pdfId: s.pdfId || ''
           });
         });
         await Promise.all(savePromises);
-
-        // 3. Atualizar documento principal da sala
-        await liveDocRef.set({
-          currentSlideIdx: 0,
-          totalSlides: slides.length,
-          isBlackout: isBlackout,
-          updatedAt: Date.now()
-        }, { merge: true });
-
       } catch (err) {
         console.error("Erro ao salvar slides no Firestore:", err);
-        alert("Erro ao sincronizar com a nuvem (O slide pode ser muito pesado). " + err.message);
-        throw err; // Lança o erro para que funções externas (como handlePdfUpload) não exibam mensagem de sucesso.
+      } finally {
+        setTimeout(() => {
+          isLocalWriting = false;
+        }, 500);
       }
     }
 
@@ -582,6 +825,10 @@
     function nextSlide() {
       if (currentSlideIdx < slides.length - 1) {
         currentSlideIdx++;
+        broadcastLiveState();
+      } else if (slides.length > 0 && slides[currentSlideIdx] && slides[currentSlideIdx].type === 'song') {
+        // Último slide de uma música -> apagar telão automaticamente
+        isBlackout = true;
         broadcastLiveState();
       }
     }
@@ -603,119 +850,201 @@
       broadcastLiveState();
     }
 
+    function formatReference(ref) {
+      if (!ref) return '';
+      const clean = ref.trim();
+      if (clean.toUpperCase() === 'PALAVRA DE DEUS') return '';
+      return clean;
+    }
+
     // --- RENDERING ---
     function renderAllViews() {
-      const cur = slides[currentSlideIdx] || { reference: "", text: "Nenhum slide carregado.", type: "verse" };
+      // No modo receptor/pastor, usa o slide transmitido em tempo real para latência < 20ms
+      const cur = (currentMode === 'pastor' && currentLiveSlide) 
+        ? currentLiveSlide 
+        : (slides[currentSlideIdx] || currentLiveSlide || { reference: "", text: "Nenhum slide carregado.", type: "verse" });
 
-      // 1. Pulpit Tablet View
-      const pulpitImgBox = document.getElementById('pulpitImageContainer');
-      const pulpitTextBox = document.getElementById('pulpitTextContainer');
-      const pulpitImg = document.getElementById('pulpitImageDisplay');
+      // 1. Pastor Tablet View
+      const pastorImgBox = document.getElementById('pastorImageContainer');
+      const pastorTextBox = document.getElementById('pastorTextContainer');
+      const pastorVideoBox = document.getElementById('pastorVideoContainer');
+      const pastorImg = document.getElementById('pastorImageDisplay');
 
-      if (cur.imageUrl) {
-        pulpitImgBox.classList.remove('hidden');
-        pulpitTextBox.classList.add('hidden');
-        pulpitImg.src = cur.imageUrl;
+      if (cur.type === 'video' || cur.videoUrl) {
+        if (pastorImgBox) pastorImgBox.classList.add('hidden');
+        if (pastorTextBox) pastorTextBox.classList.add('hidden');
+        if (pastorVideoBox) pastorVideoBox.classList.remove('hidden');
+        document.getElementById('pastorVideoTitle').textContent = cur.reference || 'Vídeo MP4';
+        document.getElementById('pastorSlideBadge').textContent = 'VÍDEO AO VIVO';
+        document.getElementById('pastorTypeBadge').textContent = 'VÍDEO MP4';
+        updatePastorVideoButtonUI();
+      } else if (cur.imageUrl) {
+        if (pastorVideoBox) pastorVideoBox.classList.add('hidden');
+        if (pastorTextBox) pastorTextBox.classList.add('hidden');
+        if (pastorImgBox) pastorImgBox.classList.remove('hidden');
+        if (pastorImg) pastorImg.src = cur.imageUrl;
+        document.getElementById('pastorSlideBadge').textContent = `SLIDE ${currentSlideIdx + 1} DE ${slides.length}`;
+        document.getElementById('pastorTypeBadge').textContent = 'SLIDE VISUAL / PDF';
       } else {
-        pulpitImgBox.classList.add('hidden');
-        pulpitTextBox.classList.remove('hidden');
-        document.getElementById('pulpitRefDisplay').textContent = cur.reference || "PALAVRA DE DEUS";
-        document.getElementById('pulpitTextDisplay').textContent = cur.text || "";
+        if (pastorVideoBox) pastorVideoBox.classList.add('hidden');
+        if (pastorImgBox) pastorImgBox.classList.add('hidden');
+        if (pastorTextBox) pastorTextBox.classList.remove('hidden');
+        if (cur.type === 'song') {
+          // Música: sem título no topo, badge amarelo no canto inferior
+          document.getElementById('pastorRefDisplay').textContent = '';
+          document.getElementById('pastorTextDisplay').textContent = cur.text || '';
+          const badge = document.getElementById('pastorSongTitleBadge');
+          if (badge) badge.classList.remove('hidden');
+          document.getElementById('pastorSongTitleText').textContent = formatReference(cur.reference);
+          document.getElementById('pastorTypeBadge').textContent = 'LETRA DE MÚSICA';
+        } else {
+          // Versículo/texto/recado: se houver referência bíblica coloca no topo, senão deixa vazio
+          document.getElementById('pastorRefDisplay').textContent = formatReference(cur.reference);
+          document.getElementById('pastorTextDisplay').textContent = cur.text || '';
+          const badge = document.getElementById('pastorSongTitleBadge');
+          if (badge) badge.classList.add('hidden');
+          document.getElementById('pastorTypeBadge').textContent = formatReference(cur.reference) ? 'VERSÍCULO BÍBLICO' : 'TEXTO / RECADO';
+        }
+        document.getElementById('pastorSlideBadge').textContent = `SLIDE ${currentSlideIdx + 1} DE ${slides.length}`;
       }
 
-      document.getElementById('pulpitSlideBadge').textContent = `SLIDE ${currentSlideIdx + 1} DE ${slides.length}`;
-      document.getElementById('pulpitTypeBadge').textContent = cur.type === 'image' ? 'SLIDE VISUAL / PDF' : 'VERSÍCULO BÍBLICO';
-      
       const pct = slides.length > 1 ? ((currentSlideIdx + 1) / slides.length) * 100 : 100;
-      document.getElementById('pulpitProgressBar').style.width = `${pct}%`;
+      const progBar = document.getElementById('pastorProgressBar');
+      if (progBar) progBar.style.width = `${pct}%`;
 
       // 2. Operator Cabine View
-      document.getElementById('opActiveSlideNum').textContent = `Slide ${currentSlideIdx + 1} de ${slides.length}`;
-      document.getElementById('totalSlidesCount').textContent = slides.length;
+      const opSlideNum = document.getElementById('opActiveSlideNum');
+      if (opSlideNum) opSlideNum.textContent = (cur.type === 'video') ? 'Vídeo MP4' : `Slide ${currentSlideIdx + 1} de ${slides.length}`;
+      const opTotalCount = document.getElementById('totalSlidesCount');
+      if (opTotalCount) opTotalCount.textContent = slides.length;
 
       const opImg = document.getElementById('opMirroredImg');
       const opTextBox = document.getElementById('opMirroredTextContainer');
+      const opVideoBox = document.getElementById('opMirroredVideoContainer');
 
       if (isBlackout) {
-        opImg.classList.add('hidden');
-        opTextBox.classList.remove('hidden');
+        if (opImg) opImg.classList.add('hidden');
+        if (opVideoBox) opVideoBox.classList.add('hidden');
+        if (opTextBox) opTextBox.classList.remove('hidden');
         document.getElementById('opMirroredRef').textContent = "⚫ TELÃO EM BLACKOUT";
         document.getElementById('opMirroredText').textContent = "A saída para o telão está temporariamente apagada.";
+      } else if (cur.type === 'video' || cur.videoUrl) {
+        if (opImg) opImg.classList.add('hidden');
+        if (opTextBox) opTextBox.classList.add('hidden');
+        if (opVideoBox) opVideoBox.classList.remove('hidden');
+        document.getElementById('opMirroredVideoTitle').textContent = cur.reference || 'Vídeo MP4';
       } else if (cur.imageUrl) {
-        opImg.classList.remove('hidden');
-        opTextBox.classList.add('hidden');
-        opImg.src = cur.imageUrl;
+        if (opVideoBox) opVideoBox.classList.add('hidden');
+        if (opTextBox) opTextBox.classList.add('hidden');
+        if (opImg) {
+          opImg.classList.remove('hidden');
+          opImg.src = cur.imageUrl;
+        }
+      } else if (cur.type === 'song') {
+        if (opImg) opImg.classList.add('hidden');
+        if (opVideoBox) opVideoBox.classList.add('hidden');
+        if (opTextBox) opTextBox.classList.remove('hidden');
+        // Para músicas: sem título no topo, letra centralizada, título no canto inferior
+        document.getElementById('opMirroredRef').textContent = '';
+        document.getElementById('opMirroredText').textContent = cur.text || '';
+        const badge = document.getElementById('opSongTitleBadge');
+        if (badge) badge.classList.remove('hidden');
+        document.getElementById('opSongTitleText').textContent = formatReference(cur.reference);
       } else {
-        opImg.classList.add('hidden');
-        opTextBox.classList.remove('hidden');
-        document.getElementById('opMirroredRef').textContent = cur.reference || "PALAVRA DE DEUS";
-        document.getElementById('opMirroredText').textContent = cur.text || "";
+        if (opImg) opImg.classList.add('hidden');
+        if (opVideoBox) opVideoBox.classList.add('hidden');
+        if (opTextBox) opTextBox.classList.remove('hidden');
+        document.getElementById('opMirroredRef').textContent = formatReference(cur.reference);
+        document.getElementById('opMirroredText').textContent = cur.text || '';
+        const badge = document.getElementById('opSongTitleBadge');
+        if (badge) badge.classList.add('hidden');
       }
 
       const blackoutBtn = document.getElementById('btnBlackout');
       const blackoutLabel = document.getElementById('blackoutLabel');
-      if (isBlackout) {
-        blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold border border-rose-500 flex items-center gap-1.5 transition-all shadow-lg shadow-rose-600/30";
-        blackoutLabel.textContent = "Reativar Telão";
-      } else {
-        blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold border border-zinc-700 flex items-center gap-1.5 transition-all";
-        blackoutLabel.textContent = "Blackout Telão";
+      if (blackoutBtn && blackoutLabel) {
+        if (isBlackout) {
+          blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold border border-rose-500 flex items-center gap-1.5 transition-all shadow-lg shadow-rose-600/30";
+          blackoutLabel.textContent = "Reativar Telão";
+        } else {
+          blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold border border-zinc-700 flex items-center gap-1.5 transition-all";
+          blackoutLabel.textContent = "Blackout Telão";
+        }
       }
 
       // Render Operator Thumbnails Grid
       const grid = document.getElementById('operatorSlidesGrid');
-      grid.innerHTML = '';
-      slides.forEach((s, i) => {
-        const isAct = i === currentSlideIdx;
-        const card = document.createElement('div');
-        card.className = `p-2.5 rounded-2xl border ${isAct ? 'border-purple-400 bg-purple-950/70 shadow-lg shadow-purple-600/30 ring-2 ring-purple-500' : 'border-white/[0.08] bg-[#101428] hover:border-purple-500/40'} cursor-pointer flex flex-col justify-between h-28 transition-all group select-none overflow-hidden relative`;
-        card.onclick = () => goToSlide(i);
+      if (grid) {
+        grid.innerHTML = '';
+        slides.forEach((s, i) => {
+          const isAct = i === currentSlideIdx;
+          const card = document.createElement('div');
+          card.className = `p-2.5 rounded-2xl border ${isAct ? 'border-purple-400 bg-purple-950/70 shadow-lg shadow-purple-600/30 ring-2 ring-purple-500' : 'border-white/[0.08] bg-[#101428] hover:border-purple-500/40'} cursor-pointer flex flex-col justify-between h-28 transition-all group select-none overflow-hidden relative`;
+          card.onclick = () => goToSlide(i);
 
-        if (s.imageUrl) {
-          card.innerHTML = `
-            <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-all">
-              <img src="${s.imageUrl}" class="w-full h-full object-cover rounded-xl" />
-            </div>
-            <div class="relative z-10 flex items-center justify-between text-[10px] font-mono font-bold bg-black/80 px-1.5 py-0.5 rounded text-white">
-              <span>SLIDE ${i + 1}</span>
-              ${isAct ? '<span class="text-purple-300 font-black">● AO VIVO</span>' : ''}
-            </div>
-          `;
-        } else {
-          card.innerHTML = `
-            <div>
+          if (s.type === 'video' || s.videoUrl) {
+            card.innerHTML = `
               <div class="flex items-center justify-between text-[10px] font-mono font-bold ${isAct ? 'text-purple-300' : 'text-zinc-500'}">
-                <span>SLIDE ${i + 1}</span>
-                ${isAct ? '<span class="px-1.5 py-0.2 rounded bg-purple-500 text-white font-sans text-[9px] font-black animate-pulse">PASTOR</span>' : ''}
+                <span>VÍDEO</span>
+                ${isAct ? '<span class="text-purple-300 font-black">● AO VIVO</span>' : ''}
               </div>
-              <div class="text-xs font-bold text-white truncate mt-1">${s.reference || 'Versículo'}</div>
-            </div>
-            <div class="text-[10px] text-zinc-400 line-clamp-2 leading-tight">${s.text}</div>
-          `;
-        }
-        grid.appendChild(card);
-      });
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-purple-600/30 flex items-center justify-center text-purple-300">
+                  <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+                <div class="text-xs font-bold text-white truncate flex-1">${s.reference || 'Vídeo'}</div>
+              </div>
+              <div class="text-[9px] text-purple-300 font-mono">Reproduzindo com áudio</div>
+            `;
+          } else if (s.imageUrl) {
+            card.innerHTML = `
+              <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-all">
+                <img src="${s.imageUrl}" class="w-full h-full object-cover rounded-xl" />
+              </div>
+              <div class="relative z-10 flex items-center justify-between text-[10px] font-mono font-bold bg-black/80 px-1.5 py-0.5 rounded text-white">
+                <span>SLIDE ${i + 1}</span>
+                ${isAct ? '<span class="text-purple-300 font-black">● AO VIVO</span>' : ''}
+              </div>
+            `;
+          } else {
+            card.innerHTML = `
+              <div>
+                <div class="flex items-center justify-between text-[10px] font-mono font-bold ${isAct ? 'text-purple-300' : 'text-zinc-500'}">
+                  <span>SLIDE ${i + 1}</span>
+                  ${isAct ? '<span class="px-1.5 py-0.2 rounded bg-purple-500 text-white font-sans text-[9px] font-black animate-pulse">PASTOR</span>' : ''}
+                </div>
+                <div class="text-xs font-bold text-white truncate mt-1">${formatReference(s.reference) || (s.type === 'song' ? 'Música' : 'Recado')}</div>
+              </div>
+              <div class="text-[10px] text-zinc-400 line-clamp-2 leading-tight">${s.text}</div>
+            `;
+          }
+          grid.appendChild(card);
+        });
+      }
     }
 
     // --- MODE SWITCHER ---
     function switchViewMode(mode) {
       currentMode = mode;
-      const pulpit = document.getElementById('pulpitView');
+      const pastor = document.getElementById('pastorView');
       const operator = document.getElementById('operatorView');
+      const projector = document.getElementById('projectorView');
 
       const btnP = document.getElementById('btn-mode-pulpit');
       const btnO = document.getElementById('btn-mode-operator');
 
-      if (mode === 'pulpit') {
-        pulpit.classList.remove('hidden');
-        operator.classList.add('hidden');
-        btnP.className = "px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
-        btnO.className = "px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
+      if (projector) projector.classList.add('hidden');
+
+      if (mode === 'pastor') {
+        if (pastor) pastor.classList.remove('hidden');
+        if (operator) operator.classList.add('hidden');
+        if (btnP) btnP.className = "px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
+        if (btnO) btnO.className = "px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
       } else {
-        pulpit.classList.add('hidden');
-        operator.classList.remove('hidden');
-        btnO.className = "px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
-        btnP.className = "px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
+        if (pastor) pastor.classList.add('hidden');
+        if (operator) operator.classList.remove('hidden');
+        if (btnO) btnO.className = "px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
+        if (btnP) btnP.className = "px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
       }
       lucide.createIcons();
     }
@@ -733,15 +1062,16 @@
       try {
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const pdfId = `pdf_${Date.now()}`;
         const newSlides = [];
 
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
           progressText.textContent = `Processando página ${pageNum} de ${pdf.numPages}...`;
           const page = await pdf.getPage(pageNum);
           
-          // Render to 960px width (plenty sharp for tablets) to keep Base64 lightweight for Firestore
+          // Render to 1600px width (Super sharp, ultra-fast transfer, zero lag)
           const unscaledViewport = page.getViewport({ scale: 1.0 });
-          const scale = 960 / unscaledViewport.width;
+          const scale = 1600 / unscaledViewport.width;
           const viewport = page.getViewport({ scale: scale });
 
           const canvas = document.createElement('canvas');
@@ -751,28 +1081,56 @@
 
           await page.render({ canvasContext: ctx, viewport: viewport }).promise;
           
-          // Compress to JPEG (0.65 quality) for instant Firebase Firestore sync (~30KB-60KB)
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.65);
+          // Compress to JPEG (0.75 quality)
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+
+          // Liberar memória gráfica do navegador imediatamente
+          canvas.width = 0;
+          canvas.height = 0;
 
           newSlides.push({
-            index: pageNum - 1,
-            reference: `SLIDE ${pageNum}`,
+            reference: `${file.name.replace(/\.pdf$/i,'').toUpperCase()} • P${pageNum}`,
             text: `Slide ${pageNum}`,
             imageUrl: dataUrl,
-            type: "image"
+            type: "image",
+            pdfId: pdfId
           });
         }
 
         if (newSlides.length > 0) {
-          progressText.textContent = 'Sincronizando com o Firebase Nuvem...';
-          await saveSlidesToFirebaseAndBroadcast(newSlides);
-          alert(`✓ Sucesso! ${newSlides.length} páginas com imagens foram enviadas para o Firebase e já estão visíveis no celular e tablet!`);
+          // Limite de 3 PDFs: se já houver 3, remove o mais antigo
+          if (pdfLibrary.length >= 3) {
+            pdfLibrary.shift();
+          }
+          
+          const cleanName = file.name.replace(/\.pdf$/i, '');
+          
+          // Registrar na biblioteca de PDFs com os slides COMPLETOS guardados
+          pdfLibrary.push({ 
+            id: pdfId, 
+            name: cleanName, 
+            pageCount: newSlides.length,
+            slides: newSlides
+          });
+          
+          renderPdfLibrary();
+
+          // Ativar este PDF imediatamente na tela
+          slides = newSlides;
+          currentSlideIdx = 0;
+          isBlackout = false;
+          
+          progressText.textContent = 'Sincronizando com a Nuvem...';
+          renderAllViews();
+          await saveSlidesToFirebaseAndBroadcast(slides);
+          await broadcastMaterialsManifest();
         }
       } catch (err) {
         console.error("Erro ao processar PDF:", err);
         alert("Erro ao ler o PDF: " + err.message);
       } finally {
         progressBox.classList.add('hidden');
+        if (e.target) e.target.value = '';
       }
     }
 
@@ -797,44 +1155,35 @@
           }
         });
 
+        // Sort slides logically (slide1.xml, slide2.xml...)
         slideFiles.sort((a, b) => {
-          const numA = parseInt(a.replace(/[^0-9]/g, '')) || 0;
-          const numB = parseInt(b.replace(/[^0-9]/g, '')) || 0;
+          const numA = parseInt(a.replace(/\D/g, ''));
+          const numB = parseInt(b.replace(/\D/g, ''));
           return numA - numB;
         });
 
-        if (slideFiles.length === 0) {
-          throw new Error("Nenhum slide encontrado no arquivo PowerPoint.");
-        }
-
         const newSlides = [];
-
         for (let i = 0; i < slideFiles.length; i++) {
-          progressText.textContent = `Processando slide ${i + 1} de ${slideFiles.length}...`;
-          const xmlText = await zipContent.file(slideFiles[i]).async('text');
-          const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+          progressText.textContent = `Extraindo texto do Slide ${i + 1} de ${slideFiles.length}...`;
+          const xmlText = await zipContent.file(slideFiles[i]).async('string');
           
-          const textNodes = xmlDoc.getElementsByTagName('a:t');
-          const texts = [];
-          for (let t = 0; t < textNodes.length; t++) {
-            const val = textNodes[t].textContent.trim();
-            if (val) texts.push(val);
+          // Regex to extract all text nodes in the slide XML
+          const textMatches = [...xmlText.matchAll(/<a:t>([^<]+)<\/a:t>/g)];
+          let slideText = textMatches.map(m => m[1]).join(' ');
+
+          if (slideText.trim()) {
+            newSlides.push({
+              index: newSlides.length,
+              reference: `SLIDE ${i + 1}`,
+              text: slideText.trim(),
+              type: "verse"
+            });
           }
-
-          let refTitle = texts.length > 0 ? texts[0] : `SLIDE ${i + 1}`;
-          let bodyText = texts.length > 1 ? texts.slice(1).join(' ') : (texts[0] || `Slide ${i + 1}`);
-
-          newSlides.push({
-            index: i,
-            reference: refTitle.toUpperCase(),
-            text: bodyText,
-            type: "verse"
-          });
         }
 
         if (newSlides.length > 0) {
-          progressText.textContent = 'Sincronizando com o Firebase Nuvem...';
+          currentSlideIdx = 0;
+          progressText.textContent = 'Sincronizando textos do PPTX com o Firebase...';
           await saveSlidesToFirebaseAndBroadcast(newSlides);
           alert(`✓ Sucesso! ${newSlides.length} slides de TEXTO foram extraídos do PowerPoint e sincronizados.\n\n⚠️ NOTA SOBRE IMAGENS:\nPara que o sistema preserve fundos e converta seus slides exatamente como imagens para o tablet, abra seu PowerPoint, clique em "Salvar Como PDF" e importe o PDF aqui!`);
         }
@@ -846,10 +1195,10 @@
       }
     }
 
-    // --- GENERATE SLIDES FROM TEXT ---
+    // --- GENERATE SLIDES FROM TEXT / RECADOS ---
     async function generateSlidesFromText() {
       const raw = document.getElementById('inputSermonText').value.trim();
-      if (!raw) return alert('Por favor, cole algum versículo ou texto do sermão.');
+      if (!raw) return alert('Por favor, digite ou cole algum texto, recado ou versículo.');
 
       const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
       const newSlides = [];
@@ -864,13 +1213,13 @@
           if (curRef || curText.length > 0) {
             newSlides.push({
               index: newSlides.length,
-              reference: curRef.toUpperCase() || "PALAVRA DE DEUS",
-              text: curText.join(' '),
+              reference: curRef ? curRef.toUpperCase() : "",
+              text: curText.join('\n'),
               type: "verse"
             });
-            curText = [];
           }
           curRef = line;
+          curText = [];
         } else {
           curText.push(line);
         }
@@ -879,15 +1228,17 @@
       if (curRef || curText.length > 0) {
         newSlides.push({
           index: newSlides.length,
-          reference: curRef.toUpperCase() || "PALAVRA DE DEUS",
-          text: curText.join(' '),
+          reference: curRef ? curRef.toUpperCase() : "",
+          text: curText.join('\n'),
           type: "verse"
         });
       }
 
       if (newSlides.length > 0) {
+        currentSlideIdx = 0;
+        isBlackout = false;
+        renderAllViews();
         await saveSlidesToFirebaseAndBroadcast(newSlides);
-        alert(`✓ ${newSlides.length} versículos gerados e sincronizados no Firebase com o celular e tablet!`);
       }
     }
 
@@ -898,32 +1249,142 @@
     }
 
     function renderProjectorModeOnly() {
-      document.getElementById('mainHeader').style.display = 'none';
-      document.getElementById('operatorView').style.display = 'none';
-      document.getElementById('pulpitView').className = "h-screen w-screen flex items-center justify-center bg-black p-0 overflow-hidden";
+      const header = document.getElementById('mainHeader');
+      if (header) header.style.display = 'none';
+      const opView = document.getElementById('operatorView');
+      if (opView) opView.style.display = 'none';
+      const pastorView = document.getElementById('pastorView');
+      if (pastorView) pastorView.style.display = 'none';
       
+      const projectorView = document.getElementById('projectorView');
+      if (projectorView) {
+        projectorView.classList.remove('hidden');
+        projectorView.style.display = 'flex';
+      }
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const isVmixMode = urlParams.get('mode') === 'vmix';
+      const bgParam = urlParams.get('bg'); // 'transparent', 'green', 'black'
+      
+      let currentBg = 'black';
+      if (isVmixMode || bgParam === 'transparent') {
+        currentBg = 'transparent';
+      } else if (bgParam === 'green') {
+        currentBg = 'green';
+      }
+      
+      document.body.style.backgroundColor = currentBg === 'transparent' ? 'transparent' : (currentBg === 'green' ? '#00FF00' : '#000000');
+      
+      let lastVideoActionTimestamp = 0;
+      function handleVideoControlAction(ctrl) {
+        if (!ctrl || !ctrl.action || (ctrl.timestamp && ctrl.timestamp <= lastVideoActionTimestamp)) return;
+        if (ctrl.timestamp) lastVideoActionTimestamp = ctrl.timestamp;
+        
+        if (ctrl.action === 'volume' && typeof ctrl.volume !== 'undefined') {
+          window.currentVideoVolume = ctrl.volume;
+        }
+
+        const videoEl = document.getElementById('projectorVideoPlayer');
+        if (!videoEl) return;
+
+        if (ctrl.action === 'play') {
+          videoEl.play().catch(e => console.warn("Video play error:", e));
+        } else if (ctrl.action === 'pause') {
+          videoEl.pause();
+        } else if (ctrl.action === 'restart') {
+          videoEl.currentTime = 0;
+          videoEl.play().catch(e => console.warn("Video restart error:", e));
+        } else if (ctrl.action === 'volume' && typeof ctrl.volume !== 'undefined') {
+          videoEl.volume = ctrl.volume;
+        }
+      }
+
       const updateProjector = () => {
-        const cur = slides[currentSlideIdx] || { reference: "", text: "" };
-        const view = document.getElementById('pulpitView');
-        if (isBlackout) {
-          view.innerHTML = `<div class="w-full h-full bg-black"></div>`;
-        } else if (cur.imageUrl) {
-          view.innerHTML = `<img src="${cur.imageUrl}" class="w-full h-full object-contain bg-black" />`;
+        const cur = currentLiveSlide || slides[currentSlideIdx] || { reference: "", text: "" };
+        const view = document.getElementById('projectorView');
+        if (!view) return;
+        
+        if (currentBg === 'transparent') {
+          view.style.backgroundColor = 'transparent';
+          document.body.style.backgroundColor = 'transparent';
+        } else if (currentBg === 'green') {
+          view.style.backgroundColor = '#00FF00';
+          document.body.style.backgroundColor = '#00FF00';
         } else {
+          view.style.backgroundColor = '#000000';
+          document.body.style.backgroundColor = '#000000';
+        }
+        
+        if (isBlackout) {
+          view.innerHTML = currentBg === 'transparent' ? '' : `<div class="w-full h-full flex items-center justify-center">
+            <span class="text-white/20 font-mono text-sm uppercase">BLACKOUT</span>
+          </div>`;
+        } else if (cur.type === 'video' || cur.videoUrl) {
+          // blob:// URLs funcionam entre abas do MESMO navegador (mesmo computador).
+          // Se falhar (ex: outro dispositivo), mostra placeholder automaticamente via onerror.
+          let videoEl = document.getElementById('projectorVideoPlayer');
+          const videoSrc = cur.videoUrl || '';
+          if (!videoEl || videoEl.dataset.videoId !== (cur.videoId || cur.reference)) {
+            view.innerHTML = `
+              <div class="w-full h-full flex items-center justify-center bg-black">
+                <video id="projectorVideoPlayer" data-video-id="${cur.videoId || cur.reference}" src="${videoSrc}" class="w-full h-full object-contain" autoplay playsinline
+                  onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full flex flex-col items-center justify-center bg-black gap-6\\'><svg class=\\'w-20 h-20 text-purple-400 opacity-70\\' fill=\\'currentColor\\' viewBox=\\'0 0 24 24\\'><path d=\\'M8 5v14l11-7z\\'/></svg><div class=\\'text-purple-300 font-mono text-sm uppercase tracking-widest opacity-90\\'>Vídeo disponível apenas no computador da cabine</div></div>'"></video>
+              </div>
+            `;
+            // Aplica volume atual ao novo elemento de vídeo
+            videoEl = document.getElementById('projectorVideoPlayer');
+            if (videoEl && typeof window.currentVideoVolume !== 'undefined') {
+              videoEl.volume = window.currentVideoVolume;
+            }
+          }
+        } else if (cur.imageUrl) {
+          view.innerHTML = `<img src="${cur.imageUrl}" class="w-full h-full object-contain" />`;
+        } else if (cur.type === 'song') {
           view.innerHTML = `
-            <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center bg-black">
-              <div class="font-bebas text-5xl sm:text-7xl text-purple-400 font-bold mb-6 tracking-widest">${cur.reference || ''}</div>
-              <div class="font-sans font-black text-4xl sm:text-6xl text-white max-w-6xl leading-snug">${cur.text || ''}</div>
+            <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center relative select-none">
+              <div class="font-sans font-black text-5xl sm:text-[80px] text-white uppercase max-w-[90%] leading-snug tracking-wide" style="text-shadow: 3px 3px 0 #000, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 0px 5px 10px rgba(0,0,0,0.8);">
+                ${cur.text ? cur.text.replace(/\n/g, '<br>') : ''}
+              </div>
+              
+              <div class="absolute bottom-12 right-16 flex items-end">
+                <div class="w-[52px] h-[52px] rounded-full bg-[#FFD700] flex items-center justify-center text-black z-10 border-[3px] border-[#FFD700] shadow-xl">
+                  <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </div>
+                <div class="border-b-[5px] border-[#FFD700] pb-1.5 pl-16 pr-2 ml-[-25px] mb-2 flex-1 shadow-2xl">
+                  <div class="font-sans font-black text-3xl sm:text-[34px] text-[#FFD700] uppercase tracking-wider text-right" style="text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0px 4px 6px rgba(0,0,0,0.8);">
+                    ${formatReference(cur.reference) || ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          const ref = formatReference(cur.reference);
+          view.innerHTML = `
+            <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center select-none">
+              ${ref ? `<div class="font-bebas text-5xl sm:text-7xl text-purple-400 font-bold mb-6 tracking-widest drop-shadow-lg" style="text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;">${ref}</div>` : ''}
+              <div class="font-sans font-black text-4xl sm:text-6xl text-white max-w-6xl leading-snug drop-shadow-2xl whitespace-pre-wrap" style="text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;">${cur.text || ''}</div>
             </div>
           `;
         }
       };
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'g' || e.key === 'G') {
+          if (currentBg === 'green') currentBg = 'transparent';
+          else if (currentBg === 'transparent') currentBg = 'black';
+          else currentBg = 'green';
+          updateProjector();
+        }
+      });
 
       liveDocRef.onSnapshot((doc) => {
         if (doc.exists) {
           const data = doc.data();
           if (typeof data.currentSlideIdx === 'number') currentSlideIdx = data.currentSlideIdx;
           if (typeof data.isBlackout === 'boolean') isBlackout = data.isBlackout;
+          if (data.activeSlide) currentLiveSlide = data.activeSlide;
+          if (data.videoControl) handleVideoControlAction(data.videoControl);
           updateProjector();
         }
       });
@@ -944,6 +1405,8 @@
           if (msg.data.slides) slides = msg.data.slides;
           if (typeof msg.data.currentSlideIdx === 'number') currentSlideIdx = msg.data.currentSlideIdx;
           if (typeof msg.data.isBlackout === 'boolean') isBlackout = msg.data.isBlackout;
+          if (msg.data.activeSlide) currentLiveSlide = msg.data.activeSlide;
+          if (msg.data.videoControl) handleVideoControlAction(msg.data.videoControl);
           updateProjector();
         }
       };
@@ -959,6 +1422,519 @@
       }, 1000);
     }
 
+    // --- PDF LIBRARY (metadados persistem em memória) ---
+    let pdfLibrary = []; // [{id, name, pageCount, slides: [...]}]
+
+    function renderPdfLibrary() {
+      const listEl = document.getElementById('pdfLibraryList');
+      if (!listEl) return;
+      if (pdfLibrary.length === 0) {
+        listEl.innerHTML = '<div class="text-[10px] text-zinc-600 italic px-1">Nenhum PDF carregado ainda...</div>';
+        return;
+      }
+      
+      const currentPdfId = (slides.length > 0 && slides[0].pdfId) ? slides[0].pdfId : null;
+      
+      listEl.innerHTML = pdfLibrary.map(pdf => {
+        const isActive = (currentPdfId === pdf.id);
+        const activeClasses = isActive 
+          ? 'bg-rose-500/25 border-rose-400 ring-1 ring-rose-400 text-white shadow-lg' 
+          : 'bg-[#11162d] border-rose-500/30 hover:border-rose-400/60 hover:bg-rose-500/10 text-white';
+          
+        return `
+          <div class="flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition-all ${activeClasses} group" onclick="jumpToPdf('${pdf.id}')">
+            <div class="w-8 h-8 rounded-lg ${isActive ? 'bg-rose-500 text-white' : 'bg-rose-500/20 text-rose-300'} flex items-center justify-center text-[9px] font-black flex-shrink-0 leading-none">PDF</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-bold truncate group-hover:text-rose-200 transition-colors">${pdf.name}</div>
+              <div class="text-[9px] text-zinc-400">${pdf.pageCount} páginas ${isActive ? '• <span class="text-rose-300 font-bold">ATIVO</span>' : ''}</div>
+            </div>
+            <button onclick="event.stopPropagation(); removePdf('${pdf.id}')" class="w-5 h-5 rounded flex items-center justify-center text-zinc-500 hover:text-rose-400 hover:bg-rose-500/20 transition-all flex-shrink-0 text-xs" title="Remover PDF">✕</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function jumpToPdf(pdfId) {
+      const pdf = pdfLibrary.find(p => p.id === pdfId);
+      if (!pdf || !pdf.slides || pdf.slides.length === 0) return;
+      
+      // Carrega os slides do PDF selecionado
+      slides = pdf.slides;
+      slides.forEach((s, i) => s.index = i);
+      currentSlideIdx = 0;
+      isBlackout = false;
+      renderAllViews();
+      renderPdfLibrary();
+      renderVideoLibrary();
+      saveSlidesToFirebaseAndBroadcast(slides);
+    }
+
+    function removePdf(pdfId) {
+      pdfLibrary = pdfLibrary.filter(p => p.id !== pdfId);
+      renderPdfLibrary();
+      broadcastMaterialsManifest();
+      
+      if (slides.length > 0 && slides[0].pdfId === pdfId) {
+        if (pdfLibrary.length > 0) {
+          jumpToPdf(pdfLibrary[0].id);
+        } else if (videoLibrary.length > 0) {
+          jumpToVideo(videoLibrary[0].id);
+        } else {
+          slides = [];
+          currentSlideIdx = 0;
+          renderAllViews();
+          saveSlidesToFirebaseAndBroadcast(slides);
+        }
+      }
+    }
+
+    function clearAllPdfs() {
+      pdfLibrary = [];
+      renderPdfLibrary();
+      broadcastMaterialsManifest();
+      if (slides.length > 0 && slides[0].type === 'image') {
+        slides = [];
+        currentSlideIdx = 0;
+        renderAllViews();
+        saveSlidesToFirebaseAndBroadcast(slides);
+      }
+    }
+
+    // --- VIDEO MP4 LOCAL LIBRARY & PLAYBACK CONTROLLER ---
+    function handleVideoUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const videoId = 'vid_' + Date.now();
+      const videoUrl = URL.createObjectURL(file);
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+      const cleanName = file.name.replace(/\.[^/.]+$/, "");
+
+      // Adiciona à lista de vídeos
+      videoLibrary.push({
+        id: videoId,
+        name: cleanName,
+        videoUrl: videoUrl,
+        size: sizeMb
+      });
+
+      renderVideoLibrary();
+      renderPdfLibrary();
+
+      // Ativa este vídeo imediatamente no telão
+      jumpToVideo(videoId);
+      broadcastMaterialsManifest();
+
+      if (e.target) e.target.value = '';
+    }
+
+    function renderVideoLibrary() {
+      const listEl = document.getElementById('videoLibraryList');
+      if (!listEl) return;
+      if (videoLibrary.length === 0) {
+        listEl.innerHTML = '<div class="text-[10px] text-zinc-600 italic px-1">Nenhum vídeo carregado ainda...</div>';
+        return;
+      }
+
+      const currentVideoId = (slides.length > 0 && slides[0].type === 'video' && slides[0].videoId) ? slides[0].videoId : null;
+
+      listEl.innerHTML = videoLibrary.map(v => {
+        const isActive = (currentVideoId === v.id);
+        const activeClasses = isActive 
+          ? 'bg-purple-500/25 border-purple-400 ring-1 ring-purple-400 text-white shadow-lg' 
+          : 'bg-[#11162d] border-purple-500/30 hover:border-purple-400/60 hover:bg-purple-500/10 text-white';
+
+        return `
+          <div class="flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition-all ${activeClasses} group" onclick="jumpToVideo('${v.id}')">
+            <div class="w-8 h-8 rounded-lg ${isActive ? 'bg-purple-500 text-white' : 'bg-purple-600/20 text-purple-300'} flex items-center justify-center text-[10px] font-black flex-shrink-0 leading-none">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-bold truncate group-hover:text-purple-200 transition-colors">${v.name}</div>
+              <div class="text-[9px] text-zinc-400">${v.size} ${isActive ? '• <span class="text-purple-300 font-bold">AO VIVO</span>' : ''}</div>
+            </div>
+            <button onclick="event.stopPropagation(); removeVideo('${v.id}')" class="w-5 h-5 rounded flex items-center justify-center text-zinc-500 hover:text-purple-400 hover:bg-purple-500/20 transition-all flex-shrink-0 text-xs" title="Remover Vídeo">✕</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function jumpToVideo(videoId) {
+      const video = videoLibrary.find(v => v.id === videoId);
+      if (!video) return;
+
+      const newSlides = [{
+        index: 0,
+        reference: video.name,
+        text: "",
+        videoUrl: video.videoUrl,
+        videoId: video.id,
+        type: "video"
+      }];
+
+      slides = newSlides;
+      currentSlideIdx = 0;
+      isBlackout = false;
+      isPastorVideoPlaying = true;
+      updatePastorVideoButtonUI();
+
+      renderAllViews();
+      renderPdfLibrary();
+      renderVideoLibrary();
+      saveSlidesToFirebaseAndBroadcast(slides);
+    }
+
+    function removeVideo(videoId) {
+      videoLibrary = videoLibrary.filter(v => v.id !== videoId);
+      renderVideoLibrary();
+      broadcastMaterialsManifest();
+
+      if (slides.length > 0 && slides[0].type === 'video' && slides[0].videoId === videoId) {
+        if (videoLibrary.length > 0) {
+          jumpToVideo(videoLibrary[0].id);
+        } else if (pdfLibrary.length > 0) {
+          jumpToPdf(pdfLibrary[0].id);
+        } else {
+          slides = [];
+          currentSlideIdx = 0;
+          renderAllViews();
+          saveSlidesToFirebaseAndBroadcast(slides);
+        }
+      }
+    }
+
+    function updatePastorVideoButtonUI() {
+      const icon = document.getElementById('pastorVideoPlayPauseIcon');
+      const label = document.getElementById('pastorVideoPlayPauseLabel');
+      const btn = document.getElementById('pastorBtnVideoPlayPause');
+      if (!btn || !label || !icon) return;
+
+      if (isPastorVideoPlaying) {
+        icon.textContent = '⏸️';
+        label.textContent = 'PAUSAR VÍDEO';
+        btn.className = "px-6 py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 active:scale-95 text-white font-black text-sm sm:text-base flex items-center gap-2 shadow-2xl shadow-purple-600/40 transition-all cursor-pointer";
+      } else {
+        icon.textContent = '▶️';
+        label.textContent = 'DAR PLAY NO VÍDEO';
+        btn.className = "px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm sm:text-base flex items-center gap-2 shadow-2xl shadow-emerald-600/40 transition-all cursor-pointer";
+      }
+    }
+
+    async function togglePastorVideoPlayback() {
+      isPastorVideoPlaying = !isPastorVideoPlaying;
+      updatePastorVideoButtonUI();
+
+      const ctrlPayload = {
+        videoControl: {
+          action: isPastorVideoPlaying ? 'play' : 'pause',
+          timestamp: Date.now()
+        }
+      };
+
+      localChannel.postMessage(ctrlPayload);
+      try {
+        await liveDocRef.set(ctrlPayload, { merge: true });
+      } catch (err) {
+        console.warn("Video control broadcast error:", err);
+      }
+    }
+
+    async function restartPastorVideoPlayback() {
+      isPastorVideoPlaying = true;
+      updatePastorVideoButtonUI();
+
+      const ctrlPayload = {
+        videoControl: {
+          action: 'restart',
+          timestamp: Date.now()
+        }
+      };
+
+      localChannel.postMessage(ctrlPayload);
+      try {
+        await liveDocRef.set(ctrlPayload, { merge: true });
+      } catch (err) {
+        console.warn("Video control broadcast error:", err);
+      }
+    }
+
+    async function setPastorVideoVolume(volume) {
+      window.currentVideoVolume = parseFloat(volume);
+      
+      const ctrlPayload = {
+        videoControl: {
+          action: 'volume',
+          volume: window.currentVideoVolume,
+          timestamp: Date.now()
+        }
+      };
+
+      localChannel.postMessage(ctrlPayload);
+      try {
+        await liveDocRef.set(ctrlPayload, { merge: true });
+      } catch (err) {
+        console.warn("Video volume broadcast error:", err);
+      }
+    }
+
+    // --- PASTOR MATERIALS DRAWER MODAL ---
+    function openPastorMaterialsModal() {
+      const modal = document.getElementById('pastorMaterialsModal');
+      if (modal) modal.classList.remove('hidden');
+      renderMaterialsModal();
+      lucide.createIcons();
+      
+      // Busca atualizada imediata da nuvem para garantir
+      liveDocRef.get().then((doc) => {
+        if (doc.exists) {
+          const d = doc.data();
+          if (d.materialsManifest && Array.isArray(d.materialsManifest.pdfs) && Array.isArray(d.materialsManifest.videos)) {
+            materialsManifest = d.materialsManifest;
+            renderMaterialsModal();
+          }
+        }
+      }).catch((e) => console.warn("Fetch manifest on open modal error:", e));
+    }
+
+    function closePastorMaterialsModal() {
+      const modal = document.getElementById('pastorMaterialsModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function renderMaterialsModal() {
+      // 1. Render PDFs
+      const pdfListEl = document.getElementById('pastorModalPdfList');
+      const pdfCountEl = document.getElementById('pastorModalPdfCount');
+      const activePdfId = (slides.length > 0 && slides[0].pdfId) ? slides[0].pdfId : null;
+
+      const pdfs = (pdfLibrary && pdfLibrary.length > 0) ? pdfLibrary : (materialsManifest.pdfs || []);
+      if (pdfCountEl) pdfCountEl.textContent = `${pdfs.length} arquivo${pdfs.length !== 1 ? 's' : ''}`;
+
+      if (pdfs.length === 0) {
+        pdfListEl.innerHTML = '<div class="text-xs text-zinc-500 italic p-3 bg-[#0d122b] rounded-2xl border border-white/[0.05] col-span-full">Nenhum PDF carregado no momento.</div>';
+      } else {
+        pdfListEl.innerHTML = pdfs.map(pdf => {
+          const isActive = activePdfId === pdf.id;
+          return `
+            <div onclick="requestSelectMaterial('pdf', '${pdf.id}')" class="flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${isActive ? 'bg-rose-600/30 border-rose-400 ring-2 ring-rose-400 text-white' : 'bg-[#11162d] border-rose-500/30 hover:border-rose-400/60 hover:bg-rose-500/10 text-white'} active:scale-95 shadow-md">
+              <div class="w-10 h-10 rounded-xl ${isActive ? 'bg-rose-500 text-white' : 'bg-rose-500/20 text-rose-300'} flex items-center justify-center font-black text-xs flex-shrink-0">PDF</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold truncate">${pdf.name}</div>
+                <div class="text-xs text-zinc-400">${pdf.pageCount} páginas ${isActive ? '• <span class="text-rose-300 font-bold">EM EXIBIÇÃO</span>' : ''}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 2. Render Videos
+      const videoListEl = document.getElementById('pastorModalVideoList');
+      const videoCountEl = document.getElementById('pastorModalVideoCount');
+      const activeVideoId = (slides.length > 0 && slides[0].type === 'video' && slides[0].videoId) ? slides[0].videoId : null;
+
+      const videos = (videoLibrary && videoLibrary.length > 0) ? videoLibrary : (materialsManifest.videos || []);
+      if (videoCountEl) videoCountEl.textContent = `${videos.length} vídeo${videos.length !== 1 ? 's' : ''}`;
+
+      if (videos.length === 0) {
+        videoListEl.innerHTML = '<div class="text-xs text-zinc-500 italic p-3 bg-[#0d122b] rounded-2xl border border-white/[0.05] col-span-full">Nenhum vídeo carregado no momento.</div>';
+      } else {
+        videoListEl.innerHTML = videos.map(v => {
+          const isActive = activeVideoId === v.id;
+          return `
+            <div onclick="requestSelectMaterial('video', '${v.id}')" class="flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${isActive ? 'bg-purple-600/30 border-purple-400 ring-2 ring-purple-400 text-white' : 'bg-[#11162d] border-purple-500/30 hover:border-purple-400/60 hover:bg-purple-500/10 text-white'} active:scale-95 shadow-md">
+              <div class="w-10 h-10 rounded-xl ${isActive ? 'bg-purple-500 text-white' : 'bg-purple-600/20 text-purple-300'} flex items-center justify-center font-black text-xs flex-shrink-0">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold truncate">${v.name}</div>
+                <div class="text-xs text-zinc-400">${v.size || 'Vídeo MP4'} ${isActive ? '• <span class="text-purple-300 font-bold">AO VIVO NO TELÃO</span>' : ''}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 3. Render Songs
+      renderPastorModalSongs(songsDatabase.slice(0, 20));
+    }
+
+    function renderPastorModalSongs(songs) {
+      const songListEl = document.getElementById('pastorModalSongList');
+      if (!songListEl) return;
+
+      if (!songs || songs.length === 0) {
+        songListEl.innerHTML = '<div class="text-xs text-zinc-500 italic p-3 bg-[#0d122b] rounded-2xl border border-white/[0.05] col-span-full">Nenhuma música encontrada.</div>';
+        return;
+      }
+
+      songListEl.innerHTML = songs.map(song => {
+        return `
+          <div onclick="requestSelectMaterial('song', '${song.id}')" class="p-3 rounded-2xl border border-amber-500/20 bg-[#11162d] hover:bg-amber-500/10 hover:border-amber-400/50 cursor-pointer active:scale-95 transition-all text-white shadow-sm">
+            <div class="text-xs font-bold truncate text-amber-200">${song.title || 'Sem Título'}</div>
+            <div class="text-[10px] text-zinc-400 truncate">${song.artist || ''}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handlePastorModalSongSearch(e) {
+      const query = e.target.value.trim();
+      if (query.length < 2) {
+        renderPastorModalSongs(songsDatabase.slice(0, 20));
+        return;
+      }
+      const results = fuzzysort.go(query, songsDatabase, {
+        key: '_searchable',
+        limit: 20
+      });
+      renderPastorModalSongs(results.map(r => r.obj));
+    }
+
+    async function requestSelectMaterial(type, id) {
+      closePastorMaterialsModal();
+
+      // Se estiver na mesma aba / máquina que tem os arquivos carregados
+      if (type === 'pdf') {
+        const p = pdfLibrary.find(item => item.id === id);
+        if (p) jumpToPdf(id);
+      } else if (type === 'video') {
+        const v = videoLibrary.find(item => item.id === id);
+        if (v) jumpToVideo(id);
+      } else if (type === 'song') {
+        addSongToPresentation(id);
+      }
+
+      // Broadcast do pedido para o Firestore & canal local para sincronizar remotamente
+      const reqPayload = {
+        requestMaterial: {
+          type: type,
+          id: id,
+          timestamp: Date.now()
+        }
+      };
+
+      localChannel.postMessage(reqPayload);
+      try {
+        await liveDocRef.set(reqPayload, { merge: true });
+      } catch (err) {
+        console.warn("Request material broadcast error:", err);
+      }
+    }
+
+    // --- HOLYRICS MUSIC SEARCH ---
+    let songsDatabase = [];
+    async function loadSongsDatabase() {
+      try {
+        const res = await fetch('../assets/holyrics_songs.json');
+        const data = await res.json();
+        songsDatabase = data.map(song => {
+           const text = song.lyrics && song.lyrics.full_text ? song.lyrics.full_text : "";
+           return {
+             ...song,
+             _searchable: song.title + " " + (song.artist || "") + " " + text
+           };
+        });
+        document.getElementById('songsDbStatus').textContent = `${songsDatabase.length} músicas`;
+        document.getElementById('songsDbStatus').classList.replace('text-zinc-500', 'text-emerald-400');
+        renderSongList(songsDatabase);
+      } catch (err) {
+        document.getElementById('songsDbStatus').textContent = "Falha ao carregar Músicas";
+        document.getElementById('songsDbStatus').classList.replace('text-zinc-500', 'text-rose-400');
+        document.getElementById('holyricsSongList').innerHTML = `<div class="p-4 text-xs text-rose-500 text-center">Erro: ${err.message}</div>`;
+        console.error("Erro carregando holyrics_songs.json:", err);
+      }
+    }
+
+    if (currentMode !== 'projector') {
+      loadSongsDatabase();
+    }
+
+    function renderSongList(songs) {
+      const listEl = document.getElementById('holyricsSongList');
+      if (songs.length === 0) {
+        listEl.innerHTML = `<div class="p-4 text-xs text-zinc-500 text-center">Nenhuma música encontrada...</div>`;
+        return;
+      }
+      
+      let html = '';
+      // Render max 100 to avoid freezing the DOM if the user clears the search
+      const toRender = songs.slice(0, 100);
+      
+      toRender.forEach(song => {
+        const text = song.lyrics && song.lyrics.full_text ? song.lyrics.full_text : "";
+        let snippet = text.substring(0, 70).replace(/\n/g, ' - ') + '...';
+        html += `
+          <div class="p-3 border-b border-white/[0.05] hover:bg-white/[0.05] cursor-pointer transition-colors" onclick="addSongToPresentation('${song.id}')">
+            <div class="text-sm font-bold text-white">${song.title || 'Sem Título'}</div>
+            <div class="text-[10px] text-zinc-400 font-bold mb-1">${song.artist || 'Sem Artista'}</div>
+            <div class="text-[10px] text-zinc-500 truncate">${snippet}</div>
+          </div>
+        `;
+      });
+      
+      if (songs.length > 100) {
+        html += `<div class="p-3 text-[10px] text-zinc-500 text-center font-bold">+ ${songs.length - 100} músicas (Use a busca para refinar)</div>`;
+      }
+      listEl.innerHTML = html;
+    }
+
+    function handleSongSearch(e) {
+      const query = e.target.value.trim();
+      if (query.length < 2) {
+        renderSongList(songsDatabase);
+        return;
+      }
+      
+      const results = fuzzysort.go(query, songsDatabase, {
+        key: '_searchable',
+        limit: 100
+      });
+      
+      renderSongList(results.map(r => r.obj));
+    }
+
+    function addSongToPresentation(songId) {
+      const song = songsDatabase.find(s => s.id == songId);
+      if (!song) return;
+      
+      // Sem slide de título - vai direto pras estrofes
+      let newSongSlides = [];
+      
+      if (song.lyrics && song.lyrics.paragraphs) {
+        song.lyrics.paragraphs.forEach(p => {
+          if (!p.text || !p.text.trim()) return;
+          newSongSlides.push({
+            reference: song.title || "Louvor",
+            text: p.text.trim(),
+            type: "song"
+          });
+        });
+      }
+      
+      if (newSongSlides.length === 0) {
+        newSongSlides.push({
+          reference: song.title || "Louvor",
+          text: song.artist || "",
+          type: "song"
+        });
+      }
+      
+      // Músicas ativam imediatamente a sua própria lista de estrofes (o PDF fica salvo na biblioteca lateral)
+      slides = newSongSlides;
+      slides.forEach((s, i) => s.index = i);
+      currentSlideIdx = 0;
+      isBlackout = false;
+      
+      renderAllViews();
+      renderPdfLibrary();
+      renderVideoLibrary();
+      saveSlidesToFirebaseAndBroadcast(slides);
+      broadcastMaterialsManifest();
+      
+      const searchInput = document.getElementById('songSearchInput');
+      if (searchInput) searchInput.value = '';
+    }
+
     function toggleFullScreen() {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(() => {});
@@ -966,98 +1942,186 @@
         if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
       }
     }
-    // --- HOLYRICS / LETRAS LOGIC ---
-    let holyricsSongs = [];
-    let holyricsSearchTimeout = null;
 
-    fetch('../assets/holyrics_songs.json')
-      .then(res => res.json())
-      .then(data => {
-        holyricsSongs = data;
-        console.log("Holyrics carregados: ", data.length);
-      })
-      .catch(err => console.error("Erro ao carregar holyrics_songs.json:", err));
-
-    const hinoSearchInput = document.getElementById('hinoSearchInput');
-    const hinoSearchResults = document.getElementById('hinoSearchResults');
-
-    if (hinoSearchInput) {
-      hinoSearchInput.addEventListener('input', (e) => {
-        clearTimeout(holyricsSearchTimeout);
-        const q = e.target.value.toLowerCase().trim();
-        
-        if (q.length < 2) {
-          hinoSearchResults.classList.add('hidden');
-          return;
-        }
-
-        holyricsSearchTimeout = setTimeout(() => {
-          const results = holyricsSongs.filter(s => 
-            (s.title && s.title.toLowerCase().includes(q)) || 
-            (s.author && s.author.toLowerCase().includes(q)) ||
-            (s.lyrics && s.lyrics.paragraphs && s.lyrics.paragraphs.some(p => p.lines && p.lines.some(l => l.toLowerCase().includes(q))))
-          ).slice(0, 20);
-
-          renderHinoResults(results);
-        }, 300);
-      });
+    // --- VMIX & TELÃO MODAL HELPERS ---
+    function openVmixModal() {
+      document.getElementById('vmixModal').classList.remove('hidden');
     }
 
-    function renderHinoResults(results) {
-      hinoSearchResults.innerHTML = '';
-      if (results.length === 0) {
-        hinoSearchResults.innerHTML = '<div class="p-2 text-xs text-zinc-500 text-center">Nenhum hino encontrado.</div>';
-      } else {
-        results.forEach((song, idx) => {
-          const btn = document.createElement('button');
-          btn.className = 'w-full text-left p-2 hover:bg-emerald-500/20 border-b border-white/5 transition-colors focus:outline-none';
-          btn.innerHTML = `<div class="text-xs font-bold text-emerald-400">${song.title}</div><div class="text-[10px] text-zinc-400">${song.author || 'Autor Desconhecido'}</div>`;
-          btn.onclick = () => loadHinoAsSlides(song);
-          hinoSearchResults.appendChild(btn);
-        });
-      }
-      hinoSearchResults.classList.remove('hidden');
+    function closeVmixModal() {
+      document.getElementById('vmixModal').classList.add('hidden');
     }
 
-    async function loadHinoAsSlides(song) {
-      hinoSearchResults.classList.add('hidden');
-      hinoSearchInput.value = '';
+    function copyVmixUrl(type) {
+      const baseUrl = window.location.origin + window.location.pathname;
+      let url = baseUrl;
+      if (type === 'transparent') {
+        url = baseUrl + '?mode=vmix';
+      } else if (type === 'green') {
+        url = baseUrl + '?mode=projector&bg=green';
+      } else if (type === 'black') {
+        url = baseUrl + '?mode=projector&bg=black';
+      } else if (type === 'tablet') {
+        url = baseUrl + '?mode=receptor';
+      }
       
-      const newSlides = [];
-      
-      // Slide de Título
-      newSlides.push({
-        index: 0,
-        reference: "LOUVOR",
-        text: `${song.title}\n${song.author || ''}`.trim()
+      navigator.clipboard.writeText(url).then(() => {
+        alert("✓ Link copiado para a área de transferência!\n\n" + url);
+      }).catch(() => {
+        prompt("Copie o link abaixo para colocar no vMix ou Navegador:", url);
       });
-
-      // Parágrafos
-      if (song.lyrics && song.lyrics.paragraphs) {
-        song.lyrics.paragraphs.forEach(p => {
-          if (p.lines && p.lines.length > 0) {
-            newSlides.push({
-              index: newSlides.length,
-              reference: song.title.toUpperCase(),
-              text: p.lines.join('\n')
-            });
-          }
-        });
-      }
-
-      if (newSlides.length > 0) {
-        document.getElementById('uploadProgressBox').classList.remove('hidden');
-        document.getElementById('uploadProgressText').textContent = 'Sincronizando Letra na Nuvem...';
-        try {
-          await saveSlidesToFirebaseAndBroadcast(newSlides);
-          alert(`✓ Hino "${song.title}" carregado e sincronizado com o Púlpito!`);
-        } catch (e) {
-          alert('Erro ao sincronizar hino: ' + e.message);
-        } finally {
-          document.getElementById('uploadProgressBox').classList.add('hidden');
-        }
-      }
     }
   </script>
+
+  <!-- ========================================== -->
+  <!-- MODAL: INTEGRAÇÃO VMIX & TELÃO              -->
+  <!-- ========================================== -->
+  <div id="vmixModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#0b0f24] border border-purple-500/30 rounded-3xl max-w-xl w-full p-6 space-y-5 shadow-2xl relative">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-purple-600/20 text-purple-300 flex items-center justify-center">
+            <i data-lucide="cast" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Integração vMix & Telão Externo</h3>
+            <p class="text-[11px] text-zinc-400">Escolha o formato ideal para a transmissão ou projeção:</p>
+          </div>
+        </div>
+        <button onclick="closeVmixModal()" class="w-8 h-8 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-400 hover:text-white flex items-center justify-center transition-colors">
+          ✕
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <!-- Option 1: vMix Web Browser (Transparente - Sem Chroma Key) -->
+        <div class="p-3.5 rounded-2xl bg-[#111736] border border-purple-500/30 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-emerald-400 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 1. vMix Web Browser (Fundo 100% Transparente)
+            </span>
+            <span class="text-[10px] font-mono text-purple-300 font-bold bg-purple-950/60 px-2 py-0.5 rounded">RECOMENDADO</span>
+          </div>
+          <p class="text-[11px] text-zinc-400">
+            No vMix, clique em <b>Add Input ➔ Web Browser</b> e cole este link. O fundo já vem transparente, sem precisar de Chroma Key!
+          </p>
+          <button onclick="copyVmixUrl('transparent')" class="w-full py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold flex items-center justify-center gap-1.5 transition-all">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Link Transparente p/ vMix
+          </button>
+        </div>
+
+        <!-- Option 2: vMix Chroma Key (Fundo Verde) -->
+        <div class="p-3.5 rounded-2xl bg-[#111736] border border-white/[0.08] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-amber-300 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span> 2. vMix Chroma Key (Fundo Verde #00FF00)
+            </span>
+          </div>
+          <p class="text-[11px] text-zinc-400">
+            Se preferir usar o Colour Key / Chroma Key tradicional do vMix ou mesa de corte:
+          </p>
+          <button onclick="copyVmixUrl('green')" class="w-full py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold flex items-center justify-center gap-1.5 transition-all">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Link Fundo Verde (#00FF00)
+          </button>
+        </div>
+
+        <!-- Option 3: HDMI 2º Monitor / Janela Telão -->
+        <div class="p-3.5 rounded-2xl bg-[#111736] border border-white/[0.08] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-white flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-purple-400"></span> 3. Projetor / HDMI (2º Monitor)
+            </span>
+          </div>
+          <p class="text-[11px] text-zinc-400">
+            Abre uma janela limpa em tela cheia para você arrastar para o segundo monitor ou cabo HDMI da igreja:
+          </p>
+          <div class="flex items-center gap-2">
+            <button onclick="openProjectorWindow(); closeVmixModal();" class="flex-1 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center justify-center gap-1.5 transition-all shadow-lg shadow-purple-600/30">
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Abrir Janela do Telão
+            </button>
+            <button onclick="copyVmixUrl('black')" class="py-2 px-3 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 font-bold border border-white/[0.1] transition-all" title="Copiar Link Fundo Preto">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: ESCOLHER MATERIAL (PASTOR / TABLET) -->
+  <!-- ========================================== -->
+  <div id="pastorMaterialsModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 select-none">
+    <div class="bg-[#0b0f24] border-2 border-purple-500/40 rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col p-4 sm:p-6 space-y-4 shadow-2xl relative overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-purple-600/30 text-purple-300 flex items-center justify-center border border-purple-500/40">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-black text-white">📑 Escolher Material do Culto</h3>
+            <p class="text-xs text-purple-300/80">Toque em qualquer item para exibir no telão e no seu púlpito:</p>
+          </div>
+        </div>
+        <button onclick="closePastorMaterialsModal()" class="w-10 h-10 rounded-2xl bg-white/[0.08] hover:bg-white/[0.15] text-zinc-300 hover:text-white flex items-center justify-center transition-all cursor-pointer font-bold text-lg">
+          ✕
+        </button>
+      </div>
+
+      <!-- Scrollable Materials Content -->
+      <div class="flex-1 overflow-y-auto custom-scrollbar space-y-5 pr-1">
+        
+        <!-- SECTION 1: SERMÕES & PDFs -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="file-text" class="w-4 h-4"></i> Sermões & Slides em PDF
+            </span>
+            <span id="pastorModalPdfCount" class="text-[10px] font-mono text-zinc-400">0 arquivos</span>
+          </div>
+          <div id="pastorModalPdfList" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div class="text-xs text-zinc-500 italic p-3 bg-[#0d122b] rounded-2xl border border-white/[0.05]">Nenhum PDF carregado no momento.</div>
+          </div>
+        </div>
+
+
+
+        <!-- SECTION 3: MÚSICAS & LOUVORES (HOLYRICS) -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="music" class="w-4 h-4"></i> Músicas & Louvores (Holyrics)
+            </span>
+            <span class="text-[10px] font-mono text-zinc-400">Busca rápida</span>
+          </div>
+          <!-- Campo de busca de música dentro do modal do pastor -->
+          <div class="relative">
+            <input
+              type="text"
+              id="pastorModalSongSearch"
+              oninput="handlePastorModalSongSearch(event)"
+              placeholder="Buscar música pelo título ou letra..."
+              class="w-full bg-[#11162d] border border-purple-500/30 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-500 outline-none focus:border-purple-400 font-sans"
+            />
+          </div>
+          <div id="pastorModalSongList" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto custom-scrollbar">
+            <!-- Renderizado dinamicamente -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="pt-2 border-t border-white/[0.08] flex items-center justify-between text-xs text-zinc-400 shrink-0">
+        <span class="text-[11px] font-mono">Dica: você também pode usar os botões laterais [VOLTA] e [AVANÇA]</span>
+        <button onclick="closePastorMaterialsModal()" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold transition-all shadow-md cursor-pointer">
+          Concluir / Voltar
+        </button>
+      </div>
+
+    </div>
+  </div>
 </body>
 </html>
