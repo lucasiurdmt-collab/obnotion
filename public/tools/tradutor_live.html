@@ -3,31 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Tradutor Simultâneo • Obnotion</title>
+  <title>Tradutor Push-to-Talk • Obnotion</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #060810; color: #fff; }
-    .ripple { animation: ripple 1.5s infinite ease-out; }
-    @keyframes ripple {
-      0% { transform: scale(1); opacity: 0.8; }
-      100% { transform: scale(1.5); opacity: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #060810; color: #fff; overscroll-behavior: none; }
+    .ptt-btn {
+      touch-action: none; /* Previne scroll no celular ao segurar o botão */
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .ptt-active {
+      transform: scale(0.95);
+      filter: brightness(1.2);
     }
   </style>
 </head>
 <body class="h-full w-full flex flex-col overflow-hidden select-none">
   
-  <header class="p-4 border-b border-white/10 flex items-center justify-between shrink-0 bg-[#0a0d1c]">
+  <!-- Overlay de Conexão -->
+  <div id="connectOverlay" class="absolute inset-0 z-50 bg-[#060810] flex flex-col items-center justify-center p-6">
+    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+      <i data-lucide="languages" class="w-8 h-8 text-white"></i>
+    </div>
+    <h2 class="text-2xl font-bold text-white mb-2 text-center">Tradutor Pessoal</h2>
+    <p class="text-zinc-400 text-center mb-8 max-w-xs">Pressione e segure os botões para falar. A IA traduzirá automaticamente.</p>
+    
+    <div class="w-full max-w-xs mb-8">
+      <label class="block text-sm text-zinc-400 mb-2 font-bold">Idioma do Estrangeiro:</label>
+      <select id="targetLang" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-4 text-white font-bold outline-none focus:border-emerald-500 appearance-none">
+        <option value="Inglês">🇺🇸 Inglês</option>
+        <option value="Espanhol">🇪🇸 Espanhol</option>
+        <option value="Francês">🇫🇷 Francês</option>
+        <option value="Italiano">🇮🇹 Italiano</option>
+        <option value="Alemão">🇩🇪 Alemão</option>
+      </select>
+    </div>
+
+    <button id="btnConnect" class="w-full max-w-xs py-4 rounded-full bg-emerald-600 text-white font-bold text-lg shadow-lg active:scale-95 transition-transform">
+      Conectar Áudio
+    </button>
+  </div>
+
+  <header class="p-4 border-b border-white/10 flex items-center justify-between shrink-0 bg-[#0a0d1c] z-10 relative shadow-md">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-lg">
-        <i data-lucide="languages" class="w-5 h-5"></i>
+      <div class="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-emerald-400">
+        <i data-lucide="mic" class="w-5 h-5"></i>
       </div>
       <div>
-        <h1 class="text-lg font-bold leading-tight">Tradutor Ao Vivo</h1>
-        <p class="text-xs text-emerald-400 font-mono flex items-center gap-1">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          IA Tempo Real
-        </p>
+        <h1 class="text-base font-bold leading-tight" id="headerTitle">Tradutor (Inglês)</h1>
+        <p id="connStatus" class="text-xs text-zinc-500 font-mono">Aguardando...</p>
       </div>
     </div>
     <button onclick="window.close()" class="p-2 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400">
@@ -35,27 +60,31 @@
     </button>
   </header>
 
-  <main class="flex-1 flex flex-col items-center justify-between p-6 overflow-hidden relative">
+  <main class="flex-1 flex flex-col items-center justify-between overflow-hidden relative">
     
-    <!-- Status & Transcripts -->
-    <div class="w-full max-w-md flex-1 flex flex-col overflow-hidden relative z-10 space-y-4">
-      <div id="statusText" class="text-center text-zinc-500 text-sm italic py-2">Toque no microfone para iniciar...</div>
-      
-      <div class="flex-1 overflow-y-auto space-y-6 pb-20 scroll-smooth flex flex-col-reverse custom-scrollbar" id="transcriptContainer">
-        <!-- Messages injected here -->
+    <!-- Transcripts -->
+    <div class="w-full flex-1 flex flex-col overflow-hidden relative z-10">
+      <div class="flex-1 overflow-y-auto p-4 space-y-4 pb-4 scroll-smooth flex flex-col-reverse" id="transcriptContainer">
+        <!-- Messages -->
       </div>
     </div>
 
-    <!-- Main Mic Button -->
-    <div class="shrink-0 pt-6 pb-8 flex flex-col items-center relative z-20">
-      <div id="micRing" class="absolute inset-0 bg-emerald-500/20 rounded-full scale-100 transition-all opacity-0 pointer-events-none" style="top: 24px; bottom: 32px; left: -10px; right: -10px;"></div>
+    <!-- Push to Talk Area -->
+    <div class="shrink-0 w-full bg-[#0a0d1c] border-t border-white/5 p-4 flex flex-col gap-3 z-20 pb-8">
       
-      <button id="micBtn" class="w-24 h-24 rounded-full bg-zinc-800 border-4 border-zinc-700 flex items-center justify-center text-zinc-400 transition-all active:scale-95 shadow-2xl z-10">
-        <i data-lucide="mic" class="w-10 h-10"></i>
+      <!-- Botão Outro Idioma -->
+      <button id="btnForeign" class="ptt-btn w-full h-24 rounded-2xl bg-blue-600/20 border-2 border-blue-600 flex flex-col items-center justify-center text-blue-400 transition-all shadow-[inset_0_0_20px_rgba(37,99,235,0.1)]">
+        <i data-lucide="message-circle" class="w-6 h-6 mb-1 pointer-events-none"></i>
+        <span class="font-bold tracking-wide pointer-events-none" id="lblForeign">Segure para INGLÊS</span>
       </button>
-      <p id="micLabel" class="mt-4 text-sm font-bold text-zinc-400 tracking-wide uppercase">Iniciar</p>
-    </div>
 
+      <!-- Botão Português -->
+      <button id="btnUser" class="ptt-btn w-full h-24 rounded-2xl bg-emerald-600/20 border-2 border-emerald-600 flex flex-col items-center justify-center text-emerald-400 transition-all shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]">
+        <i data-lucide="mic" class="w-6 h-6 mb-1 pointer-events-none"></i>
+        <span class="font-bold tracking-wide pointer-events-none">Segure para PORTUGUÊS</span>
+      </button>
+
+    </div>
   </main>
 
   <script>
@@ -70,46 +99,105 @@
     let micNode = null;
     let processorNode = null;
     
-    let isRecording = false;
+    let isConnected = false;
+    let isMicMuted = true; // Controla se estamos enviando áudio
     let nextPlayTime = 0;
+    let targetLang = "Inglês";
 
-    const micBtn = document.getElementById('micBtn');
-    const micRing = document.getElementById('micRing');
-    const micLabel = document.getElementById('micLabel');
-    const statusText = document.getElementById('statusText');
     const transcriptContainer = document.getElementById('transcriptContainer');
+    const connStatus = document.getElementById('connStatus');
+    
+    // Botões
+    const btnConnect = document.getElementById('btnConnect');
+    const btnForeign = document.getElementById('btnForeign');
+    const btnUser = document.getElementById('btnUser');
+    const lblForeign = document.getElementById('lblForeign');
+    const connectOverlay = document.getElementById('connectOverlay');
+    const targetLangSelect = document.getElementById('targetLang');
+    const headerTitle = document.getElementById('headerTitle');
 
     function addBubble(text, isUser) {
       const wrapper = document.createElement('div');
       wrapper.className = \lex w-full \\;
       
       const bubble = document.createElement('div');
-      bubble.className = \max-w-[80%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed shadow-lg \\;
+      bubble.className = \max-w-[85%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed shadow-lg \\;
       bubble.textContent = text;
       
       wrapper.appendChild(bubble);
       transcriptContainer.prepend(wrapper);
     }
 
-    async function toggleConnection() {
-      if (isRecording) stopSession();
-      else await startSession();
+    // Gerenciamento dos botões (Push to Talk)
+    function startListening(btnElement) {
+      if (!isConnected) return;
+      isMicMuted = false;
+      btnElement.classList.add('ptt-active');
+      btnElement.classList.replace('bg-emerald-600/20', 'bg-emerald-600/40');
+      btnElement.classList.replace('bg-blue-600/20', 'bg-blue-600/40');
+      
+      // Quando começamos a falar, interrompemos qualquer áudio que a IA esteja falando
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        // Envia comando para interromper (opcional, ou apenas silenciamos localmente)
+      }
     }
 
-    micBtn.addEventListener('click', toggleConnection);
+    function stopListening(btnElement) {
+      isMicMuted = true;
+      btnElement.classList.remove('ptt-active');
+      btnElement.classList.replace('bg-emerald-600/40', 'bg-emerald-600/20');
+      btnElement.classList.replace('bg-blue-600/40', 'bg-blue-600/20');
+    }
+
+    // Eventos PTT User (Português)
+    btnUser.addEventListener('mousedown', () => startListening(btnUser));
+    btnUser.addEventListener('touchstart', (e) => { e.preventDefault(); startListening(btnUser); });
+    btnUser.addEventListener('mouseup', () => stopListening(btnUser));
+    btnUser.addEventListener('touchend', (e) => { e.preventDefault(); stopListening(btnUser); });
+    btnUser.addEventListener('mouseleave', () => stopListening(btnUser));
+    btnUser.addEventListener('touchcancel', () => stopListening(btnUser));
+
+    // Eventos PTT Foreign (Outro Idioma)
+    btnForeign.addEventListener('mousedown', () => startListening(btnForeign));
+    btnForeign.addEventListener('touchstart', (e) => { e.preventDefault(); startListening(btnForeign); });
+    btnForeign.addEventListener('mouseup', () => stopListening(btnForeign));
+    btnForeign.addEventListener('touchend', (e) => { e.preventDefault(); stopListening(btnForeign); });
+    btnForeign.addEventListener('mouseleave', () => stopListening(btnForeign));
+    btnForeign.addEventListener('touchcancel', () => stopListening(btnForeign));
+
+
+    // Conexão Inicial
+    btnConnect.addEventListener('click', async () => {
+      targetLang = targetLangSelect.value;
+      lblForeign.textContent = \Segure para \\;
+      headerTitle.textContent = \Tradutor (\)\;
+      
+      btnConnect.textContent = "Conectando...";
+      btnConnect.disabled = true;
+
+      try {
+        await startSession();
+        connectOverlay.style.display = 'none';
+        isConnected = true;
+      } catch (e) {
+        console.error(e);
+        btnConnect.textContent = "Erro. Tentar novamente";
+        btnConnect.disabled = false;
+        alert("Erro ao conectar microfone ou servidor.");
+      }
+    });
 
     async function startSession() {
-      try {
-        statusText.textContent = 'Conectando ao Gemini...';
-        
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
-        nextPlayTime = audioCtx.currentTime;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+      nextPlayTime = audioCtx.currentTime;
 
-        const url = \wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=\\;
-        ws = new WebSocket(url);
+      const url = \wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=\\;
+      ws = new WebSocket(url);
 
+      return new Promise((resolve, reject) => {
         ws.onopen = async () => {
-          statusText.textContent = 'Configurando tradutor...';
+          connStatus.textContent = "Configurando IA...";
+          connStatus.className = "text-xs text-blue-400 font-mono";
           
           const setupMsg = {
             setup: {
@@ -117,27 +205,36 @@
               generationConfig: {
                 responseModalities: ["AUDIO"],
                 speechConfig: {
-                  voiceConfig: { prebuiltVoiceConfig: { voiceName: "Aoede" } }
+                  voiceConfig: { prebuiltVoiceConfig: { voiceName: "Aoede" } } // Voz amigável e clara
                 }
               },
               systemInstruction: {
                 parts: [{
-                  text: "Você é um tradutor simultâneo bilíngue (Inglês <-> Português) para uma conversa presencial. Traduza TUDO que ouvir de forma natural, rápida e coloquial. NUNCA adicione comentários próprios, NUNCA responda às perguntas, NUNCA converse comigo, APENAS TRADUZA literalmente o que a pessoa falar. Se eu (ou a pessoa) falar em Português, você fala a tradução em Inglês. Se eu (ou a pessoa) falar em Inglês, você fala a tradução em Português. Você não é um assistente, é apenas um canal de tradução passivo."
+                  text: \Você é um tradutor simultâneo bilíngue rigoroso (Português <-> \). Siga estas regras:
+1. NUNCA adicione conversas, não responda perguntas, não explique. APENAS TRADUZA o áudio.
+2. Se o áudio estiver em Português, você DEVE retornar a tradução apenas em \.
+3. Se o áudio estiver em \, você DEVE retornar a tradução apenas em Português.
+4. Mantenha o tom de voz e a emoção de quem falou. Seja direto.\
                 }]
               }
             }
           };
           ws.send(JSON.stringify(setupMsg));
 
-          micStream = await navigator.mediaDevices.getUserMedia({
-            audio: {
-              sampleRate: 16000,
-              channelCount: 1,
-              echoCancellation: true,
-              noiseSuppression: true,
-              autoGainControl: true
-            }
-          });
+          try {
+            micStream = await navigator.mediaDevices.getUserMedia({
+              audio: {
+                sampleRate: 16000,
+                channelCount: 1,
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true
+              }
+            });
+          } catch(err) {
+            reject(err);
+            return;
+          }
 
           const workletCode = \
             class PCMProcessor extends AudioWorkletProcessor {
@@ -163,8 +260,11 @@
           micNode = audioCtx.createMediaStreamSource(micStream);
           processorNode = new AudioWorkletNode(audioCtx, 'pcm-processor');
 
+          // Processa o áudio do microfone
           processorNode.port.onmessage = (e) => {
             if (ws.readyState === WebSocket.OPEN) {
+              if (isMicMuted) return; // Não envia áudio se os botões não estiverem pressionados
+
               const buffer = e.data;
               let binary = '';
               const bytes = new Uint8Array(buffer);
@@ -188,13 +288,9 @@
           micNode.connect(processorNode);
           processorNode.connect(audioCtx.destination);
 
-          isRecording = true;
-          micBtn.className = "w-24 h-24 rounded-full bg-emerald-500 border-4 border-emerald-400 flex items-center justify-center text-white shadow-[0_0_40px_rgba(16,185,129,0.5)] transition-all active:scale-95 z-10";
-          micRing.classList.add('ripple');
-          micRing.style.opacity = '1';
-          micLabel.textContent = "Ouvindo...";
-          micLabel.classList.replace('text-zinc-400', 'text-emerald-400');
-          statusText.textContent = 'Pode falar normalmente (PT ou EN)';
+          connStatus.innerHTML = '<span class="inline-block w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse mr-1"></span>Online';
+          connStatus.className = "text-xs text-emerald-400 font-mono";
+          resolve();
         };
 
         ws.onmessage = (evt) => {
@@ -217,14 +313,12 @@
               }
 
               if (content.inputTranscription && content.inputTranscription.text) {
-                if (content.inputTranscription.text.trim().length > 1) {
-                  addBubble(content.inputTranscription.text, true);
-                }
+                const text = content.inputTranscription.text.trim();
+                if (text.length > 1) addBubble(text, true); // O que foi ouvido
               }
               if (content.outputTranscription && content.outputTranscription.text) {
-                if (content.outputTranscription.text.trim().length > 1) {
-                  addBubble(content.outputTranscription.text, false);
-                }
+                const text = content.outputTranscription.text.trim();
+                if (text.length > 1) addBubble(text, false); // A tradução gerada
               }
             }
           } catch (e) {
@@ -234,19 +328,16 @@
 
         ws.onerror = (e) => {
           console.error("WS Error", e);
-          stopSession();
-          statusText.textContent = 'Erro de conexão.';
+          connStatus.textContent = "Erro na nuvem";
+          connStatus.className = "text-xs text-rose-500 font-mono";
         };
 
         ws.onclose = () => {
-          stopSession();
+          connStatus.textContent = "Desconectado";
+          connStatus.className = "text-xs text-zinc-500 font-mono";
+          isConnected = false;
         };
-
-      } catch (err) {
-        console.error(err);
-        statusText.textContent = 'Erro ao acessar microfone.';
-        stopSession();
-      }
+      });
     }
 
     function playAudioBuffer(base64) {
@@ -278,21 +369,6 @@
       
       source.start(nextPlayTime);
       nextPlayTime += audioBuffer.duration;
-    }
-
-    function stopSession() {
-      isRecording = false;
-      if (ws) { ws.close(); ws = null; }
-      if (processorNode) { processorNode.disconnect(); processorNode = null; }
-      if (micNode) { micNode.disconnect(); micNode = null; }
-      if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
-      
-      micBtn.className = "w-24 h-24 rounded-full bg-zinc-800 border-4 border-zinc-700 flex items-center justify-center text-zinc-400 transition-all active:scale-95 shadow-2xl z-10";
-      micRing.classList.remove('ripple');
-      micRing.style.opacity = '0';
-      micLabel.textContent = "Iniciar";
-      micLabel.classList.replace('text-emerald-400', 'text-zinc-400');
-      statusText.textContent = 'Sessão encerrada.';
     }
   </script>
 </body>
