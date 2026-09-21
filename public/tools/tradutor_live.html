@@ -3,19 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Tradutor Push-to-Talk • Obnotion</title>
+  <title>Tradutor Inteligente • Obnotion</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #060810; color: #fff; overscroll-behavior: none; }
     .ptt-btn {
-      touch-action: none;
+      touch-action: manipulation;
       -webkit-user-select: none;
       user-select: none;
+      transition: all 0.2s ease;
     }
     .ptt-active {
-      transform: scale(0.95);
-      filter: brightness(1.2);
+      transform: scale(0.96);
+      filter: brightness(1.3);
+      box-shadow: inset 0 0 30px rgba(255,255,255,0.2), 0 0 20px rgba(255,255,255,0.2);
+    }
+    .wave {
+      display: inline-block;
+      width: 4px;
+      height: 12px;
+      border-radius: 2px;
+      margin: 0 2px;
+      background: currentColor;
+      animation: wave 1s ease-in-out infinite;
+    }
+    .wave:nth-child(2) { animation-delay: 0.1s; }
+    .wave:nth-child(3) { animation-delay: 0.2s; }
+    @keyframes wave {
+      0%, 100% { transform: scaleY(0.5); }
+      50% { transform: scaleY(1.5); }
     }
   </style>
 </head>
@@ -26,7 +43,7 @@
       <i data-lucide="languages" class="w-8 h-8 text-white"></i>
     </div>
     <h2 class="text-2xl font-bold text-white mb-2 text-center">Tradutor Pessoal</h2>
-    <p class="text-zinc-400 text-center mb-8 max-w-xs">Pressione e segure os botões para falar. A IA traduzirá automaticamente.</p>
+    <p class="text-zinc-400 text-center mb-8 max-w-xs">Toque em um dos botões para abrir o microfone. A IA traduzirá automaticamente.</p>
     
     <div class="w-full max-w-xs mb-8">
       <label class="block text-sm text-zinc-400 mb-2 font-bold">Idioma do Estrangeiro:</label>
@@ -50,7 +67,7 @@
         <i data-lucide="mic" class="w-5 h-5"></i>
       </div>
       <div>
-        <h1 class="text-base font-bold leading-tight" id="headerTitle">Tradutor (Inglês)</h1>
+        <h1 class="text-base font-bold leading-tight" id="headerTitle">Tradutor</h1>
         <p id="connStatus" class="text-xs text-zinc-500 font-mono">Aguardando...</p>
       </div>
     </div>
@@ -63,19 +80,26 @@
     
     <div class="w-full flex-1 flex flex-col overflow-hidden relative z-10">
       <div class="flex-1 overflow-y-auto p-4 space-y-4 pb-4 scroll-smooth flex flex-col-reverse" id="transcriptContainer">
+        <!-- Messages -->
       </div>
     </div>
 
     <div class="shrink-0 w-full bg-[#0a0d1c] border-t border-white/5 p-4 flex flex-col gap-3 z-20 pb-8">
-      <button id="btnForeign" class="ptt-btn w-full h-24 rounded-2xl bg-blue-600/20 border-2 border-blue-600 flex flex-col items-center justify-center text-blue-400 transition-all shadow-[inset_0_0_20px_rgba(37,99,235,0.1)]">
-        <i data-lucide="message-circle" class="w-6 h-6 mb-1 pointer-events-none"></i>
-        <span class="font-bold tracking-wide pointer-events-none" id="lblForeign">Segure para INGLÊS</span>
+      
+      <button id="btnForeign" class="ptt-btn w-full h-20 rounded-2xl bg-blue-600/20 border-2 border-blue-600 flex items-center justify-center text-blue-400 transition-all">
+        <div class="flex items-center gap-3 pointer-events-none">
+          <i data-lucide="message-circle" class="w-6 h-6" id="iconForeign"></i>
+          <span class="font-bold tracking-wide text-lg" id="lblForeign">TOQUE SE ELE FALAR</span>
+        </div>
       </button>
 
-      <button id="btnUser" class="ptt-btn w-full h-24 rounded-2xl bg-emerald-600/20 border-2 border-emerald-600 flex flex-col items-center justify-center text-emerald-400 transition-all shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]">
-        <i data-lucide="mic" class="w-6 h-6 mb-1 pointer-events-none"></i>
-        <span class="font-bold tracking-wide pointer-events-none">Segure para PORTUGUÊS</span>
+      <button id="btnUser" class="ptt-btn w-full h-20 rounded-2xl bg-emerald-600/20 border-2 border-emerald-600 flex items-center justify-center text-emerald-400 transition-all">
+        <div class="flex items-center gap-3 pointer-events-none">
+          <i data-lucide="mic" class="w-6 h-6" id="iconUser"></i>
+          <span class="font-bold tracking-wide text-lg" id="lblUser">TOQUE SE VOCÊ FALAR</span>
+        </div>
       </button>
+
     </div>
   </main>
 
@@ -95,6 +119,9 @@
     let isMicMuted = true;
     let nextPlayTime = 0;
     let targetLang = "Inglês";
+    
+    // Toggle States
+    let activeBtn = null; // 'user' ou 'foreign' ou null
 
     const transcriptContainer = document.getElementById('transcriptContainer');
     const connStatus = document.getElementById('connStatus');
@@ -103,6 +130,9 @@
     const btnForeign = document.getElementById('btnForeign');
     const btnUser = document.getElementById('btnUser');
     const lblForeign = document.getElementById('lblForeign');
+    const lblUser = document.getElementById('lblUser');
+    const iconForeign = document.getElementById('iconForeign');
+    const iconUser = document.getElementById('iconUser');
     const connectOverlay = document.getElementById('connectOverlay');
     const targetLangSelect = document.getElementById('targetLang');
     const headerTitle = document.getElementById('headerTitle');
@@ -121,42 +151,58 @@
       transcriptContainer.prepend(wrapper);
     }
 
-    function startListening(btnElement) {
-      if (!isConnected) return;
-      isMicMuted = false;
-      btnElement.classList.add('ptt-active');
-      btnElement.classList.replace('bg-emerald-600/20', 'bg-emerald-600/40');
-      btnElement.classList.replace('bg-blue-600/20', 'bg-blue-600/40');
-      
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ clientContent: { turnComplete: true } }));
+    function renderWaves(htmlString) {
+      return `<div class="flex items-center gap-1">${htmlString}</div>`;
+    }
+
+    function updateButtons() {
+      if (activeBtn === 'user') {
+        isMicMuted = false;
+        btnUser.classList.add('ptt-active');
+        btnUser.classList.replace('bg-emerald-600/20', 'bg-emerald-600/60');
+        lblUser.innerHTML = renderWaves('<div class="wave"></div><div class="wave"></div><div class="wave"></div><span class="ml-2">OUVINDO...</span>');
+        
+        btnForeign.classList.remove('ptt-active');
+        btnForeign.classList.replace('bg-blue-600/60', 'bg-blue-600/20');
+        lblForeign.textContent = `TOQUE SE ELE FALAR`;
+      } 
+      else if (activeBtn === 'foreign') {
+        isMicMuted = false;
+        btnForeign.classList.add('ptt-active');
+        btnForeign.classList.replace('bg-blue-600/20', 'bg-blue-600/60');
+        lblForeign.innerHTML = renderWaves('<div class="wave"></div><div class="wave"></div><div class="wave"></div><span class="ml-2">OUVINDO...</span>');
+        
+        btnUser.classList.remove('ptt-active');
+        btnUser.classList.replace('bg-emerald-600/60', 'bg-emerald-600/20');
+        lblUser.textContent = `TOQUE SE VOCÊ FALAR`;
+      } 
+      else {
+        isMicMuted = true;
+        btnUser.classList.remove('ptt-active');
+        btnUser.classList.replace('bg-emerald-600/60', 'bg-emerald-600/20');
+        lblUser.textContent = `TOQUE SE VOCÊ FALAR`;
+        
+        btnForeign.classList.remove('ptt-active');
+        btnForeign.classList.replace('bg-blue-600/60', 'bg-blue-600/20');
+        lblForeign.textContent = `TOQUE SE ELE FALAR`;
       }
     }
 
-    function stopListening(btnElement) {
-      isMicMuted = true;
-      btnElement.classList.remove('ptt-active');
-      btnElement.classList.replace('bg-emerald-600/40', 'bg-emerald-600/20');
-      btnElement.classList.replace('bg-blue-600/40', 'bg-blue-600/20');
-    }
+    // Toggle logic for Touch / Click
+    btnUser.addEventListener('click', () => {
+      if (!isConnected) return;
+      activeBtn = (activeBtn === 'user') ? null : 'user';
+      updateButtons();
+    });
 
-    btnUser.addEventListener('mousedown', () => startListening(btnUser));
-    btnUser.addEventListener('touchstart', (e) => { e.preventDefault(); startListening(btnUser); });
-    btnUser.addEventListener('mouseup', () => stopListening(btnUser));
-    btnUser.addEventListener('touchend', (e) => { e.preventDefault(); stopListening(btnUser); });
-    btnUser.addEventListener('mouseleave', () => stopListening(btnUser));
-    btnUser.addEventListener('touchcancel', () => stopListening(btnUser));
-
-    btnForeign.addEventListener('mousedown', () => startListening(btnForeign));
-    btnForeign.addEventListener('touchstart', (e) => { e.preventDefault(); startListening(btnForeign); });
-    btnForeign.addEventListener('mouseup', () => stopListening(btnForeign));
-    btnForeign.addEventListener('touchend', (e) => { e.preventDefault(); stopListening(btnForeign); });
-    btnForeign.addEventListener('mouseleave', () => stopListening(btnForeign));
-    btnForeign.addEventListener('touchcancel', () => stopListening(btnForeign));
+    btnForeign.addEventListener('click', () => {
+      if (!isConnected) return;
+      activeBtn = (activeBtn === 'foreign') ? null : 'foreign';
+      updateButtons();
+    });
 
     btnConnect.addEventListener('click', async () => {
       targetLang = targetLangSelect.value;
-      lblForeign.textContent = `Segure para ${targetLang.toUpperCase()}`;
       headerTitle.textContent = `Tradutor (${targetLang})`;
       
       btnConnect.textContent = "Conectando...";
@@ -197,11 +243,10 @@
               },
               systemInstruction: {
                 parts: [{
-                  text: `Você é um tradutor simultâneo bilíngue rigoroso (Português <-> ${targetLang}). Siga estas regras:
-1. NUNCA adicione conversas, não responda perguntas, não explique. APENAS TRADUZA o áudio de forma passiva.
-2. Se o áudio estiver em Português, você DEVE retornar a tradução apenas em ${targetLang}.
-3. Se o áudio estiver em ${targetLang}, você DEVE retornar a tradução apenas em Português.
-4. Mantenha o tom de voz e a emoção de quem falou. Seja direto.`
+                  text: `Você é um tradutor simultâneo bilíngue passivo (Português <-> ${targetLang}). Regras absolutas:
+1. NUNCA adicione palavras suas, nunca responda perguntas, nunca inicie conversas. APENAS TRADUZA o áudio.
+2. Se o áudio ouvido for em Português, gere o áudio falado apenas em ${targetLang}.
+3. Se o áudio ouvido for em ${targetLang}, gere o áudio falado apenas em Português.`
                 }]
               }
             }
@@ -305,6 +350,7 @@
               if (content.outputTranscription && content.outputTranscription.text) {
                 const text = content.outputTranscription.text.trim();
                 if (text.length > 1) addBubble(text, false);
+                // Turn off active button automatically when AI answers? No, keep it as user defined
               }
             }
           } catch (e) {
@@ -322,6 +368,8 @@
           connStatus.textContent = "Desconectado";
           connStatus.className = "text-xs text-zinc-500 font-mono";
           isConnected = false;
+          activeBtn = null;
+          updateButtons();
         };
       });
     }
