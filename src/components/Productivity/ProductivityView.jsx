@@ -6,6 +6,25 @@ export default function ProductivityView({ darkMode }) {
 
   const tools = [
     {
+      id: 'tradutor_live',
+      title: 'Tradutor Simultâneo de Bolso (IA Tempo Real)',
+      icon: Tablet, // We can change this later
+      color: 'text-emerald-400',
+      bgColor: 'bg-emerald-500/10',
+      borderColor: 'border-emerald-500/30',
+      tag: 'NOVO • GEMINI LIVE API',
+      tagColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+      description: 'Um tradutor simultâneo inteligente que funciona no seu celular. Basta colocar o fone de ouvido, dar o play, e ele ouvirá e traduzirá a conversa em tempo real.',
+      features: [
+        'Tradução bidirecional automática (Inglês ↔ Português)',
+        'Voz neural de alta qualidade direto no fone de ouvido',
+        'Transcrição em tempo real na tela do celular',
+        'Processamento instantâneo via WebSocket'
+      ],
+      path: `${import.meta.env.BASE_URL}tools/tradutor_live.html`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/tradutor_live.html`
+    },
+    {
       id: 'pulpito',
       title: 'Púlpito do Pastor & Retorno de Slides (Altar & Telão)',
       icon: Tablet,

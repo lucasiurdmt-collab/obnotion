@@ -1,0 +1,299 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR" class="dark h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tradutor Simultâneo • Obnotion</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #060810; color: #fff; }
+    .ripple { animation: ripple 1.5s infinite ease-out; }
+    @keyframes ripple {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+  </style>
+</head>
+<body class="h-full w-full flex flex-col overflow-hidden select-none">
+  
+  <header class="p-4 border-b border-white/10 flex items-center justify-between shrink-0 bg-[#0a0d1c]">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-lg">
+        <i data-lucide="languages" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold leading-tight">Tradutor Ao Vivo</h1>
+        <p class="text-xs text-emerald-400 font-mono flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          IA Tempo Real
+        </p>
+      </div>
+    </div>
+    <button onclick="window.close()" class="p-2 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+  </header>
+
+  <main class="flex-1 flex flex-col items-center justify-between p-6 overflow-hidden relative">
+    
+    <!-- Status & Transcripts -->
+    <div class="w-full max-w-md flex-1 flex flex-col overflow-hidden relative z-10 space-y-4">
+      <div id="statusText" class="text-center text-zinc-500 text-sm italic py-2">Toque no microfone para iniciar...</div>
+      
+      <div class="flex-1 overflow-y-auto space-y-6 pb-20 scroll-smooth flex flex-col-reverse custom-scrollbar" id="transcriptContainer">
+        <!-- Messages injected here -->
+      </div>
+    </div>
+
+    <!-- Main Mic Button -->
+    <div class="shrink-0 pt-6 pb-8 flex flex-col items-center relative z-20">
+      <div id="micRing" class="absolute inset-0 bg-emerald-500/20 rounded-full scale-100 transition-all opacity-0 pointer-events-none" style="top: 24px; bottom: 32px; left: -10px; right: -10px;"></div>
+      
+      <button id="micBtn" class="w-24 h-24 rounded-full bg-zinc-800 border-4 border-zinc-700 flex items-center justify-center text-zinc-400 transition-all active:scale-95 shadow-2xl z-10">
+        <i data-lucide="mic" class="w-10 h-10"></i>
+      </button>
+      <p id="micLabel" class="mt-4 text-sm font-bold text-zinc-400 tracking-wide uppercase">Iniciar</p>
+    </div>
+
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    const DEFAULT_KEY = atob('QVEuQWI4Uk42SlRZTDlzMlNOT3BSWWptNzlsdWVHTzVMS2lnei1hSzBVOXRydVBCUDR1Smc=');
+    const apiKey = localStorage.getItem('GEMINI_API_KEY') || DEFAULT_KEY;
+
+    let ws = null;
+    let audioCtx = null;
+    let micStream = null;
+    let micNode = null;
+    let processorNode = null;
+    
+    let isRecording = false;
+    let nextPlayTime = 0;
+
+    const micBtn = document.getElementById('micBtn');
+    const micRing = document.getElementById('micRing');
+    const micLabel = document.getElementById('micLabel');
+    const statusText = document.getElementById('statusText');
+    const transcriptContainer = document.getElementById('transcriptContainer');
+
+    function addBubble(text, isUser) {
+      const wrapper = document.createElement('div');
+      wrapper.className = \lex w-full \\;
+      
+      const bubble = document.createElement('div');
+      bubble.className = \max-w-[80%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed shadow-lg \\;
+      bubble.textContent = text;
+      
+      wrapper.appendChild(bubble);
+      transcriptContainer.prepend(wrapper);
+    }
+
+    async function toggleConnection() {
+      if (isRecording) stopSession();
+      else await startSession();
+    }
+
+    micBtn.addEventListener('click', toggleConnection);
+
+    async function startSession() {
+      try {
+        statusText.textContent = 'Conectando ao Gemini...';
+        
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+        nextPlayTime = audioCtx.currentTime;
+
+        const url = \wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=\\;
+        ws = new WebSocket(url);
+
+        ws.onopen = async () => {
+          statusText.textContent = 'Configurando tradutor...';
+          
+          const setupMsg = {
+            setup: {
+              model: "models/gemini-3.1-flash-live-preview",
+              generationConfig: {
+                responseModalities: ["AUDIO"],
+                speechConfig: {
+                  voiceConfig: { prebuiltVoiceConfig: { voiceName: "Aoede" } }
+                }
+              },
+              systemInstruction: {
+                parts: [{
+                  text: "Você é um tradutor simultâneo bilíngue (Inglês <-> Português) para uma conversa presencial. Traduza TUDO que ouvir de forma natural, rápida e coloquial. NUNCA adicione comentários próprios, NUNCA responda às perguntas, NUNCA converse comigo, APENAS TRADUZA literalmente o que a pessoa falar. Se eu (ou a pessoa) falar em Português, você fala a tradução em Inglês. Se eu (ou a pessoa) falar em Inglês, você fala a tradução em Português. Você não é um assistente, é apenas um canal de tradução passivo."
+                }]
+              }
+            }
+          };
+          ws.send(JSON.stringify(setupMsg));
+
+          micStream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              sampleRate: 16000,
+              channelCount: 1,
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
+          });
+
+          const workletCode = \
+            class PCMProcessor extends AudioWorkletProcessor {
+              process(inputs, outputs, parameters) {
+                const input = inputs[0];
+                if (input.length > 0) {
+                  const channel = input[0];
+                  const pcm16 = new Int16Array(channel.length);
+                  for (let i = 0; i < channel.length; i++) {
+                    let s = Math.max(-1, Math.min(1, channel[i]));
+                    pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                  }
+                  this.port.postMessage(pcm16.buffer, [pcm16.buffer]);
+                }
+                return true;
+              }
+            }
+            registerProcessor('pcm-processor', PCMProcessor);
+          \;
+          const blob = new Blob([workletCode], { type: 'application/javascript' });
+          await audioCtx.audioWorklet.addModule(URL.createObjectURL(blob));
+
+          micNode = audioCtx.createMediaStreamSource(micStream);
+          processorNode = new AudioWorkletNode(audioCtx, 'pcm-processor');
+
+          processorNode.port.onmessage = (e) => {
+            if (ws.readyState === WebSocket.OPEN) {
+              const buffer = e.data;
+              let binary = '';
+              const bytes = new Uint8Array(buffer);
+              const len = bytes.byteLength;
+              for (let i = 0; i < len; i++) {
+                  binary += String.fromCharCode(bytes[i]);
+              }
+              const base64 = window.btoa(binary);
+
+              ws.send(JSON.stringify({
+                realtimeInput: {
+                  mediaChunks: [{
+                    mimeType: "audio/pcm;rate=16000",
+                    data: base64
+                  }]
+                }
+              }));
+            }
+          };
+
+          micNode.connect(processorNode);
+          processorNode.connect(audioCtx.destination);
+
+          isRecording = true;
+          micBtn.className = "w-24 h-24 rounded-full bg-emerald-500 border-4 border-emerald-400 flex items-center justify-center text-white shadow-[0_0_40px_rgba(16,185,129,0.5)] transition-all active:scale-95 z-10";
+          micRing.classList.add('ripple');
+          micRing.style.opacity = '1';
+          micLabel.textContent = "Ouvindo...";
+          micLabel.classList.replace('text-zinc-400', 'text-emerald-400');
+          statusText.textContent = 'Pode falar normalmente (PT ou EN)';
+        };
+
+        ws.onmessage = (evt) => {
+          try {
+            if (evt.data instanceof Blob) return;
+            const res = JSON.parse(evt.data);
+            const content = res.serverContent;
+            
+            if (content) {
+              if (content.interrupted) {
+                nextPlayTime = audioCtx.currentTime;
+              }
+
+              if (content.modelTurn && content.modelTurn.parts) {
+                content.modelTurn.parts.forEach(part => {
+                  if (part.inlineData && part.inlineData.data) {
+                    playAudioBuffer(part.inlineData.data);
+                  }
+                });
+              }
+
+              if (content.inputTranscription && content.inputTranscription.text) {
+                if (content.inputTranscription.text.trim().length > 1) {
+                  addBubble(content.inputTranscription.text, true);
+                }
+              }
+              if (content.outputTranscription && content.outputTranscription.text) {
+                if (content.outputTranscription.text.trim().length > 1) {
+                  addBubble(content.outputTranscription.text, false);
+                }
+              }
+            }
+          } catch (e) {
+            console.error("Parse error", e);
+          }
+        };
+
+        ws.onerror = (e) => {
+          console.error("WS Error", e);
+          stopSession();
+          statusText.textContent = 'Erro de conexão.';
+        };
+
+        ws.onclose = () => {
+          stopSession();
+        };
+
+      } catch (err) {
+        console.error(err);
+        statusText.textContent = 'Erro ao acessar microfone.';
+        stopSession();
+      }
+    }
+
+    function playAudioBuffer(base64) {
+      if (!audioCtx) return;
+      
+      const binaryString = window.atob(base64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      
+      const pcm16 = new Int16Array(bytes.buffer);
+      const float32 = new Float32Array(pcm16.length);
+      for (let i = 0; i < pcm16.length; i++) {
+        float32[i] = pcm16[i] / 32768;
+      }
+
+      const audioBuffer = audioCtx.createBuffer(1, float32.length, 24000);
+      audioBuffer.getChannelData(0).set(float32);
+
+      const source = audioCtx.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioCtx.destination);
+
+      if (nextPlayTime < audioCtx.currentTime) {
+        nextPlayTime = audioCtx.currentTime;
+      }
+      
+      source.start(nextPlayTime);
+      nextPlayTime += audioBuffer.duration;
+    }
+
+    function stopSession() {
+      isRecording = false;
+      if (ws) { ws.close(); ws = null; }
+      if (processorNode) { processorNode.disconnect(); processorNode = null; }
+      if (micNode) { micNode.disconnect(); micNode = null; }
+      if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+      
+      micBtn.className = "w-24 h-24 rounded-full bg-zinc-800 border-4 border-zinc-700 flex items-center justify-center text-zinc-400 transition-all active:scale-95 shadow-2xl z-10";
+      micRing.classList.remove('ripple');
+      micRing.style.opacity = '0';
+      micLabel.textContent = "Iniciar";
+      micLabel.classList.replace('text-emerald-400', 'text-zinc-400');
+      statusText.textContent = 'Sessão encerrada.';
+    }
+  </script>
+</body>
+</html>
