@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR" class="dark h-full">
 <head>
   <meta charset="UTF-8">
@@ -294,11 +294,18 @@
 
           processorNode.port.onmessage = (e) => {
             if (ws.readyState === WebSocket.OPEN) {
-              if (isMicMuted) return;
-
               const buffer = e.data;
-              let binary = '';
               const bytes = new Uint8Array(buffer);
+              
+              if (isMicMuted) {
+                // Ao invés de cortar o envio (o que faz a IA ficar esperando para sempre),
+                // enviamos silêncio absoluto (zeros). Assim o VAD da IA detecta que terminamos de falar.
+                for (let i = 0; i < bytes.length; i++) {
+                  bytes[i] = 0;
+                }
+              }
+
+              let binary = '';
               const len = bytes.byteLength;
               for (let i = 0; i < len; i++) {
                   binary += String.fromCharCode(bytes[i]);
@@ -308,7 +315,7 @@
               ws.send(JSON.stringify({
                 realtimeInput: {
                   mediaChunks: [{
-                    mimeType: "audio/pcm;rate=16000",
+                    mimeType: `audio/pcm;rate=${audioCtx.sampleRate}`,
                     data: base64
                   }]
                 }
