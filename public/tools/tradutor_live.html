@@ -222,6 +222,9 @@
 
     async function startSession() {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+      if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+      }
       nextPlayTime = audioCtx.currentTime;
 
       const url = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=${apiKey}`;
@@ -236,7 +239,7 @@
             setup: {
               model: "models/gemini-3.1-flash-live-preview",
               generationConfig: {
-                responseModalities: ["AUDIO"],
+                responseModalities: ["TEXT", "AUDIO"],
                 speechConfig: {
                   voiceConfig: { prebuiltVoiceConfig: { voiceName: "Aoede" } }
                 }
@@ -324,7 +327,7 @@
               ws.send(JSON.stringify({
                 realtimeInput: {
                   mediaChunks: [{
-                    mimeType: `audio/pcm;rate=${audioCtx.sampleRate}`,
+                    mimeType: "audio/pcm;rate=16000",
                     data: base64
                   }]
                 }
