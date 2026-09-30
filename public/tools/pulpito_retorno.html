@@ -1960,17 +1960,26 @@
 chcp 65001 >nul
 title Telao do Pastor
 echo ===================================================
-echo   INICIANDO TELAO DO PASTOR (TELA CHEIA)
+echo   INICIANDO TELAO DO PASTOR NA TV/PROJETOR
 echo ===================================================
 echo.
-echo Abrindo navegador...
+echo 1. O sistema vai tentar jogar a tela preta direto
+echo    para a TV ou Projetor (Tela 2).
+echo.
+echo 2. SE ABRIR NO MONITOR ERRADO:
+echo    Pressione as teclas no teclado:
+echo    [WINDOWS] + [SHIFT] + [SETA PARA A DIREITA]
+echo.
+echo Aguarde, abrindo...
 
-REM Tenta abrir no Chrome
-start chrome --kiosk "${url}"
+REM Tenta abrir no Chrome forçando posição na Tela 2 (2500 pixels para a direita)
+start chrome --user-data-dir="%temp%\\TelaoPastor" --window-position=2500,0 --kiosk "${url}"
 if %errorlevel% neq 0 (
     REM Se não tiver Chrome, abre no Edge
-    start msedge --kiosk "${url}"
+    start msedge --user-data-dir="%temp%\\TelaoPastor" --window-position=2500,0 --kiosk "${url}"
 )
+
+timeout /t 6 >nul
 exit`;
 
       const blob = new Blob([batContent], {type: "application/bat"});
