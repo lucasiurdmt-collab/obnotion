@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR" class="dark h-full">
 <head>
   <meta charset="UTF-8">
@@ -1952,6 +1952,38 @@
       document.getElementById('vmixModal').classList.add('hidden');
     }
 
+    function downloadPortableApp() {
+      const baseUrl = window.location.origin + window.location.pathname;
+      const url = baseUrl + '?mode=projector&bg=black';
+      
+      const batContent = `@echo off
+chcp 65001 >nul
+title Telao do Pastor
+echo ===================================================
+echo   INICIANDO TELAO DO PASTOR (TELA CHEIA)
+echo ===================================================
+echo.
+echo Abrindo navegador...
+
+REM Tenta abrir no Chrome
+start chrome --kiosk "${url}"
+if %errorlevel% neq 0 (
+    REM Se não tiver Chrome, abre no Edge
+    start msedge --kiosk "${url}"
+)
+exit`;
+
+      const blob = new Blob([batContent], {type: "application/bat"});
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = "Telao_do_Pastor.bat";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    }
+
     function copyVmixUrl(type) {
       const baseUrl = window.location.origin + window.location.pathname;
       let url = baseUrl;
@@ -1984,8 +2016,8 @@
             <i data-lucide="cast" class="w-4 h-4"></i>
           </div>
           <div>
-            <h3 class="text-sm font-bold text-white">Integração vMix & Telão Externo</h3>
-            <p class="text-[11px] text-zinc-400">Escolha o formato ideal para a transmissão ou projeção:</p>
+            <h3 class="text-sm font-bold text-white">Opções de Transmissão & Telão</h3>
+            <p class="text-[11px] text-zinc-400">Escolha como deseja projetar as imagens:</p>
           </div>
         </div>
         <button onclick="closeVmixModal()" class="w-8 h-8 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-400 hover:text-white flex items-center justify-center transition-colors">
@@ -1994,20 +2026,37 @@
       </div>
 
       <div class="space-y-3 text-xs">
+        
+        <!-- Option 2: App Portátil (Para Pastor / Telão Físico) -->
+        <div class="p-3.5 rounded-2xl bg-[#1a1136] border border-fuchsia-500/30 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-fuchsia-400 flex items-center gap-1.5">
+              <i data-lucide="monitor-play" class="w-4 h-4"></i> App Portátil (Caravanas / TV / Telão)
+            </span>
+          </div>
+          <p class="text-[11px] text-zinc-400">
+            Baixe este mini-aplicativo (1KB) e coloque num pendrive. Quando o pastor chegar em outra igreja, basta plugar o notebook na TV e <b>dar dois cliques</b> neste arquivo. Ele abrirá a tela preta de projeção automaticamente em Tela Cheia, forçando o navegador a esconder tudo!
+          </p>
+          <button onclick="downloadPortableApp()" class="w-full py-2 rounded-xl bg-fuchsia-600/20 hover:bg-fuchsia-600/30 text-fuchsia-300 border border-fuchsia-500/40 font-bold flex items-center justify-center gap-1.5 transition-all">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Baixar App (Telão_do_Pastor.bat)
+          </button>
+        </div>
+
         <!-- Option 1: vMix Web Browser (Transparente) -->
         <div class="p-3.5 rounded-2xl bg-[#111736] border border-purple-500/30 space-y-2">
           <div class="flex items-center justify-between">
             <span class="font-bold text-emerald-400 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Link Universal para vMix & Telões
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Link Universal para vMix & OBS
             </span>
           </div>
           <p class="text-[11px] text-zinc-400">
-            Cole este link no vMix (Add Input ➔ Web Browser) ou em qualquer PC/Navegador na igreja. As imagens e letras aparecerão instantaneamente (via Nuvem) sem depender de estar na mesma rede ou PC. O fundo para letras já é transparente.
+            Cole este link no vMix (Add Input ➔ Web Browser) com resolução 1920x1080. O fundo é transparente e espelhará a tela do tablet imediatamente através da internet.
           </p>
           <button onclick="copyVmixUrl('transparent')" class="w-full py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold flex items-center justify-center gap-1.5 transition-all">
-            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Link para vMix / Telão
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Link (Fundo Transparente)
           </button>
         </div>
+
       </div>
     </div>
   </div>
