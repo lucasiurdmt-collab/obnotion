@@ -6,7 +6,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Montador de Roteiros & VÃ­deos â€¢ Obnotion Pro</title>
+  <title>Montador de Roteiros & Vídeos • Obnotion Pro</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -217,6 +217,31 @@
           font-weight: bold !important;
           color: #000 !important;
         }
+        /* RESPONSIVE PRINT SCALING FOR 1 PAGE */
+        .print-scale-md .print-v-card { padding: 6px 12px !important; gap: 12px !important; }
+        .print-scale-md .print-thumb-box { width: 160px !important; height: 90px !important; }
+        .print-scale-md .print-v-title { font-size: 20pt !important; margin-bottom: 4px !important; }
+        .print-scale-md .print-v-duration { font-size: 22pt !important; padding: 4px 10px !important; }
+        .print-scale-md .print-lembretes-box { padding: 12px 0 !important; margin-top: 16px !important; }
+        .print-scale-md .print-lembretes-list { font-size: 16pt !important; gap: 8px !important; }
+
+        .print-scale-sm .print-videos-grid { gap: 6px !important; }
+        .print-scale-sm .print-v-card { padding: 4px 8px !important; gap: 8px !important; border-width: 2px !important; }
+        .print-scale-sm .print-thumb-box { width: 120px !important; height: 68px !important; }
+        .print-scale-sm .print-v-title { font-size: 14pt !important; margin-bottom: 2px !important; }
+        .print-scale-sm .print-v-duration { font-size: 16pt !important; padding: 2px 6px !important; border-width: 2px !important; }
+        .print-scale-sm .print-lembretes-box { padding: 8px 0 !important; margin-top: 8px !important; border-top-width: 3px !important; }
+        .print-scale-sm .print-lembretes-title { font-size: 14pt !important; margin-bottom: 6px !important; }
+        .print-scale-sm .print-lembretes-list { font-size: 12pt !important; gap: 4px !important; }
+
+        .print-scale-xs .print-videos-grid { grid-template-columns: repeat(2, 1fr) !important; display: grid !important; gap: 6px !important; }
+        .print-scale-xs .print-v-card { padding: 4px !important; gap: 6px !important; border-width: 2px !important; border-left-width: 6px !important; }
+        .print-scale-xs .print-thumb-box { width: 80px !important; height: 45px !important; border-width: 1px !important; }
+        .print-scale-xs .print-v-title { font-size: 11pt !important; margin-bottom: 2px !important; }
+        .print-scale-xs .print-v-duration { font-size: 12pt !important; padding: 0px 4px !important; border-width: 1px !important; }
+        .print-scale-xs .print-lembretes-box { padding: 6px 0 !important; margin-top: 6px !important; border-top-width: 2px !important; }
+        .print-scale-xs .print-lembretes-title { font-size: 12pt !important; margin-bottom: 4px !important; }
+        .print-scale-xs .print-lembretes-list { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; font-size: 10pt !important; gap: 2px 12px !important; }
       }
     </style>
 </head>
@@ -227,10 +252,10 @@
     <div class="w-20 h-20 rounded-3xl bg-blue-600/30 border border-cyan-400 flex items-center justify-center text-cyan-300 mb-4 animate-bounce">
       <i data-lucide="clapperboard" class="w-10 h-10"></i>
     </div>
-    <h2 class="text-2xl font-black text-white uppercase tracking-wide">Solte seus VÃ­deos aqui!</h2>
-    <p class="text-sm text-blue-200 mt-1 max-w-md">O Obnotion vai extrair automaticamente as <b>Thumbnails / Fotos</b>, <b>DuraÃ§Ãµes</b> e <b>Nomes</b> para criar os cards do roteiro.</p>
+    <h2 class="text-2xl font-black text-white uppercase tracking-wide">Solte seus Vídeos aqui!</h2>
+    <p class="text-sm text-blue-200 mt-1 max-w-md">O Obnotion vai extrair automaticamente as <b>Thumbnails / Fotos</b>, <b>Durações</b> e <b>Nomes</b> para criar os cards do roteiro.</p>
     <div class="mt-4 flex items-center gap-2 text-xs font-mono text-cyan-300 bg-cyan-950/50 px-3 py-1.5 rounded-xl border border-cyan-500/30">
-      <i data-lucide="sparkles" class="w-4 h-4"></i> Reconhecimento automÃ¡tico de Thumbnail e DuraÃ§Ã£o
+      <i data-lucide="sparkles" class="w-4 h-4"></i> Reconhecimento automático de Thumbnail e DuraÃ§Ã£o
     </div>
   </div>
 
@@ -242,9 +267,9 @@
       </div>
       <div>
         <h1 class="text-xs md:text-sm font-bold text-white flex items-center gap-2">
-          Montador de Roteiros & VÃ­deos
+          Montador de Roteiros & Vídeos
           <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 font-bold">
-            PRODUÃ‡ÃƒO AZUL PRO
+            PRODUÇÃO AZUL PRO
           </span>
         </h1>
       </div>
@@ -256,7 +281,7 @@
       <span class="text-[11px] text-blue-200 font-medium">Tempo Total:</span>
       <span id="totalDurationBadge" class="text-xs font-mono font-bold text-sky-300">00:00</span>
       <span class="text-blue-500/40">|</span>
-      <span id="totalVideosCount" class="text-[11px] font-mono text-blue-300 font-medium">0 vÃ­deos</span>
+      <span id="totalVideosCount" class="text-[11px] font-mono text-blue-300 font-medium">0 vídeos</span>
     </div>
 
     <!-- Header Actions -->
@@ -268,9 +293,9 @@
       </button>
 
       <!-- Import Videos Direct Button -->
-      <label class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-200 hover:text-white text-xs font-semibold border border-cyan-500/30 transition-all cursor-pointer shadow-sm shadow-cyan-600/20" title="Selecione arquivos de vÃ­deo para extrair automaticamente thumbnails, duraÃ§Ãµes e nomes">
+      <label class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-200 hover:text-white text-xs font-semibold border border-cyan-500/30 transition-all cursor-pointer shadow-sm shadow-cyan-600/20" title="Selecione arquivos de vídeo para extrair automaticamente thumbnails, durações e nomes">
         <i data-lucide="video" class="w-3.5 h-3.5 text-cyan-400"></i>
-        <span class="hidden md:inline">+ Importar VÃ­deos (.mp4)</span>
+        <span class="hidden md:inline">+ Importar Vídeos (.mp4)</span>
         <input type="file" accept="video/*,image/*" multiple class="hidden" onchange="processDroppedBatchFiles(Array.from(this.files)); this.value='';" />
       </label>
 
@@ -320,11 +345,11 @@
 
           <div class="flex items-center justify-between text-xs text-blue-300/80 pt-2 border-t border-blue-500/15 no-print">
             <span class="flex items-center gap-1.5 font-medium">
-              <i data-lucide="video" class="w-4 h-4 text-blue-400"></i> Grade de VÃ­deos da ReuniÃ£o
+              <i data-lucide="video" class="w-4 h-4 text-blue-400"></i> Grade de Vídeos da Reunião
             </span>
             <div class="flex items-center gap-2">
               <button onclick="addNewVideoCard()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-lg shadow-blue-600/30 transition-all text-xs">
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Inserir VÃ­deo
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Inserir Vídeo
               </button>
             </div>
           </div>
@@ -350,7 +375,7 @@
       <!-- ADD VIDEO QUICK BAR (BOTTOM) -->
       <div class="no-print pt-2">
         <button onclick="addNewVideoCard()" class="w-full py-4 rounded-2xl border-2 border-dashed border-blue-500/30 hover:border-blue-400 bg-[#0a0f22]/60 hover:bg-blue-600/10 text-blue-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all">
-          <i data-lucide="plus-circle" class="w-4 h-4 text-blue-400"></i> Inserir Novo Bloco de VÃ­deo
+          <i data-lucide="plus-circle" class="w-4 h-4 text-blue-400"></i> Inserir Novo Bloco de Vídeo
         </button>
       </div>
 
@@ -401,7 +426,7 @@
           </div>
           <div>
             <h3 class="text-sm font-bold text-white">Importar Roteiro Existente</h3>
-            <p class="text-[11px] text-blue-300/70">Extraia vÃ­deos, duraÃ§Ãµes e lembretes de PDFs ou textos do WhatsApp</p>
+            <p class="text-[11px] text-blue-300/70">Extraia vídeos, durações e lembretes de PDFs ou textos do WhatsApp</p>
           </div>
         </div>
         <button onclick="closeImportModal()" class="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.08]">
@@ -443,7 +468,7 @@ PORTAL UNIVERSAL
 02:34''
 
 LEMBRETES:
-1. ORAÃ‡ÃƒO FOGO DO ALTAR
+1. ORAÇÃO FOGO DO ALTAR
 2. ESTUDO QUARTA-FEIRA
 3. PODCAST 21:30"></textarea>
         <button onclick="processRawTextRoteiro()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-lg shadow-blue-600/30">
@@ -483,10 +508,10 @@ LEMBRETES:
         },
         {
           id: "v_3",
-          title: "RELATO VENCENDO O DIVÃ“RCIO",
+          title: "RELATO VENCENDO O DIVÓRCIO",
           duration: "01:55''",
           seconds: 115,
-          cue: "Momento da FamÃ­lia",
+          cue: "Momento da Família",
           type: "Vida a Dois",
           image: null
         },
@@ -510,7 +535,7 @@ LEMBRETES:
         }
       ],
       lembretes: [
-        "1. ORAÃ‡ÃƒO FOGO DO ALTAR (PELO PASTOR WILSON)",
+        "1. ORAÇÃO FOGO DO ALTAR (PELO PASTOR WILSON)",
         "2. ESTUDO HOMEM DE DEUS E O PROFETA VELHO (QUARTA)",
         "3. PODCAST 21:30",
         "4. EM FAMÃLIA MENSAGEM",
@@ -545,7 +570,7 @@ LEMBRETES:
     }
 
     function confirmClearRoteiro() {
-      if (confirm('Tem certeza que deseja limpar todos os vÃ­deos e comeÃ§ar um roteiro do zero?')) {
+      if (confirm('Tem certeza que deseja limpar todos os vídeos e começar um roteiro do zero?')) {
         currentRoteiro = {
           title: "ROTEIRO " + new Date().toLocaleDateString('pt-BR').replace(/\//g, '.'),
           videos: [],
@@ -577,8 +602,8 @@ LEMBRETES:
         container.innerHTML = `
           <div class="text-center py-12 border-2 border-dashed border-blue-500/25 rounded-3xl space-y-2 no-print">
             <i data-lucide="film" class="w-8 h-8 mx-auto text-blue-400/50"></i>
-            <p class="text-xs font-bold text-blue-200">Nenhum vÃ­deo adicionado neste roteiro.</p>
-            <p class="text-[11px] text-blue-400/60">Clique em "+ Inserir VÃ­deo" ou importe um PDF acima.</p>
+            <p class="text-xs font-bold text-blue-200">Nenhum vídeo adicionado neste roteiro.</p>
+            <p class="text-[11px] text-blue-400/60">Clique em "+ Inserir Vídeo" ou importe um PDF acima.</p>
           </div>
         `;
         return;
@@ -592,7 +617,7 @@ LEMBRETES:
           ? `<img src="${v.image}" class="w-full h-full object-cover rounded-2xl" />`
           : `<div class="w-full h-full rounded-2xl bg-blue-950/40 border border-blue-500/20 flex flex-col items-center justify-center text-blue-400/70 hover:text-blue-300 cursor-pointer">
               <i data-lucide="image-plus" class="w-5 h-5 mb-1 no-print"></i>
-              <span class="text-[9px] font-mono font-bold text-blue-400/80">VÃ­deo ${idx + 1}</span>
+              <span class="text-[9px] font-mono font-bold text-blue-400/80">Vídeo ${idx + 1}</span>
              </div>`;
 
         card.innerHTML = `
@@ -616,19 +641,19 @@ LEMBRETES:
                  ondragover="event.preventDefault(); event.stopPropagation(); this.classList.add('border-cyan-400', 'ring-2', 'ring-cyan-400/50');"
                  ondragleave="event.stopPropagation(); this.classList.remove('border-cyan-400', 'ring-2', 'ring-cyan-400/50');"
                  ondrop="handleCardDrop('${v.id}', event)"
-                 title="Clique para escolher foto/vÃ­deo ou arraste um vÃ­deo diretamente para cÃ¡">
+                 title="Clique para escolher foto/vídeo ou arraste um vídeo diretamente para cá">
               ${imageHtml}
               <input type="file" id="file_${v.id}" accept="image/*,video/*" class="hidden" onchange="handleMediaSelected('${v.id}', this)" />
               <div class="absolute inset-0 bg-blue-950/85 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[10px] font-bold transition-opacity no-print text-center px-1">
                 <i data-lucide="video" class="w-4 h-4 mb-0.5 text-cyan-300"></i>
-                <span>Solte o VÃ­deo / Foto</span>
+                <span>Solte o Vídeo / Foto</span>
                 <span class="text-[8px] text-cyan-300/80 font-normal">Auto-Thumbnail</span>
               </div>
             </div>
 
             <!-- Mobile Only Number -->
             <div class="md:hidden flex-1 no-print">
-              <span class="text-[10px] font-mono uppercase text-blue-400 font-bold">VÃ­deo ${idx + 1}</span>
+              <span class="text-[10px] font-mono uppercase text-blue-400 font-bold">Vídeo ${idx + 1}</span>
             </div>
           </div>
 
@@ -665,7 +690,7 @@ LEMBRETES:
             </button>
 
             <!-- REMOVE / DELETE VIDEO BUTTON -->
-            <button onclick="removeVideo(${idx})" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/30 text-rose-300 text-xs font-bold border border-rose-500/30 transition-all" title="Excluir este vÃ­deo">
+            <button onclick="removeVideo(${idx})" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/30 text-rose-300 text-xs font-bold border border-rose-500/30 transition-all" title="Excluir este vídeo">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
               <span>Remover</span>
             </button>
@@ -721,16 +746,26 @@ LEMBRETES:
       currentRoteiro.lembretes.forEach(l => {
         const div = document.createElement('div');
         div.className = 'print-lembrete-item';
-        div.textContent = `â€¢ ${l.replace(/^[â€¢â—¦â–ªâ–«\s\d.-]+/, '').trim()}`;
+        div.textContent = `• ${l.replace(/^[•â—¦â–ªâ–«\s\d.-]+/, '').trim()}`;
         printList.appendChild(div);
       });
     }
 
-    function prepareAndPrint() {
+        function prepareAndPrint() {
+      const count = currentRoteiro.videos.length;
+      document.body.classList.remove('print-scale-md', 'print-scale-sm', 'print-scale-xs');
+      if (count >= 7) {
+        document.body.classList.add('print-scale-xs');
+      } else if (count >= 5) {
+        document.body.classList.add('print-scale-sm');
+      } else if (count >= 3) {
+        document.body.classList.add('print-scale-md');
+      }
       renderPrintLembretes();
       setTimeout(() => {
         window.print();
       }, 100);
+    }, 100);
     }
 
     function addNewVideoCard() {
@@ -812,7 +847,7 @@ LEMBRETES:
         // Fallback timeout in case video format is not seekable
         const timeout = setTimeout(() => {
           URL.revokeObjectURL(url);
-          reject(new Error("Timeout ao processar vÃ­deo"));
+          reject(new Error("Timeout ao processar vídeo"));
         }, 12000);
 
         video.onloadedmetadata = () => {
@@ -911,12 +946,12 @@ LEMBRETES:
           video.seconds = info.durationSec;
           
           // Auto-update title if it's default
-          if (!video.title || video.title === 'NOVO VÃDEO' || video.title.startsWith('VÃ­deo ') || video.title === 'VÃDEO 1') {
+          if (!video.title || video.title === 'NOVO VÃDEO' || video.title.startsWith('Vídeo ') || video.title === 'VÃDEO 1') {
             video.title = cleanVideoTitle(file.name);
           }
         } catch (err) {
           console.error("Erro ao extrair miniatura:", err);
-          alert('NÃ£o foi possÃ­vel extrair a foto automaticamente do vÃ­deo. Tente selecionar uma imagem.');
+          alert('Não foi possível extrair a foto automaticamente do vídeo. Tente selecionar uma imagem.');
         }
       } else if (file.type.startsWith('image')) {
         const dataUrl = await readFileAsDataUrl(file);
@@ -972,7 +1007,7 @@ LEMBRETES:
               image: info.thumbnail
             });
           } catch (err) {
-            console.error("Erro no lote de vÃ­deos:", err);
+            console.error("Erro no lote de vídeos:", err);
           }
         } else if (isImage) {
           const dataUrl = await readFileAsDataUrl(file);
@@ -1048,13 +1083,13 @@ LEMBRETES:
       const s = totalSec % 60;
       const fmt = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')} min`;
       document.getElementById('totalDurationBadge').textContent = fmt;
-      document.getElementById('totalVideosCount').textContent = `${currentRoteiro.videos.length} vÃ­deos`;
+      document.getElementById('totalVideosCount').textContent = `${currentRoteiro.videos.length} vídeos`;
     }
 
     // COPY TO WHATSAPP FORMAT
     function copyRoteiroWhatsApp() {
-      let text = `ðŸ“‹ *${currentRoteiro.title.toUpperCase()}*\n\n`;
-      text += `ðŸŽ¬ *VÃDEOS E TESTEMUNHOS:*\n`;
+      let text = `📋 *${currentRoteiro.title.toUpperCase()}*\n\n`;
+      text += `🎬 *VÃDEOS E TESTEMUNHOS:*\n`;
 
       currentRoteiro.videos.forEach((v, i) => {
         text += `${i + 1}. *${v.title}* - â±ï¸ ${v.duration}\n`;
@@ -1063,9 +1098,9 @@ LEMBRETES:
       text += `\nâ±ï¸ *TEMPO TOTAL DE VÃDEOS:* ${document.getElementById('totalDurationBadge').textContent}\n\n`;
 
       if (currentRoteiro.lembretes.length > 0) {
-        text += `ðŸ”” *LEMBRETES E AVISOS:*\n`;
+        text += `🔔 *LEMBRETES E AVISOS:*\n`;
         currentRoteiro.lembretes.forEach(l => {
-          text += `â€¢ ${l}\n`;
+          text += `• ${l}\n`;
         });
       }
 
@@ -1187,7 +1222,7 @@ LEMBRETES:
             duration: nextDur,
             seconds: parseDurationToSeconds(nextDur),
             cue: "Deixa da reuniÃ£o",
-            type: /TST|TESTEMUNHO/i.test(line) ? "Testemunho" : (/ROBÃ”|NOTÃCIA|PORTAL/i.test(line) ? "Reportagem" : "VÃ­deo"),
+            type: /TST|TESTEMUNHO/i.test(line) ? "Testemunho" : (/ROBÔ|NOTÃCIA|PORTAL/i.test(line) ? "Reportagem" : "Vídeo"),
             image: null
           });
         }
@@ -1206,6 +1241,8 @@ LEMBRETES:
   </script>
 </body>
 </html>
+
+
 
 
 
