@@ -60,6 +60,9 @@
   <!-- Fuzzysort for typo-tolerant song search -->
   <script src="https://cdn.jsdelivr.net/npm/fuzzysort@3.0.0/fuzzysort.min.js"></script>
 
+  <!-- Arca da Aliança Embedded Asset -->
+  <script src="arca_data.js"></script>
+
   <style>
     body, html {
       margin: 0;
@@ -978,7 +981,7 @@
       if (isBlackout) {
         if (opImg) {
           opImg.classList.remove('hidden');
-          opImg.src = "arca_da_alianca.jpg";
+          opImg.src = (window.ARCA_IMAGE_DATA && window.ARCA_IMAGE_DATA.length > 50) ? window.ARCA_IMAGE_DATA : "arca_da_alianca.jpg";
         }
         if (opVideoBox) opVideoBox.classList.add('hidden');
         if (opTextBox) opTextBox.classList.add('hidden');
@@ -1375,9 +1378,10 @@
         }
         
         if (isBlackout) {
+          const arcaSrc = (window.ARCA_IMAGE_DATA && window.ARCA_IMAGE_DATA.length > 50) ? window.ARCA_IMAGE_DATA : 'arca_da_alianca.jpg';
           view.innerHTML = `
             <div class="w-full h-full flex items-center justify-center bg-black overflow-hidden select-none">
-              <img src="arca_da_alianca.jpg" onerror="this.onerror=null; this.src='../arca_da_alianca.jpg';" class="w-full h-full object-contain" alt="Arca da Aliança" />
+              <img src="${arcaSrc}" onerror="this.onerror=null; this.src='../arca_da_alianca.jpg';" class="w-full h-full object-contain" alt="Arca da Aliança" />
             </div>
           `;
         } else if (cur.type === 'video' || cur.videoUrl) {
@@ -2015,7 +2019,7 @@
 
     function downloadPortableApp() {
       const baseUrl = window.location.origin + window.location.pathname;
-      const url = baseUrl + '?mode=projector&bg=black';
+      const url = baseUrl + '?mode=projector&bg=black&_v=' + Date.now();
       
       const batContent = `@echo off
 chcp 65001 >nul
@@ -2024,7 +2028,7 @@ echo ===================================================
 echo   INICIANDO TELAO DO PASTOR NA TV/PROJETOR
 echo ===================================================
 echo.
-echo 1. O sistema vai tentar jogar a tela preta direto
+echo 1. O sistema vai abrir o telao do pastor direto
 echo    para a TV ou Projetor (Tela 2).
 echo.
 echo 2. SE ABRIR NO MONITOR ERRADO:
@@ -2033,8 +2037,11 @@ echo    [WINDOWS] + [SHIFT] + [SETA PARA A DIREITA]
 echo.
 echo Aguarde, abrindo...
 
+REM Encerra janela anterior do Telao se tiver ficado aberta
+taskkill /F /FI "WINDOWTITLE eq Telao*" /T >nul 2>&1
+
 REM Tenta abrir no Chrome forçando posição na Tela 2 (2500 pixels para a direita)
-start chrome --user-data-dir="%temp%\\TelaoPastor" --window-position=2500,0 --kiosk "${url}"
+start chrome --user-data-dir="%temp%\\TelaoPastor" --window-position=2500,0 --kiosk --disable-application-cache "${url}"
 if %errorlevel% neq 0 (
     REM Se não tiver Chrome, abre no Edge
     start msedge --user-data-dir="%temp%\\TelaoPastor" --window-position=2500,0 --kiosk "${url}"
