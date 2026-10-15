@@ -106,13 +106,13 @@
 
     <!-- Mode Switcher (Pastor Tablet vs Cabine Operador) -->
     <div class="flex items-center gap-1 bg-[#101428] p-0.5 rounded-xl border border-purple-500/25">
-      <button onclick="switchViewMode('operator')" id="btn-mode-operator" class="px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm" title="Painel de Controle de Mídia">
-        <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
-        <span>🎛️ Controle (Operador)</span>
+      <button onclick="switchViewMode('pastor')" id="btn-mode-pulpit" class="px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm" title="Tela de Retorno dos Slides do Pastor">
+        <i data-lucide="tablet" class="w-3.5 h-3.5"></i>
+        <span>📖 Retorno do Pastor (Púlpito)</span>
       </button>
-      <button onclick="switchViewMode('pastor')" id="btn-mode-pulpit" class="px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5" title="Modo Visualização (Sem botões)">
-        <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
-        <span>📺 Receptor (Pastor/Telão)</span>
+      <button onclick="switchViewMode('operator')" id="btn-mode-operator" class="px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5" title="Painel de Controle e Upload de PDFs">
+        <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+        <span>⚙️ Operador (Adicionar PDFs & Mídias)</span>
       </button>
     </div>
 
@@ -134,61 +134,61 @@
   <!-- ========================================== -->
   <!-- 2. MODO PASTOR (PÚLPITO / TABLET / RETORNO)-->
   <!-- ========================================== -->
-  <main id="pastorView" class="flex-1 flex flex-row bg-[#04050a] relative overflow-hidden select-none hidden items-center justify-between">
+  <main id="pastorView" class="flex-1 flex flex-row bg-[#04050a] relative overflow-hidden select-none items-center justify-between">
     
     <!-- ◀ BOTÃO VOLTAR (LADO ESQUERDO) -->
-    <button onclick="prevSlide()" class="w-16 sm:w-20 md:w-24 h-full flex flex-col items-center justify-center bg-white/[0.02] hover:bg-purple-600/20 active:bg-purple-600/40 text-purple-300/60 hover:text-white transition-all border-r border-white/[0.06] group select-none shrink-0 z-20 cursor-pointer" title="Slide Anterior">
-      <i data-lucide="chevron-left" class="w-8 h-8 sm:w-10 sm:h-10 group-hover:-translate-x-1 transition-transform"></i>
-      <span class="text-[10px] sm:text-xs font-black uppercase tracking-widest mt-1">Volta</span>
+    <button onclick="prevSlide()" class="w-16 sm:w-24 md:w-28 h-full flex flex-col items-center justify-center bg-white/[0.03] hover:bg-purple-600/25 active:bg-purple-600/45 text-purple-200/80 hover:text-white transition-all border-r border-white/10 group select-none shrink-0 z-20 cursor-pointer tap-active" title="Slide Anterior">
+      <i data-lucide="chevron-left" class="w-10 h-10 sm:w-12 sm:h-12 group-hover:-translate-x-1.5 transition-transform text-purple-300"></i>
+      <span class="text-xs sm:text-sm font-black uppercase tracking-widest mt-2">Volta</span>
     </button>
 
-    <!-- 🖼️ ÁREA CENTRAL: SLIDE / VÍDEO / VERSÍCULO -->
-    <div class="flex-1 h-full flex flex-col items-center justify-center p-1 sm:p-2 relative overflow-hidden bg-gradient-to-b from-[#080b18] via-[#04060e] to-[#080b18]">
+    <!-- 🖼️ ÁREA CENTRAL: QUADRADO GIGANTE DE RETORNO + BOTÃO TIRAR DA TELA -->
+    <div class="flex-1 h-full flex flex-col items-center justify-between p-2 sm:p-3 relative overflow-hidden bg-gradient-to-b from-[#080b18] via-[#04060e] to-[#080b18]">
       
-      <!-- Slide Presentation Container (Preenche quase toda a tela do tablet) -->
-      <div class="w-full h-full max-h-[98vh] flex flex-col items-center justify-center text-center p-2 sm:p-4 rounded-2xl bg-black/90 border border-purple-500/30 shadow-2xl relative overflow-hidden">
+      <!-- Slide Presentation Container (Quadrado Gigante de Retorno para o Pastor) -->
+      <div class="w-full flex-1 flex flex-col items-center justify-center text-center p-3 sm:p-4 rounded-2xl bg-black/95 border-2 border-purple-500/30 shadow-2xl relative overflow-hidden min-h-0">
         
-        <!-- Header Info (Slide Index, Indicador & Botão de Materiais) -->
-        <div class="absolute top-2 left-3 right-3 flex items-center justify-between border-b border-white/[0.08] pb-1.5 z-10">
+        <!-- Header Info (Slide Index & Status ao Vivo do Telão) -->
+        <div class="absolute top-2 left-3 right-3 flex items-center justify-between border-b border-white/[0.08] pb-2 z-10">
           <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span id="pastorSlideBadge" class="font-mono text-xs sm:text-sm font-bold text-purple-300">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+            <span id="pastorSlideBadge" class="font-mono text-sm sm:text-base md:text-lg font-black text-purple-200">
               SLIDE 1 DE 1
             </span>
-            <span id="pastorTypeBadge" class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-200 border border-purple-500/30 hidden sm:inline-block">
+            <span id="pastorTypeBadge" class="text-[10px] sm:text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg bg-purple-500/20 text-purple-200 border border-purple-500/30 hidden sm:inline-block">
               SLIDE AO VIVO
             </span>
           </div>
 
-          <!-- BOTÃO GAVETA DE MATERIAIS PARA O PASTOR -->
-          <button onclick="openPastorMaterialsModal()" class="px-3 py-1 rounded-xl bg-purple-600/40 hover:bg-purple-600 active:scale-95 text-white text-xs font-bold flex items-center gap-1.5 border border-purple-500/40 transition-all shadow-md">
-            <i data-lucide="folder-open" class="w-3.5 h-3.5 text-purple-300"></i>
-            <span>📑 Escolher Material</span>
-          </button>
+          <!-- Indicador de Status do Telão (Ao Vivo vs Arca da Aliança) -->
+          <div id="pastorLiveStatusBadge" class="text-xs sm:text-sm font-black px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5 shadow-sm">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>🟢 NO TELÃO (AO VIVO)</span>
+          </div>
         </div>
 
         <!-- Render Mode A: High-Res Image / PDF Page / PPTX Graphic -->
-        <div id="pastorImageContainer" class="w-full h-full flex items-center justify-center pt-8 pb-2 hidden">
-          <img id="pastorImageDisplay" class="w-full h-full object-contain rounded-lg shadow-2xl" src="" alt="Slide do Sermão" />
+        <div id="pastorImageContainer" class="w-full h-full flex items-center justify-center pt-10 pb-2 hidden">
+          <img id="pastorImageDisplay" class="w-full h-full object-contain rounded-xl shadow-2xl" src="" alt="Slide do Sermão" />
         </div>
 
         <!-- Render Mode B: Styled Biblical Verse / Text / Song -->
-        <div id="pastorTextContainer" class="w-full h-full flex flex-col items-center justify-center my-auto relative pt-8 pb-4">
-          <div id="pastorRefDisplay" class="font-bebas text-3xl sm:text-5xl text-purple-400 tracking-wider font-bold mb-3"></div>
+        <div id="pastorTextContainer" class="w-full h-full flex flex-col items-center justify-center my-auto relative pt-10 pb-4">
+          <div id="pastorRefDisplay" class="font-bebas text-3xl sm:text-5xl md:text-6xl text-purple-400 tracking-wider font-bold mb-3"></div>
           <div id="pastorTextDisplay" class="font-sans font-black text-2xl sm:text-4xl md:text-5xl lg:text-7xl leading-tight sm:leading-snug text-white max-w-6xl overflow-y-auto custom-scrollbar whitespace-pre-wrap">
             "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós."
           </div>
           <!-- Badge de música (apenas para músicas) -->
           <div id="pastorSongTitleBadge" class="hidden absolute bottom-3 right-4 flex items-center gap-2">
             <div class="w-9 h-9 rounded-full bg-yellow-400 flex items-center justify-center text-black shadow-lg flex-shrink-0">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             </div>
             <span id="pastorSongTitleText" class="font-sans font-black text-lg text-yellow-400 uppercase tracking-wider border-b-2 border-yellow-400 pb-0.5 pr-2"></span>
           </div>
         </div>
 
         <!-- Render Mode C: Video Player Controller on Pastor Screen -->
-        <div id="pastorVideoContainer" class="w-full h-full flex flex-col items-center justify-center my-auto p-4 space-y-4 hidden pt-8">
+        <div id="pastorVideoContainer" class="w-full h-full flex flex-col items-center justify-center my-auto p-4 space-y-4 hidden pt-10">
           <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-purple-600/30 border-2 border-purple-500/50 flex items-center justify-center text-purple-300 shadow-2xl animate-pulse">
             <svg class="w-8 h-8 sm:w-10 sm:h-10 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
           </div>
@@ -231,12 +231,25 @@
 
       </div>
 
+      <!-- 🔴 BOTÃO GIGANTE: TIRAR DA TELA (PARA O PASTOR) -->
+      <div class="w-full pt-2 pb-1 flex items-center justify-center shrink-0">
+        <button onclick="toggleTirarDaTela()" id="btnTirarDaTela" class="tap-active w-full max-w-2xl py-3.5 sm:py-4 px-6 rounded-2xl font-black text-base sm:text-xl md:text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all shadow-2xl cursor-pointer border-2 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-500 hover:to-rose-600 text-white border-red-400/80 shadow-red-600/30">
+          <span id="iconTirarOff" class="flex items-center">
+            <i data-lucide="eye-off" class="w-6 h-6 sm:w-8 sm:h-8"></i>
+          </span>
+          <span id="iconTirarOn" class="hidden flex items-center">
+            <i data-lucide="tv" class="w-6 h-6 sm:w-8 sm:h-8"></i>
+          </span>
+          <span id="labelTirarDaTela">TIRAR DA TELA</span>
+        </button>
+      </div>
+
     </div>
 
     <!-- ▶ BOTÃO AVANÇAR (LADO DIREITO) -->
-    <button onclick="nextSlide()" class="w-16 sm:w-20 md:w-24 h-full flex flex-col items-center justify-center bg-white/[0.02] hover:bg-purple-600/20 active:bg-purple-600/40 text-purple-300/60 hover:text-white transition-all border-l border-white/[0.06] group select-none shrink-0 z-20 cursor-pointer" title="Próximo Slide">
-      <i data-lucide="chevron-right" class="w-8 h-8 sm:w-10 sm:h-10 group-hover:translate-x-1 transition-transform"></i>
-      <span class="text-[10px] sm:text-xs font-black uppercase tracking-widest mt-1">Avança</span>
+    <button onclick="nextSlide()" class="w-16 sm:w-24 md:w-28 h-full flex flex-col items-center justify-center bg-white/[0.03] hover:bg-purple-600/25 active:bg-purple-600/45 text-purple-200/80 hover:text-white transition-all border-l border-white/10 group select-none shrink-0 z-20 cursor-pointer tap-active" title="Próximo Slide">
+      <i data-lucide="chevron-right" class="w-10 h-10 sm:w-12 sm:h-12 group-hover:translate-x-1.5 transition-transform text-purple-300"></i>
+      <span class="text-xs sm:text-sm font-black uppercase tracking-widest mt-2">Avança</span>
     </button>
 
   </main>
@@ -252,7 +265,7 @@
   <!-- 4. MODO OPERADOR / CABINE (COMPUTADOR)    -->
   <!-- Retorno em tempo real, Telão & Controles  -->
   <!-- ========================================== -->
-  <main id="operatorView" class="flex-1 flex overflow-x-auto overflow-y-hidden bg-[#060812]">
+  <main id="operatorView" class="flex-1 flex overflow-x-auto overflow-y-hidden bg-[#060812] hidden">
     <!-- LEFT: BASE DE MÚSICAS HOLYRICS -->
     <aside class="w-72 bg-[#090d1f] border-r border-purple-500/20 flex flex-col shrink-0 z-20">
       <div class="p-4 space-y-3 bg-[#0a0f25] border-b border-purple-500/20 shrink-0 shadow-md">
@@ -480,7 +493,7 @@
     // --- STATE ---
     let currentSlideIdx = 0;
     let isBlackout = false;
-    let currentMode = 'operator';
+    let currentMode = 'pastor';
 
     let slides = [
       {
@@ -513,10 +526,11 @@
       const modeParam = urlParams.get('mode');
       if (modeParam === 'operator') {
         switchViewMode('operator');
-      } else if (modeParam === 'pastor' || modeParam === 'receptor') {
-        switchViewMode('pastor');
       } else if (modeParam === 'projector' || modeParam === 'telao' || modeParam === 'vmix') {
         renderProjectorModeOnly();
+      } else {
+        // Padrão: Modo Pastor com Retorno dos Slides direto
+        switchViewMode('pastor');
       }
 
       // Prevenir tela do tablet/celular de desligar durante o culto
@@ -542,15 +556,15 @@
       window.addEventListener('keydown', (e) => {
         if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
         
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown') {
           e.preventDefault();
           nextSlide();
-        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
           e.preventDefault();
           prevSlide();
-        } else if (e.key === 'b' || e.key === 'B') {
+        } else if (e.key === 'b' || e.key === 'B' || e.key === 'Escape') {
           e.preventDefault();
-          toggleBlackout();
+          toggleTirarDaTela();
         }
       });
     });
@@ -825,9 +839,10 @@
     function nextSlide() {
       if (currentSlideIdx < slides.length - 1) {
         currentSlideIdx++;
+        isBlackout = false;
         broadcastLiveState();
       } else if (slides.length > 0 && slides[currentSlideIdx] && slides[currentSlideIdx].type === 'song') {
-        // Último slide de uma música -> apagar telão automaticamente
+        // Último slide de uma música -> exibir arca no telão
         isBlackout = true;
         broadcastLiveState();
       }
@@ -836,16 +851,23 @@
     function prevSlide() {
       if (currentSlideIdx > 0) {
         currentSlideIdx--;
+        isBlackout = false;
         broadcastLiveState();
       }
     }
 
     function goToSlide(idx) {
       currentSlideIdx = Math.max(0, Math.min(idx, slides.length - 1));
+      isBlackout = false;
       broadcastLiveState();
     }
 
     function toggleBlackout() {
+      isBlackout = !isBlackout;
+      broadcastLiveState();
+    }
+
+    function toggleTirarDaTela() {
       isBlackout = !isBlackout;
       broadcastLiveState();
     }
@@ -908,6 +930,37 @@
         document.getElementById('pastorSlideBadge').textContent = `SLIDE ${currentSlideIdx + 1} DE ${slides.length}`;
       }
 
+      // Atualiza o Botão Gigante do Pastor e o Badge de Status
+      const btnTirar = document.getElementById('btnTirarDaTela');
+      const labelTirar = document.getElementById('labelTirarDaTela');
+      const iconOff = document.getElementById('iconTirarOff');
+      const iconOn = document.getElementById('iconTirarOn');
+      const pastorLiveStatus = document.getElementById('pastorLiveStatusBadge');
+
+      if (isBlackout) {
+        if (btnTirar) {
+          btnTirar.className = "tap-active w-full max-w-2xl py-3.5 sm:py-4 px-6 rounded-2xl font-black text-base sm:text-xl md:text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all shadow-2xl cursor-pointer border-2 bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 hover:from-emerald-500 hover:to-green-600 text-white border-emerald-400/80 shadow-emerald-600/40 ring-4 ring-emerald-500/30 animate-pulse";
+        }
+        if (labelTirar) labelTirar.textContent = "MOSTRAR NO TELÃO";
+        if (iconOff) iconOff.classList.add('hidden');
+        if (iconOn) iconOn.classList.remove('hidden');
+        if (pastorLiveStatus) {
+          pastorLiveStatus.className = "text-xs sm:text-sm font-black px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1.5 shadow-sm";
+          pastorLiveStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span> <span>🛡️ TELÃO: ARCA DA ALIANÇA</span>';
+        }
+      } else {
+        if (btnTirar) {
+          btnTirar.className = "tap-active w-full max-w-2xl py-3.5 sm:py-4 px-6 rounded-2xl font-black text-base sm:text-xl md:text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all shadow-2xl cursor-pointer border-2 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-500 hover:to-rose-600 text-white border-red-400/80 shadow-red-600/30";
+        }
+        if (labelTirar) labelTirar.textContent = "TIRAR DA TELA";
+        if (iconOff) iconOff.classList.remove('hidden');
+        if (iconOn) iconOn.classList.add('hidden');
+        if (pastorLiveStatus) {
+          pastorLiveStatus.className = "text-xs sm:text-sm font-black px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5 shadow-sm";
+          pastorLiveStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> <span>🟢 NO TELÃO (AO VIVO)</span>';
+        }
+      }
+
       const pct = slides.length > 1 ? ((currentSlideIdx + 1) / slides.length) * 100 : 100;
       const progBar = document.getElementById('pastorProgressBar');
       if (progBar) progBar.style.width = `${pct}%`;
@@ -923,11 +976,16 @@
       const opVideoBox = document.getElementById('opMirroredVideoContainer');
 
       if (isBlackout) {
-        if (opImg) opImg.classList.add('hidden');
+        if (opImg) {
+          opImg.classList.remove('hidden');
+          opImg.src = "arca_da_alianca.jpg";
+        }
         if (opVideoBox) opVideoBox.classList.add('hidden');
-        if (opTextBox) opTextBox.classList.remove('hidden');
-        document.getElementById('opMirroredRef').textContent = "⚫ TELÃO EM BLACKOUT";
-        document.getElementById('opMirroredText').textContent = "A saída para o telão está temporariamente apagada.";
+        if (opTextBox) opTextBox.classList.add('hidden');
+        const refEl = document.getElementById('opMirroredRef');
+        if (refEl) refEl.textContent = "🛡️ TELÃO EXIBINDO ARCA DA ALIANÇA";
+        const textEl = document.getElementById('opMirroredText');
+        if (textEl) textEl.textContent = "A saída para o telão está exibindo a imagem da Arca da Aliança.";
       } else if (cur.type === 'video' || cur.videoUrl) {
         if (opImg) opImg.classList.add('hidden');
         if (opTextBox) opTextBox.classList.add('hidden');
@@ -964,11 +1022,11 @@
       const blackoutLabel = document.getElementById('blackoutLabel');
       if (blackoutBtn && blackoutLabel) {
         if (isBlackout) {
-          blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold border border-rose-500 flex items-center gap-1.5 transition-all shadow-lg shadow-rose-600/30";
-          blackoutLabel.textContent = "Reativar Telão";
+          blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold border border-emerald-500 flex items-center gap-1.5 transition-all shadow-lg shadow-emerald-600/30 animate-pulse";
+          blackoutLabel.textContent = "Mostrar Slide no Telão";
         } else {
-          blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold border border-zinc-700 flex items-center gap-1.5 transition-all";
-          blackoutLabel.textContent = "Blackout Telão";
+          blackoutBtn.className = "px-3.5 py-2 rounded-xl bg-red-800/80 hover:bg-red-700 text-red-200 text-xs font-bold border border-red-600/60 flex items-center gap-1.5 transition-all";
+          blackoutLabel.textContent = "Tirar da Tela (Arca)";
         }
       }
 
@@ -1038,14 +1096,15 @@
       if (mode === 'pastor') {
         if (pastor) pastor.classList.remove('hidden');
         if (operator) operator.classList.add('hidden');
-        if (btnP) btnP.className = "px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
-        if (btnO) btnO.className = "px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
+        if (btnP) btnP.className = "px-3.5 py-1.5 rounded-lg text-xs font-black bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
+        if (btnO) btnO.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
       } else {
         if (pastor) pastor.classList.add('hidden');
         if (operator) operator.classList.remove('hidden');
-        if (btnO) btnO.className = "px-3 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
-        if (btnP) btnP.className = "px-3 py-1 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
+        if (btnO) btnO.className = "px-3.5 py-1.5 rounded-lg text-xs font-black bg-purple-600 text-white transition-all flex items-center gap-1.5 shadow-sm";
+        if (btnP) btnP.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-all flex items-center gap-1.5";
       }
+      renderAllViews();
       lucide.createIcons();
     }
 
@@ -1316,9 +1375,11 @@
         }
         
         if (isBlackout) {
-          view.innerHTML = currentBg === 'transparent' ? '' : `<div class="w-full h-full flex items-center justify-center">
-            <span class="text-white/20 font-mono text-sm uppercase">BLACKOUT</span>
-          </div>`;
+          view.innerHTML = `
+            <div class="w-full h-full flex items-center justify-center bg-black overflow-hidden select-none">
+              <img src="arca_da_alianca.jpg" onerror="this.onerror=null; this.src='../arca_da_alianca.jpg';" class="w-full h-full object-contain" alt="Arca da Aliança" />
+            </div>
+          `;
         } else if (cur.type === 'video' || cur.videoUrl) {
           // blob:// URLs funcionam entre abas do MESMO navegador (mesmo computador).
           // Se falhar (ex: outro dispositivo), mostra placeholder automaticamente via onerror.

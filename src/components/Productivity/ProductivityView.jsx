@@ -33,12 +33,12 @@ export default function ProductivityView({ darkMode }) {
       borderColor: 'border-violet-500/30',
       tag: 'NOVO • AO VIVO & TEMPO REAL',
       tagColor: 'bg-violet-500/15 text-violet-300 border-violet-500/30',
-      description: 'Sistema em tempo real para o Púlpito do Pastor e Cabine de Transmissão. O pastor avança/retrocede versículos no tablet com botões gigantes e a cabine acompanha instantaneamente para projetar no telão.',
+      description: 'Sistema ultra-simples em tempo real para o Púlpito do Pastor e Cabine. O pastor abre e já cai direto na tela de retorno gigante com botões de Avançar/Voltar e botão gigante TIRAR DA TELA (Arca da Aliança).',
       features: [
-        'Mesmo endereço web para o Pastor e para a Cabine com sincronização na nuvem e local (< 30ms)',
-        'Interface do Pastor (Tablet): Botão Superior VOLTA, Versículo Central e Botão Inferior AVANÇA',
-        'Painel da Cabine: Retorno ao vivo do slide ativo do pastor, lista de miniaturas e Blackout',
-        'Saída para Telão (HDMI / Segundo Monitor / OBS / vMix) com 1 clique'
+        'Abre direto no Retorno do Pastor com visor gigante e leitura facilitada para o púlpito',
+        'Botão Gigante "TIRAR DA TELA": exibe instantaneamente a Arca da Aliança no Telão',
+        'Aba separada para o Operador carregar PDFs e gerenciar mídias pelo computador',
+        'App Portátil (.bat) incluso para plugar o notebook na TV/Telão e funcionar em 1 clique'
       ],
       path: `${import.meta.env.BASE_URL}tools/pulpito_retorno.html`,
       iframeUrl: `${import.meta.env.BASE_URL}tools/pulpito_retorno.html`
