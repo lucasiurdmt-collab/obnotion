@@ -57,6 +57,28 @@
         </p>
       </div>
 
+      <!-- Barra de Controle do Dia (Atualização Diária Automática) -->
+      <div class="date-navigator-card">
+        <div class="date-navigator-info">
+          <div class="date-icon-badge">📅</div>
+          <div>
+            <div class="date-main-text" id="dateDisplay">Carregando data...</div>
+            <div class="date-sub-text" id="dateCycleInfo">● Atualização diária automática ativa</div>
+          </div>
+        </div>
+        <div class="date-navigator-buttons">
+          <button type="button" class="btn-date-nav" id="btnPrevDay" title="Ver dia anterior">
+            ◀ Ontem
+          </button>
+          <button type="button" class="btn-date-nav active" id="btnToday" title="Voltar para a data de hoje">
+            Hoje
+          </button>
+          <button type="button" class="btn-date-nav" id="btnNextDay" title="Simular próximo dia">
+            Amanhã ▶
+          </button>
+        </div>
+      </div>
+
       <!-- Grid com os 5 quadrados pretos/translúcidos -->
       <div class="verses-grid" id="versesGrid">
         <!-- Injetado dinamicamente pelo app.js -->

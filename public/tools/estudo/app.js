@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Estado da Aplicação
   let currentLang = localStorage.getItem('scriptura_lang') || 'ru';
   let activeTab = 'verses';
+  let currentDateOffset = 0;
   let currentReviewList = [];
   let currentCardIndex = 0;
   let isAnswerRevealed = false;
@@ -25,6 +26,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const versesGrid = document.getElementById('versesGrid');
   const versesHeroTitle = document.getElementById('versesHeroTitle');
   const versesHeroDesc = document.getElementById('versesHeroDesc');
+
+  // Controles de Data Diária
+  const dateDisplay = document.getElementById('dateDisplay');
+  const dateCycleInfo = document.getElementById('dateCycleInfo');
+  const btnPrevDay = document.getElementById('btnPrevDay');
+  const btnToday = document.getElementById('btnToday');
+  const btnNextDay = document.getElementById('btnNextDay');
 
   // Modais
   const modalLesson = document.getElementById('modalLesson');
@@ -142,10 +150,71 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ================= NAVEGAÇÃO ENTRE DIAS (ROTAÇÃO DIÁRIA) =================
+  function updateDateNavButtons() {
+    [btnPrevDay, btnToday, btnNextDay].forEach(b => {
+      if (b) b.classList.remove('active');
+    });
+    if (currentDateOffset === 0 && btnToday) {
+      btnToday.classList.add('active');
+    } else if (currentDateOffset < 0 && btnPrevDay) {
+      btnPrevDay.classList.add('active');
+    } else if (currentDateOffset > 0 && btnNextDay) {
+      btnNextDay.classList.add('active');
+    }
+  }
+
+  if (btnPrevDay) {
+    btnPrevDay.addEventListener('click', () => {
+      currentDateOffset--;
+      updateDateNavButtons();
+      renderVerses();
+    });
+  }
+
+  if (btnToday) {
+    btnToday.addEventListener('click', () => {
+      currentDateOffset = 0;
+      updateDateNavButtons();
+      renderVerses();
+    });
+  }
+
+  if (btnNextDay) {
+    btnNextDay.addEventListener('click', () => {
+      currentDateOffset++;
+      updateDateNavButtons();
+      renderVerses();
+    });
+  }
+
   // ================= RENDERIZAR OS 5 QUADRADOS DO DIA =================
   function renderVerses() {
-    const list = window.getDailyVerses ? window.getDailyVerses(currentLang) : [];
+    const dailyData = window.getDailyVerses ? window.getDailyVerses(currentLang, currentDateOffset) : { verses: [] };
+    const list = dailyData.verses || [];
     versesGrid.innerHTML = '';
+
+    // Atualiza barra de status do dia
+    if (dateDisplay && dailyData.dateFormatted) {
+      let prefix = '';
+      if (currentDateOffset === 0) prefix = 'Hoje • ';
+      else if (currentDateOffset === 1) prefix = 'Amanhã • ';
+      else if (currentDateOffset === -1) prefix = 'Ontem • ';
+      else if (currentDateOffset > 1) prefix = `Em +${currentDateOffset} dias • `;
+      else if (currentDateOffset < -1) prefix = `Há ${Math.abs(currentDateOffset)} dias • `;
+
+      dateDisplay.textContent = `${prefix}${dailyData.dateFormatted}`;
+    }
+
+    if (dateCycleInfo) {
+      if (dailyData.isCustomAi) {
+        dateCycleInfo.textContent = '✨ Versículos gerados por Inteligência Artificial';
+        dateCycleInfo.style.color = 'var(--accent-indigo)';
+      } else {
+        dateCycleInfo.textContent = `● Atualização diária ativa (Ciclo ${dailyData.dayIndex} de ${dailyData.totalDays})`;
+        dateCycleInfo.style.color = 'var(--accent-emerald)';
+      }
+    }
 
     if (list.length === 0) {
       versesGrid.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px;">Carregando versículos...</p>';
