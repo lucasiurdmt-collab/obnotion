@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
+const crypto = require('crypto');
 const multer = require('multer');
 const { buildSermonPptx } = require('./sermon_slide_engine');
 const { extractTextFromPdf, parseSermonTextOffline, parseTeamsDirectionText } = require('./local_sermon_parser');
@@ -26,17 +28,81 @@ if (!fs.existsSync(downloadsDir)) {
   fs.mkdirSync(downloadsDir, { recursive: true });
 }
 
+// Limpeza automática periódica de arquivos temporários (> 24h)
+function cleanupOldDownloads() {
+  try {
+    if (!fs.existsSync(downloadsDir)) return;
+    const now = Date.now();
+    const maxAgeMs = 24 * 60 * 60 * 1000;
+    const files = fs.readdirSync(downloadsDir);
+    for (const f of files) {
+      if (f === '.gitkeep' || f === 'active_tasks.json') continue;
+      const full = path.join(downloadsDir, f);
+      try {
+        const stat = fs.statSync(full);
+        if (stat.isFile() && (now - stat.mtimeMs > maxAgeMs)) {
+          fs.unlinkSync(full);
+        }
+      } catch (e) {}
+    }
+  } catch (err) {
+    console.warn('⚠️ Falha na limpeza de downloads:', err.message);
+  }
+}
+setInterval(cleanupOldDownloads, 60 * 60 * 1000);
+cleanupOldDownloads();
+
+// ==========================================
+// RASTREAMENTO GLOBAL DE FALHAS E TELEMETRIA
+// ==========================================
+const errorLogPath = path.join(downloadsDir, 'system_errors.log');
+
+function logSystemError(type, err, extra = {}) {
+  const timestamp = new Date().toISOString();
+  const message = err && err.message ? err.message : String(err || 'Erro desconhecido');
+  const stack = err && err.stack ? err.stack : 'Sem stack trace';
+  const entry = `[${timestamp}] [${type.toUpperCase()}] ${message}\nContext: ${JSON.stringify(extra)}\nStack: ${stack}\n${'='.repeat(70)}\n`;
+  
+  console.error(`🚨 [TELEMETRIA] ${type}:`, message);
+  try {
+    fs.appendFileSync(errorLogPath, entry, 'utf8');
+  } catch (logErr) {
+    console.error('Falha ao gravar system_errors.log:', logErr.message);
+  }
+}
+
+process.on('uncaughtException', (err) => {
+  logSystemError('uncaughtException', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  logSystemError('unhandledRejection', reason);
+});
+
 // Servir arquivos estáticos (Frontend e Downloads)
 app.use(express.static(path.join(__dirname, 'public'), {
   etag: false,
   maxAge: 0,
-  setHeaders: (res) => {
+  setHeaders: (res, filePath) => {
+    if (filePath && filePath.endsWith('.wasm')) {
+      res.setHeader('Content-Type', 'application/wasm');
+    }
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
   }
 }));
 app.use('/downloads', express.static(downloadsDir));
+
+// Rota de download direto do APK Android
+app.get('/slidekiller.apk', (req, res) => {
+  const apkPath = path.join(__dirname, 'slidekiller.apk');
+  if (fs.existsSync(apkPath)) {
+    res.download(apkPath, 'slidekiller.apk');
+  } else {
+    res.status(404).send('APK não encontrado.');
+  }
+});
 
 // Rota de Saúde / Status
 app.get('/api/health', (req, res) => {
@@ -47,6 +113,74 @@ app.get('/api/health', (req, res) => {
     modules: ['slidekiller', 'pdf-to-pptx', 'images-to-pptx', 'video-editor'],
     timestamp: new Date().toISOString()
   });
+});
+
+// ==========================================
+// API DE TAREFAS SINCRONIZADAS (CELULAR ⇄ PC)
+// ==========================================
+const tasksFilePath = path.join(downloadsDir, 'active_tasks.json');
+
+function getStoredTasks() {
+  try {
+    if (fs.existsSync(tasksFilePath)) {
+      const data = fs.readFileSync(tasksFilePath, 'utf8');
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : [];
+    }
+  } catch (err) {
+    console.warn('⚠️ Erro ao ler tarefas salvas:', err.message);
+  }
+  return [];
+}
+
+function saveStoredTasks(tasks) {
+  try {
+    fs.writeFileSync(tasksFilePath, JSON.stringify(tasks.slice(0, 3), null, 2), 'utf8');
+    return true;
+  } catch (err) {
+    console.error('❌ Erro ao persistir tarefas:', err.message);
+    return false;
+  }
+}
+
+app.get('/api/tasks', (req, res) => {
+  res.json({
+    status: 'success',
+    tasks: getStoredTasks()
+  });
+});
+
+app.post('/api/tasks', (req, res) => {
+  try {
+    const newTask = req.body;
+    if (!newTask || !newTask.id) {
+      return res.status(400).json({ error: 'Dados da tarefa inválidos ou id ausente.' });
+    }
+    let tasks = getStoredTasks();
+    const existingIndex = tasks.findIndex(t => t.id === newTask.id);
+    if (existingIndex >= 0) {
+      tasks[existingIndex] = { ...tasks[existingIndex], ...newTask, updatedAt: new Date().toISOString() };
+    } else {
+      tasks.unshift(newTask);
+    }
+    tasks = tasks.slice(0, 3);
+    saveStoredTasks(tasks);
+    res.json({ status: 'success', tasks });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/tasks/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    let tasks = getStoredTasks();
+    tasks = tasks.filter(t => t.id !== id);
+    saveStoredTasks(tasks);
+    res.json({ status: 'success', tasks });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 /**
@@ -87,7 +221,7 @@ app.post('/api/slides/upload-pdf', upload.fields([
     let slides = [];
 
     if (textMode === 'teams') {
-      console.log(`💬 Processando Formato Direção Teams (${teamsOption})... (${sermonText.length} caracteres)`);
+      console.log(`💬 Processando Formato Direção formatada previamente (${teamsOption})... (${sermonText.length} caracteres)`);
       slides = parseTeamsDirectionText(sermonText, { onlyVerses: teamsOption !== 'with-explanations' });
     } else if (useAi && apiKey) {
       console.log(`🤖 Processando via Inteligência Artificial Gemini... (${sermonText.length} caracteres)`);
@@ -102,7 +236,8 @@ app.post('/api/slides/upload-pdf', upload.fields([
       slides = parseSermonTextOffline(sermonText);
     }
 
-    const fileName = `SLIDES_SERMAO_${Date.now()}.pptx`;
+    const fileToken = crypto.randomBytes(6).toString('hex');
+    const fileName = `SLIDES_SERMAO_${Date.now()}_${fileToken}.pptx`;
     const filePath = path.join(downloadsDir, fileName);
 
     await buildSermonPptx(slides, bgPath, filePath);
@@ -133,16 +268,19 @@ app.post('/api/slides/rebuild', async (req, res) => {
     }
 
     let bgPath = path.join(__dirname, 'public/assets/church_sermon_bg.png');
-    if (selectedBg) {
+    if (selectedBg && typeof selectedBg === 'string') {
+      const sanitizedName = path.basename(selectedBg);
       if (selectedBg.startsWith('/downloads/')) {
-        const potentialPath = path.join(downloadsDir, path.basename(selectedBg));
+        const potentialPath = path.join(downloadsDir, sanitizedName);
         if (fs.existsSync(potentialPath)) bgPath = potentialPath;
-      } else if (fs.existsSync(path.join(__dirname, 'public', selectedBg))) {
-        bgPath = path.join(__dirname, 'public', selectedBg);
+      } else {
+        const potentialPath = path.join(__dirname, 'public/assets', sanitizedName);
+        if (fs.existsSync(potentialPath)) bgPath = potentialPath;
       }
     }
 
-    const fileName = `SLIDES_EDITADOS_${Date.now()}.pptx`;
+    const fileToken = crypto.randomBytes(6).toString('hex');
+    const fileName = `SLIDES_EDITADOS_${Date.now()}_${fileToken}.pptx`;
     const filePath = path.join(downloadsDir, fileName);
 
     await buildSermonPptx(slides, bgPath, filePath);
@@ -209,12 +347,94 @@ app.post('/api/slides/upload-bg', upload.single('bgImage'), (req, res) => {
   }
 });
 
+// ==========================================
+// ROTAS DE TELEMETRIA E RASTREAMENTO DE ERROS
+// ==========================================
+app.post('/api/telemetry/error', (req, res) => {
+  try {
+    const { errors, sessionId, timestamp } = req.body;
+    if (Array.isArray(errors)) {
+      errors.forEach(errItem => {
+        logSystemError(`frontend_${errItem.type || 'error'}`, new Error(errItem.message || 'Erro de interface'), {
+          sessionId,
+          clientTime: timestamp,
+          source: errItem.source,
+          lineno: errItem.lineno,
+          colno: errItem.colno,
+          url: errItem.url,
+          userAgent: errItem.userAgent,
+          stack: errItem.stack,
+          context: errItem.context
+        });
+      });
+    } else if (req.body && req.body.message) {
+      logSystemError('frontend_single_error', new Error(req.body.message), req.body);
+    }
+    res.json({ status: 'ok', received: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Falha ao processar telemetria' });
+  }
+});
+
+app.get('/api/telemetry/logs', (req, res) => {
+  try {
+    if (!fs.existsSync(errorLogPath)) {
+      return res.json({ logs: 'Nenhum erro registrado até o momento.', entries: [] });
+    }
+    const content = fs.readFileSync(errorLogPath, 'utf8');
+    const lines = content.split('\n').filter(Boolean);
+    const lastLines = lines.slice(-100).join('\n');
+    res.json({
+      status: 'success',
+      totalBytes: fs.statSync(errorLogPath).size,
+      recentLogs: lastLines
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Middleware Central de Erros do Express
+app.use((err, req, res, next) => {
+  logSystemError('express_unhandled', err, {
+    method: req.method,
+    url: req.originalUrl,
+    ip: req.ip
+  });
+  if (res.headersSent) return next(err);
+  res.status(err.status || 500).json({
+    status: 'error',
+    error: err.message || 'Erro interno no servidor.',
+    timestamp: new Date().toISOString()
+  });
+});
+
+function getLocalNetworkIp() {
+  try {
+    const nets = os.networkInterfaces();
+    for (const name of Object.keys(nets)) {
+      for (const net of nets[name]) {
+        if (net.family === 'IPv4' && !net.internal) {
+          return net.address;
+        }
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
 app.listen(PORT, () => {
+  const localIp = getLocalNetworkIp();
   console.log('================================================================');
   console.log(`🏛️  CENTRAL MULTIMÍDIA CHURCH ONLINE NA PORTA ${PORT}`);
-  console.log(`🌐 Acesse no navegador: http://localhost:${PORT}`);
+  console.log(`🌐 No Computador: http://localhost:${PORT}`);
+  if (localIp) {
+    console.log(`📱 No Celular (mesmo Wi-Fi): http://${localIp}:${PORT}`);
+  }
   console.log('   • ⚡ Módulo 1: Slide Killer (PPTX 16:9 Full HD)');
   console.log('   • 📄 Módulo 2: PDF ➔ PPTX Direto (1 Pág = 1 Slide 100% Fiel)');
-  console.log('   • 🎬 Módulo 3: Editor de Vídeo (OpenCut Studio OSS)');
+  console.log('   • 🖼️ Módulo 3: Imagens / ZIP ➔ PPTX');
+  console.log('   • 🎨 Módulo 4: DeckCraft Studio');
+  console.log('   • 📌 Tarefas Sincronizadas (Celular ⇄ PC ativado)');
   console.log('================================================================');
 });

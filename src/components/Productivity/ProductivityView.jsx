@@ -64,19 +64,19 @@ export default function ProductivityView({ darkMode }) {
     },
     {
       id: 'slides',
-      title: 'Gerador de Slides (Canva Killer Pro)',
+      title: 'Slide Killer (Central Multimídia Church)',
       icon: Presentation,
       color: 'text-purple-400',
       bgColor: 'bg-purple-500/10',
       borderColor: 'border-purple-500/30',
-      tag: 'PDF & TEXTO ESCRITO',
+      tag: 'SLIDE KILLER PRO',
       tagColor: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-      description: 'Estúdio profissional para transformar sermões e estudos em apresentações de alto impacto. Aceita tanto arquivos PDF quanto textos/mensagens coladas diretamente.',
+      description: 'Plataforma completa de mídia e projeção para igrejas. Conversão de PDF ➔ PPTX (1 Página = 1 Slide), conversor inverso (PPTX ➔ Imagens/ZIP/PDF) e gerador de sermões.',
       features: [
-        'Importe PDFs ou Cole Mensagens do Pastor (WhatsApp / Anotações)',
-        'Detecção inteligente de tópicos e versículos bíblicos formatados',
-        'Editor visual estilo Canvas (drag-and-drop)',
-        'Geração e exportação de arquivos PPTX nativos'
+        'PDF ➔ PPTX Direto (1 Página = 1 Slide em Full HD)',
+        'Conversor Inverso: PPTX para Imagens PNG, ZIP e PDF',
+        'Organizador Visual com Drag & Drop e exclusão em lote',
+        'Slide Killer de sermões com quebra inteligente de versículos'
       ],
       path: `${import.meta.env.BASE_URL}tools/gerador_de_slides/index.html`,
       iframeUrl: `${import.meta.env.BASE_URL}tools/gerador_de_slides/index.html`

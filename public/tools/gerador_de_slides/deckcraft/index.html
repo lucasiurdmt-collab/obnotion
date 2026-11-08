@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>DeckCraft</title>
+  
+<script type="module">
+import init, * as bindings from './deckcraft-web-262011de9bd65d5a.js';
+const wasm = await init({ module_or_path: './deckcraft-web-262011de9bd65d5a_bg.wasm' });
+
+window.wasmBindings = bindings;
+
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
+
+// Notificar janela-mãe (Slide Killer Hub)
+try {
+  window.parent.postMessage({ type: 'DECKCRAFT_READY' }, '*');
+} catch(e) {}
+
+let fileLoaded = false;
+
+// Ouvinte de mensagens da Central Multimídia para carregar arquivos PPTX automaticamente
+window.addEventListener('message', async (e) => {
+  if (!e.data) return;
+  if (e.data.type === 'LOAD_PPTX_BLOB' || e.data.type === 'LOAD_PPTX') {
+    fileLoaded = true;
+    try {
+      const { blob, buffer, name } = e.data;
+      const fileData = blob || (buffer ? new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' }) : null);
+      if (!fileData) return;
+      const file = new File([fileData], name || 'slides_culto.pptx', {
+        type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+      });
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      const canvas = document.getElementById('deckcraft_canvas');
+      if (canvas) {
+        const dropEvt = new DragEvent('drop', {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: dt
+        });
+        canvas.dispatchEvent(dropEvt);
+        console.log('[DeckCraft] Evento drop de PPTX disparado:', file.name);
+      }
+    } catch (err) {
+      console.warn('[DeckCraft] Falha ao injetar evento de arquivo:', err);
+    }
+  }
+});
+
+// Suporte para arrastar e soltar arquivo em qualquer lugar da tela com feedback visual
+let dragCounter = 0;
+window.addEventListener('dragenter', (e) => {
+  e.preventDefault();
+  dragCounter++;
+  const overlay = document.getElementById('deckcraft_drop_overlay');
+  if (overlay) overlay.style.display = 'flex';
+});
+window.addEventListener('dragleave', (e) => {
+  e.preventDefault();
+  dragCounter--;
+  if (dragCounter <= 0) {
+    dragCounter = 0;
+    const overlay = document.getElementById('deckcraft_drop_overlay');
+    if (overlay) overlay.style.display = 'none';
+  }
+});
+window.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+});
+window.addEventListener('drop', (e) => {
+  fileLoaded = true;
+  dragCounter = 0;
+  const overlay = document.getElementById('deckcraft_drop_overlay');
+  if (overlay) overlay.style.display = 'none';
+
+  const canvas = document.getElementById('deckcraft_canvas');
+  if (e.target !== canvas && canvas && e.dataTransfer && e.dataTransfer.files.length > 0) {
+    e.preventDefault();
+    const dropEvt = new DragEvent('drop', {
+      bubbles: true,
+      cancelable: true,
+      dataTransfer: e.dataTransfer
+    });
+    canvas.dispatchEvent(dropEvt);
+  }
+});
+
+// Pré-carregamento das fontes oficiais para o motor WebAssembly
+if (document.fonts) {
+  Promise.all([
+    document.fonts.load('600 16px "Bahnschrift SemiBold Condensed"'),
+    document.fonts.load('400 16px "Bahnschrift"'),
+    document.fonts.load('700 16px "Anton"'),
+    document.fonts.load('400 16px "Bebas Neue"'),
+    document.fonts.load('700 16px "Oswald"'),
+    document.fonts.load('700 16px "Roboto Condensed"')
+  ]).catch(() => {});
+}
+
+// Se nenhum arquivo específico for enviado pela janela-mãe nos primeiros 1.2s (ex: abertura standalone do DeckCraft),
+// carrega o template oficial padrão com a fonte Bahnschrift SemiBold Condensed
+setTimeout(async () => {
+  if (fileLoaded) return;
+  try {
+    const res = await fetch('./template.pptx');
+    if (res.ok && !fileLoaded) {
+      const blob = await res.blob();
+      const file = new File([blob], 'apresentacao_padrao.pptx', {
+        type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+      });
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      const canvas = document.getElementById('deckcraft_canvas');
+      if (canvas && !fileLoaded) {
+        const dropEvt = new DragEvent('drop', {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: dt
+        });
+        canvas.dispatchEvent(dropEvt);
+        console.log('[DeckCraft] Template padrão Bahnschrift SemiBold Condensed carregado com sucesso!');
+      }
+    }
+  } catch (err) {
+    console.warn('[DeckCraft] Aviso ao carregar template padrão:', err);
+  }
+}, 1200);
+</script>
+  <link rel="icon" href="./ai.storyteller.deckcraft-74e97653dd8dd002.png" integrity="sha384-THDce39ERZRgdnEtM/35FnmU4IExPfz9k2XrApCGWP0NUMC98NUWG1VYUMNXNCiD"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@600;700;800&family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&family=Oswald:wght@600;700&family=Roboto+Condensed:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'Bahnschrift SemiBold Condensed';
+      src: local('Bahnschrift SemiBold Condensed'), local('Bahnschrift-SemiBoldCondensed'), local('Bahnschrift'), url('./bahnschrift.ttf') format('truetype');
+      font-weight: 600;
+      font-stretch: condensed;
+    }
+    @font-face {
+      font-family: 'Bahnschrift';
+      src: local('Bahnschrift'), url('./bahnschrift.ttf') format('truetype');
+    }
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #262626; }
+    #deckcraft_canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    #deckcraft_loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: #b8b8b8; font: 14px system-ui, sans-serif; pointer-events: none; }
+    #deckcraft_drop_overlay {
+      display: none; position: absolute; inset: 16px; border: 3px dashed #6366f1; border-radius: 14px;
+      background: rgba(15, 23, 42, 0.88); z-index: 999; pointer-events: none; align-items: center; justify-content: center;
+      color: #ffffff; font: 600 20px system-ui, sans-serif; box-shadow: 0 0 40px rgba(99, 102, 241, 0.5); text-align: center;
+      letter-spacing: 0.5px;
+    }
+  </style>
+<link rel="modulepreload" href="./deckcraft-web-262011de9bd65d5a.js" crossorigin="anonymous" integrity="sha384-IbTYnKNfwKV2nR5Xg/1vpyp0VyUY8dlOWmPqCWs1UdVr6+HlsBjlbj5SntTooy/r"><link rel="preload" href="./deckcraft-web-262011de9bd65d5a_bg.wasm" crossorigin="anonymous" integrity="sha384-APBhphBIlLWr5wR5cqVr/yRFuLItf2My2LIeOitmK3mjUoemu79U+vdYBDLSOGQJ" as="fetch" type="application/wasm"></head>
+<body>
+  <canvas id="deckcraft_canvas"></canvas>
+  <div id="deckcraft_loading">Loading DeckCraft&hellip;</div>
+  <div id="deckcraft_drop_overlay">📥 Solte o arquivo .pptx aqui para carregar no DeckCraft</div>
+</body>
+</html>
