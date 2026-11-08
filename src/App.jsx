@@ -18,6 +18,7 @@ import HabitsView from './components/Habits/HabitsView';
 import JournalView from './components/Journal/JournalView';
 import SettingsView from './components/Settings/SettingsView';
 import ProductivityView from './components/Productivity/ProductivityView';
+import StudyView from './components/Study/StudyView';
 import SoulsView from './components/Souls/SoulsView';
 import JarvisWidget from './components/Jarvis/JarvisWidget';
 import ReminderManager from './components/Notifications/ReminderManager';
@@ -260,6 +261,10 @@ export default function App() {
 
           {activeTab === 'productivity' && (
             <ProductivityView darkMode={darkMode} />
+          )}
+
+          {activeTab === 'study' && (
+            <StudyView darkMode={darkMode} />
           )}
 
           {activeTab === 'souls' && (

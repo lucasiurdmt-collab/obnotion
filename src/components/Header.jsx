@@ -23,6 +23,7 @@ export default function Header({
     habits: 'Hábitos & Consistência',
     journal: 'Diário & Reflexão',
     productivity: 'Produtividade & Estúdio',
+    study: 'Estudo de Idiomas & Bíblia',
     settings: 'Configurações do Sistema'
   };
 

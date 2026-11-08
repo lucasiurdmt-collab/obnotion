@@ -42,6 +42,7 @@ export default function Sidebar({
 }) {
   const menuItems = [
     { id: 'productivity', label: 'Produtividade', icon: Wand2, badge: null },
+    { id: 'study', label: 'Estudo', icon: BookOpen, badge: 'NOVO', badgeColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/25' },
     { id: 'souls', label: 'Ganho de Almas', icon: Users, badge: null }
   ];
 

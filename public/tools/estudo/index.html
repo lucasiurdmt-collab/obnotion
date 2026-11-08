@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scriptura — Idiomas & Repetição Espaçada</title>
+  <meta name="description" content="Aprenda Russo e Inglês conversacional vivo através de traduções contemporâneas da Bíblia e repetição espaçada (Anki SM-2).">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ================= TOP HEADER ================= -->
+  <header>
+    <div class="header-container">
+      <div class="logo-area">
+        <div class="logo-icon">✝</div>
+        <div>
+          <span class="logo-title">Scriptura</span>
+          <span class="logo-subtitle">Linguagem Viva & Repetição Espaçada</span>
+        </div>
+      </div>
+
+      <!-- Seletor Russo / Inglês no Topo -->
+      <div class="lang-toggle-group" role="group" aria-label="Seletor de Idioma">
+        <button type="button" class="lang-btn active" id="btnLangRu" aria-pressed="true">
+          <span>🇷🇺</span> Русский (НРП)
+        </button>
+        <button type="button" class="lang-btn" id="btnLangEn" aria-pressed="false">
+          <span>🇺🇸</span> English (NLT)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= NAVEGAÇÃO ENTRE ABAS ================= -->
+  <nav class="main-tabs" aria-label="Navegação Principal">
+    <button type="button" class="tab-btn active" data-tab="verses">
+      📖 Versículos do Dia (5)
+    </button>
+    <button type="button" class="tab-btn" data-tab="anki">
+      🧠 Meu Anki (SRS) <span class="badge" id="ankiBadge" style="display: none;">0</span>
+    </button>
+    <button type="button" class="tab-btn" data-tab="settings">
+      ⚙️ Configurações & Áudio
+    </button>
+  </nav>
+
+  <!-- ================= CONTEÚDO PRINCIPAL ================= -->
+  <main>
+    
+    <!-- ABA 1: OS 5 VERSÍCULOS DO DIA (OS 5 QUADRADOS) -->
+    <section id="tab-verses" class="tab-content active" aria-labelledby="versesHeroTitle">
+      <div class="hero-header">
+        <h1 class="hero-title" id="versesHeroTitle">Versículos em Russo Contemporâneo (НРП)</h1>
+        <p class="hero-desc" id="versesHeroDesc">
+          5 versículos selecionados do Novo Testamento com acentos tônicos (ударения) e vocabulário vivo. Clique no quadrado para abrir a aula.
+        </p>
+      </div>
+
+      <!-- Grid com os 5 quadrados pretos/translúcidos -->
+      <div class="verses-grid" id="versesGrid">
+        <!-- Injetado dinamicamente pelo app.js -->
+      </div>
+    </section>
+
+    <!-- ABA 2: MEU ANKI PESSOAL (SISTEMA DE REPETIÇÃO ESPAÇADA) -->
+    <section id="tab-anki" class="tab-content" aria-labelledby="ankiHeroTitle">
+      <div class="anki-dashboard">
+        <div class="hero-header" style="margin-bottom: 16px;">
+          <h1 class="hero-title" id="ankiHeroTitle">Seu Anki Pessoal (SM-2)</h1>
+          <p class="hero-desc">
+            Algoritmo inteligente de repetição espaçada. Memorize expressões e estruturas reais no tempo ideal.
+          </p>
+        </div>
+
+        <!-- Estatísticas Rápidas -->
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-num" id="statDue" style="color: var(--accent-rose);">0</div>
+            <div class="stat-label">Para Revisar Hoje</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="statLearned" style="color: var(--accent-emerald);">0</div>
+            <div class="stat-label">Em Aprendizado</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="statTotal" style="color: var(--accent-blue);">0</div>
+            <div class="stat-label">Total de Cards</div>
+          </div>
+        </div>
+
+        <!-- Barra de Ações Rápidas -->
+        <div class="anki-controls-bar">
+          <button type="button" class="btn-primary" id="btnCreateCardHeader">
+            + Criar Card do Zero
+          </button>
+
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <label for="filterLangSelect" style="font-size: 0.85rem; color: var(--text-muted);">Filtrar:</label>
+            <select id="filterLangSelect" style="background: var(--bg-secondary); color: var(--text-main); border: 1px solid var(--border-subtle); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.85rem;">
+              <option value="all">Todos os Idiomas</option>
+              <option value="ru">🇷🇺 Apenas Russo</option>
+              <option value="en">🇺🇸 Apenas Inglês</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Área de Revisão Interativa (Estilo Anki) -->
+        <div class="review-arena" id="reviewArena">
+          <div class="review-card-face">
+            <span class="review-badge" id="reviewBadge">Card de Repetição Espaçada</span>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+              <h2 class="review-front-text" id="reviewFront">Carregando...</h2>
+              <button class="btn-audio btn-audio-small" id="btnReviewAudioFront" type="button" title="Ouvir Pronúncia">🔊</button>
+            </div>
+            <div class="review-hint" id="reviewHint"></div>
+
+            <div class="review-back-area" id="reviewBackArea" style="display: none;">
+              <div class="review-back-text" id="reviewBackText"></div>
+              <div class="review-context" id="reviewContext" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;"></div>
+              <div class="review-example" id="reviewExample" style="display: none;"></div>
+            </div>
+          </div>
+
+          <div class="review-actions">
+            <button type="button" class="btn-show-answer" id="btnShowAnswer">
+              Mostrar Resposta (Espaço)
+            </button>
+
+            <!-- Os 4 Botões Oficiais do Anki com intervalos dinâmicos -->
+            <div class="anki-grades-grid" id="ankiGradesGrid" style="display: none;">
+              <button type="button" class="grade-btn again" data-grade="1">
+                <span class="interval-label" id="intervalAgain">&lt; 1 d</span>
+                <span class="name-label">1. Errei</span>
+              </button>
+              <button type="button" class="grade-btn hard" data-grade="2">
+                <span class="interval-label" id="intervalHard">1 d</span>
+                <span class="name-label">2. Difícil</span>
+              </button>
+              <button type="button" class="grade-btn good" data-grade="3">
+                <span class="interval-label" id="intervalGood">3 d</span>
+                <span class="name-label">3. Bom</span>
+              </button>
+              <button type="button" class="grade-btn easy" data-grade="4">
+                <span class="interval-label" id="intervalEasy">7 d</span>
+                <span class="name-label">4. Fácil</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de Cards Cadastrados -->
+        <div class="cards-list-section">
+          <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 14px; color: var(--text-main);">
+            📋 Seus Cartões Salvos no Baralho
+          </h2>
+          <div class="cards-table-container">
+            <table class="cards-table">
+              <thead>
+                <tr>
+                  <th>Frente (Expressão)</th>
+                  <th>Verso (Significado)</th>
+                  <th>Idioma</th>
+                  <th>Intervalo</th>
+                  <th>Próxima Revisão</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="cardsTableBody">
+                <!-- Preenchido pelo app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 3: CONFIGURAÇÕES & ÁUDIO -->
+    <section id="tab-settings" class="tab-content" aria-labelledby="settingsHeroTitle">
+      <div class="hero-header">
+        <h1 class="hero-title" id="settingsHeroTitle">Configurações & Áudio</h1>
+        <p class="hero-desc">Personalize a velocidade e gerencie o motor de voz.</p>
+      </div>
+
+      <!-- Configurações de Narração -->
+      <div class="settings-card">
+        <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; color: var(--accent-blue);">
+          🔊 Motor de Voz do Google
+        </h2>
+        
+        <div class="form-group">
+          <label for="audioSpeedSlider">
+            Velocidade de Fala: <strong id="audioSpeedDisplay">0.85x</strong>
+          </label>
+          <input type="range" id="audioSpeedSlider" min="0.6" max="1.1" step="0.05" value="0.85" style="accent-color: var(--accent-blue);">
+          <p class="form-help">
+            💡 Dica: <strong>0.85x</strong> é a velocidade ideal para sua namorada entender com clareza cada vogal e redução da língua russa.
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label for="inputGoogleApiKey">
+            Chave de API do Google Cloud TTS (Opcional - também pode ser colada direto no arquivo audio-engine.js):
+          </label>
+          <input type="password" id="inputGoogleApiKey" placeholder="AIzaSy...">
+          <p class="form-help">
+            Se deixada em branco, o site utiliza o fluxo de áudio nativo do Google automaticamente. Se você inserir sua chave (aqui ou no código), ele utiliza a API oficial com vozes Wavenet de estúdio.
+          </p>
+        </div>
+
+        <button type="button" class="btn-primary" id="btnSaveApiKey">
+          Salvar Configurações
+        </button>
+      </div>
+
+      <!-- Backup e Importação de Cards -->
+      <div class="settings-card">
+        <h2 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; color: var(--accent-emerald);">
+          💾 Backup dos Seus Cartões (Anki)
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+          Seus cartões ficam salvos com segurança no armazenamento local do navegador.
+        </p>
+
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button type="button" class="btn-secondary" id="btnExportCards">
+            📥 Exportar Backup (JSON)
+          </button>
+          <button type="button" class="btn-secondary" id="btnImportCards">
+            📤 Importar Backup (JSON)
+          </button>
+          <input type="file" id="inputImportFile" accept=".json" style="display: none;">
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= MODAIS NATIVOS (modern-web-guidance compliant) ================= -->
+
+  <!-- Modal: Aula Completa do Versículo ao Clicar no Quadrado -->
+  <dialog id="modalLesson" closedby="any" aria-labelledby="lessonTitle">
+    <div class="dialog-header">
+      <h2 class="dialog-title" id="lessonTitle">Aula do Versículo</h2>
+      <button type="button" class="btn-close-dialog" aria-label="Fechar modal">&times;</button>
+    </div>
+    <div class="dialog-body" id="modalLessonContent">
+      <!-- Injetado dinamicamente -->
+    </div>
+  </dialog>
+
+  <!-- Modal: Criar Card do Zero no Anki -->
+  <dialog id="modalNewCard" closedby="any" aria-labelledby="newCardTitle">
+    <div class="dialog-header">
+      <h2 class="dialog-title" id="newCardTitle">+ Criar Novo Card no Anki</h2>
+      <button type="button" class="btn-close-dialog" aria-label="Fechar modal">&times;</button>
+    </div>
+    <form id="formNewCard" class="dialog-body">
+      <div class="form-group">
+        <label for="newCardLang">Idioma do Card:</label>
+        <select id="newCardLang" required>
+          <option value="ru">🇷🇺 Russo</option>
+          <option value="en">🇺🇸 Inglês</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="newCardFront">Frente (Palavra, Expressão ou Frase):</label>
+        <input type="text" id="newCardFront" placeholder="ex: не забо́тьтесь / keep on going" required autofocus>
+      </div>
+
+      <div class="form-group">
+        <label for="newCardBack">Verso (Significado / O que quer dizer na prática):</label>
+        <input type="text" id="newCardBack" placeholder="ex: não se preocupe / continuar em frente" required>
+      </div>
+
+      <div class="form-group">
+        <label for="newCardHint">Dica Gramatical ou Mnemônica (Opcional):</label>
+        <input type="text" id="newCardHint" placeholder="ex: Imperativo com acento na 2ª sílaba">
+      </div>
+
+      <div class="form-group">
+        <label for="newCardExample">Frase de Exemplo no Cotidiano (Opcional):</label>
+        <textarea id="newCardExample" rows="2" placeholder="ex: Не забо́ться об э́том, я помогу́!"></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+        <button type="button" class="btn-secondary btn-close-dialog">Cancelar</button>
+        <button type="submit" class="btn-primary">Salvar no Anki</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ================= NOTIFICAÇÃO TOAST ================= -->
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <span id="toastMessage">Card adicionado com sucesso!</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="srs-engine.js"></script>
+  <script src="audio-engine.js"></script>
+  <script src="bible-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

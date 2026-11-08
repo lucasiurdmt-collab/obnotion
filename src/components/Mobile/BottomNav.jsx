@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  BookOpen,
   Home,
   CheckCircle2,
   Calendar,
@@ -36,7 +37,18 @@ export default function BottomNav({
         <span className="text-[10px] tracking-tight mt-1">Produtividade</span>
       </button>
 
-      {/* 2. Ganho de Almas */}
+      {/* 2. Estudo */}
+      <button
+        onClick={() => setActiveTab('study')}
+        className={`flex flex-col items-center justify-center flex-1 py-1 transition-all ${
+          activeTab === 'study' ? 'text-violet-400 font-semibold' : 'text-zinc-500 hover:text-zinc-300'
+        }`}
+      >
+        <BookOpen className="w-5 h-5" />
+        <span className="text-[10px] tracking-tight mt-1">Estudo</span>
+      </button>
+
+      {/* 3. Ganho de Almas */}
       <button
         onClick={() => setActiveTab('souls')}
         className={`flex flex-col items-center justify-center flex-1 py-1 transition-all ${
