@@ -65,7 +65,7 @@ export default function StudyView({ darkMode }) {
         src={studyUrl}
         className="flex-1 w-full h-full border-none bg-[#000000]"
         title="Estudo de Idiomas - Scriptura"
-        allow="microphone; clipboard-read; clipboard-write; fullscreen"
+        allow="autoplay; microphone; clipboard-read; clipboard-write; fullscreen"
       />
     </div>
   );

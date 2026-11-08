@@ -1,28 +1,35 @@
 /**
- * Audio Engine - Motor de Voz do Google Cloud TTS
- * Configuração DIRETA no código (como no seu projeto Obnotion).
+ * Audio Engine - Motor de Voz Híbrido (Google TTS + Web Speech API)
+ * 1. Prioriza a voz oficial do Google (Google TTS) para Russo e Inglês naturais e fluidos.
+ * 2. Fallback instantâneo para Web Speech API (síntese nativa do sistema/navegador).
+ * 3. Totalmente síncrono no disparo do clique, garantindo permissão em todos os navegadores.
  */
-
-// ==========================================================================
-// CONFIGURAÇÃO DA API DO GOOGLE (Configurada diretamente no código via Base64)
-// ==========================================================================
-const DEFAULT_GOOGLE_KEY = atob('QVEuQWI4Uk42SW1OaTAtODN0SGhNNWlLYVUxMHhTLWF1ZFJ4SUtrejI1VU1yTTJsS21Qd0E=');
-
-const GOOGLE_CLOUD_TTS_CONFIG = {
-  API_KEY: DEFAULT_GOOGLE_KEY,
-  
-  // Vozes Neurais de Alta Fidelidade do Google
-  RU_VOICE: "ru-RU-Wavenet-C",   // Voz natural russa de estúdio (Google)
-  EN_VOICE: "en-US-Journey-F",   // Voz natural inglesa de estúdio (Google)
-  DEFAULT_SPEED: 0.85            // Velocidade ideal para estudo
-};
 
 class AudioEngine {
   constructor() {
-    this.synth = window.speechSynthesis;
-    this.speed = parseFloat(localStorage.getItem('scriptura_audio_speed') || GOOGLE_CLOUD_TTS_CONFIG.DEFAULT_SPEED);
-    this.apiKey = GOOGLE_CLOUD_TTS_CONFIG.API_KEY || localStorage.getItem('scriptura_google_tts_key') || '';
+    this.synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
+    this.speed = parseFloat(localStorage.getItem('scriptura_audio_speed') || '0.9');
     this.currentAudio = null;
+    this.isSpeaking = false;
+    this.watchdogTimer = null;
+    this.voices = [];
+
+    this.initVoices();
+  }
+
+  initVoices() {
+    if (!this.synth) return;
+    const update = () => {
+      try {
+        this.voices = this.synth.getVoices() || [];
+      } catch (e) {
+        this.voices = [];
+      }
+    };
+    update();
+    if (this.synth.onvoiceschanged !== undefined) {
+      this.synth.onvoiceschanged = update;
+    }
   }
 
   setSpeed(speed) {
@@ -30,160 +37,203 @@ class AudioEngine {
     localStorage.setItem('scriptura_audio_speed', speed.toString());
   }
 
-  setApiKey(key) {
-    this.apiKey = key.trim();
-    localStorage.setItem('scriptura_google_tts_key', this.apiKey);
-  }
-
-  /**
-   * Limpa acentos tônicos e caracteres que o leitor de voz não precisa
-   */
   cleanText(text) {
+    if (!text) return '';
     return text
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // remove acentos gráficos móveis do russo
+      .replace(/[\u0300-\u036f]/g, '') // remove acentos gráficos russos de tonicidade
       .replace(/[«»„“”]/g, '"')
       .replace(/—/g, ', ')
       .trim();
   }
 
-  /**
-   * Toca o áudio usando o Google Cloud TTS
-   * @param {string} text 
-   * @param {string} lang ('ru' ou 'en')
-   * @param {Function} onStart 
-   * @param {Function} onEnd 
-   */
-  async speak(text, lang = 'ru', onStart = null, onEnd = null) {
-    const textClean = this.cleanText(text);
-
-    // Para áudio anterior se houver
-    this.stop();
-
-    // 1. Se houver chave do Google Cloud configurada, chama a API oficial do Google Cloud
-    if (this.apiKey && this.apiKey !== "SUA_CHAVE_DO_GOOGLE_CLOUD_AQUI") {
+  getBestVoice(lang) {
+    if (!this.synth) return null;
+    if (!this.voices || this.voices.length === 0) {
       try {
-        const ok = await this.playGoogleCloudTTS(textClean, lang, onStart, onEnd);
-        if (ok) return;
-      } catch (err) {
-        console.warn('Erro na chamada Google Cloud TTS REST:', err);
+        this.voices = this.synth.getVoices() || [];
+      } catch (e) {
+        this.voices = [];
       }
     }
+    const prefix = lang === 'ru' ? 'ru' : 'en';
 
-    // 2. Fallback: Google Web TTS direto
-    const webOk = await this.playGoogleWebAudio(textClean, lang, onStart, onEnd);
-    if (webOk) return;
+    // Prioriza vozes neurais / Google / Natural / Premium
+    let voice = this.voices.find(v => 
+      v.lang.toLowerCase().replace('_', '-').startsWith(prefix) &&
+      (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Milena') || v.name.includes('Yuri'))
+    );
 
-    // 3. Fallback: Síntese local do navegador
-    this.playBrowserSpeech(textClean, lang, onStart, onEnd);
-  }
-
-  /**
-   * Chamada REST oficial da API do Google Cloud Text-to-Speech
-   */
-  async playGoogleCloudTTS(text, lang, onStart, onEnd) {
-    const voiceName = lang === 'ru' ? GOOGLE_CLOUD_TTS_CONFIG.RU_VOICE : GOOGLE_CLOUD_TTS_CONFIG.EN_VOICE;
-    const langCode = lang === 'ru' ? 'ru-RU' : 'en-US';
-
-    const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${this.apiKey}`;
-    const payload = {
-      input: { text },
-      voice: {
-        languageCode: langCode,
-        name: voiceName
-      },
-      audioConfig: {
-        audioEncoding: 'MP3',
-        speakingRate: this.speed,
-        pitch: 0
-      }
-    };
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      throw new Error(`Google Cloud TTS HTTP error: ${response.status}`);
+    if (!voice) {
+      voice = this.voices.find(v => v.lang.toLowerCase().replace('_', '-').startsWith(prefix));
     }
 
-    const data = await response.json();
-    if (data.audioContent) {
-      this.currentAudio = new Audio(`data:audio/mp3;base64,${data.audioContent}`);
-      if (onStart) onStart();
-      this.currentAudio.onended = () => { if (onEnd) onEnd(); };
-      this.currentAudio.onerror = () => { if (onEnd) onEnd(); };
-      await this.currentAudio.play();
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Toca via Google Web Audio Stream (Áudio oficial do Google)
-   */
-  playGoogleWebAudio(text, lang, onStart, onEnd) {
-    return new Promise((resolve) => {
-      // URL de áudio do Google com fallback
-      const encoded = encodeURIComponent(text.slice(0, 200));
-      const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${lang}&q=${encoded}`;
-      
-      const audio = new Audio(url);
-      audio.playbackRate = this.speed;
-      this.currentAudio = audio;
-
-      audio.onplay = () => {
-        if (onStart) onStart();
-        resolve(true);
-      };
-
-      audio.onended = () => {
-        if (onEnd) onEnd();
-      };
-
-      audio.onerror = () => {
-        resolve(false);
-      };
-
-      audio.play().catch(() => resolve(false));
-    });
-  }
-
-  /**
-   * Síntese local do navegador
-   */
-  playBrowserSpeech(text, lang, onStart, onEnd) {
-    if (!this.synth) return;
-    this.synth.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang === 'ru' ? 'ru-RU' : 'en-US';
-    utterance.rate = this.speed;
-
-    const voices = this.synth.getVoices();
-    const best = voices.find(v => v.lang.startsWith(lang) && (v.name.includes('Google') || v.name.includes('Neural') || v.name.includes('Natural'))) ||
-                 voices.find(v => v.lang.startsWith(lang));
-    if (best) utterance.voice = best;
-
-    if (onStart) utterance.onstart = onStart;
-    utterance.onend = () => { if (onEnd) onEnd(); };
-    utterance.onerror = () => { if (onEnd) onEnd(); };
-
-    this.synth.speak(utterance);
+    return voice;
   }
 
   stop() {
     if (this.currentAudio) {
-      this.currentAudio.pause();
+      try {
+        this.currentAudio.pause();
+        this.currentAudio.currentTime = 0;
+      } catch (e) {}
       this.currentAudio = null;
     }
-    if (this.synth) {
-      this.synth.cancel();
+
+    if (this.synth && (this.synth.speaking || this.synth.pending)) {
+      try {
+        this.synth.cancel();
+      } catch (e) {}
+    }
+
+    this.isSpeaking = false;
+    this.stopWatchdog();
+  }
+
+  /**
+   * Toca o áudio de forma segura, natural e imediata
+   */
+  speak(text, lang = 'ru', onStart = null, onEnd = null) {
+    const clean = this.cleanText(text);
+    if (!clean) {
+      if (onEnd) onEnd();
+      return;
+    }
+
+    // Se já estiver tocando, interrompe
+    this.stop();
+
+    const finish = () => {
+      this.isSpeaking = false;
+      this.stopWatchdog();
+      if (onEnd) onEnd();
+    };
+
+    const start = () => {
+      this.isSpeaking = true;
+      if (onStart) onStart();
+    };
+
+    // 1. TENTA PRIMEIRO O GOOGLE TTS (Voz oficial, clara e natural)
+    const langCode = lang === 'ru' ? 'ru' : 'en';
+    const encoded = encodeURIComponent(clean.slice(0, 200));
+    const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${langCode}&q=${encoded}`;
+
+    try {
+      const audio = new Audio(googleUrl);
+      audio.playbackRate = this.speed;
+      this.currentAudio = audio;
+
+      let hasStarted = false;
+
+      audio.onplay = () => {
+        hasStarted = true;
+        start();
+      };
+
+      audio.onended = () => {
+        this.currentAudio = null;
+        finish();
+      };
+
+      audio.onerror = (e) => {
+        console.warn('Google TTS falhou, acionando fallback SpeechSynthesis:', e);
+        this.currentAudio = null;
+        if (!hasStarted) {
+          this.speakLocal(clean, lang, onStart, onEnd);
+        } else {
+          finish();
+        }
+      };
+
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.warn('Bloqueio no play de áudio, acionando fallback SpeechSynthesis:', err);
+          this.currentAudio = null;
+          this.speakLocal(clean, lang, onStart, onEnd);
+        });
+      }
+    } catch (err) {
+      console.warn('Exceção ao criar Audio, acionando fallback local:', err);
+      this.speakLocal(clean, lang, onStart, onEnd);
+    }
+  }
+
+  /**
+   * Fallback via Web Speech API (Síntese local do dispositivo/navegador)
+   */
+  speakLocal(clean, lang, onStart, onEnd) {
+    if (!this.synth) {
+      if (onEnd) onEnd();
+      return;
+    }
+
+    if (this.synth.speaking || this.synth.pending) {
+      try {
+        this.synth.cancel();
+      } catch (e) {}
+    }
+    if (this.synth.paused) {
+      try {
+        this.synth.resume();
+      } catch (e) {}
+    }
+
+    const utterance = new SpeechSynthesisUtterance(clean);
+    utterance.lang = lang === 'ru' ? 'ru-RU' : 'en-US';
+    utterance.rate = this.speed;
+    utterance.pitch = 1.0;
+
+    const voice = this.getBestVoice(lang);
+    if (voice) {
+      utterance.voice = voice;
+    }
+
+    utterance.onstart = () => {
+      this.isSpeaking = true;
+      if (onStart) onStart();
+      this.startWatchdog();
+    };
+
+    utterance.onend = () => {
+      this.isSpeaking = false;
+      this.stopWatchdog();
+      if (onEnd) onEnd();
+    };
+
+    utterance.onerror = (e) => {
+      console.warn('SpeechSynthesis erro:', e);
+      this.isSpeaking = false;
+      this.stopWatchdog();
+      if (onEnd) onEnd();
+    };
+
+    try {
+      this.synth.speak(utterance);
+    } catch (e) {
+      console.error('Falha ao executar speak():', e);
+      if (onEnd) onEnd();
+    }
+  }
+
+  startWatchdog() {
+    this.stopWatchdog();
+    this.watchdogTimer = setInterval(() => {
+      if (this.synth && this.synth.speaking) {
+        this.synth.resume();
+      } else {
+        this.stopWatchdog();
+      }
+    }, 3000);
+  }
+
+  stopWatchdog() {
+    if (this.watchdogTimer) {
+      clearInterval(this.watchdogTimer);
+      this.watchdogTimer = null;
     }
   }
 }
 
 window.AudioEngine = AudioEngine;
-window.GOOGLE_CLOUD_TTS_CONFIG = GOOGLE_CLOUD_TTS_CONFIG;

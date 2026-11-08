@@ -180,8 +180,25 @@ document.addEventListener('DOMContentLoaded', () => {
       const btnAudio = card.querySelector('.btn-audio');
       btnAudio.addEventListener('click', (e) => {
         e.stopPropagation();
+        e.preventDefault();
         const textToSpeak = decodeURIComponent(btnAudio.dataset.text);
-        audio.speak(textToSpeak, currentLang);
+        const originalHtml = btnAudio.innerHTML;
+
+        btnAudio.classList.add('playing');
+        btnAudio.innerHTML = '🔊 Tocando...';
+
+        audio.speak(
+          textToSpeak,
+          currentLang,
+          () => {
+            btnAudio.classList.add('playing');
+            btnAudio.innerHTML = '🔊 Tocando...';
+          },
+          () => {
+            btnAudio.classList.remove('playing');
+            btnAudio.innerHTML = originalHtml;
+          }
+        );
       });
 
       // Clicar no quadrado abre a aula instantaneamente
@@ -285,12 +302,29 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
 
-    // Conectar botões de áudio
+    // Conectar botões de áudio com feedback visual
     modalLessonContent.querySelectorAll('.btn-audio').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         const text = decodeURIComponent(btn.dataset.text);
-        const lang = btn.dataset.lang;
-        audio.speak(text, lang);
+        const lang = btn.dataset.lang || currentLang;
+        const originalHtml = btn.innerHTML;
+
+        btn.classList.add('playing');
+        btn.innerHTML = btn.classList.contains('btn-audio-small') ? '🔊...' : '🔊 Tocando...';
+
+        audio.speak(
+          text,
+          lang,
+          () => {
+            btn.classList.add('playing');
+          },
+          () => {
+            btn.classList.remove('playing');
+            btn.innerHTML = originalHtml;
+          }
+        );
       });
     });
 
@@ -537,7 +571,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (audioBtn) {
       audioBtn.addEventListener('click', () => {
         const text = document.getElementById('reviewFront').textContent;
-        audio.speak(text, currentLang);
+        audioBtn.classList.add('playing');
+        audio.speak(
+          text,
+          currentLang,
+          () => audioBtn.classList.add('playing'),
+          () => audioBtn.classList.remove('playing')
+        );
       });
     }
 
