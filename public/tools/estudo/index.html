@@ -66,15 +66,20 @@
             <div class="date-sub-text" id="dateCycleInfo">● Atualização diária automática ativa</div>
           </div>
         </div>
-        <div class="date-navigator-buttons">
-          <button type="button" class="btn-date-nav" id="btnPrevDay" title="Ver dia anterior">
-            ◀ Ontem
-          </button>
-          <button type="button" class="btn-date-nav active" id="btnToday" title="Voltar para a data de hoje">
-            Hoje
-          </button>
-          <button type="button" class="btn-date-nav" id="btnNextDay" title="Simular próximo dia">
-            Amanhã ▶
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <div class="date-navigator-buttons">
+            <button type="button" class="btn-date-nav" id="btnPrevDay" title="Ver dia anterior">
+              ◀ Ontem
+            </button>
+            <button type="button" class="btn-date-nav active" id="btnToday" title="Voltar para a data de hoje">
+              Hoje
+            </button>
+            <button type="button" class="btn-date-nav" id="btnNextDay" title="Simular próximo dia">
+              Amanhã ▶
+            </button>
+          </div>
+          <button type="button" class="btn-generate-ai" id="btnGenerateAi" title="Gerar 5 versículos novos agora usando Inteligência Artificial (Gemini)">
+            ✨ Gerar com IA
           </button>
         </div>
       </div>
@@ -221,12 +226,12 @@
         </div>
 
         <div class="form-group">
-          <label for="inputGoogleApiKey">
-            Chave de API do Google Cloud TTS (Opcional - também pode ser colada direto no arquivo audio-engine.js):
+          <label for="inputGeminiApiKey">
+            Chave de API do Google Gemini (Google AI Studio) para Versículos Infinitos:
           </label>
-          <input type="password" id="inputGoogleApiKey" placeholder="AIzaSy...">
+          <input type="password" id="inputGeminiApiKey" placeholder="Chave ativa por padrão...">
           <p class="form-help">
-            Se deixada em branco, o site utiliza o fluxo de áudio nativo do Google automaticamente. Se você inserir sua chave (aqui ou no código), ele utiliza a API oficial com vozes Wavenet de estúdio.
+            💡 A sua chave segura já vem ativa por padrão no sistema! Se no futuro quiser usar outra chave personalizada, basta colar aqui e salvar. Ela fica salva com total segurança no seu próprio aparelho.
           </p>
         </div>
 

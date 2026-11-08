@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnPrevDay = document.getElementById('btnPrevDay');
   const btnToday = document.getElementById('btnToday');
   const btnNextDay = document.getElementById('btnNextDay');
+  const btnGenerateAi = document.getElementById('btnGenerateAi');
 
   // Modais
   const modalLesson = document.getElementById('modalLesson');
@@ -185,6 +186,27 @@ document.addEventListener('DOMContentLoaded', () => {
       currentDateOffset++;
       updateDateNavButtons();
       renderVerses();
+    });
+  }
+
+  if (btnGenerateAi) {
+    btnGenerateAi.addEventListener('click', async () => {
+      const originalText = btnGenerateAi.innerHTML;
+      btnGenerateAi.classList.add('loading');
+      btnGenerateAi.innerHTML = '🤖 Gerando com IA...';
+      showToast('A IA está escolhendo 5 versículos e montando as explicações...');
+
+      try {
+        await window.generateAiDailyVerses(currentLang, currentDateOffset);
+        showToast('✨ 5 novos versículos gerados com sucesso pela IA!');
+        renderVerses();
+      } catch (err) {
+        console.error('Erro ao gerar com IA:', err);
+        showToast('Não foi possível gerar com IA no momento. Usando o banco diário.');
+      } finally {
+        btnGenerateAi.classList.remove('loading');
+        btnGenerateAi.innerHTML = originalText;
+      }
     });
   }
 
@@ -790,13 +812,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  if (inputGoogleApiKey) {
-    inputGoogleApiKey.value = audio.apiKey;
+  const inputGeminiApiKey = document.getElementById('inputGeminiApiKey');
+  if (inputGeminiApiKey) {
+    inputGeminiApiKey.value = localStorage.getItem('scriptura_gemini_key') || '';
   }
 
   if (btnSaveApiKey) {
     btnSaveApiKey.addEventListener('click', () => {
-      audio.setApiKey(inputGoogleApiKey.value);
+      if (inputGeminiApiKey && inputGeminiApiKey.value.trim()) {
+        localStorage.setItem('scriptura_gemini_key', inputGeminiApiKey.value.trim());
+      }
       showToast('Configurações salvas!');
     });
   }
