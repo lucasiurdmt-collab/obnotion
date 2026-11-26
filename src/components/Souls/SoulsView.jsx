@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+﻿import React, { useState, useRef, useMemo } from 'react';
 import { Plus, Search, User, Phone, CheckCircle, Clock, AlertTriangle, ImagePlus, Check } from 'lucide-react';
 
 // Helpers
@@ -143,7 +143,7 @@ export default function SoulsView({ souls = [], onUpdateSouls, darkMode }) {
     <div className={`h-full flex flex-col ${darkMode ? 'text-zinc-100' : 'text-zinc-800'} p-4 md:p-8 max-w-5xl mx-auto space-y-6 overflow-y-auto`}>
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-blue-400 to-orange-500 bg-clip-text text-transparent">
             Atendimento de Almas
           </h1>
           <p className={`text-sm ${darkMode ? 'text-zinc-400' : 'text-zinc-500'} mt-1`}>

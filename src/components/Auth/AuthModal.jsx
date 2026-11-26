@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   X,
   Mail,
@@ -127,7 +127,7 @@ export default function AuthModal({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-inherit">
           <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-500/20">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-600 to-orange-600 flex items-center justify-center text-white shadow-md shadow-amber-500/20">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
@@ -162,10 +162,10 @@ export default function AuthModal({
                   <img
                     src={user.photoURL}
                     alt={user.displayName || 'Avatar'}
-                    className="w-14 h-14 rounded-full border-2 border-purple-500 object-cover shadow"
+                    className="w-14 h-14 rounded-full border-2 border-amber-500 object-cover shadow"
                   />
                 ) : (
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white text-xl font-bold uppercase shadow">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-600 to-orange-500 flex items-center justify-center text-white text-xl font-bold uppercase shadow">
                     {(user.displayName || user.email || 'U')[0]}
                   </div>
                 )}
@@ -184,15 +184,15 @@ export default function AuthModal({
               {/* Sync Status Box */}
               <div
                 className={`p-4 rounded-xl border space-y-3 ${
-                  darkMode ? 'bg-purple-950/20 border-purple-900/30' : 'bg-purple-50/50 border-purple-100'
+                  darkMode ? 'bg-amber-950/20 border-amber-900/30' : 'bg-amber-50/50 border-amber-100'
                 }`}
               >
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-400 flex items-center gap-1.5">
-                    <Cloud className="w-4 h-4 text-purple-400" />
+                    <Cloud className="w-4 h-4 text-amber-400" />
                     Status da Nuvem:
                   </span>
-                  <span className="font-semibold text-purple-400">
+                  <span className="font-semibold text-amber-400">
                     {isSyncing ? 'Sincronizando...' : 'Tudo Atualizado'}
                   </span>
                 </div>
@@ -206,7 +206,7 @@ export default function AuthModal({
                 <button
                   onClick={syncToCloudNow}
                   disabled={isSyncing}
-                  className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold bg-purple-600/20 text-purple-300 hover:bg-purple-600/30 border border-purple-500/30 transition-all disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold bg-amber-600/20 text-amber-300 hover:bg-amber-600/30 border border-amber-500/30 transition-all disabled:opacity-50"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
                   Forçar Sincronização Agora
@@ -283,7 +283,7 @@ export default function AuthModal({
                   }}
                   className={`flex-1 py-1.5 rounded-lg transition-all ${
                     mode === 'login'
-                      ? 'bg-purple-600 text-white shadow-sm'
+                      ? 'bg-amber-600 text-white shadow-sm'
                       : 'text-gray-400 hover:text-gray-200'
                   }`}
                 >
@@ -297,7 +297,7 @@ export default function AuthModal({
                   }}
                   className={`flex-1 py-1.5 rounded-lg transition-all ${
                     mode === 'register'
-                      ? 'bg-purple-600 text-white shadow-sm'
+                      ? 'bg-amber-600 text-white shadow-sm'
                       : 'text-gray-400 hover:text-gray-200'
                   }`}
                 >
@@ -335,8 +335,8 @@ export default function AuthModal({
                         required
                         className={`w-full pl-9 pr-3 py-2 rounded-xl border text-xs outline-none transition-all ${
                           darkMode
-                            ? 'bg-gray-900/60 border-gray-700 focus:border-purple-500 text-gray-100'
-                            : 'bg-white border-gray-300 focus:border-purple-500 text-gray-800'
+                            ? 'bg-gray-900/60 border-gray-700 focus:border-amber-500 text-gray-100'
+                            : 'bg-white border-gray-300 focus:border-amber-500 text-gray-800'
                         }`}
                       />
                     </div>
@@ -355,8 +355,8 @@ export default function AuthModal({
                       required
                       className={`w-full pl-9 pr-3 py-2 rounded-xl border text-xs outline-none transition-all ${
                         darkMode
-                          ? 'bg-gray-900/60 border-gray-700 focus:border-purple-500 text-gray-100'
-                          : 'bg-white border-gray-300 focus:border-purple-500 text-gray-800'
+                          ? 'bg-gray-900/60 border-gray-700 focus:border-amber-500 text-gray-100'
+                          : 'bg-white border-gray-300 focus:border-amber-500 text-gray-800'
                       }`}
                     />
                   </div>
@@ -370,7 +370,7 @@ export default function AuthModal({
                         <button
                           type="button"
                           onClick={() => setMode('forgot')}
-                          className="text-[11px] text-purple-400 hover:underline"
+                          className="text-[11px] text-amber-400 hover:underline"
                         >
                           Esqueceu a senha?
                         </button>
@@ -386,8 +386,8 @@ export default function AuthModal({
                         required
                         className={`w-full pl-9 pr-10 py-2 rounded-xl border text-xs outline-none transition-all ${
                           darkMode
-                            ? 'bg-gray-900/60 border-gray-700 focus:border-purple-500 text-gray-100'
-                            : 'bg-white border-gray-300 focus:border-purple-500 text-gray-800'
+                            ? 'bg-gray-900/60 border-gray-700 focus:border-amber-500 text-gray-100'
+                            : 'bg-white border-gray-300 focus:border-amber-500 text-gray-800'
                         }`}
                       />
                       <button
@@ -406,7 +406,7 @@ export default function AuthModal({
                     <button
                       type="button"
                       onClick={() => setMode('login')}
-                      className="text-[11px] text-purple-400 hover:underline"
+                      className="text-[11px] text-amber-400 hover:underline"
                     >
                       Voltar para o login
                     </button>
@@ -416,7 +416,7 @@ export default function AuthModal({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full mt-2 py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs shadow-md shadow-purple-600/30 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+                  className="w-full mt-2 py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs shadow-md shadow-amber-600/30 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
                 >
                   {loading
                     ? 'Processando...'

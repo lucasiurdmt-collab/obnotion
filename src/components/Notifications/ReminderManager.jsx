@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import {
   Bell,
   Clock,
@@ -217,20 +217,20 @@ export default function ReminderManager({
         <div className="fixed inset-x-0 top-6 z-[99999] flex justify-center px-4 pointer-events-auto animate-bounce-in">
           <div className={`w-full max-w-lg p-5 rounded-3xl border shadow-2xl backdrop-blur-2xl transition-all duration-300 relative overflow-hidden ${
             darkMode 
-              ? 'bg-[#12131f]/95 border-violet-500/40 text-white shadow-violet-950/80 shadow-2xl ring-1 ring-white/[0.1]' 
-              : 'bg-white/95 border-violet-400/40 text-zinc-800 shadow-2xl ring-1 ring-zinc-200'
+              ? 'bg-[#12131f]/95 border-amber-500/40 text-white shadow-amber-950/80 shadow-2xl ring-1 ring-white/[0.1]' 
+              : 'bg-white/95 border-amber-400/40 text-zinc-800 shadow-2xl ring-1 ring-zinc-200'
           }`}>
             {/* Top Accent Glow Bar */}
-            <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-violet-500 via-cyan-400 to-indigo-500 animate-pulse"></div>
+            <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-amber-500 via-cyan-400 to-orange-500 animate-pulse"></div>
 
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-violet-600 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-violet-500/30 shrink-0">
+                <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-600 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/30 shrink-0">
                   <AlarmClock className="w-6 h-6 animate-pulse" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30 font-bold">
+                    <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">
                       {activeReminder.category}
                     </span>
                     <span className="text-xs font-mono text-cyan-300 font-bold flex items-center gap-1">
@@ -270,7 +270,7 @@ export default function ReminderManager({
 
               <button
                 onClick={handleView}
-                className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-violet-600/20 hover:bg-violet-600 text-violet-300 hover:text-white font-medium text-xs border border-violet-500/30 transition-all"
+                className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-amber-600/20 hover:bg-amber-600 text-amber-300 hover:text-white font-medium text-xs border border-amber-500/30 transition-all"
               >
                 Ver Detalhes <ArrowRight className="w-3.5 h-3.5" />
               </button>
@@ -283,7 +283,7 @@ export default function ReminderManager({
       {!hasPermission && (
         <div className="fixed bottom-20 left-4 md:left-6 z-40 max-w-xs p-3.5 rounded-2xl border shadow-xl backdrop-blur-xl bg-[#11121d]/90 border-white/[0.1] text-xs text-zinc-200 space-y-2 hidden sm:block">
           <div className="flex items-center gap-2 font-semibold text-white">
-            <Bell className="w-4 h-4 text-violet-400 animate-bounce" />
+            <Bell className="w-4 h-4 text-amber-400 animate-bounce" />
             <span>Ativar Lembretes no Celular/PC?</span>
           </div>
           <p className="text-[11px] text-zinc-400 leading-tight">
@@ -292,7 +292,7 @@ export default function ReminderManager({
           <div className="flex items-center gap-2 pt-1">
             <button
               onClick={requestNotificationPermission}
-              className="px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs shadow-md transition-all"
+              className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs shadow-md transition-all"
             >
               Ativar Notificações
             </button>

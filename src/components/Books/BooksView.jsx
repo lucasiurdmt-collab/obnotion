@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import {
   BookOpen,
@@ -171,7 +171,7 @@ export default function BooksView({ data, onUpdateBooks, onUpdateGoal, darkMode 
 
         <button
           onClick={() => { resetForm(); setEditingBook(null); setIsAddModalOpen(true); }}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all active:scale-95 self-start md:self-auto"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-lg shadow-amber-600/30 transition-all active:scale-95 self-start md:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Adicionar Livro</span>
@@ -182,11 +182,11 @@ export default function BooksView({ data, onUpdateBooks, onUpdateGoal, darkMode 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Month Highlight Card */}
         <div className={'p-6 rounded-3xl border shadow-md flex flex-col justify-between ' + (
-          darkMode ? 'bg-gradient-to-br from-purple-950/40 via-[#1a1b24] to-gray-900 border-purple-900/30' : 'bg-gradient-to-br from-purple-50 to-white border-purple-200'
+          darkMode ? 'bg-gradient-to-br from-amber-950/40 via-[#1a1b24] to-gray-900 border-amber-900/30' : 'bg-gradient-to-br from-amber-50 to-white border-amber-200'
         )}>
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-purple-400">Livros Lidos no Mês</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-amber-400">Livros Lidos no Mês</span>
               <input
                 type="month"
                 value={selectedMonth}
@@ -195,13 +195,13 @@ export default function BooksView({ data, onUpdateBooks, onUpdateGoal, darkMode 
               />
             </div>
             <div className="flex items-baseline gap-2 mt-4">
-              <span className="text-4xl font-extrabold text-purple-400">{booksReadInMonth.length}</span>
+              <span className="text-4xl font-extrabold text-amber-400">{booksReadInMonth.length}</span>
               <span className="text-sm text-gray-400 font-medium">livros concluídos</span>
             </div>
           </div>
           <button
             onClick={() => setStatusFilter('month')}
-            className="text-xs font-semibold text-purple-400 hover:underline mt-4 text-left flex items-center gap-1"
+            className="text-xs font-semibold text-amber-400 hover:underline mt-4 text-left flex items-center gap-1"
           >
             Filtrar leituras de {selectedMonth} →
           </button>
@@ -214,7 +214,7 @@ export default function BooksView({ data, onUpdateBooks, onUpdateGoal, darkMode 
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-base font-bold flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-purple-400" />
+                <Sparkles className="w-4 h-4 text-amber-400" />
                 Meta de Leitura Anual ({new Date().getFullYear()})
               </h3>
               <p className="text-xs text-gray-400 mt-0.5">
@@ -226,7 +226,7 @@ export default function BooksView({ data, onUpdateBooks, onUpdateGoal, darkMode 
                 const newG = prompt('Qual é sua meta de livros para este ano?', yearlyGoal);
                 if (newG && !isNaN(parseInt(newG))) onUpdateGoal(parseInt(newG));
               }}
-              className="text-xs text-gray-400 hover:text-purple-400 border border-gray-800 hover:border-purple-500 px-2.5 py-1 rounded-xl"
+              className="text-xs text-gray-400 hover:text-amber-400 border border-gray-800 hover:border-amber-500 px-2.5 py-1 rounded-xl"
             >
               Editar Meta
             </button>
@@ -234,7 +234,7 @@ export default function BooksView({ data, onUpdateBooks, onUpdateGoal, darkMode 
 
           <div className="w-full bg-gray-800 h-3.5 rounded-full overflow-hidden">
             <div
-              className="bg-gradient-to-r from-purple-600 to-indigo-500 h-full rounded-full transition-all duration-500 shadow-lg shadow-purple-500/30"
+              className="bg-gradient-to-r from-amber-600 to-orange-500 h-full rounded-full transition-all duration-500 shadow-lg shadow-amber-500/30"
               style={{ width: completedPercent + '%' }}
             />
           </div>
@@ -251,13 +251,13 @@ export default function BooksView({ data, onUpdateBooks, onUpdateGoal, darkMode 
         <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
           <button
             onClick={() => setStatusFilter('all')}
-            className={'px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap ' + (statusFilter === 'all' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:bg-gray-800')}
+            className={'px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap ' + (statusFilter === 'all' ? 'bg-amber-600 text-white' : 'text-gray-400 hover:bg-gray-800')}
           >
             Todos ({books.length})
           </button>
           <button
             onClick={() => setStatusFilter('reading')}
-            className={'px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap ' + (statusFilter === 'reading' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:bg-gray-800')}
+            className={'px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap ' + (statusFilter === 'reading' ? 'bg-amber-600 text-white' : 'text-gray-400 hover:bg-gray-800')}
           >
             Lendo Agora ({books.filter(b => b.status === 'reading').length})
           </button>
@@ -269,7 +269,7 @@ export default function BooksView({ data, onUpdateBooks, onUpdateGoal, darkMode 
           </button>
           <button
             onClick={() => setStatusFilter('wishlist')}
-            className={'px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap ' + (statusFilter === 'wishlist' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:bg-gray-800')}
+            className={'px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap ' + (statusFilter === 'wishlist' ? 'bg-amber-600 text-white' : 'text-gray-400 hover:bg-gray-800')}
           >
             Quero Ler ({books.filter(b => b.status === 'wishlist').length})
           </button>
@@ -282,7 +282,7 @@ export default function BooksView({ data, onUpdateBooks, onUpdateGoal, darkMode 
             placeholder="Buscar por título ou autor..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 pr-3 py-1.5 rounded-xl text-xs bg-gray-900/40 border border-gray-800 outline-none focus:border-purple-500 text-inherit w-full sm:w-60"
+            className="pl-8 pr-3 py-1.5 rounded-xl text-xs bg-gray-900/40 border border-gray-800 outline-none focus:border-amber-500 text-inherit w-full sm:w-60"
           />
         </div>
       </div>
@@ -295,7 +295,7 @@ export default function BooksView({ data, onUpdateBooks, onUpdateGoal, darkMode 
             <div
               key={book.id}
               className={'rounded-3xl border overflow-hidden shadow-lg flex flex-col justify-between group transition-all duration-200 hover:-translate-y-1 ' + (
-                darkMode ? 'bg-[#1a1b24] border-gray-800 hover:border-purple-500/40' : 'bg-white border-gray-200 hover:border-purple-500'
+                darkMode ? 'bg-[#1a1b24] border-gray-800 hover:border-amber-500/40' : 'bg-white border-gray-200 hover:border-amber-500'
               )}
             >
               {/* Cover Banner */}
@@ -310,7 +310,7 @@ export default function BooksView({ data, onUpdateBooks, onUpdateGoal, darkMode 
                   book.status === 'completed'
                     ? 'bg-emerald-500/80 text-white'
                     : book.status === 'reading'
-                    ? 'bg-purple-600/80 text-white'
+                    ? 'bg-amber-600/80 text-white'
                     : 'bg-gray-800/80 text-gray-300'
                 )}>
                   {book.status === 'completed' ? 'Concluído' : book.status === 'reading' ? 'Lendo' : 'Quero Ler'}
@@ -341,11 +341,11 @@ export default function BooksView({ data, onUpdateBooks, onUpdateGoal, darkMode 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-[11px] text-gray-400">
                     <span>{book.currentPage} / {book.totalPages} pág</span>
-                    <span className="font-bold font-mono text-purple-400">{progressPercent}%</span>
+                    <span className="font-bold font-mono text-amber-400">{progressPercent}%</span>
                   </div>
                   <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
                     <div
-                      className="bg-purple-500 h-full rounded-full transition-all duration-300"
+                      className="bg-amber-500 h-full rounded-full transition-all duration-300"
                       style={{ width: progressPercent + '%' }}
                     />
                   </div>
@@ -410,19 +410,19 @@ export default function BooksView({ data, onUpdateBooks, onUpdateGoal, darkMode 
               <button onClick={() => setIsAddModalOpen(false)}><X className="w-5 h-5 text-gray-400" /></button>
             </div>
             <form onSubmit={handleSaveBook} className="space-y-3">
-              <input type="text" placeholder="Título do Livro" value={title} onChange={(e) => setTitle(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit" />
-              <input type="text" placeholder="Autor" value={author} onChange={(e) => setAuthor(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit" />
+              <input type="text" placeholder="Título do Livro" value={title} onChange={(e) => setTitle(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit" />
+              <input type="text" placeholder="Autor" value={author} onChange={(e) => setAuthor(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit" />
               <div className="grid grid-cols-2 gap-2">
-                <input type="number" placeholder="Total de Páginas" value={totalPages} onChange={(e) => setTotalPages(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit" />
-                <input type="number" placeholder="Página Atual" value={currentPage} onChange={(e) => setCurrentPage(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit" />
+                <input type="number" placeholder="Total de Páginas" value={totalPages} onChange={(e) => setTotalPages(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit" />
+                <input type="number" placeholder="Página Atual" value={currentPage} onChange={(e) => setCurrentPage(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit" />
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit">
+                <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit">
                   <option value="reading" className="bg-gray-900">Lendo Agora</option>
                   <option value="completed" className="bg-gray-900">Concluído</option>
                   <option value="wishlist" className="bg-gray-900">Quero Ler</option>
                 </select>
-                <select value={rating} onChange={(e) => setRating(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit">
+                <select value={rating} onChange={(e) => setRating(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit">
                   <option value="5" className="bg-gray-900">⭐⭐⭐⭐⭐ (5 estrelas)</option>
                   <option value="4" className="bg-gray-900">⭐⭐⭐⭐ (4 estrelas)</option>
                   <option value="3" className="bg-gray-900">⭐⭐⭐ (3 estrelas)</option>
@@ -430,10 +430,10 @@ export default function BooksView({ data, onUpdateBooks, onUpdateGoal, darkMode 
                   <option value="1" className="bg-gray-900">⭐ (1 estrela)</option>
                 </select>
               </div>
-              <input type="text" placeholder="Gênero (ex: Ficção, Produtividade, Finanças)" value={genre} onChange={(e) => setGenre(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit" />
-              <input type="text" placeholder="URL da Capa (opcional)" value={cover} onChange={(e) => setCover(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit" />
-              <textarea placeholder="Resenha, citações e notas do livro..." value={review} onChange={(e) => setReview(e.target.value)} className="w-full h-24 p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit resize-none" />
-              <button type="submit" className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-lg transition-transform active:scale-95">Salvar Livro</button>
+              <input type="text" placeholder="Gênero (ex: Ficção, Produtividade, Finanças)" value={genre} onChange={(e) => setGenre(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit" />
+              <input type="text" placeholder="URL da Capa (opcional)" value={cover} onChange={(e) => setCover(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit" />
+              <textarea placeholder="Resenha, citações e notas do livro..." value={review} onChange={(e) => setReview(e.target.value)} className="w-full h-24 p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit resize-none" />
+              <button type="submit" className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-lg transition-transform active:scale-95">Salvar Livro</button>
             </form>
           </div>
         </div>

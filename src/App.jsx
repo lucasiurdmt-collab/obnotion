@@ -120,7 +120,7 @@ export default function App() {
   return (
     <div
       className={'flex h-screen w-screen overflow-hidden font-sans select-none ' + (
-        darkMode ? 'bg-[#0f1015] text-gray-100 dark' : 'bg-gray-100 text-gray-800'
+        darkMode ? 'bg-[#0b0a08] text-gray-100 dark' : 'bg-gray-100 text-gray-800'
       )}
     >
       {/* Sidebar */}

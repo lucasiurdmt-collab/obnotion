@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   CalendarDays as CalendarIcon,
   ChevronLeft,
@@ -107,14 +107,14 @@ export default function CalendarView({
           <div className="flex items-center p-1 rounded-xl bg-gray-900/50 border border-gray-800 text-xs">
             <button
               onClick={() => setActiveSubTab('monthly')}
-              className={'px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ' + (activeSubTab === 'monthly' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-400')}
+              className={'px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ' + (activeSubTab === 'monthly' ? 'bg-amber-600 text-white shadow-md' : 'text-gray-400')}
             >
               <CalendarIcon className="w-3.5 h-3.5" />
               <span>Visão Mensal</span>
             </button>
             <button
               onClick={() => setActiveSubTab('weekly')}
-              className={'px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ' + (activeSubTab === 'weekly' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-400')}
+              className={'px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ' + (activeSubTab === 'weekly' ? 'bg-amber-600 text-white shadow-md' : 'text-gray-400')}
             >
               <LayoutTemplate className="w-3.5 h-3.5" />
               <span>Rotina Semanal</span>
@@ -124,7 +124,7 @@ export default function CalendarView({
           {activeSubTab === 'monthly' && (
             <button
               onClick={() => { setEventDate(selectedDay); setIsAddEventModalOpen(true); }}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all active:scale-95"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-lg shadow-amber-600/30 transition-all active:scale-95"
             >
               <Plus className="w-4 h-4" />
               <span>Novo Evento</span>
@@ -174,21 +174,21 @@ export default function CalendarView({
                     onClick={() => setSelectedDay(dayStr)}
                     className={'h-20 p-2 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ' + (
                       isSelected
-                        ? 'bg-purple-600/15 border-purple-500 shadow-md ring-1 ring-purple-500'
+                        ? 'bg-amber-600/15 border-amber-500 shadow-md ring-1 ring-amber-500'
                         : isToday
-                        ? 'bg-indigo-950/20 border-indigo-500/50'
+                        ? 'bg-orange-950/20 border-orange-500/50'
                         : 'bg-gray-900/30 border-gray-800/80 hover:border-gray-700'
                     )}
                   >
                     <div className="flex items-center justify-between">
-                      <span className={'text-xs font-bold ' + (isToday ? 'px-1.5 py-0.2 rounded-full bg-purple-600 text-white' : 'text-gray-400')}>
+                      <span className={'text-xs font-bold ' + (isToday ? 'px-1.5 py-0.2 rounded-full bg-amber-600 text-white' : 'text-gray-400')}>
                         {dayNum}
                       </span>
                     </div>
 
                     <div className="space-y-1 overflow-hidden">
                       {dayEvents.slice(0, 1).map(e => (
-                        <div key={e.id} className="text-[9px] font-semibold px-1.5 py-0.2 rounded truncate bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                        <div key={e.id} className="text-[9px] font-semibold px-1.5 py-0.2 rounded truncate bg-amber-500/20 text-amber-300 border border-amber-500/30">
                           {e.title}
                         </div>
                       ))}
@@ -213,7 +213,7 @@ export default function CalendarView({
               </div>
               <button
                 onClick={() => { setEventDate(selectedDay); setIsAddEventModalOpen(true); }}
-                className="p-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white shadow-md"
+                className="p-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white shadow-md"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -270,7 +270,7 @@ export default function CalendarView({
             {(weeklySchedule || []).map((item, idx) => (
               <div key={item.day} className="p-4 rounded-2xl bg-gray-900/40 border border-gray-800 space-y-3 flex flex-col justify-between">
                 <div className="flex items-center justify-between border-b border-gray-800 pb-2">
-                  <h4 className="font-bold text-sm text-purple-400">{item.day}</h4>
+                  <h4 className="font-bold text-sm text-amber-400">{item.day}</h4>
                 </div>
 
                 <div className="space-y-2 text-xs flex-1">
@@ -280,7 +280,7 @@ export default function CalendarView({
                       type="text"
                       value={item.morning || ''}
                       onChange={(e) => handleUpdateWeeklyDay(idx, 'morning', e.target.value)}
-                      className="w-full mt-1 p-2 rounded-xl bg-gray-900/60 border border-gray-800 text-xs text-inherit outline-none focus:border-purple-500"
+                      className="w-full mt-1 p-2 rounded-xl bg-gray-900/60 border border-gray-800 text-xs text-inherit outline-none focus:border-amber-500"
                       placeholder="Atividades da manhã..."
                     />
                   </div>
@@ -290,7 +290,7 @@ export default function CalendarView({
                       type="text"
                       value={item.afternoon || ''}
                       onChange={(e) => handleUpdateWeeklyDay(idx, 'afternoon', e.target.value)}
-                      className="w-full mt-1 p-2 rounded-xl bg-gray-900/60 border border-gray-800 text-xs text-inherit outline-none focus:border-purple-500"
+                      className="w-full mt-1 p-2 rounded-xl bg-gray-900/60 border border-gray-800 text-xs text-inherit outline-none focus:border-amber-500"
                       placeholder="Atividades da tarde..."
                     />
                   </div>
@@ -300,7 +300,7 @@ export default function CalendarView({
                       type="text"
                       value={item.evening || ''}
                       onChange={(e) => handleUpdateWeeklyDay(idx, 'evening', e.target.value)}
-                      className="w-full mt-1 p-2 rounded-xl bg-gray-900/60 border border-gray-800 text-xs text-inherit outline-none focus:border-purple-500"
+                      className="w-full mt-1 p-2 rounded-xl bg-gray-900/60 border border-gray-800 text-xs text-inherit outline-none focus:border-amber-500"
                       placeholder="Atividades da noite..."
                     />
                   </div>
@@ -320,13 +320,13 @@ export default function CalendarView({
               <button onClick={() => setIsAddEventModalOpen(false)}><X className="w-5 h-5 text-gray-400" /></button>
             </div>
             <form onSubmit={handleAddEvent} className="space-y-3">
-              <input type="text" placeholder="Nome do Evento" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit" />
+              <input type="text" placeholder="Nome do Evento" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit" />
               <div className="grid grid-cols-2 gap-2">
-                <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit" />
-                <input type="time" value={eventTime} onChange={(e) => setEventTime(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit" />
+                <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit" />
+                <input type="time" value={eventTime} onChange={(e) => setEventTime(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit" />
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <select value={eventCategory} onChange={(e) => setEventCategory(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit">
+                <select value={eventCategory} onChange={(e) => setEventCategory(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit">
                   <option value="work" className="bg-gray-900">Trabalho</option>
                   <option value="study" className="bg-gray-900">Estudos</option>
                   <option value="health" className="bg-gray-900">Saúde</option>
@@ -334,7 +334,7 @@ export default function CalendarView({
                 </select>
                 <input type="color" value={eventColor} onChange={(e) => setEventColor(e.target.value)} className="w-full h-9 rounded-xl bg-gray-900/50 border border-gray-800 cursor-pointer" />
               </div>
-              <button type="submit" className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-lg transition-transform active:scale-95">Salvar Evento</button>
+              <button type="submit" className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-lg transition-transform active:scale-95">Salvar Evento</button>
             </form>
           </div>
         </div>

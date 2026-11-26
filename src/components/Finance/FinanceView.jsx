@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   DollarSign,
   TrendingUp,
@@ -487,9 +487,9 @@ Por favor, me dê uma orientação direta e prática:
         <div className="flex flex-wrap items-center gap-2.5 z-10">
           <button
             onClick={() => setIsSalaryModalOpen(true)}
-            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium bg-white/[0.04] border border-white/[0.08] hover:border-violet-500/40 hover:bg-white/[0.07] text-zinc-200 transition-all shadow-sm"
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium bg-white/[0.04] border border-white/[0.08] hover:border-amber-500/40 hover:bg-white/[0.07] text-zinc-200 transition-all shadow-sm"
           >
-            <Wallet className="w-4 h-4 text-violet-400" />
+            <Wallet className="w-4 h-4 text-amber-400" />
             <div className="text-left">
               <span className="text-[10px] text-zinc-400 block font-mono">
                 {profile.paymentFrequency === 'biweekly' ? 'Salário Quinzenal' : 'Salário Líquido'}
@@ -503,7 +503,7 @@ Por favor, me dê uma orientação direta e prática:
 
           <button
             onClick={triggerJarvisDiagnosis}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-md shadow-violet-600/20 transition-all active:scale-95"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white shadow-md shadow-amber-600/20 transition-all active:scale-95"
           >
             <Sparkles className="w-3.5 h-3.5 text-cyan-200 animate-pulse" />
             <span>Diagnóstico do JARVIS</span>
@@ -526,7 +526,7 @@ Por favor, me dê uma orientação direta e prática:
           </button>
 
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-violet-400" />
+            <Calendar className="w-4 h-4 text-amber-400" />
             <h2 className="text-sm md:text-base font-bold text-white font-mono">
               {viewAllMonths ? 'Visão Geral (Todos os Meses / Anos)' : formatMonthTitle(selectedMonth)}
             </h2>
@@ -544,7 +544,7 @@ Por favor, me dê uma orientação direta e prática:
             onClick={() => setViewAllMonths(!viewAllMonths)}
             className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
               viewAllMonths 
-                ? 'bg-violet-600 text-white font-semibold shadow-sm' 
+                ? 'bg-amber-600 text-white font-semibold shadow-sm' 
                 : 'bg-white/[0.03] text-zinc-400 border border-white/[0.08] hover:text-zinc-200'
             }`}
           >
@@ -568,7 +568,7 @@ Por favor, me dê uma orientação direta e prática:
                 }}
                 className={`px-2.5 py-1.5 rounded-xl text-[11px] font-mono whitespace-nowrap transition-all flex items-center gap-1.5 ${
                   isSelected
-                    ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40 font-bold'
+                    ? 'bg-amber-600/20 text-amber-300 border border-amber-500/40 font-bold'
                     : 'bg-white/[0.02] text-zinc-400 border border-white/[0.06] hover:bg-white/[0.05] hover:text-zinc-200'
                 }`}
               >
@@ -721,7 +721,7 @@ Por favor, me dê uma orientação direta e prática:
                 </div>
                 <button
                   onClick={() => setIsBillModalOpen(true)}
-                  className="flex items-center gap-1 text-xs font-medium text-violet-400 hover:text-violet-300"
+                  className="flex items-center gap-1 text-xs font-medium text-amber-400 hover:text-amber-300"
                 >
                   <Plus className="w-3.5 h-3.5" /> Adicionar Conta
                 </button>
@@ -798,7 +798,7 @@ Por favor, me dê uma orientação direta e prática:
                 </h3>
                 <button
                   onClick={() => setIsDebtModalOpen(true)}
-                  className="flex items-center gap-1 text-xs font-medium text-violet-400 hover:text-violet-300"
+                  className="flex items-center gap-1 text-xs font-medium text-amber-400 hover:text-amber-300"
                 >
                   <Plus className="w-3.5 h-3.5" /> Adicionar Dívida
                 </button>
@@ -861,8 +861,8 @@ Por favor, me dê uma orientação direta e prática:
           {/* Right Column: Cards & JARVIS Advice Card */}
           <div className="space-y-6">
             {/* JARVIS Intelligent Strategy Card */}
-            <div className="p-5 rounded-2xl bg-gradient-to-br from-violet-950/40 via-[#12131c] to-[#0c0d14] border border-violet-500/30 space-y-3">
-              <div className="flex items-center gap-2 text-violet-300 font-semibold text-xs">
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-950/40 via-[#12131c] to-[#0c0d14] border border-amber-500/30 space-y-3">
+              <div className="flex items-center gap-2 text-amber-300 font-semibold text-xs">
                 <Sparkles className="w-4 h-4 text-cyan-300 animate-pulse" />
                 <span>Estratégia para {formatMonthTitle(selectedMonth)}</span>
               </div>
@@ -887,12 +887,12 @@ Por favor, me dê uma orientação direta e prática:
             } space-y-3`}>
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 font-mono flex items-center gap-1.5">
-                  <CreditCard className="w-3.5 h-3.5 text-violet-400" />
+                  <CreditCard className="w-3.5 h-3.5 text-amber-400" />
                   Cartões de Crédito
                 </h3>
                 <button
                   onClick={() => setIsCardModalOpen(true)}
-                  className="text-xs text-violet-400 hover:text-violet-300"
+                  className="text-xs text-amber-400 hover:text-amber-300"
                 >
                   + Cartão
                 </button>
@@ -909,7 +909,7 @@ Por favor, me dê uma orientação direta e prática:
                     </div>
                     <div className="w-full bg-white/[0.06] h-1 rounded-full overflow-hidden">
                       <div
-                        className="bg-violet-500 h-full rounded-full"
+                        className="bg-amber-500 h-full rounded-full"
                         style={{ width: `${Math.min(100, Math.round(((c.currentBill || 0) / (c.limit || 1)) * 100))}%` }}
                       />
                     </div>
@@ -945,7 +945,7 @@ Por favor, me dê uma orientação direta e prática:
             </div>
             <button
               onClick={() => setIsBillModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium transition-all self-start"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-medium transition-all self-start"
             >
               <Plus className="w-3.5 h-3.5" /> Adicionar Conta
             </button>
@@ -1016,7 +1016,7 @@ Por favor, me dê uma orientação direta e prática:
             </div>
             <button
               onClick={() => setIsDebtModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-medium transition-all"
             >
               <Plus className="w-3.5 h-3.5" /> Adicionar Dívida
             </button>
@@ -1054,7 +1054,7 @@ Por favor, me dê uma orientação direta e prática:
                     </div>
                     <div>
                       <span className="text-zinc-500 text-[10px] uppercase">Parcelas</span>
-                      <p className="font-bold text-violet-400">{paidInst} de {totalInst} pagas</p>
+                      <p className="font-bold text-amber-400">{paidInst} de {totalInst} pagas</p>
                     </div>
                   </div>
 
@@ -1095,7 +1095,7 @@ Por favor, me dê uma orientação direta e prática:
             </div>
             <button
               onClick={() => setIsCardModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-medium transition-all"
             >
               <Plus className="w-3.5 h-3.5" /> Adicionar Cartão
             </button>
@@ -1112,7 +1112,7 @@ Por favor, me dê uma orientação direta e prática:
                 <div key={c.id} className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <CreditCard className="w-4 h-4 text-violet-400" />
+                      <CreditCard className="w-4 h-4 text-amber-400" />
                       <h4 className="font-bold text-sm text-white">{c.name}</h4>
                     </div>
                     <button onClick={() => handleDeleteCard(c.id)} className="p-1 text-zinc-600 hover:text-rose-400">
@@ -1131,7 +1131,7 @@ Por favor, me dê uma orientação direta e prática:
                       <span className="text-emerald-400 font-bold">Disponível: R$ {available.toFixed(0)}</span>
                     </div>
                     <div className="w-full bg-white/[0.06] h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-violet-500 h-full rounded-full" style={{ width: `${usagePercent}%` }} />
+                      <div className="bg-amber-500 h-full rounded-full" style={{ width: `${usagePercent}%` }} />
                     </div>
                   </div>
 
@@ -1165,7 +1165,7 @@ Por favor, me dê uma orientação direta e prática:
             </div>
             <button
               onClick={() => setIsTxModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-medium transition-all"
             >
               <Plus className="w-3.5 h-3.5" /> Nova Transação
             </button>
@@ -1224,7 +1224,7 @@ Por favor, me dê uma orientação direta e prática:
             </div>
             <button
               onClick={() => setIsGoalModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-medium transition-all"
             >
               <Plus className="w-3.5 h-3.5" /> Nova Meta
             </button>
@@ -1268,7 +1268,7 @@ Por favor, me dê uma orientação direta e prática:
             <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
               <div>
                 <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                  <Wallet className="w-4 h-4 text-violet-400" />
+                  <Wallet className="w-4 h-4 text-amber-400" />
                   Configuração Salarial & Holerite
                 </h3>
                 <p className="text-[11px] text-zinc-400">Defina como você recebe seu salário e seus descontos em folha.</p>
@@ -1287,7 +1287,7 @@ Por favor, me dê uma orientação direta e prática:
                   onClick={() => setTempFrequency('monthly')}
                   className={`p-3 rounded-xl border text-left transition-all ${
                     tempFrequency === 'monthly'
-                      ? 'bg-violet-600/15 border-violet-500/40 text-violet-200'
+                      ? 'bg-amber-600/15 border-amber-500/40 text-amber-200'
                       : 'bg-black/30 border-white/[0.08] text-zinc-400 hover:bg-white/[0.03]'
                   }`}
                 >
@@ -1300,7 +1300,7 @@ Por favor, me dê uma orientação direta e prática:
                   onClick={() => setTempFrequency('biweekly')}
                   className={`p-3 rounded-xl border text-left transition-all ${
                     tempFrequency === 'biweekly'
-                      ? 'bg-violet-600/15 border-violet-500/40 text-violet-200'
+                      ? 'bg-amber-600/15 border-amber-500/40 text-amber-200'
                       : 'bg-black/30 border-white/[0.08] text-zinc-400 hover:bg-white/[0.03]'
                   }`}
                 >
@@ -1353,7 +1353,7 @@ Por favor, me dê uma orientação direta e prática:
                 <div className="grid grid-cols-2 gap-3">
                   {/* 1st Payment */}
                   <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05] space-y-2">
-                    <span className="text-[11px] font-bold text-violet-300 block">1ª Quinzena (Adiantamento)</span>
+                    <span className="text-[11px] font-bold text-amber-300 block">1ª Quinzena (Adiantamento)</span>
                     <div>
                       <label className="block text-zinc-400 font-mono text-[10px] mb-1">Valor (R$):</label>
                       <input
@@ -1412,7 +1412,7 @@ Por favor, me dê uma orientação direta e prática:
                   </div>
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-violet-500/10 border border-violet-500/20 text-center font-mono text-xs text-violet-200">
+                <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center font-mono text-xs text-amber-200">
                   Total Líquido do Mês: <strong>R$ {((Number(tempFirstAmount) || 0) + (Number(tempSecondAmount) || 0)).toFixed(2)}</strong>
                 </div>
               </div>
@@ -1433,7 +1433,7 @@ Por favor, me dê uma orientação direta e prática:
                     type="checkbox"
                     checked={tempHasDiscounts}
                     onChange={e => setTempHasDiscounts(e.target.checked)}
-                    className="w-4 h-4 accent-violet-500 rounded cursor-pointer"
+                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
                   />
                 </div>
 
@@ -1507,7 +1507,7 @@ Por favor, me dê uma orientação direta e prática:
 
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs tracking-wide shadow-md shadow-violet-600/30 transition-all active:scale-95"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-xs tracking-wide shadow-md shadow-amber-600/30 transition-all active:scale-95"
             >
               Salvar Configuração Salarial
             </button>
@@ -1572,7 +1572,7 @@ Por favor, me dê uma orientação direta e prática:
             </div>
             <button
               type="submit"
-              className="w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold transition-colors"
+              className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold transition-colors"
             >
               Adicionar Conta
             </button>
@@ -1728,7 +1728,7 @@ Por favor, me dê uma orientação direta e prática:
             </div>
             <button
               type="submit"
-              className="w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold transition-colors"
+              className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold transition-colors"
             >
               Salvar Cartão
             </button>
@@ -1801,7 +1801,7 @@ Por favor, me dê uma orientação direta e prática:
             </div>
             <button
               type="submit"
-              className="w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold transition-colors"
+              className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold transition-colors"
             >
               Registrar
             </button>

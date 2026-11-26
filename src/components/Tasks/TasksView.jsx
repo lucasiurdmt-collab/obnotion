@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   CheckSquare,
   Plus,
@@ -92,14 +92,14 @@ export default function TasksView({ tasks, onUpdateTasks, darkMode }) {
           <div className="flex items-center p-1 rounded-xl bg-gray-900/50 border border-gray-800 text-xs">
             <button
               onClick={() => setViewType('kanban')}
-              className={'px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ' + (viewType === 'kanban' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-400')}
+              className={'px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ' + (viewType === 'kanban' ? 'bg-amber-600 text-white shadow-md' : 'text-gray-400')}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
               <span>Kanban</span>
             </button>
             <button
               onClick={() => setViewType('list')}
-              className={'px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ' + (viewType === 'list' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-400')}
+              className={'px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 ' + (viewType === 'list' ? 'bg-amber-600 text-white shadow-md' : 'text-gray-400')}
             >
               <List className="w-3.5 h-3.5" />
               <span>Lista</span>
@@ -108,7 +108,7 @@ export default function TasksView({ tasks, onUpdateTasks, darkMode }) {
 
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all active:scale-95"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-lg shadow-amber-600/30 transition-all active:scale-95"
           >
             <Plus className="w-4 h-4" />
             <span>Nova Tarefa</span>
@@ -121,7 +121,7 @@ export default function TasksView({ tasks, onUpdateTasks, darkMode }) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setSelectedPriority('ALL')}
-            className={'px-3 py-1.5 rounded-xl text-xs font-semibold ' + (selectedPriority === 'ALL' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:bg-gray-800')}
+            className={'px-3 py-1.5 rounded-xl text-xs font-semibold ' + (selectedPriority === 'ALL' ? 'bg-amber-600 text-white' : 'text-gray-400 hover:bg-gray-800')}
           >
             Todas ({tasks.length})
           </button>
@@ -146,7 +146,7 @@ export default function TasksView({ tasks, onUpdateTasks, darkMode }) {
             placeholder="Filtrar tarefas..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 pr-3 py-1.5 rounded-xl text-xs bg-gray-900/40 border border-gray-800 outline-none focus:border-purple-500 text-inherit w-full sm:w-60"
+            className="pl-8 pr-3 py-1.5 rounded-xl text-xs bg-gray-900/40 border border-gray-800 outline-none focus:border-amber-500 text-inherit w-full sm:w-60"
           />
         </div>
       </div>
@@ -175,7 +175,7 @@ export default function TasksView({ tasks, onUpdateTasks, darkMode }) {
                     <div
                       key={task.id}
                       className={'p-4 rounded-2xl border shadow-sm space-y-3 group transition-all duration-150 ' + (
-                        darkMode ? 'bg-gray-900/60 border-gray-800 hover:border-purple-500/40' : 'bg-gray-50 border-gray-200 hover:border-purple-500'
+                        darkMode ? 'bg-gray-900/60 border-gray-800 hover:border-amber-500/40' : 'bg-gray-50 border-gray-200 hover:border-amber-500'
                       )}
                     >
                       <div className="flex items-start justify-between gap-2">
@@ -195,7 +195,7 @@ export default function TasksView({ tasks, onUpdateTasks, darkMode }) {
 
                       <div className="flex items-center justify-between text-[10px] text-gray-400 pt-2 border-t border-inherit">
                         <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3 text-purple-400" />
+                          <Calendar className="w-3 h-3 text-amber-400" />
                           {task.dueDate}
                         </span>
 
@@ -246,14 +246,14 @@ export default function TasksView({ tasks, onUpdateTasks, darkMode }) {
           {filteredTasks.map(task => (
             <div
               key={task.id}
-              className="p-3.5 rounded-2xl bg-gray-900/40 border border-gray-800 flex items-center justify-between transition-colors hover:border-purple-500/40"
+              className="p-3.5 rounded-2xl bg-gray-900/40 border border-gray-800 flex items-center justify-between transition-colors hover:border-amber-500/40"
             >
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
                   checked={task.status === 'done'}
                   onChange={() => handleMoveStatus(task.id, task.status === 'done' ? 'todo' : 'done')}
-                  className="w-4 h-4 accent-purple-600 rounded cursor-pointer"
+                  className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
                 />
                 <div>
                   <h4 className={'font-bold text-xs ' + (task.status === 'done' ? 'line-through text-gray-500' : 'text-inherit')}>
@@ -288,18 +288,18 @@ export default function TasksView({ tasks, onUpdateTasks, darkMode }) {
               <button onClick={() => setIsAddModalOpen(false)}><X className="w-5 h-5 text-gray-400" /></button>
             </div>
             <form onSubmit={handleAddTask} className="space-y-3">
-              <input type="text" placeholder="Título da tarefa..." value={title} onChange={(e) => setTitle(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit" />
+              <input type="text" placeholder="Título da tarefa..." value={title} onChange={(e) => setTitle(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit" />
               <div className="grid grid-cols-2 gap-2">
-                <select value={priority} onChange={(e) => setPriority(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit">
+                <select value={priority} onChange={(e) => setPriority(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit">
                   <option value="high" className="bg-gray-900">Alta Prioridade</option>
                   <option value="medium" className="bg-gray-900">Média Prioridade</option>
                   <option value="low" className="bg-gray-900">Baixa Prioridade</option>
                 </select>
-                <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit" />
+                <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit" />
               </div>
-              <input type="text" placeholder="Tags (separadas por vírgula)" value={tagInput} onChange={(e) => setTagInput(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit" />
-              <textarea placeholder="Notas ou detalhes da tarefa..." value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full h-20 p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit resize-none" />
-              <button type="submit" className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-lg transition-transform active:scale-95">Salvar Tarefa</button>
+              <input type="text" placeholder="Tags (separadas por vírgula)" value={tagInput} onChange={(e) => setTagInput(e.target.value)} className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit" />
+              <textarea placeholder="Notas ou detalhes da tarefa..." value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full h-20 p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit resize-none" />
+              <button type="submit" className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-lg transition-transform active:scale-95">Salvar Tarefa</button>
             </form>
           </div>
         </div>

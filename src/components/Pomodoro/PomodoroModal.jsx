@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Play, Pause, RotateCcw, SkipForward, X, Volume2, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function PomodoroModal({
@@ -15,7 +15,7 @@ export default function PomodoroModal({
   setSessionsCompleted
 }) {
   const MODES = {
-    focus: { name: 'Foco Total', time: 25 * 60, color: 'text-purple-400', bg: 'bg-purple-500' },
+    focus: { name: 'Foco Total', time: 25 * 60, color: 'text-amber-400', bg: 'bg-amber-500' },
     shortBreak: { name: 'Pausa Curta', time: 5 * 60, color: 'text-emerald-400', bg: 'bg-emerald-500' },
     longBreak: { name: 'Pausa Longa', time: 15 * 60, color: 'text-blue-400', bg: 'bg-blue-500' }
   };
@@ -87,7 +87,7 @@ export default function PomodoroModal({
             onClick={() => switchMode('focus')}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               mode === 'focus'
-                ? 'bg-purple-600 text-white shadow-md'
+                ? 'bg-amber-600 text-white shadow-md'
                 : 'text-gray-400 hover:text-gray-200'
             }`}
           >
@@ -132,7 +132,7 @@ export default function PomodoroModal({
               r="44"
               className={`transition-all duration-500 ${
                 mode === 'focus'
-                  ? 'stroke-purple-500'
+                  ? 'stroke-amber-500'
                   : mode === 'shortBreak'
                   ? 'stroke-emerald-500'
                   : 'stroke-blue-500'
@@ -169,7 +169,7 @@ export default function PomodoroModal({
             className={`px-8 py-3.5 rounded-2xl font-bold text-white text-base shadow-xl flex items-center gap-2 transition-all hover:scale-105 active:scale-95 ${
               isActive
                 ? 'bg-amber-600 shadow-amber-600/30'
-                : 'bg-purple-600 shadow-purple-600/30'
+                : 'bg-amber-600 shadow-amber-600/30'
             }`}
           >
             {isActive ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
@@ -198,7 +198,7 @@ export default function PomodoroModal({
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             <span>Ciclos de foco concluídos hoje:</span>
           </div>
-          <span className="font-bold font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-400">
+          <span className="font-bold font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">
             {sessionsCompleted} sessões
           </span>
         </div>

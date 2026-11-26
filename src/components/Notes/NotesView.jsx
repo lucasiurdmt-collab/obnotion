@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   FileText,
   Plus,
@@ -143,14 +143,14 @@ export default function NotesView({ notes, onUpdateNotes, selectedNoteId, onSele
         <div className="flex items-center gap-2">
           <button
             onClick={() => setViewMode('editor')}
-            className={'px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ' + (viewMode === 'editor' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-400 hover:text-gray-200')}
+            className={'px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ' + (viewMode === 'editor' ? 'bg-amber-600 text-white shadow-md' : 'text-gray-400 hover:text-gray-200')}
           >
             <FileText className="w-3.5 h-3.5" />
             <span>Editor Notion</span>
           </button>
           <button
             onClick={() => setViewMode('graph')}
-            className={'px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ' + (viewMode === 'graph' ? 'bg-purple-600 text-white shadow-md' : 'text-gray-400 hover:text-gray-200')}
+            className={'px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ' + (viewMode === 'graph' ? 'bg-amber-600 text-white shadow-md' : 'text-gray-400 hover:text-gray-200')}
           >
             <Network className="w-3.5 h-3.5" />
             <span>Grafo Obsidian</span>
@@ -162,19 +162,19 @@ export default function NotesView({ notes, onUpdateNotes, selectedNoteId, onSele
             <div className="flex items-center bg-gray-900/50 border border-gray-800 p-1 rounded-xl text-xs">
               <button
                 onClick={() => setEditTab('write')}
-                className={'px-2.5 py-1 rounded-lg font-medium ' + (editTab === 'write' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-gray-200')}
+                className={'px-2.5 py-1 rounded-lg font-medium ' + (editTab === 'write' ? 'bg-amber-600 text-white' : 'text-gray-400 hover:text-gray-200')}
               >
                 Escrever
               </button>
               <button
                 onClick={() => setEditTab('both')}
-                className={'px-2.5 py-1 rounded-lg font-medium hidden md:inline-block ' + (editTab === 'both' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-gray-200')}
+                className={'px-2.5 py-1 rounded-lg font-medium hidden md:inline-block ' + (editTab === 'both' ? 'bg-amber-600 text-white' : 'text-gray-400 hover:text-gray-200')}
               >
                 Dividido
               </button>
               <button
                 onClick={() => setEditTab('preview')}
-                className={'px-2.5 py-1 rounded-lg font-medium ' + (editTab === 'preview' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-gray-200')}
+                className={'px-2.5 py-1 rounded-lg font-medium ' + (editTab === 'preview' ? 'bg-amber-600 text-white' : 'text-gray-400 hover:text-gray-200')}
               >
                 Leitura
               </button>
@@ -221,12 +221,12 @@ export default function NotesView({ notes, onUpdateNotes, selectedNoteId, onSele
                     placeholder="Filtrar notas..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-8 pr-3 py-1.5 rounded-xl text-xs bg-gray-900/40 border border-gray-800 outline-none focus:border-purple-500 text-inherit"
+                    className="w-full pl-8 pr-3 py-1.5 rounded-xl text-xs bg-gray-900/40 border border-gray-800 outline-none focus:border-amber-500 text-inherit"
                   />
                 </div>
                 <button
                   onClick={handleCreateNote}
-                  className="p-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white shadow-md shadow-purple-600/30"
+                  className="p-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-600/30"
                   title="Criar Nova Nota"
                 >
                   <Plus className="w-4 h-4" />
@@ -237,7 +237,7 @@ export default function NotesView({ notes, onUpdateNotes, selectedNoteId, onSele
                 <div className="flex items-center gap-1 overflow-x-auto py-1 text-[11px] no-scrollbar">
                   <button
                     onClick={() => setSelectedTag('ALL')}
-                    className={'px-2 py-0.5 rounded-full font-medium whitespace-nowrap ' + (selectedTag === 'ALL' ? 'bg-purple-600 text-white' : 'bg-gray-800/60 text-gray-400 hover:text-gray-200')}
+                    className={'px-2 py-0.5 rounded-full font-medium whitespace-nowrap ' + (selectedTag === 'ALL' ? 'bg-amber-600 text-white' : 'bg-gray-800/60 text-gray-400 hover:text-gray-200')}
                   >
                     Todas ({notes.length})
                   </button>
@@ -245,7 +245,7 @@ export default function NotesView({ notes, onUpdateNotes, selectedNoteId, onSele
                     <button
                       key={tag}
                       onClick={() => setSelectedTag(tag)}
-                      className={'px-2 py-0.5 rounded-full font-medium whitespace-nowrap ' + (selectedTag === tag ? 'bg-purple-600 text-white' : 'bg-gray-800/60 text-gray-400 hover:text-gray-200')}
+                      className={'px-2 py-0.5 rounded-full font-medium whitespace-nowrap ' + (selectedTag === tag ? 'bg-amber-600 text-white' : 'bg-gray-800/60 text-gray-400 hover:text-gray-200')}
                     >
                       #{tag}
                     </button>
@@ -261,7 +261,7 @@ export default function NotesView({ notes, onUpdateNotes, selectedNoteId, onSele
                   <div
                     key={note.id}
                     onClick={() => onSelectNote(note.id)}
-                    className={'p-3 rounded-xl cursor-pointer transition-all duration-150 border ' + (isSelected ? 'bg-purple-600/15 border-purple-500/40 text-purple-300 shadow-sm' : 'border-transparent hover:bg-gray-800/30 text-gray-400 hover:text-gray-200')}
+                    className={'p-3 rounded-xl cursor-pointer transition-all duration-150 border ' + (isSelected ? 'bg-amber-600/15 border-amber-500/40 text-amber-300 shadow-sm' : 'border-transparent hover:bg-gray-800/30 text-gray-400 hover:text-gray-200')}
                   >
                     <div className="flex items-start gap-2.5">
                       <span className="text-xl flex-shrink-0">{note.icon || '📝'}</span>
@@ -270,7 +270,7 @@ export default function NotesView({ notes, onUpdateNotes, selectedNoteId, onSele
                           <h4 className="font-semibold text-xs truncate text-inherit">
                             {note.title}
                           </h4>
-                          {note.pinned && <Pin className="w-3 h-3 text-purple-400 flex-shrink-0" />}
+                          {note.pinned && <Pin className="w-3 h-3 text-amber-400 flex-shrink-0" />}
                         </div>
                         <p className="text-[11px] text-gray-400 line-clamp-1 mt-0.5">
                           {note.content.replace(/[#*[\]`>_-]/g, '').slice(0, 50)}...
@@ -330,13 +330,13 @@ export default function NotesView({ notes, onUpdateNotes, selectedNoteId, onSele
 
                 <div className="flex items-center gap-3 text-xs text-gray-400">
                   <div className="flex items-center gap-1">
-                    <Tag className="w-3.5 h-3.5 text-purple-400" />
+                    <Tag className="w-3.5 h-3.5 text-amber-400" />
                     <input
                       type="text"
                       value={(activeNote.tags || []).join(', ')}
                       onChange={(e) => handleUpdateActiveNote({ tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean) })}
                       placeholder="Tags separadas por vírgula..."
-                      className="bg-transparent border-b border-gray-800 focus:border-purple-500 outline-none text-inherit text-xs px-1"
+                      className="bg-transparent border-b border-gray-800 focus:border-amber-500 outline-none text-inherit text-xs px-1"
                     />
                   </div>
                   <span>•</span>
@@ -365,7 +365,7 @@ export default function NotesView({ notes, onUpdateNotes, selectedNoteId, onSele
                   <button onClick={() => insertSyntax('\`\`\`\n', '\n\`\`\`')} className="p-1.5 hover:bg-gray-800 rounded" title="Código">
                     <Code className="w-3.5 h-3.5" />
                   </button>
-                  <button onClick={() => insertSyntax('[[', ']]')} className="px-2 py-1 bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 rounded font-mono text-[11px]" title="Wikilink Obsidian">
+                  <button onClick={() => insertSyntax('[[', ']]')} className="px-2 py-1 bg-amber-600/20 text-amber-400 hover:bg-amber-600/30 rounded font-mono text-[11px]" title="Wikilink Obsidian">
                     [[Link]]
                   </button>
                 </div>

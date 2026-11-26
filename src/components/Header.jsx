@@ -37,8 +37,8 @@ export default function Header({
     <header
       className={`h-14 px-4 md:px-6 border-b flex items-center justify-between transition-colors ${
         darkMode
-          ? 'bg-[#0c0d14]/80 backdrop-blur-md border-white/[0.07] text-zinc-100'
-          : 'bg-white/80 backdrop-blur-md border-zinc-200 text-zinc-800'
+          ? 'bg-[#0d0c0a]/85 backdrop-blur-xl border-amber-500/[0.1] text-zinc-100'
+          : 'bg-white/85 backdrop-blur-xl border-zinc-200 text-zinc-800'
       } sticky top-0 z-10`}
     >
       {/* Title / Mobile Trigger / Date */}
@@ -91,9 +91,9 @@ export default function Header({
           onClick={onOpenAuth}
           className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all ${
             isLoggedIn
-              ? 'border-violet-500/25 bg-violet-500/10 text-violet-300 hover:bg-violet-500/15'
+              ? 'border-amber-500/25 bg-amber-500/10 text-amber-300 hover:bg-amber-500/15'
               : darkMode
-              ? 'bg-white/[0.03] border-white/[0.08] text-zinc-300 hover:border-white/[0.15]'
+              ? 'bg-white/[0.03] border-white/[0.08] text-zinc-300 hover:border-amber-500/30'
               : 'bg-zinc-100 border-zinc-200 text-zinc-700 hover:border-zinc-300'
           }`}
           title={isLoggedIn ? `Conectado como ${user?.displayName || user?.email}` : 'Entrar / Sincronizar'}
@@ -107,7 +107,7 @@ export default function Header({
                   className="w-4 h-4 rounded-full object-cover"
                 />
               ) : (
-                <div className="w-4 h-4 rounded-full bg-violet-600 text-[10px] font-bold text-white flex items-center justify-center">
+                <div className="w-4 h-4 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-[10px] font-bold text-zinc-950 flex items-center justify-center">
                   {(user?.displayName || user?.email || 'U')[0].toUpperCase()}
                 </div>
               )}
@@ -122,7 +122,7 @@ export default function Header({
             </>
           ) : (
             <>
-              <User className="w-3.5 h-3.5 text-violet-400" />
+              <User className="w-3.5 h-3.5 text-amber-400" />
               <span className="hidden sm:inline">Entrar</span>
             </>
           )}
@@ -131,7 +131,7 @@ export default function Header({
         {/* Quick Add Button */}
         <button
           onClick={() => onQuickAction('new-note')}
-          className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium shadow-sm transition-all active:scale-95"
+          className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-zinc-950 text-xs font-bold shadow-sm shadow-amber-500/20 transition-all active:scale-95"
         >
           <Plus className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Nota</span>

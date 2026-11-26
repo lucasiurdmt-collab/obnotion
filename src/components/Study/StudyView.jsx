@@ -20,7 +20,7 @@ export default function StudyView({ darkMode }) {
         darkMode ? 'bg-[#0a0b10] border-white/[0.08]' : 'bg-white border-zinc-200'
       } z-10 flex-shrink-0`}>
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+          <div className="p-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400">
             <Languages className="w-4 h-4" />
           </div>
           <div>
@@ -31,7 +31,7 @@ export default function StudyView({ darkMode }) {
               <span className="hidden sm:inline-flex text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
                 🇷🇺 Russo • 🇺🇸 Inglês
               </span>
-              <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">
+              <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/25">
                 🧠 Anki SM-2
               </span>
             </div>
@@ -50,7 +50,7 @@ export default function StudyView({ darkMode }) {
 
           <button
             onClick={handleOpenNewTab}
-            className="p-1.5 px-2.5 rounded-lg text-zinc-300 hover:text-white hover:bg-indigo-600/20 transition-colors flex items-center gap-1.5 text-xs font-medium border border-indigo-500/30 text-indigo-300"
+            className="p-1.5 px-2.5 rounded-lg hover:text-white hover:bg-amber-600/20 transition-colors flex items-center gap-1.5 text-xs font-medium border border-amber-500/30 text-amber-300"
             title="Abrir em tela cheia em uma nova guia"
           >
             <ExternalLink className="w-3.5 h-3.5" />

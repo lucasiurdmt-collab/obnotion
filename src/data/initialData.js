@@ -1,9 +1,9 @@
-const today = new Date();
+﻿const today = new Date();
 const formatDate = (d) => d.toISOString().split('T')[0];
 
 export const EMPTY_WORKSPACE_DATA = {
   theme: 'dark',
-  colorScheme: 'purple',
+  colorScheme: 'amber',
   readingGoalYear: 12,
   notes: [
     {

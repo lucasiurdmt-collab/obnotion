@@ -72,7 +72,7 @@ export default function Sidebar({
           collapsed ? 'md:w-[76px]' : 'w-72 md:w-64'
         } flex-shrink-0 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col border-r ${
           darkMode
-            ? 'bg-[#0c0d14] border-white/[0.07] text-zinc-200'
+            ? 'bg-[#0d0c0a] border-amber-500/[0.1] text-zinc-200'
             : 'bg-white border-zinc-200 text-zinc-800'
         } h-full select-none ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
@@ -134,18 +134,18 @@ export default function Sidebar({
                   collapsed ? 'md:justify-center md:px-0' : 'px-3'
                 } py-2 rounded-xl text-xs font-medium transition-all duration-150 group relative ${
                   isActive
-                    ? 'bg-white/[0.08] text-white font-semibold border border-white/[0.08] shadow-sm'
+                    ? 'bg-gradient-to-r from-amber-500/15 to-orange-500/5 text-amber-200 font-semibold border border-amber-500/25 shadow-sm'
                     : 'text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.03]'
                 }`}
                 title={item.label}
               >
                 {isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-4 bg-violet-500 rounded-r-full" />
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-4 bg-gradient-to-b from-amber-400 to-orange-500 rounded-r-full shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
                 )}
                 <Icon
                   className={`w-4 h-4 flex-shrink-0 transition-transform group-hover:scale-105 ${
                     collapsed ? 'md:mr-0' : 'mr-2.5'
-                  } ${isActive ? 'text-violet-400' : 'text-zinc-400 group-hover:text-zinc-200'}`}
+                  } ${isActive ? 'text-amber-400' : 'text-zinc-400 group-hover:text-zinc-200'}`}
                 />
                 <span className={`truncate flex-1 text-left ${collapsed ? 'md:hidden' : 'block'}`}>
                   {item.label}
@@ -197,7 +197,7 @@ export default function Sidebar({
               collapsed ? 'justify-center p-2' : 'px-3 py-2'
             } rounded-xl text-xs font-medium transition-all ${
               isLoggedIn
-                ? 'bg-violet-600/10 hover:bg-violet-600/15 border border-violet-500/20 text-violet-300'
+                ? 'bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/25 text-amber-300'
                 : 'hover:bg-white/[0.04] text-zinc-400 hover:text-zinc-200 border border-transparent'
             }`}
             title={isLoggedIn ? `Conectado como ${user?.displayName || user?.email}` : 'Entrar / Criar Conta'}
@@ -211,7 +211,7 @@ export default function Sidebar({
                     className={`w-5 h-5 rounded-full object-cover flex-shrink-0 ${!collapsed ? 'mr-2.5' : ''}`}
                   />
                 ) : (
-                  <div className={`w-5 h-5 rounded-full bg-violet-600 text-[10px] font-bold text-white flex items-center justify-center flex-shrink-0 ${!collapsed ? 'mr-2.5' : ''}`}>
+                  <div className={`w-5 h-5 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-[10px] font-bold text-zinc-950 flex items-center justify-center flex-shrink-0 ${!collapsed ? 'mr-2.5' : ''}`}>
                     {(user?.displayName || user?.email || 'U')[0].toUpperCase()}
                   </div>
                 )}
@@ -253,7 +253,7 @@ export default function Sidebar({
             {darkMode ? (
               <Sun className="w-3.5 h-3.5 text-amber-400" />
             ) : (
-              <Moon className="w-3.5 h-3.5 text-indigo-400" />
+              <Moon className="w-3.5 h-3.5 text-amber-600" />
             )}
             {!collapsed && <span>{darkMode ? 'Tema Claro' : 'Tema Escuro'}</span>}
           </button>

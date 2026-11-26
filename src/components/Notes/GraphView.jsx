@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import { ZoomIn, ZoomOut, RotateCcw, Sparkles } from 'lucide-react';
 
 export default function GraphView({ notes, onSelectNote, darkMode }) {
@@ -232,7 +232,7 @@ export default function GraphView({ notes, onSelectNote, darkMode }) {
       </div>
 
       <div className="absolute top-4 left-4 z-10 p-2.5 rounded-xl bg-gray-900/70 backdrop-blur-md border border-gray-800 shadow-xl text-xs text-gray-300 flex items-center gap-2">
-        <Sparkles className="w-4 h-4 text-purple-400" />
+        <Sparkles className="w-4 h-4 text-amber-400" />
         <span>Grafo Obsidian ({nodes.length} notas • {links.length} conexões)</span>
       </div>
 

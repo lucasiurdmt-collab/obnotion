@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+﻿import React, { useRef, useState } from 'react';
 import {
   Settings,
   Download,
@@ -109,9 +109,9 @@ export default function SettingsView({
       >
         <div className="flex items-center space-x-4">
           {isLoggedIn && user?.photoURL ? (
-            <img src={user.photoURL} alt="Avatar" className="w-12 h-12 rounded-2xl object-cover border border-purple-500 shadow" />
+            <img src={user.photoURL} alt="Avatar" className="w-12 h-12 rounded-2xl object-cover border border-amber-500 shadow" />
           ) : (
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-500/25">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-600 to-orange-600 flex items-center justify-center text-white shadow-md shadow-amber-500/25">
               <Cloud className="w-6 h-6" />
             </div>
           )}
@@ -129,7 +129,7 @@ export default function SettingsView({
 
         <button
           onClick={onOpenAuth}
-          className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs shadow-md shadow-purple-600/30 transition-all hover:scale-105 active:scale-95 flex-shrink-0"
+          className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs shadow-md shadow-amber-600/30 transition-all hover:scale-105 active:scale-95 flex-shrink-0"
         >
           {isLoggedIn ? 'Gerenciar Conta' : 'Conectar Conta / Entrar'}
         </button>
@@ -140,7 +140,7 @@ export default function SettingsView({
         darkMode ? 'bg-[#1a1b24] border-gray-800' : 'bg-white border-gray-200'
       )}>
         <div className="flex items-center gap-2 pb-3 border-b border-inherit">
-          <Shield className="w-5 h-5 text-purple-400" />
+          <Shield className="w-5 h-5 text-amber-400" />
           <h3 className="font-bold text-base">Gerenciamento do Workspace & Backup</h3>
         </div>
 
@@ -194,9 +194,9 @@ export default function SettingsView({
           {/* Export JSON */}
           <button
             onClick={handleExportJSON}
-            className="p-5 rounded-2xl bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/30 text-purple-300 font-semibold text-xs flex flex-col items-center text-center gap-2.5 transition-all group"
+            className="p-5 rounded-2xl bg-amber-600/10 hover:bg-amber-600/20 border border-amber-500/30 text-amber-300 font-semibold text-xs flex flex-col items-center text-center gap-2.5 transition-all group"
           >
-            <div className="p-2.5 rounded-xl bg-purple-600/20 text-purple-400 group-hover:scale-110 transition-transform">
+            <div className="p-2.5 rounded-xl bg-amber-600/20 text-amber-400 group-hover:scale-110 transition-transform">
               <Download className="w-5 h-5" />
             </div>
             <div>
@@ -210,9 +210,9 @@ export default function SettingsView({
           {/* Export Markdown */}
           <button
             onClick={handleExportMarkdownNotes}
-            className="p-5 rounded-2xl bg-indigo-600/10 hover:bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 font-semibold text-xs flex flex-col items-center text-center gap-2.5 transition-all group"
+            className="p-5 rounded-2xl bg-orange-600/10 hover:bg-orange-600/20 border border-orange-500/30 text-orange-300 font-semibold text-xs flex flex-col items-center text-center gap-2.5 transition-all group"
           >
-            <div className="p-2.5 rounded-xl bg-indigo-600/20 text-indigo-400 group-hover:scale-110 transition-transform">
+            <div className="p-2.5 rounded-xl bg-orange-600/20 text-orange-400 group-hover:scale-110 transition-transform">
               <FileCode className="w-5 h-5" />
             </div>
             <div>
@@ -253,13 +253,13 @@ export default function SettingsView({
         darkMode ? 'bg-[#1a1b24] border-gray-800' : 'bg-white border-gray-200'
       )}>
         <div className="flex items-center gap-2 pb-3 border-b border-inherit">
-          <GitBranch className="w-5 h-5 text-purple-400" />
+          <GitBranch className="w-5 h-5 text-amber-400" />
           <h3 className="font-bold text-base">Como Hospedar no GitHub Pages (Gratuito)</h3>
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-start gap-3 p-4 rounded-2xl bg-purple-600/10 border border-purple-500/20 text-xs text-purple-300">
-            <Globe className="w-5 h-5 flex-shrink-0 text-purple-400 mt-0.5" />
+          <div className="flex items-start gap-3 p-4 rounded-2xl bg-amber-600/10 border border-amber-500/20 text-xs text-amber-300">
+            <Globe className="w-5 h-5 flex-shrink-0 text-amber-400 mt-0.5" />
             <div>
               <p className="font-bold">Seu SinaiHUB já está pronto para o GitHub Pages!</p>
               <p className="mt-1 text-gray-300">
@@ -270,7 +270,7 @@ export default function SettingsView({
 
             <div className="pt-4 border-t border-inherit">
               <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-purple-400" />
+                <Sparkles className="w-4 h-4 text-amber-400" />
                 Inteligência Artificial (JARVIS)
               </h4>
               <div className="space-y-4">
@@ -284,7 +284,7 @@ export default function SettingsView({
                         href="https://aistudio.google.com/app/apikey" 
                         target="_blank" 
                         rel="noreferrer"
-                        className="text-[11px] text-purple-400 hover:underline flex items-center gap-1"
+                        className="text-[11px] text-amber-400 hover:underline flex items-center gap-1"
                       >
                         Pegar chave grátis no AI Studio ↗
                       </a>
@@ -298,7 +298,7 @@ export default function SettingsView({
                           const newSettings = { ...(data.settings || {}), geminiApiKey: e.target.value.trim() };
                           updateSection('settings', newSettings);
                         }}
-                        className={`w-full px-3 py-2 pr-16 text-sm rounded-lg border ${darkMode ? 'bg-gray-900/50 border-gray-700 focus:border-purple-500' : 'bg-gray-50 border-gray-300 focus:border-purple-500'} outline-none font-mono`}
+                        className={`w-full px-3 py-2 pr-16 text-sm rounded-lg border ${darkMode ? 'bg-gray-900/50 border-gray-700 focus:border-amber-500' : 'bg-gray-50 border-gray-300 focus:border-amber-500'} outline-none font-mono`}
                       />
                       <button
                         type="button"
@@ -320,13 +320,13 @@ export default function SettingsView({
                         type="text" 
                         id="adminUser"
                         placeholder="Usuário" 
-                        className="flex-1 px-2 py-1.5 text-xs rounded bg-black/50 border border-gray-700 outline-none focus:border-purple-500 text-gray-200"
+                        className="flex-1 px-2 py-1.5 text-xs rounded bg-black/50 border border-gray-700 outline-none focus:border-amber-500 text-gray-200"
                       />
                       <input 
                         type="password" 
                         id="adminPass"
                         placeholder="Senha" 
-                        className="flex-1 px-2 py-1.5 text-xs rounded bg-black/50 border border-gray-700 outline-none focus:border-purple-500 text-gray-200"
+                        className="flex-1 px-2 py-1.5 text-xs rounded bg-black/50 border border-gray-700 outline-none focus:border-amber-500 text-gray-200"
                       />
                       <button 
                         onClick={() => {
@@ -338,7 +338,7 @@ export default function SettingsView({
                              alert('Credenciais incorretas!');
                           }
                         }}
-                        className="px-3 py-1.5 text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors"
+                        className="px-3 py-1.5 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded transition-colors"
                       >
                         Desbloquear
                       </button>
@@ -355,13 +355,13 @@ export default function SettingsView({
                   <span className="text-xs font-bold text-gray-300">{item.label}</span>
                   <button
                     onClick={() => copyToClipboard(item.cmd, idx)}
-                    className="flex items-center gap-1 text-[11px] text-purple-400 hover:text-purple-300"
+                    className="flex items-center gap-1 text-[11px] text-amber-400 hover:text-amber-300"
                   >
                     {copiedIndex === idx ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                     <span>{copiedIndex === idx ? 'Copiado!' : 'Copiar'}</span>
                   </button>
                 </div>
-                <pre className="p-3 rounded-xl bg-black/40 text-[11px] font-mono text-purple-300 overflow-x-auto whitespace-pre-wrap">
+                <pre className="p-3 rounded-xl bg-black/40 text-[11px] font-mono text-amber-300 overflow-x-auto whitespace-pre-wrap">
                   {item.cmd}
                 </pre>
               </div>
@@ -369,7 +369,7 @@ export default function SettingsView({
           </div>
 
           <div className="p-4 rounded-2xl bg-gray-900/40 border border-gray-800 space-y-2 text-xs text-gray-300">
-            <h4 className="font-bold text-sm text-purple-400 flex items-center gap-1.5">
+            <h4 className="font-bold text-sm text-amber-400 flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-400" />
               Ativação no GitHub (Último passo):
             </h4>

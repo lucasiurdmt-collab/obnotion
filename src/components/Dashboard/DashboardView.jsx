@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import {
   Sparkles,
   ArrowUp,
@@ -154,7 +154,7 @@ export default function DashboardView({
     recommendations.push({
       id: 'rec-1',
       tag: 'Alta Prioridade',
-      tagColor: 'bg-violet-500/20 text-violet-300 border-violet-500/30',
+      tagColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
       title: topHigh.title,
       subtitle: `Prazo: ${topHigh.dueDate ? topHigh.dueDate.split('-').reverse().slice(0, 2).join('/') : 'Hoje'} • Maior impacto`,
       type: 'task',
@@ -275,8 +275,8 @@ export default function DashboardView({
       id: 'task',
       label: 'Criar tarefa',
       icon: Plus,
-      color: 'text-violet-400',
-      bg: 'bg-violet-500/10 border-violet-500/20',
+      color: 'text-amber-400',
+      bg: 'bg-amber-500/10 border-amber-500/20',
       action: () => {
         setUniversalInput('Nova tarefa: ');
         inputRef.current?.focus();
@@ -321,8 +321,8 @@ export default function DashboardView({
       title: 'IA Integrada',
       subtitle: 'Compreende, aprende e ajuda você.',
       icon: Bot,
-      color: 'text-violet-400',
-      bg: 'bg-violet-500/15 border-violet-500/25',
+      color: 'text-amber-400',
+      bg: 'bg-amber-500/15 border-amber-500/25',
       onClick: () => onAskJarvis && onAskJarvis('Olá JARVIS! O que você me recomenda focar hoje?')
     },
     {
@@ -339,8 +339,8 @@ export default function DashboardView({
       title: 'Agenda',
       subtitle: 'Todos os seus compromissos em um só lugar.',
       icon: Calendar,
-      color: 'text-purple-400',
-      bg: 'bg-purple-500/15 border-purple-500/25',
+      color: 'text-amber-400',
+      bg: 'bg-amber-500/15 border-amber-500/25',
       onClick: () => onNavigate && onNavigate('calendar')
     },
     {
@@ -375,13 +375,13 @@ export default function DashboardView({
   return (
     <div className="w-full min-h-screen bg-[#07080d] text-white flex flex-col items-center px-4 md:px-8 py-6 md:py-8 relative overflow-hidden select-none">
       {/* Subtle Background Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-violet-600/10 via-cyan-500/10 to-pink-600/10 rounded-full blur-[120px] pointer-events-none -z-10" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-amber-600/10 via-cyan-500/10 to-pink-600/10 rounded-full blur-[120px] pointer-events-none -z-10" />
 
       {/* Toast Notification */}
       {feedbackToast && (
         <div className="fixed top-5 z-50 animate-bounce-in">
-          <div className="px-4 py-2.5 rounded-2xl bg-[#141522]/95 border border-violet-500/40 text-xs text-white shadow-2xl backdrop-blur-xl flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-violet-400 animate-spin" />
+          <div className="px-4 py-2.5 rounded-2xl bg-[#141522]/95 border border-amber-500/40 text-xs text-white shadow-2xl backdrop-blur-xl flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
             <span>{feedbackToast}</span>
           </div>
         </div>
@@ -391,7 +391,7 @@ export default function DashboardView({
       <div className="w-full max-w-4xl flex items-center justify-between mb-6 md:mb-8">
         <button
           onClick={() => setIsRadarModalOpen(true)}
-          className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#12131e]/90 hover:bg-[#1a1c2c] border border-white/[0.08] hover:border-violet-500/40 text-xs text-zinc-300 font-medium transition-all shadow-lg backdrop-blur-xl group"
+          className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#12131e]/90 hover:bg-[#1a1c2c] border border-white/[0.08] hover:border-amber-500/40 text-xs text-zinc-300 font-medium transition-all shadow-lg backdrop-blur-xl group"
         >
           <span className={`w-2 h-2 rounded-full ${radarDotColor} animate-pulse`} />
           <span>Radar do dia</span>
@@ -408,7 +408,7 @@ export default function DashboardView({
             {userName ? (
               <>
                 ,{' '}
-                <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent font-extrabold">
+                <span className="bg-gradient-to-r from-amber-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent font-extrabold">
                   {userName}.
                 </span>
               </>
@@ -441,8 +441,8 @@ export default function DashboardView({
             }}
             className={`relative flex items-center rounded-full border transition-all duration-300 shadow-2xl backdrop-blur-2xl px-2 py-1.5 ${
               isListening
-                ? 'ring-2 ring-violet-500 border-violet-400 bg-violet-950/40'
-                : 'bg-[#10111a]/85 border-white/[0.12] hover:border-white/[0.2] focus-within:border-violet-500/70 focus-within:bg-[#141524]'
+                ? 'ring-2 ring-amber-500 border-amber-400 bg-amber-950/40'
+                : 'bg-[#10111a]/85 border-white/[0.12] hover:border-white/[0.2] focus-within:border-amber-500/70 focus-within:bg-[#141524]'
             }`}
           >
             {/* Sparkle or Voice Wave Icon */}
@@ -480,8 +480,8 @@ export default function DashboardView({
                 disabled={!universalInput.trim() && !isProcessing}
                 className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ${
                   universalInput.trim()
-                    ? 'bg-gradient-to-tr from-violet-600 to-indigo-500 text-white shadow-lg shadow-violet-500/40 hover:scale-105 active:scale-95'
-                    : 'bg-violet-600/30 text-violet-300/40 cursor-not-allowed'
+                    ? 'bg-gradient-to-tr from-amber-600 to-orange-500 text-white shadow-lg shadow-amber-500/40 hover:scale-105 active:scale-95'
+                    : 'bg-amber-600/30 text-amber-300/40 cursor-not-allowed'
                 }`}
                 title="Enviar para o JARVIS"
               >
@@ -521,7 +521,7 @@ export default function DashboardView({
           </h2>
           <button
             onClick={() => onNavigate && onNavigate('settings')}
-            className="text-[11px] text-violet-400 hover:text-violet-300 transition-colors"
+            className="text-[11px] text-amber-400 hover:text-amber-300 transition-colors"
           >
             Editar
           </button>
@@ -540,7 +540,7 @@ export default function DashboardView({
                   <CardIcon className={`w-5 h-5 ${card.color}`} />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-sm font-semibold text-white tracking-tight group-hover:text-violet-300 transition-colors">
+                  <h3 className="text-sm font-semibold text-white tracking-tight group-hover:text-amber-300 transition-colors">
                     {card.title}
                   </h3>
                   <p className="text-xs text-zinc-400 mt-0.5 leading-snug">
@@ -561,7 +561,7 @@ export default function DashboardView({
           </h2>
           <button
             onClick={() => onNavigate && onNavigate('productivity')}
-            className="text-[11px] text-violet-400 hover:text-violet-300 transition-colors"
+            className="text-[11px] text-amber-400 hover:text-amber-300 transition-colors"
           >
             Ver tudo
           </button>
@@ -593,7 +593,7 @@ export default function DashboardView({
             onClick={() => onNavigate && onNavigate('calendar')}
             className="p-4 rounded-2xl bg-[#0f1018]/80 hover:bg-[#141522] border border-white/[0.06] hover:border-white/[0.14] transition-all cursor-pointer flex items-center gap-4"
           >
-            <div className="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-500/25 flex items-center justify-center shrink-0 text-purple-400">
+            <div className="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center shrink-0 text-amber-400">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
@@ -632,7 +632,7 @@ export default function DashboardView({
           <div className="w-full max-w-xl bg-[#11121d] border border-white/[0.1] rounded-3xl p-6 shadow-2xl space-y-5 relative">
             <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
               <div className="flex items-center gap-2">
-                <Compass className="w-5 h-5 text-violet-400" />
+                <Compass className="w-5 h-5 text-amber-400" />
                 <h3 className="text-base font-bold text-white">
                   Radar do Dia & Recomendações
                 </h3>
@@ -699,7 +699,7 @@ export default function DashboardView({
                       handleRecAction(rec);
                       setIsRadarModalOpen(false);
                     }}
-                    className="px-2.5 py-1 rounded-xl bg-violet-600/20 hover:bg-violet-600 text-violet-300 hover:text-white border border-violet-500/30 text-[11px] font-medium transition-all shrink-0"
+                    className="px-2.5 py-1 rounded-xl bg-amber-600/20 hover:bg-amber-600 text-amber-300 hover:text-white border border-amber-500/30 text-[11px] font-medium transition-all shrink-0"
                   >
                     {rec.actionText}
                   </button>
@@ -713,7 +713,7 @@ export default function DashboardView({
                   setIsRadarModalOpen(false);
                   if (onAskJarvis) onAskJarvis('Faça uma análise profunda da minha semana e me dê conselhos estratégicos.');
                 }}
-                className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold shadow-lg shadow-violet-600/30 transition-all flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold shadow-lg shadow-amber-600/30 transition-all flex items-center gap-1.5"
               >
                 Pedir Conselho ao JARVIS <ArrowRight className="w-3.5 h-3.5" />
               </button>

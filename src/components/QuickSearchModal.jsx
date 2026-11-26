@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { Search, FileText, BookOpen, CheckSquare, DollarSign, Calendar, X, ArrowRight } from 'lucide-react';
 
 export default function QuickSearchModal({
@@ -86,7 +86,7 @@ export default function QuickSearchModal({
       >
         {/* Search Input Bar */}
         <div className="p-4 border-b border-inherit flex items-center gap-3">
-          <Search className="w-5 h-5 text-purple-400 flex-shrink-0" />
+          <Search className="w-5 h-5 text-amber-400 flex-shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -109,7 +109,7 @@ export default function QuickSearchModal({
           {filteredNotes.length > 0 && (
             <div>
               <h3 className="text-xs uppercase font-bold text-gray-400 tracking-wider mb-2 px-2 flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-purple-400" /> Notas
+                <FileText className="w-3.5 h-3.5 text-amber-400" /> Notas
               </h3>
               <div className="space-y-1">
                 {filteredNotes.map((note) => (
@@ -120,12 +120,12 @@ export default function QuickSearchModal({
                       onNavigate('notes');
                       onClose();
                     }}
-                    className="p-2.5 rounded-xl hover:bg-purple-600/15 cursor-pointer flex items-center justify-between group transition-colors"
+                    className="p-2.5 rounded-xl hover:bg-amber-600/15 cursor-pointer flex items-center justify-between group transition-colors"
                   >
                     <div className="flex items-center gap-2.5">
                       <span className="text-lg">{note.icon || '📝'}</span>
                       <div>
-                        <p className="font-semibold text-sm group-hover:text-purple-400 transition-colors">
+                        <p className="font-semibold text-sm group-hover:text-amber-400 transition-colors">
                           {note.title}
                         </p>
                         <p className="text-xs text-gray-400 line-clamp-1">

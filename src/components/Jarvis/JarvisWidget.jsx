@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import {
   BrainCircuit,
   Mic,
@@ -1110,7 +1110,7 @@ RAIO-X FINANCEIRO ATUAL:
       <div className="fixed bottom-6 right-6 z-50 flex items-center justify-center">
         {isSpeaking && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-             <div className="w-16 h-16 bg-violet-500 rounded-full animate-ping opacity-25 absolute"></div>
+             <div className="w-16 h-16 bg-amber-500 rounded-full animate-ping opacity-25 absolute"></div>
              <div className="w-20 h-20 bg-cyan-400 rounded-full animate-ping opacity-15 absolute" style={{ animationDelay: '200ms' }}></div>
           </div>
         )}
@@ -1118,12 +1118,12 @@ RAIO-X FINANCEIRO ATUAL:
           onClick={() => setIsOpen(!isOpen)}
           className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-xl backdrop-blur-xl transition-all duration-300 relative z-10 border ${
             isSpeaking 
-              ? 'bg-gradient-to-tr from-violet-600 to-cyan-500 scale-105 border-cyan-400/50 shadow-violet-500/40' 
-              : 'bg-[#12131b]/90 border-white/[0.12] hover:border-violet-500/50 hover:bg-[#181924]'
+              ? 'bg-gradient-to-tr from-amber-600 to-cyan-500 scale-105 border-cyan-400/50 shadow-amber-500/40' 
+              : 'bg-[#12131b]/90 border-white/[0.12] hover:border-amber-500/50 hover:bg-[#181924]'
           } ${handsFreeMode ? 'ring-2 ring-emerald-400/40' : ''}`}
           title="JARVIS AI"
         >
-          <BrainCircuit className={`w-5 h-5 ${isSpeaking ? 'animate-pulse text-cyan-200' : 'text-violet-400'}`} />
+          <BrainCircuit className={`w-5 h-5 ${isSpeaking ? 'animate-pulse text-cyan-200' : 'text-amber-400'}`} />
           {handsFreeMode && (
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 border-2 border-black rounded-full animate-pulse"></span>
           )}
@@ -1138,7 +1138,7 @@ RAIO-X FINANCEIRO ATUAL:
           {/* Header */}
           <div className="p-3.5 border-b border-white/[0.08] bg-white/[0.02] flex items-center justify-between z-10">
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400">
+              <div className="w-7 h-7 rounded-xl bg-amber-600/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
                 <BrainCircuit className="w-4 h-4" />
               </div>
               <div>
@@ -1178,11 +1178,11 @@ RAIO-X FINANCEIRO ATUAL:
             }`}>
               <div className="flex items-center justify-between font-medium">
                 <span className="flex items-center gap-1.5 text-zinc-300">
-                  <Volume2 className="w-3.5 h-3.5 text-violet-400" /> Sintetizador de Voz
+                  <Volume2 className="w-3.5 h-3.5 text-amber-400" /> Sintetizador de Voz
                 </span>
                 <button 
                   onClick={() => speakText("Olá! Esta é uma demonstração da minha voz configurada.")} 
-                  className="text-[10px] font-mono text-violet-400 hover:text-violet-300"
+                  className="text-[10px] font-mono text-amber-400 hover:text-amber-300"
                 >
                   Testar Voz 🔊
                 </button>
@@ -1200,11 +1200,11 @@ RAIO-X FINANCEIRO ATUAL:
                     }}
                     className={`p-2 rounded-lg border text-left transition-all ${
                       voiceSource === 'cloud'
-                        ? 'bg-violet-600/25 border-violet-500/60 text-white shadow-lg'
+                        ? 'bg-amber-600/25 border-amber-500/60 text-white shadow-lg'
                         : 'bg-black/30 border-white/[0.06] text-zinc-400 hover:bg-white/[0.04]'
                     }`}
                   >
-                    <p className="text-[11px] text-violet-300 font-bold flex items-center gap-1">
+                    <p className="text-[11px] text-amber-300 font-bold flex items-center gap-1">
                       <span>🌐 Voz da Internet (Nuvem)</span>
                     </p>
                     <p className="text-[9px] text-zinc-400 mt-0.5">Polly Neural • Ultra-humana (Grátis)</p>
@@ -1218,7 +1218,7 @@ RAIO-X FINANCEIRO ATUAL:
                     }}
                     className={`p-2 rounded-lg border text-left transition-all ${
                       voiceSource === 'browser'
-                        ? 'bg-violet-600/25 border-violet-500/60 text-white shadow-lg'
+                        ? 'bg-amber-600/25 border-amber-500/60 text-white shadow-lg'
                         : 'bg-black/30 border-white/[0.06] text-zinc-400 hover:bg-white/[0.04]'
                     }`}
                   >
@@ -1318,7 +1318,7 @@ RAIO-X FINANCEIRO ATUAL:
                       setVoiceRate(val);
                       localStorage.setItem('jarvis_voice_rate', String(val));
                     }}
-                    className="w-full h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-violet-500"
+                    className="w-full h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-amber-500"
                   />
                 </div>
                 <div>
@@ -1337,7 +1337,7 @@ RAIO-X FINANCEIRO ATUAL:
                       setVoicePitch(val);
                       localStorage.setItem('jarvis_voice_pitch', String(val));
                     }}
-                    className="w-full h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-violet-500"
+                    className="w-full h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-amber-500"
                   />
                 </div>
               </div>
@@ -1371,7 +1371,7 @@ RAIO-X FINANCEIRO ATUAL:
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed space-y-2 ${
                   m.role === 'user' 
-                    ? 'bg-violet-600 text-white rounded-br-xs shadow-sm font-medium' 
+                    ? 'bg-amber-600 text-white rounded-br-xs shadow-sm font-medium' 
                     : (darkMode 
                       ? 'bg-white/[0.05] text-zinc-200 rounded-bl-xs border border-white/[0.08]' 
                       : 'bg-zinc-100 text-zinc-800 rounded-bl-xs shadow-sm')
@@ -1398,7 +1398,7 @@ RAIO-X FINANCEIRO ATUAL:
                 <div className={`rounded-2xl px-3.5 py-2.5 rounded-bl-xs flex items-center gap-2 text-xs ${
                   darkMode ? 'bg-white/[0.04] border border-white/[0.06] text-zinc-400' : 'bg-zinc-100 text-zinc-500'
                 }`}>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-violet-400" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
                   <span className="font-mono text-[11px]">Processando {attachedImages.length > 0 ? `${attachedImages.length} documentos` : 'instrução'}...</span>
                 </div>
               </div>
@@ -1410,7 +1410,7 @@ RAIO-X FINANCEIRO ATUAL:
           {attachedImages.length > 0 && (
             <div className="px-3 py-2 bg-black/50 border-t border-white/[0.08] space-y-1.5">
               <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400">
-                <span className="flex items-center gap-1 text-violet-300">
+                <span className="flex items-center gap-1 text-amber-300">
                   <ImageIcon className="w-3 h-3" /> {attachedImages.length} foto(s) pronta(s) para análise
                 </span>
                 <button
@@ -1427,7 +1427,7 @@ RAIO-X FINANCEIRO ATUAL:
                     <img 
                       src={img.previewUrl} 
                       alt="Thumbnail" 
-                      className="w-12 h-12 rounded-lg object-cover border border-violet-500/40"
+                      className="w-12 h-12 rounded-lg object-cover border border-amber-500/40"
                     />
                     <button
                       onClick={() => removeAttachedImage(img.id)}
@@ -1442,7 +1442,7 @@ RAIO-X FINANCEIRO ATUAL:
                 {/* Quick Add More Photos Button */}
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-12 h-12 rounded-lg border border-dashed border-white/[0.2] hover:border-violet-400 flex flex-col items-center justify-center text-zinc-400 hover:text-white transition-colors flex-shrink-0"
+                  className="w-12 h-12 rounded-lg border border-dashed border-white/[0.2] hover:border-amber-400 flex flex-col items-center justify-center text-zinc-400 hover:text-white transition-colors flex-shrink-0"
                   title="Adicionar mais fotos"
                 >
                   <Plus className="w-4 h-4" />
@@ -1465,12 +1465,12 @@ RAIO-X FINANCEIRO ATUAL:
             />
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="p-2 rounded-xl bg-white/[0.05] text-zinc-400 hover:text-violet-300 hover:bg-white/[0.1] transition-all flex-shrink-0 relative"
+              className="p-2 rounded-xl bg-white/[0.05] text-zinc-400 hover:text-amber-300 hover:bg-white/[0.1] transition-all flex-shrink-0 relative"
               title="Anexar Várias Fotos de Boletos / Faturas"
             >
               <ImageIcon className="w-4 h-4" />
               {attachedImages.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-violet-600 text-white text-[9px] font-bold flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-600 text-white text-[9px] font-bold flex items-center justify-center">
                   {attachedImages.length}
                 </span>
               )}
@@ -1507,7 +1507,7 @@ RAIO-X FINANCEIRO ATUAL:
             <button 
               onClick={() => handleSend()}
               disabled={(input.trim().length === 0 && attachedImages.length === 0) || isLoading}
-              className="p-2 rounded-xl bg-violet-600 text-white flex-shrink-0 hover:bg-violet-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-2 rounded-xl bg-amber-600 text-white flex-shrink-0 hover:bg-amber-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <Send className="w-3.5 h-3.5" />
             </button>

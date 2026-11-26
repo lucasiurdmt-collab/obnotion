@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   Flame,
   Plus,
@@ -204,7 +204,7 @@ export default function HabitsView({ habits, onUpdateHabits, darkMode }) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit"
+                className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit"
               />
               <div className="grid grid-cols-2 gap-2">
                 <input
@@ -212,7 +212,7 @@ export default function HabitsView({ habits, onUpdateHabits, darkMode }) {
                   placeholder="Emoji (ex: 💧, 🏃, 📚)"
                   value={icon}
                   onChange={(e) => setIcon(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-purple-500 text-inherit"
+                  className="w-full p-2.5 rounded-xl bg-gray-900/50 border border-gray-800 text-xs outline-none focus:border-amber-500 text-inherit"
                 />
                 <input
                   type="color"
