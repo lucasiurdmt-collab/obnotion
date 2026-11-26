@@ -183,8 +183,8 @@ export default function ProductivityView({ darkMode }) {
         </div>
         
         <iframe 
-          src={tool.iframeUrl.includes('?') ? `${tool.iframeUrl}&_t=${Date.now()}` : `${tool.iframeUrl}?_t=${Date.now()}`}
-          className="flex-1 w-full h-full border-none relative z-1 bg-[#1a1a1a]"
+          src={tool.iframeUrl.includes('?') ? `${tool.iframeUrl}&embedded=1&_t=${Date.now()}` : `${tool.iframeUrl}?embedded=1&_t=${Date.now()}`}
+          className="flex-1 w-full h-full border-none relative z-1 bg-[#090b11]"
           title={tool.title}
           allow="microphone; camera; display-capture; clipboard-read; clipboard-write; fullscreen"
         />

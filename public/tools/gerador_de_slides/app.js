@@ -10,7 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
   function initAppSplashAndPrivacy() {
     if (!splashScreen) return;
 
-    // Exibe splash inicial por 5 segundos e transiciona suavemente
+    // Detecta se a ferramenta está aberta dentro do iframe do SinaiHUB (Obnotion) ou modo integrado
+    const isEmbedded = (window.self !== window.top) || window.location.search.includes('embedded=1');
+    if (isEmbedded) {
+      // Se integrado no SinaiHUB, oculta imediatamente com zero atraso
+      splashScreen.style.display = 'none';
+      if (privacyModal) privacyModal.style.display = 'none';
+      return;
+    }
+
+    // Exibe splash inicial se aberto em aba avulsa por 1.5s
     setTimeout(() => {
       splashScreen.classList.add('splash-fade-out');
       setTimeout(() => {
@@ -21,8 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!privacyDismissed && privacyModal) {
           privacyModal.style.display = 'flex';
         }
-      }, 650);
-    }, 5000);
+      }, 500);
+    }, 1500);
 
     if (btnConfirmPrivacy && privacyModal) {
       btnConfirmPrivacy.addEventListener('click', () => {
