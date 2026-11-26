@@ -16,12 +16,12 @@
     <title>SinaiHUB — Gestão, Produção & Central Multimídia</title>
 
     <style>
-      /* Splash Screen SinaiHUB */
+      /* Splash Screen SinaiHUB — Minimalist Surreal Motion Graphic */
       .sinaihub-splash {
         position: fixed;
         inset: 0;
         z-index: 999999;
-        background: radial-gradient(circle at 50% 38%, #241708 0%, #0d0f17 65%, #05060a 100%);
+        background: radial-gradient(circle at 50% 42%, #1d1306 0%, #090806 58%, #030302 100%);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -29,34 +29,172 @@
         padding: calc(30px + env(safe-area-inset-top, 24px)) 24px calc(36px + env(safe-area-inset-bottom, 24px)) 24px;
         box-sizing: border-box;
         text-align: center;
+        overflow: hidden;
         opacity: 1;
         pointer-events: auto;
-        transition: opacity 0.75s cubic-bezier(0.4, 0, 0.2, 1), transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), filter 0.85s ease;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       }
 
       .sinaihub-splash.fade-out {
         opacity: 0;
-        transform: scale(1.04);
+        transform: scale(1.05);
+        filter: blur(8px);
         pointer-events: none;
       }
 
+      /* Volumetric Golden Corona Sweep */
+      .sinaihub-aurora {
+        position: absolute;
+        top: 42%;
+        left: 50%;
+        width: 780px;
+        height: 780px;
+        transform: translate(-50%, -50%);
+        background: conic-gradient(
+          from 0deg,
+          transparent 0deg,
+          rgba(245, 158, 11, 0.09) 45deg,
+          transparent 95deg,
+          rgba(251, 191, 36, 0.06) 190deg,
+          transparent 260deg,
+          rgba(234, 88, 12, 0.08) 315deg,
+          transparent 360deg
+        );
+        filter: blur(55px);
+        border-radius: 50%;
+        pointer-events: none;
+        animation: sinaiAuroraSpin 18s linear infinite;
+      }
+
+      @keyframes sinaiAuroraSpin {
+        0% { transform: translate(-50%, -50%) rotate(0deg) scale(0.95); }
+        50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.06); }
+        100% { transform: translate(-50%, -50%) rotate(360deg) scale(0.95); }
+      }
+
+      /* Central Eclipse Pulse */
       .sinaihub-splash-glow {
         position: absolute;
-        top: 25%;
+        top: 42%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 320px;
-        height: 320px;
-        background: radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.08) 55%, transparent 75%);
-        filter: blur(45px);
+        width: 340px;
+        height: 340px;
+        background: radial-gradient(circle, rgba(251, 191, 36, 0.24) 0%, rgba(217, 119, 6, 0.08) 48%, transparent 72%);
+        filter: blur(42px);
         pointer-events: none;
-        animation: sinaiGlowPulse 3s ease-in-out infinite alternate;
+        animation: sinaiGlowPulse 3.2s ease-in-out infinite alternate;
       }
 
       @keyframes sinaiGlowPulse {
-        0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
-        100% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.95; }
+        0% { transform: translate(-50%, -50%) scale(0.88); opacity: 0.55; }
+        100% { transform: translate(-50%, -50%) scale(1.18); opacity: 1; }
+      }
+
+      /* Minimalist Sacred Orbital Rings */
+      .sinaihub-orbit {
+        position: absolute;
+        top: 42%;
+        left: 50%;
+        border-radius: 50%;
+        border: 1px solid rgba(251, 191, 36, 0.11);
+        pointer-events: none;
+      }
+
+      .sinaihub-orbit-1 {
+        width: 360px;
+        height: 360px;
+        transform: translate(-50%, -50%);
+        animation: sinaiOrbitCW 24s linear infinite;
+      }
+
+      .sinaihub-orbit-2 {
+        width: 510px;
+        height: 510px;
+        border-color: rgba(245, 158, 11, 0.06);
+        transform: translate(-50%, -50%);
+        animation: sinaiOrbitCCW 36s linear infinite;
+      }
+
+      .sinaihub-orbit-dot {
+        position: absolute;
+        top: -2.5px;
+        left: 50%;
+        width: 5px;
+        height: 5px;
+        margin-left: -2.5px;
+        border-radius: 50%;
+        background: #fbbf24;
+        box-shadow: 0 0 12px 2px rgba(251, 191, 36, 0.85);
+      }
+
+      .sinaihub-orbit-2 .sinaihub-orbit-dot {
+        top: auto;
+        bottom: -2px;
+        width: 4px;
+        height: 4px;
+        margin-left: -2px;
+        background: #f59e0b;
+        opacity: 0.7;
+      }
+
+      @keyframes sinaiOrbitCW {
+        from { transform: translate(-50%, -50%) rotate(0deg); }
+        to { transform: translate(-50%, -50%) rotate(360deg); }
+      }
+
+      @keyframes sinaiOrbitCCW {
+        from { transform: translate(-50%, -50%) rotate(360deg); }
+        to { transform: translate(-50%, -50%) rotate(0deg); }
+      }
+
+      /* Horizon Beam */
+      .sinaihub-horizon {
+        position: absolute;
+        top: 42%;
+        left: 50%;
+        width: min(72vw, 560px);
+        height: 1px;
+        transform: translate(-50%, -50%) scaleX(0);
+        background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.45), rgba(255, 255, 255, 0.7), rgba(251, 191, 36, 0.45), transparent);
+        opacity: 0.55;
+        pointer-events: none;
+        animation: sinaiHorizonDraw 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      @keyframes sinaiHorizonDraw {
+        0% { transform: translate(-50%, -50%) scaleX(0); opacity: 0; }
+        60% { opacity: 0.75; }
+        100% { transform: translate(-50%, -50%) scaleX(1); opacity: 0.35; }
+      }
+
+      /* Floating Minimalist Motes */
+      .sinaihub-motes {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .sinaihub-mote {
+        position: absolute;
+        bottom: 22%;
+        width: 2.5px;
+        height: 2.5px;
+        border-radius: 50%;
+        background: rgba(252, 211, 77, 0.85);
+        box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+        opacity: 0;
+        animation: sinaiMoteRise var(--dur, 5s) ease-in infinite;
+        animation-delay: var(--delay, 0s);
+      }
+
+      @keyframes sinaiMoteRise {
+        0% { transform: translateY(0) scale(0.6); opacity: 0; }
+        25% { opacity: 0.75; }
+        80% { opacity: 0.3; }
+        100% { transform: translateY(-240px) scale(1.2); opacity: 0; }
       }
 
       .sinaihub-splash-content {
@@ -65,27 +203,35 @@
         align-items: center;
         justify-content: center;
         margin: auto 0;
-        animation: sinaiFadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation: sinaiCinematicReveal 1.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         z-index: 2;
       }
 
-      @keyframes sinaiFadeInUp {
-        from {
+      @keyframes sinaiCinematicReveal {
+        0% {
           opacity: 0;
-          transform: translateY(22px) scale(0.95);
+          transform: translateY(18px) scale(0.93);
+          filter: blur(10px);
         }
-        to {
+        100% {
           opacity: 1;
           transform: translateY(0) scale(1);
+          filter: blur(0);
         }
       }
 
       .sinaihub-logo-container {
         position: relative;
-        max-width: 380px;
-        width: 82vw;
-        margin-bottom: 8px;
-        filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 35px rgba(245, 158, 11, 0.25));
+        max-width: 360px;
+        width: 78vw;
+        margin-bottom: 10px;
+        filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 38px rgba(245, 158, 11, 0.28));
+        animation: sinaiLogoFloat 4.5s ease-in-out infinite alternate;
+      }
+
+      @keyframes sinaiLogoFloat {
+        0% { transform: translateY(0px); }
+        100% { transform: translateY(-5px); }
       }
 
       .sinaihub-splash-logo {
@@ -96,53 +242,51 @@
       }
 
       .sinaihub-splash-sub {
-        font-size: 13px;
+        font-size: 11px;
         font-weight: 600;
-        letter-spacing: 2px;
+        letter-spacing: 3.5px;
         text-transform: uppercase;
-        color: #d1d5db;
-        margin: 6px 0 24px 0;
-        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
-        opacity: 0.92;
+        color: #d6d3d1;
+        margin: 8px 0 24px 0;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+        opacity: 0.88;
       }
 
       .sinaihub-loader-track {
-        width: 220px;
-        height: 3.5px;
+        width: 210px;
+        height: 2px;
         background: rgba(255, 255, 255, 0.08);
         border-radius: 999px;
         overflow: hidden;
         position: relative;
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
       }
 
       .sinaihub-loader-thumb {
         position: absolute;
         top: 0;
-        left: -100%;
+        left: -60%;
         height: 100%;
-        width: 70%;
-        background: linear-gradient(90deg, #d97706, #fbbf24, #f59e0b);
+        width: 55%;
+        background: linear-gradient(90deg, transparent, #f59e0b, #fde68a, #f59e0b, transparent);
         border-radius: 999px;
-        box-shadow: 0 0 12px #f59e0b;
-        animation: sinaiLoaderScan 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        box-shadow: 0 0 14px rgba(251, 191, 36, 0.9);
+        animation: sinaiLoaderScan 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
       }
 
       @keyframes sinaiLoaderScan {
-        0% { left: -70%; }
-        50% { left: 40%; width: 60%; }
-        100% { left: 110%; width: 40%; }
+        0% { left: -60%; }
+        100% { left: 110%; }
       }
 
       .sinaihub-splash-verse {
         display: flex;
         flex-direction: column;
         align-items: center;
-        max-width: 580px;
+        max-width: 560px;
         width: 100%;
         z-index: 2;
-        animation: sinaiFadeIn 1.2s ease forwards;
-        animation-delay: 0.25s;
+        animation: sinaiFadeIn 1.3s ease forwards;
+        animation-delay: 0.35s;
         opacity: 0;
       }
 
@@ -151,27 +295,28 @@
       }
 
       .sinaihub-verse-line {
-        width: 48px;
-        height: 1.5px;
-        background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.6), transparent);
-        margin-bottom: 12px;
+        width: 56px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.7), transparent);
+        margin-bottom: 14px;
       }
 
       .sinaihub-verse-text {
-        font-size: 12.5px;
+        font-size: 13px;
         line-height: 1.65;
-        color: #94a3b8;
+        color: #cbd5e1;
         font-style: italic;
-        margin: 0 0 6px 0;
+        margin: 0 0 8px 0;
         padding: 0 16px;
+        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
       }
 
       .sinaihub-verse-ref {
-        font-size: 10.5px;
+        font-size: 10px;
         font-weight: 700;
-        letter-spacing: 1.8px;
+        letter-spacing: 2.2px;
         text-transform: uppercase;
-        color: #f59e0b;
+        color: #fbbf24;
         opacity: 0.9;
       }
     </style>
@@ -179,14 +324,32 @@
   <body>
     <!-- Splash Screen SinaiHUB -->
     <div id="app-splash-screen" class="sinaihub-splash">
+      <div class="sinaihub-aurora"></div>
       <div class="sinaihub-splash-glow"></div>
-      
+      <div class="sinaihub-horizon"></div>
+
+      <div class="sinaihub-orbit sinaihub-orbit-1">
+        <span class="sinaihub-orbit-dot"></span>
+      </div>
+      <div class="sinaihub-orbit sinaihub-orbit-2">
+        <span class="sinaihub-orbit-dot"></span>
+      </div>
+
+      <div class="sinaihub-motes">
+        <span class="sinaihub-mote" style="left: 28%; --dur: 4.4s; --delay: 0.1s;"></span>
+        <span class="sinaihub-mote" style="left: 39%; --dur: 5.2s; --delay: 0.8s;"></span>
+        <span class="sinaihub-mote" style="left: 48%; --dur: 4.8s; --delay: 0.3s;"></span>
+        <span class="sinaihub-mote" style="left: 57%; --dur: 5.6s; --delay: 1.1s;"></span>
+        <span class="sinaihub-mote" style="left: 66%; --dur: 4.2s; --delay: 0.5s;"></span>
+        <span class="sinaihub-mote" style="left: 73%; --dur: 5.0s; --delay: 1.4s;"></span>
+      </div>
+
       <div class="sinaihub-splash-content">
         <div class="sinaihub-logo-container">
           <img src="./assets/sinaihub_logo.png" alt="SinaiHUB" class="sinaihub-splash-logo" />
         </div>
-        <p class="sinaihub-splash-sub">Hub de Gestão, Culto & Produção</p>
-        
+        <p class="sinaihub-splash-sub">Hub de Gestão, Culto &amp; Produção</p>
+
         <div class="sinaihub-loader-track">
           <div class="sinaihub-loader-thumb"></div>
         </div>
@@ -194,8 +357,8 @@
 
       <div class="sinaihub-splash-verse">
         <div class="sinaihub-verse-line"></div>
-        <p class="sinaihub-verse-text">“Porque dele, e por ele, e para ele são todas as coisas; glória, pois, a ele eternamente. Amém.”</p>
-        <span class="sinaihub-verse-ref">ROMANOS 11:36 • MONTE SANTO</span>
+        <p class="sinaihub-verse-text">“E não nos cansemos de fazer o bem, pois no tempo próprio colheremos, se não desanimarmos.”</p>
+        <span class="sinaihub-verse-ref">GÁLATAS 6:9 • SINAIHUB</span>
       </div>
     </div>
 

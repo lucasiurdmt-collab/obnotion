@@ -1,4 +1,4 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    Scriptura - Estudo de Idiomas & Repetição Espaçada (SRS)
    Tema: True Black (OLED) Minimalista
    ========================================================================== */
@@ -18,7 +18,7 @@
   --text-dim: #6e7681;
   
   --accent-blue: #38bdf8;
-  --accent-indigo: #818cf8;
+  --accent-indigo: #fbbf24;
   --accent-emerald: #34d399;
   --accent-amber: #fbbf24;
   --accent-rose: #f43f5e;
@@ -80,7 +80,7 @@ header {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  background: linear-gradient(135deg, #d97706, #06b6d4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -297,8 +297,8 @@ main {
 }
 
 .btn-generate-ai {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.25));
-  border: 1px solid rgba(168, 85, 247, 0.4);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(251, 191, 36, 0.25));
+  border: 1px solid rgba(251, 191, 36, 0.4);
   color: #c084fc;
   padding: 6px 14px;
   border-radius: 16px;
@@ -312,7 +312,7 @@ main {
 }
 
 .btn-generate-ai:hover {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.4), rgba(168, 85, 247, 0.4));
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.4), rgba(251, 191, 36, 0.4));
   border-color: #c084fc;
   color: #ffffff;
   transform: translateY(-1px);
@@ -872,7 +872,7 @@ dialog[open] {
 }
 
 .btn-add-anki {
-  background: rgba(99, 102, 241, 0.15);
+  background: rgba(245, 158, 11, 0.15);
   border: 1px solid var(--accent-indigo);
   color: var(--accent-indigo);
   padding: 5px 12px;

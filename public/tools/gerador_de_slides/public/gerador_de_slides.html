@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -30,8 +30,8 @@
             --bg-base: #18181b; /* Zinc 900 */
             --bg-panel: #27272a; /* Zinc 800 */
             --bg-hover: #3f3f46; /* Zinc 700 */
-            --primary: #8b5cf6; /* Violet 500 */
-            --primary-hover: #7c3aed; /* Violet 600 */
+            --primary: #f59e0b; /* Violet 500 */
+            --primary-hover: #d97706; /* Violet 600 */
             --text-light: #f4f4f5; /* Zinc 100 */
             --text-dim: #a1a1aa; /* Zinc 400 */
             --accent: #ef4444; /* Red 500 */
@@ -62,7 +62,7 @@
         /* Setup Screen */
         #setup { margin: auto; padding: 40px; background: var(--bg-panel); border-radius: 16px; text-align: center; max-width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 1px solid var(--border); }
         .dropzone { border: 2px dashed var(--border); padding: 40px; border-radius: 12px; cursor: pointer; margin-top: 20px; transition: 0.2s; background: var(--bg-base); }
-        .dropzone:hover { border-color: var(--primary); background: rgba(139, 92, 246, 0.05); }
+        .dropzone:hover { border-color: var(--primary); background: rgba(245, 158, 11, 0.05); }
 
         /* App Layout */
         #app { display: none; flex: 1; flex-direction: column; overflow: hidden; }
@@ -85,7 +85,7 @@
         .prop-group label { font-size: 11px; color: var(--text-dim); font-weight: 500; }
         
         .prop-input { background: var(--bg-base); border: 1px solid var(--border); color: white; padding: 6px 8px; border-radius: 6px; font-size: 12px; outline: none; transition: 0.2s; width: 100%; box-sizing: border-box; }
-        .prop-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2); }
+        .prop-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2); }
         .prop-input[type="color"] { padding: 2px; height: 28px; cursor: pointer; }
         .prop-input[type="range"] { padding: 0; border: none; }
         
@@ -121,7 +121,7 @@
         .el-text { width: 100%; height: 100%; outline: none; line-height: 1.1; white-space: pre-wrap; word-wrap: break-word; }
         .el-img { width: 100%; height: 100%; object-fit: contain; }
         
-        .slide-el:hover:not(.locked) { outline: 1px dashed rgba(139, 92, 246, 0.45); cursor: default; }
+        .slide-el:hover:not(.locked) { outline: 1px dashed rgba(245, 158, 11, 0.45); cursor: default; }
         
         /* Transform Controls (Estilo PowerPoint) */
         #transform-box { position: absolute; border: 1.5px dashed var(--primary); pointer-events: none; display: none; z-index: 1000; box-shadow: 0 0 0 1px rgba(0,0,0,0.3); }
@@ -217,7 +217,7 @@
             <div>
                 <div style="display:flex; align-items:center; gap:6px;">
                     <span style="font-weight:700; font-size:14px; color:#fff; letter-spacing:0.3px;">Central Multimídia Church</span>
-                    <span class="badge" style="background:#8b5cf6; font-size:10px;">v2.1.0</span>
+                    <span class="badge" style="background:#f59e0b; font-size:10px;">v2.1.0</span>
                 </div>
                 <span style="font-size:10px; color:#a1a1aa; display:block;">Hub de Mídia & Culto</span>
             </div>
@@ -610,8 +610,8 @@
 <div id="hubModuleVideo" style="display:none; flex:1; width:100%; height:calc(100vh - 50px); position:relative; background:#09090b; overflow-y:auto;">
     <!-- Tela de Entrada com Identidade da Igreja -->
     <div id="videoHubWelcome" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; max-width:960px; margin:auto; width:100%; text-align:center;">
-        <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3); color:#c4b5fd; font-size:11px; font-weight:700; padding:5px 14px; border-radius:20px; margin-bottom:16px; letter-spacing:0.5px;">
-            <span style="width:7px; height:7px; border-radius:50%; background:#8b5cf6; box-shadow:0 0 8px #8b5cf6;"></span>
+        <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(245, 158, 11,0.15); border:1px solid rgba(245, 158, 11,0.3); color:#c4b5fd; font-size:11px; font-weight:700; padding:5px 14px; border-radius:20px; margin-bottom:16px; letter-spacing:0.5px;">
+            <span style="width:7px; height:7px; border-radius:50%; background:#f59e0b; box-shadow:0 0 8px #f59e0b;"></span>
             CENTRAL MULTIMÍDIA CHURCH • VÍDEO STUDIO
         </div>
         <h2 style="font-size:32px; font-weight:700; color:#fff; margin-bottom:12px; letter-spacing:-0.5px;">
@@ -623,7 +623,7 @@
 
         <!-- Cards de Ações Rápidas (Modelos de Igreja) -->
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:18px; width:100%; margin-bottom:32px;">
-            <div onclick="openOpenCutEditor('pregação')" style="background:#18181b; border:1px solid #3f3f46; border-radius:12px; padding:22px; text-align:left; cursor:pointer; transition:0.2s;" onmouseover="this.style.borderColor='#8b5cf6'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#3f3f46'; this.style.transform='translateY(0)'">
+            <div onclick="openOpenCutEditor('pregação')" style="background:#18181b; border:1px solid #3f3f46; border-radius:12px; padding:22px; text-align:left; cursor:pointer; transition:0.2s;" onmouseover="this.style.borderColor='#f59e0b'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#3f3f46'; this.style.transform='translateY(0)'">
                 <div style="font-size:28px; margin-bottom:10px;">✂️</div>
                 <h4 style="color:#fff; font-size:16px; margin:0 0 6px 0;">Cortes de Pregação (16:9)</h4>
                 <p style="color:#a1a1aa; font-size:13px; margin:0; line-height:1.4;">Cortes horizontais para YouTube, avisos e melhores momentos da mensagem pastoral.</p>
@@ -644,7 +644,7 @@
 
         <!-- Botão Principal -->
         <div style="display:flex; gap:12px; justify-content:center;">
-            <button onclick="openOpenCutEditor('geral')" class="btn" style="background:#8b5cf6; padding:14px 28px; font-size:15px; border-radius:8px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px;">
+            <button onclick="openOpenCutEditor('geral')" class="btn" style="background:#f59e0b; padding:14px 28px; font-size:15px; border-radius:8px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px;">
                 <span>🚀</span> Abrir Estúdio de Edição Completo
             </button>
         </div>
@@ -846,7 +846,7 @@
     });
     const dropZone = document.getElementById('dropZone');
     dropZone.addEventListener('click', () => document.getElementById('pdfInput').click());
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--primary)'; dropZone.style.background = 'rgba(139,92,246,0.1)'; });
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--primary)'; dropZone.style.background = 'rgba(245, 158, 11,0.1)'; });
     dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--border)'; dropZone.style.background = 'var(--bg-base)'; });
     dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--border)'; dropZone.style.background = 'var(--bg-base)'; if(e.dataTransfer.files[0]) parsePDF(e.dataTransfer.files[0]); });
     document.getElementById('pdfInput').addEventListener('change', e => { if(e.target.files[0]) parsePDF(e.target.files[0]); });
@@ -2131,7 +2131,7 @@ ${rawExtractedSermonText || slides.map(s => s.elements.map(e => e.content).join(
     window.addElement = (type) => {
         if(curSlideIdx<0) return; let el;
         if(type==='text') { el = newTextEl("Novo Texto", false, 'reflection'); el.x = C_WIDTH/2 - el.w/2; el.y = C_HEIGHT/2 - el.h/2; el.name = "Texto"; }
-        if(type==='shape') { el = { id: genId(), type: 'shape', name: 'Forma', x: C_WIDTH/2 - 50, y: C_HEIGHT/2 - 50, w: 100, h: 100, rotation: 0, opacity: 1, color: '#8b5cf6', locked:false, hidden:false }; }
+        if(type==='shape') { el = { id: genId(), type: 'shape', name: 'Forma', x: C_WIDTH/2 - 50, y: C_HEIGHT/2 - 50, w: 100, h: 100, rotation: 0, opacity: 1, color: '#f59e0b', locked:false, hidden:false }; }
         slides[curSlideIdx].elements.push(el); selElId = el.id; renderCanvas(); renderFilmstrip();
     };
     window.addBlankSlide = () => { slides.push(newSlide('reflection')); setSlide(slides.length-1); };

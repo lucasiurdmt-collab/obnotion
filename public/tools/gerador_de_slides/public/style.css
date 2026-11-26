@@ -1,4 +1,4 @@
-/* ================================================= */
+﻿/* ================================================= */
 /* FONTES LOCAIS OFICIAIS (FALLBACK OFFLINE 100%)    */
 /* ================================================= */
 @font-face {
@@ -46,7 +46,7 @@
   --primary-hover: #f3c973;
   --accent-blue: #3b82f6;
   --accent-cyan: #06b6d4;
-  --accent-purple: #a855f7;
+  --accent-purple: #fbbf24;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --border: #23314f;
@@ -236,11 +236,11 @@ body {
 }
 
 .module-pill.pill-purple {
-  background: rgba(168, 85, 247, 0.1);
+  background: rgba(251, 191, 36, 0.1);
   color: var(--accent-purple);
 }
 .nav-module-btn.active .module-pill.pill-purple {
-  background: rgba(168, 85, 247, 0.24);
+  background: rgba(251, 191, 36, 0.24);
 }
 
 .header-right {
@@ -621,8 +621,8 @@ body.is-native-app .btn-download-apk-desktop {
 
 #dropzone-images.dragover {
   border-color: var(--accent-purple) !important;
-  background: rgba(168, 85, 247, 0.12) !important;
-  box-shadow: 0 0 25px rgba(168, 85, 247, 0.25), inset 0 0 15px rgba(168, 85, 247, 0.1) !important;
+  background: rgba(251, 191, 36, 0.12) !important;
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.25), inset 0 0 15px rgba(251, 191, 36, 0.1) !important;
 }
 
 .dropzone-icon {
@@ -755,11 +755,11 @@ textarea:focus {
 }
 
 .format-pill-btn[data-text-mode="teams"].active {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.28), rgba(139, 92, 246, 0.2)) !important;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(245, 158, 11, 0.2)) !important;
   color: #c4b5fd !important;
   font-weight: 700 !important;
-  border: 1px solid rgba(139, 92, 246, 0.5) !important;
-  box-shadow: 0 2px 10px rgba(139, 92, 246, 0.22) !important;
+  border: 1px solid rgba(245, 158, 11, 0.5) !important;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.22) !important;
 }
 
 .teams-option-btn.active {
