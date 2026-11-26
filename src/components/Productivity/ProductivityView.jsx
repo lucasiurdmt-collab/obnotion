@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Presentation, FileSpreadsheet, Wand2, ExternalLink, X, Maximize, Play, Palette, Sparkles, Layers, Image as ImageIcon, BookMarked, Clapperboard, Scissors, Film, Cast, Radio, Tv, Tablet, Music } from 'lucide-react';
+import { Presentation, FileSpreadsheet, Wand2, ExternalLink, X, Maximize, Play, Palette, Sparkles, Layers, Image as ImageIcon, BookMarked, Clapperboard, Scissors, Film, Cast, Radio, Tv, Tablet, Music, Download } from 'lucide-react';
 
 export default function ProductivityView({ darkMode }) {
   const [activeTool, setActiveTool] = useState(null);
@@ -118,6 +118,25 @@ export default function ProductivityView({ darkMode }) {
       ],
       path: `${import.meta.env.BASE_URL}tools/letras_impressao.html`,
       iframeUrl: `${import.meta.env.BASE_URL}tools/letras_impressao.html`
+    },
+    {
+      id: 'baixador_midia',
+      title: 'Baixador Universal (YouTube, IG, FB & Imagens)',
+      icon: Download,
+      color: 'text-amber-400',
+      bgColor: 'bg-amber-500/10',
+      borderColor: 'border-amber-500/30',
+      tag: 'NOVO • IA & PYTHON',
+      tagColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+      description: 'Espaço único para baixar vídeos, Reels, áudios MP3 e imagens do YouTube, Instagram, Facebook, TikTok, X e web. Basta colar o link para detectar e baixar.',
+      features: [
+        'Detecção automática de rede social e tipo de mídia pelo link',
+        'Suporte a YouTube, Instagram (Reels/Fotos), Facebook, TikTok e X',
+        'Escolha entre Vídeo MP4 (até 4K), Áudio MP3 ou Imagem HD',
+        'Motor Python local (yt-dlp) com inicializador em 1 clique'
+      ],
+      path: `${import.meta.env.BASE_URL}tools/baixador_midia.html`,
+      iframeUrl: `${import.meta.env.BASE_URL}tools/baixador_midia.html`
     }
   ];
 
