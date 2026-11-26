@@ -132,7 +132,7 @@ export default function AuthModal({
             </div>
             <div>
               <h3 className="text-base font-bold leading-none">
-                {isLoggedIn ? 'Sua Conta Obnotion' : 'Entrar no Obnotion'}
+                {isLoggedIn ? 'Sua Conta SinaiHUB' : 'Entrar no SinaiHUB'}
               </h3>
               <p className="text-xs text-gray-400 mt-1">
                 {isLoggedIn ? 'Sincronização em Nuvem Ativa' : 'Sincronize suas notas em qualquer dispositivo'}
@@ -171,7 +171,7 @@ export default function AuthModal({
                 )}
                 <div className="flex-1 min-w-0">
                   <h4 className="font-bold text-sm truncate">
-                    {user.displayName || 'Usuário Obnotion'}
+                    {user.displayName || 'Usuário SinaiHUB'}
                   </h4>
                   <p className="text-xs text-gray-400 truncate">{user.email}</p>
                   <div className="flex items-center gap-1.5 mt-1.5 text-[11px] font-medium text-emerald-400">
@@ -421,7 +421,7 @@ export default function AuthModal({
                   {loading
                     ? 'Processando...'
                     : mode === 'login'
-                    ? 'Entrar no Obnotion'
+                    ? 'Entrar no SinaiHUB'
                     : mode === 'register'
                     ? 'Criar Minha Conta'
                     : 'Enviar E-mail de Recuperação'}

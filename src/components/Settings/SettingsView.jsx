@@ -41,7 +41,7 @@ export default function SettingsView({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'obnotion_backup_' + new Date().toISOString().split('T')[0] + '.json';
+    link.download = 'sinaihub_backup_' + new Date().toISOString().split('T')[0] + '.json';
     link.click();
   };
 
@@ -261,7 +261,7 @@ export default function SettingsView({
           <div className="flex items-start gap-3 p-4 rounded-2xl bg-purple-600/10 border border-purple-500/20 text-xs text-purple-300">
             <Globe className="w-5 h-5 flex-shrink-0 text-purple-400 mt-0.5" />
             <div>
-              <p className="font-bold">Seu Obnotion já está pronto para o GitHub Pages!</p>
+              <p className="font-bold">Seu SinaiHUB já está pronto para o GitHub Pages!</p>
               <p className="mt-1 text-gray-300">
                 O arquivo <code className="bg-black/40 px-1 py-0.5 rounded">vite.config.js</code> já foi configurado com caminhos relativos (<code className="bg-black/40 px-1 py-0.5 rounded">base: './'</code>), garantindo funcionamento perfeito em qualquer subdomínio do GitHub.
               </p>
@@ -377,7 +377,7 @@ export default function SettingsView({
               <li>No seu repositório no GitHub, clique na aba <strong>Settings</strong>.</li>
               <li>No menu lateral esquerdo, clique em <strong>Pages</strong>.</li>
               <li>Em <strong>Build and deployment &gt; Source</strong>, selecione <strong>GitHub Actions</strong> (ou Branch <code className="bg-black/40 px-1 rounded">gh-pages</code>).</li>
-              <li>Pronto! Seu link do Obnotion estará ativo em minutos (ex: <code className="bg-black/40 px-1 rounded text-purple-300">https://seu-usuario.github.io/obnotion/</code>).</li>
+              <li>Pronto! Seu link do SinaiHUB estará ativo em minutos (ex: <code className="bg-black/40 px-1 rounded text-amber-300">https://seu-usuario.github.io/obnotion/</code>).</li>
             </ol>
           </div>
         </div>

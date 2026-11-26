@@ -750,7 +750,7 @@ export default function JarvisWidget({
     const freeBalance = (Number(profile.monthlySalary) || 0) - (totalBills + totalDebtMonthly + totalCards);
 
     const workspaceContext = `
-Você é o JARVIS, assistente supremo, copiloto diário e consultor executivo do usuário no sistema Obnotion.
+Você é o JARVIS, assistente supremo, copiloto diário e consultor executivo do usuário no sistema SinaiHUB.
 Você tem poder de visão computacional multimodal e ferramentas executáveis para Tarefas, Calendário, Notas, Hábitos e Finanças.
 
 =======================================================

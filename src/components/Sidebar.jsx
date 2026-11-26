@@ -84,18 +84,18 @@ export default function Sidebar({
             className="flex items-center space-x-3 cursor-pointer group"
             onClick={() => handleSelectTab('dashboard')}
           >
-            <ObnotionLogo size={34} glow={true} />
+            <ObnotionLogo size={36} glow={true} />
             {!collapsed && (
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <h1 className="font-bold text-sm tracking-tight text-white group-hover:text-violet-400 transition-colors">
-                    Obnotion
+                  <h1 className="font-black text-sm tracking-tight text-white group-hover:text-amber-400 transition-colors">
+                    Sinai<span className="text-amber-400">HUB</span>
                   </h1>
-                  <span className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.2 rounded bg-violet-500/15 text-violet-300 border border-violet-500/25">
+                  <span className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
                     Pro
                   </span>
                 </div>
-                <p className="text-[11px] text-zinc-400 font-medium tracking-tight">Second Brain OS</p>
+                <p className="text-[10px] text-zinc-400 font-medium tracking-tight">Gestão, Culto & Mídia</p>
               </div>
             )}
           </div>

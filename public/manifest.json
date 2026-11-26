@@ -1,18 +1,18 @@
 {
-  "short_name": "Obnotion",
-  "name": "Obnotion - Segundo Cérebro",
-  "description": "Seu centro de comando pessoal com notas, finanças, hábitos e tarefas.",
+  "short_name": "SinaiHUB",
+  "name": "SinaiHUB - Gestão, Culto & Produção",
+  "description": "Centro integrado de gestão pessoal, produção de culto e multimídia.",
   "icons": [
     {
-      "src": "./favicon.svg",
+      "src": "./favicon.png",
       "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
   "start_url": "./",
   "display": "standalone",
-  "theme_color": "#181920",
-  "background_color": "#0f1015",
+  "theme_color": "#090b11",
+  "background_color": "#090b11",
   "orientation": "portrait-primary"
 }

@@ -11,17 +11,17 @@
   <link rel="apple-touch-icon" href="assets/logo_app_icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@600;700;800&family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&family=Oswald:wght@600;700&family=Roboto+Condensed:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <script src="error_tracker.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@600;700;800&family=Bebas+Neue&family=Cinzel:wght@400;600;700;800;900&family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&family=Oswald:wght@600;700&family=Roboto+Condensed:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <script src="error_tracker.js?v=2.14.0"></script>
   <script src="pdf.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';"></script>
   <script src="jszip.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/libs/jszip.min.js';"></script>
   <script src="pptxgen.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.min.js';"></script>
   <!-- jsPDF para exportação instantânea em PDF no navegador (com fallback offline) -->
-  <script src="jspdf.umd.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';"></script>
+  <script src="jspdf.umd.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js';"></script>
 
 
 
-  <link rel="stylesheet" href="style.css?v=2.12.12">
+  <link rel="stylesheet" href="style.css?v=2.15.1">
   <script>
     // Submode switcher acessível globalmente de imediato
     window.switchConverterSubmode = function(mode) {
@@ -277,7 +277,7 @@
         <div>
           <div style="display: flex; align-items: center; gap: 8px;">
             <h1 class="brand-title">Central Multimídia Church</h1>
-            <span class="version-tag">v2.12.12</span>
+            <span class="version-tag">v2.14.0</span>
           </div>
           <span class="brand-subtitle">Plataforma Unificada de Mídia & Culto</span>
         </div>
@@ -311,11 +311,11 @@
 
     <div class="header-right">
       <!-- Botão Download APK (Visível exclusivamente no Computador / Desktop) -->
-      <a href="slidekiller.apk" download="slidekiller.apk" class="btn-download-apk-desktop" id="btn-download-apk-desktop" title="Baixar aplicativo SlideKiller para celular Android (.apk)">
+      <a href="slidekiller.apk?v=2.14.0" download="slidekiller.apk" class="btn-download-apk-desktop" id="btn-download-apk-desktop" title="Baixar aplicativo SlideKiller v2.14.0 para celular Android (.apk)">
         <span class="apk-icon">📱</span>
         <span class="apk-text">
           <strong>Baixar App Android</strong>
-          <small>Versão Celular (.apk)</small>
+          <small>Versão Celular (.apk • v2.14.0)</small>
         </span>
       </a>
 
@@ -490,7 +490,9 @@ texto exemplo ii eii
               <label for="template-select">Plano de Fundo:</label>
               <div class="bg-selector-wrapper">
                 <select id="template-select" class="form-select">
-                  <option value="assets/church_sermon_bg.jpg">📖⚡ Fundo Oficial (Padrão)</option>
+                  <option value="assets/church_sermon_bg.jpg" selected>📖 Fundo Bíblia (Padrão)</option>
+                  <option value="assets/ts_theme_bg.png">✨ Fundo TS (Oficial 4K)</option>
+                  <option value="assets/cinzel_theme_bg.png">🏛️ Tema Nobre Cinzel (4K)</option>
                   <option value="__custom__">➕ Anexar Fundo Personalizado...</option>
                 </select>
                 <button type="button" class="btn btn-secondary btn-sm" id="btn-attach-custom-bg" title="Anexar imagem de fundo personalizada">
@@ -520,6 +522,7 @@ texto exemplo ii eii
               <label for="font-select">Fonte dos Slides:</label>
               <select id="font-select" class="form-select font-picker-select">
                 <option value="bahnschrift_semibold_condensed" selected>⭐ Bahnschrift SemiBold Condensed (Padrão Oficial Igreja)</option>
+                <option value="cinzel">🏛️ Cinzel Nobre (Clássico Romano Imperial)</option>
                 <option value="impact">🔥 Impact / Anton (Forte & Marcante)</option>
                 <option value="oswald">✨ Oswald (Elegante Hillsong / Bethel)</option>
                 <option value="bebas">⚡ Bebas Neue (Display Caixa Alta)</option>
@@ -574,6 +577,7 @@ texto exemplo ii eii
               <span class="pill-label">Fonte:</span>
               <select id="results-font-select" class="form-select form-select-sm font-picker-select">
                 <option value="bahnschrift_semibold_condensed" selected>⭐ Bahnschrift SemiBold Condensed (Padrão Oficial)</option>
+                <option value="cinzel">🏛️ Cinzel Nobre (Clássico Romano)</option>
                 <option value="impact">🔥 Impact / Anton</option>
                 <option value="oswald">✨ Oswald (Elegante)</option>
                 <option value="bebas">⚡ Bebas Neue (Display)</option>
@@ -775,11 +779,14 @@ texto exemplo ii eii
               </select>
             </div>
             <div class="option-item">
-              <label for="direct-bg-select">Cor de Fundo:</label>
+              <label for="direct-bg-select">Cor / Tema de Fundo:</label>
               <select id="direct-bg-select" class="form-select">
                 <option value="000000">Preto Puro (#000000)</option>
                 <option value="0b0f19">Escuro Church (#0b0f19)</option>
                 <option value="FFFFFF">Branco (#FFFFFF)</option>
+                <option value="theme_bible">📖 Fundo Bíblia (Oficial)</option>
+                <option value="theme_ts">✨ Fundo TS (Oficial 4K)</option>
+                <option value="theme_cinzel">🏛️ Tema Nobre Cinzel (4K)</option>
               </select>
             </div>
           </div>
@@ -901,6 +908,7 @@ texto exemplo ii eii
               <select id="images-aspect-select" class="form-select">
                 <option value="16x9">Widescreen 16:9 Full HD (Padrão Telão)</option>
                 <option value="4x3">Proporção 4:3 Tradicional</option>
+                <option value="original">Proporção Original da Imagem</option>
               </select>
             </div>
             <div class="option-item">
@@ -911,11 +919,14 @@ texto exemplo ii eii
               </select>
             </div>
             <div class="option-item">
-              <label for="images-bg-select">Cor de Fundo:</label>
+              <label for="images-bg-select">Cor / Tema de Fundo:</label>
               <select id="images-bg-select" class="form-select">
                 <option value="000000">Preto Puro (#000000)</option>
                 <option value="0b0f19">Escuro Church (#0b0f19)</option>
                 <option value="FFFFFF">Branco (#FFFFFF)</option>
+                <option value="theme_bible">📖 Fundo Bíblia (Oficial)</option>
+                <option value="theme_ts">✨ Fundo TS (Oficial 4K)</option>
+                <option value="theme_cinzel">🏛️ Tema Nobre Cinzel (4K)</option>
               </select>
             </div>
           </div>
@@ -974,12 +985,13 @@ texto exemplo ii eii
             <input type="text" id="verseRefInput" placeholder="Ex: João 3:16, Sl 23:1-3, Rm 8:28" class="form-select" style="width:100%; box-sizing:border-box; font-size:13px; font-weight:600; padding:6px 10px;" />
           </div>
           <div style="flex:1; min-width:130px;">
-            <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Versão:</label>
+            <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Versão / Rótulo:</label>
             <select id="verseVersionSelect" class="form-select" style="width:100%; height:34px;">
-              <option value="ACF">ACF (Almeida Corrigida Fiel)</option>
-              <option value="ARA">ARA (Almeida Revista e Atualizada)</option>
-              <option value="ARC">ARC (Revista e Corrigida)</option>
-              <option value="NVI">NVI (Nova Versão Internacional)</option>
+              <option value="Almeida" selected>Almeida (Busca Online)</option>
+              <option value="ACF">ACF (Rótulo Manual)</option>
+              <option value="ARA">ARA (Rótulo Manual)</option>
+              <option value="ARC">ARC (Rótulo Manual)</option>
+              <option value="NVI">NVI (Rótulo Manual)</option>
             </select>
           </div>
           <div style="display:flex; align-items:flex-end;">
@@ -1037,6 +1049,155 @@ texto exemplo ii eii
       </div>
     </div>
 
+    <!-- Modal Melhorar Slide com IA -->
+    <div id="modalEnhanceAi" class="modal-enhance-ai-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:10000; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:12px; box-sizing:border-box;">
+      <div class="modal-enhance-ai-card" style="background:var(--bg-card, #121824); border:1px solid rgba(232, 184, 89, 0.4); border-radius:16px; padding:20px; max-width:860px; width:100%; box-shadow:0 25px 60px rgba(0,0,0,0.85); max-height:94vh; overflow-y:auto; display:flex; flex-direction:column; gap:14px;">
+        
+        <!-- Topo -->
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:10px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:22px;">✨</span>
+            <div>
+              <h3 style="margin:0; font-size:17px; font-weight:700; color:#FFFFFF;">Melhorar Slide com IA</h3>
+              <span id="enhance-slide-info-badge" style="font-size:11px; color:#A0AEC0;">Lâmina #1 • Pré-visualização e Ajuste</span>
+            </div>
+          </div>
+          <button type="button" class="btn-clear" id="btn-close-enhance-modal" style="font-size:20px; color:#A0AEC0; cursor:pointer; background:none; border:none; padding:4px 8px;">✖</button>
+        </div>
+
+        <!-- Banner de Status / Loading da IA -->
+        <div id="enhance-ai-loading" style="display:none; background:rgba(232, 184, 89, 0.12); border:1px solid rgba(232, 184, 89, 0.35); border-radius:8px; padding:10px 14px; align-items:center; gap:10px;">
+          <div class="spinner-small" style="width:18px; height:18px; border:2px solid rgba(232,184,89,0.3); border-top-color:#E8B859; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
+          <span id="enhance-ai-loading-text" style="font-size:12px; color:#E8B859; font-weight:600;">IA Gemini Vision analisando slide e identificando versículo...</span>
+        </div>
+
+        <!-- Seção Principal: Grid Responsivo com Preview e Edição -->
+        <div class="enhance-modal-grid" style="display:grid; grid-template-columns: minmax(280px, 1.15fr) minmax(280px, 1fr); gap:16px;">
+          
+          <!-- Coluna Esquerda: Preview Oficial 16:9 -->
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:12px; font-weight:700; color:#E8B859; text-transform:uppercase; letter-spacing:0.5px;">Pré-visualização Oficial</span>
+              <span id="enhance-theme-badge" style="font-size:10px; background:rgba(232, 184, 89, 0.15); border:1px solid rgba(232,184,89,0.3); padding:2px 7px; border-radius:4px; color:#E8B859; font-weight:600;">📖 Fundo Bíblia (16:9)</span>
+            </div>
+
+            <!-- Preview Oficial 100% fiel ao slide gerado em Full HD -->
+            <div id="enhance-slide-preview-dom" class="slide-preview-container" style="background:#0b0f19 url('assets/church_sermon_bg.jpg') center/cover no-repeat; width:100%; aspect-ratio:16/9; border-radius:8px; box-shadow:0 12px 30px rgba(0,0,0,0.7); border:1px solid rgba(232, 184, 89, 0.35); overflow:hidden; position:relative; cursor:default; display:flex; align-items:center; justify-content:center;">
+              <img id="enhance-live-preview-img" style="width:100%; height:100%; object-fit:contain; display:block;" alt="Pré-visualização Oficial do Slide" />
+            </div>
+
+            <!-- Canvas Full HD (1920x1080) oficial para gerar a imagem final e alimentar o preview -->
+            <canvas id="enhance-preview-canvas" width="1920" height="1080" style="position:absolute; left:-9999px; top:-9999px; width:1920px; height:1080px; visibility:hidden; pointer-events:none;"></canvas>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#718096; margin-top:2px;">
+              <span>💡 Formatação e fundo idênticos aos temas oficiais (1080p)</span>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-enhance-reanalyze" style="padding:4px 8px; font-size:11px;">
+                🔄 Reanalisar com IA
+              </button>
+            </div>
+          </div>
+
+          <!-- Coluna Direita: Controles e Edição Livre -->
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            
+            <!-- Tipo de Conteúdo, Tema de Fundo e Alinhamento -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;">
+              <div>
+                <label style="font-size:11px; font-weight:600; color:#A0AEC0; display:block; margin-bottom:4px;">Tipo de Slide:</label>
+                <select id="enhance-slide-type" class="form-select" style="width:100%; height:34px; font-size:12px;">
+                  <option value="verse">📖 Versículo Bíblico</option>
+                  <option value="topic">📌 Tópico / Frase</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:11px; font-weight:600; color:#A0AEC0; display:block; margin-bottom:4px;">Tema de Fundo:</label>
+                <select id="enhance-bg-theme" class="form-select" style="width:100%; height:34px; font-size:12px;">
+                  <option value="assets/church_sermon_bg.jpg" selected>📖 Fundo Bíblia</option>
+                  <option value="assets/ts_theme_bg.png">✨ Fundo TS (4K)</option>
+                  <option value="assets/cinzel_theme_bg.png">🏛️ Fundo Nobre (4K)</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:11px; font-weight:600; color:#A0AEC0; display:block; margin-bottom:4px;">Alinhamento:</label>
+                <select id="enhance-text-align" class="form-select" style="width:100%; height:34px; font-size:12px;">
+                  <option value="left" selected>À Esquerda (Padrão)</option>
+                  <option value="center">Centralizado</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Referência Bíblica -->
+            <div id="enhance-ref-box">
+              <label style="font-size:11px; font-weight:600; color:#A0AEC0; display:block; margin-bottom:4px;">Referência Bíblica:</label>
+              <div style="display:flex; gap:6px;">
+                <input type="text" id="enhance-ref-input" placeholder="Ex: Lucas 6:24 (ARA)" class="form-select" style="flex:1; height:34px; font-size:12px; font-weight:600; padding:0 8px;" />
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-enhance-fetch-verse" style="height:34px; padding:0 10px; font-size:11px;" title="Buscar texto oficial na bíblia">
+                  🔍 Buscar
+                </button>
+              </div>
+            </div>
+
+            <!-- Toolbar de Formatação do Texto -->
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
+                <label style="font-size:11px; font-weight:600; color:#A0AEC0; margin:0;">Texto do Slide:</label>
+                
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <!-- Controles de Tamanho estilo PowerPoint (A▲ / A▼) -->
+                  <div style="display:inline-flex; align-items:center; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:6px; padding:1px 4px; gap:2px;">
+                    <button type="button" class="btn-clear" id="btn-enhance-font-minus" style="font-size:13px; font-weight:700; color:#E2E8F0; padding:2px 6px; cursor:pointer;" title="Diminuir tamanho da fonte (PowerPoint)">
+                      A<span style="font-size:10px; vertical-align:super;">▼</span>
+                    </button>
+                    <span id="enhance-font-size-display" style="font-size:11px; font-weight:700; color:#E8B859; padding:0 4px; min-width:30px; text-align:center;">Auto</span>
+                    <button type="button" class="btn-clear" id="btn-enhance-font-plus" style="font-size:13px; font-weight:700; color:#E2E8F0; padding:2px 6px; cursor:pointer;" title="Aumentar tamanho da fonte (PowerPoint)">
+                      A<span style="font-size:10px; vertical-align:super;">▲</span>
+                    </button>
+                    <button type="button" class="btn-clear" id="btn-enhance-font-reset" style="font-size:10px; color:#A0AEC0; padding:2px 4px; cursor:pointer;" title="Restaurar tamanho automático">
+                      ↺
+                    </button>
+                  </div>
+
+                  <!-- Ações de Destaque e Aspas -->
+                  <button type="button" class="btn btn-outline-gold btn-sm" id="btn-enhance-highlight" style="padding:2px 8px; font-size:11px;" title="Destacar palavra selecionada em dourado">
+                    ⭐ [HL] Dourado
+                  </button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-enhance-quotes" style="padding:2px 6px; font-size:11px;" title="Adicionar ou remover aspas">
+                    “ ” Aspas
+                  </button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-enhance-clear-tags" style="padding:2px 6px; font-size:11px;" title="Remover destaques">
+                    Limpar
+                  </button>
+                </div>
+              </div>
+
+              <textarea id="enhance-text-input" rows="4" class="form-select" style="width:100%; box-sizing:border-box; font-family:'Inter', sans-serif; font-size:13px; line-height:1.4; padding:8px; resize:vertical;" placeholder="Digite o texto do versículo ou frase. Use [HL]palavra[/HL] para destaque dourado."></textarea>
+            </div>
+
+            <!-- Informação de Estilo -->
+            <div style="background:rgba(232, 184, 89, 0.08); border:1px solid rgba(232, 184, 89, 0.25); border-radius:8px; padding:8px 12px; font-size:11px; color:#E8B859; display:flex; align-items:center; gap:8px;">
+              <span>📖</span>
+              <span><strong>Padrão Oficial:</strong> Fundo da Bíblia sagrada, tipografia Bahnschrift e destaques em dourado idênticos ao Módulo 1.</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Rodapé / Ações -->
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px; flex-wrap:wrap; gap:8px;">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-enhance-modal">Cancelar</button>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn btn-secondary" id="btn-enhance-insert-as-new" title="Mantém o slide original e insere o novo logo depois">
+              ➕ Inserir como Novo
+            </button>
+            <button type="button" class="btn btn-primary" id="btn-enhance-apply-replace" style="background:linear-gradient(135deg, #E8B859, #D49D35); color:#000; font-weight:700; border:none; box-shadow:0 4px 14px rgba(232,184,89,0.4);">
+              ✨ Substituir Slide Atual
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- Modal / Toast de Notificação -->
     
     <div id="toast" class="toast"></div>
@@ -1057,6 +1218,13 @@ texto exemplo ii eii
         <button type="button" class="sheet-close-btn" id="btn-close-slide-sheet" aria-label="Fechar">&times;</button>
       </div>
       <div class="sheet-actions-list">
+        <button type="button" class="sheet-action-btn sheet-btn-ai" id="sheet-btn-enhance-ai">
+          <span class="sheet-action-icon">✨</span>
+          <div class="sheet-action-content">
+            <strong style="color:#E8B859;">Melhorar com IA</strong>
+            <span>Detectar versículo e recriar com layout profissional</span>
+          </div>
+        </button>
         <button type="button" class="sheet-action-btn" id="sheet-btn-replace">
           <span class="sheet-action-icon">🔄</span>
           <div class="sheet-action-content">
@@ -1129,6 +1297,6 @@ texto exemplo ii eii
     </button>
   </nav>
 
-  <script src="app.js?v=2.12.12"></script>
+  <script src="app.js?v=2.15.1"></script>
 </body>
 </html>

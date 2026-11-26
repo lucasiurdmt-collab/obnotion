@@ -5,17 +5,222 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <link rel="icon" type="image/svg+xml" href="/obnotion/favicon.svg" />
-    <link rel="apple-touch-icon" href="/obnotion/favicon.svg" />
-    <link rel="manifest" href="/obnotion/manifest.json" />
+    <link rel="icon" type="image/png" href="./favicon.png" />
+    <link rel="apple-touch-icon" href="./favicon.png" />
+    <link rel="manifest" href="./manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="theme-color" content="#181920" />
+    <meta name="theme-color" content="#090b11" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Obnotion" />
-    <title>Obnotion - Seu Segundo Cérebro</title>
+    <meta name="apple-mobile-web-app-title" content="SinaiHUB" />
+    <title>SinaiHUB — Gestão, Produção & Central Multimídia</title>
+
+    <style>
+      /* Splash Screen SinaiHUB */
+      .sinaihub-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 999999;
+        background: radial-gradient(circle at 50% 38%, #241708 0%, #0d0f17 65%, #05060a 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        padding: calc(30px + env(safe-area-inset-top, 24px)) 24px calc(36px + env(safe-area-inset-bottom, 24px)) 24px;
+        box-sizing: border-box;
+        text-align: center;
+        opacity: 1;
+        pointer-events: auto;
+        transition: opacity 0.75s cubic-bezier(0.4, 0, 0.2, 1), transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      .sinaihub-splash.fade-out {
+        opacity: 0;
+        transform: scale(1.04);
+        pointer-events: none;
+      }
+
+      .sinaihub-splash-glow {
+        position: absolute;
+        top: 25%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 320px;
+        height: 320px;
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.08) 55%, transparent 75%);
+        filter: blur(45px);
+        pointer-events: none;
+        animation: sinaiGlowPulse 3s ease-in-out infinite alternate;
+      }
+
+      @keyframes sinaiGlowPulse {
+        0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
+        100% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.95; }
+      }
+
+      .sinaihub-splash-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: auto 0;
+        animation: sinaiFadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        z-index: 2;
+      }
+
+      @keyframes sinaiFadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(22px) scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .sinaihub-logo-container {
+        position: relative;
+        max-width: 380px;
+        width: 82vw;
+        margin-bottom: 8px;
+        filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 35px rgba(245, 158, 11, 0.25));
+      }
+
+      .sinaihub-splash-logo {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: contain;
+      }
+
+      .sinaihub-splash-sub {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #d1d5db;
+        margin: 6px 0 24px 0;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        opacity: 0.92;
+      }
+
+      .sinaihub-loader-track {
+        width: 220px;
+        height: 3.5px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .sinaihub-loader-thumb {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        height: 100%;
+        width: 70%;
+        background: linear-gradient(90deg, #d97706, #fbbf24, #f59e0b);
+        border-radius: 999px;
+        box-shadow: 0 0 12px #f59e0b;
+        animation: sinaiLoaderScan 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      }
+
+      @keyframes sinaiLoaderScan {
+        0% { left: -70%; }
+        50% { left: 40%; width: 60%; }
+        100% { left: 110%; width: 40%; }
+      }
+
+      .sinaihub-splash-verse {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 580px;
+        width: 100%;
+        z-index: 2;
+        animation: sinaiFadeIn 1.2s ease forwards;
+        animation-delay: 0.25s;
+        opacity: 0;
+      }
+
+      @keyframes sinaiFadeIn {
+        to { opacity: 1; }
+      }
+
+      .sinaihub-verse-line {
+        width: 48px;
+        height: 1.5px;
+        background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.6), transparent);
+        margin-bottom: 12px;
+      }
+
+      .sinaihub-verse-text {
+        font-size: 12.5px;
+        line-height: 1.65;
+        color: #94a3b8;
+        font-style: italic;
+        margin: 0 0 6px 0;
+        padding: 0 16px;
+      }
+
+      .sinaihub-verse-ref {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+        color: #f59e0b;
+        opacity: 0.9;
+      }
+    </style>
   </head>
   <body>
+    <!-- Splash Screen SinaiHUB -->
+    <div id="app-splash-screen" class="sinaihub-splash">
+      <div class="sinaihub-splash-glow"></div>
+      
+      <div class="sinaihub-splash-content">
+        <div class="sinaihub-logo-container">
+          <img src="./assets/sinaihub_logo.png" alt="SinaiHUB" class="sinaihub-splash-logo" />
+        </div>
+        <p class="sinaihub-splash-sub">Hub de Gestão, Culto & Produção</p>
+        
+        <div class="sinaihub-loader-track">
+          <div class="sinaihub-loader-thumb"></div>
+        </div>
+      </div>
+
+      <div class="sinaihub-splash-verse">
+        <div class="sinaihub-verse-line"></div>
+        <p class="sinaihub-verse-text">“Porque dele, e por ele, e para ele são todas as coisas; glória, pois, a ele eternamente. Amém.”</p>
+        <span class="sinaihub-verse-ref">ROMANOS 11:36 • MONTE SANTO</span>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var hidden = false;
+        function dismissSplash() {
+          if (hidden) return;
+          var splash = document.getElementById('app-splash-screen');
+          if (splash) {
+            hidden = true;
+            splash.classList.add('fade-out');
+            setTimeout(function() {
+              splash.style.display = 'none';
+            }, 750);
+          }
+        }
+        // Exibe a tela de carregamento por 2.6s para uma experiência premium e fluida
+        setTimeout(dismissSplash, 2600);
+        window.addEventListener('load', function() {
+          setTimeout(dismissSplash, 1200);
+        });
+      })();
+    </script>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

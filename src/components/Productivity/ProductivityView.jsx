@@ -66,12 +66,12 @@ export default function ProductivityView({ darkMode }) {
       id: 'slides',
       title: 'Slide Killer (Central Multimídia Church)',
       icon: Presentation,
-      color: 'text-purple-400',
-      bgColor: 'bg-purple-500/10',
-      borderColor: 'border-purple-500/30',
-      tag: 'SLIDE KILLER PRO',
-      tagColor: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-      description: 'Plataforma completa de mídia e projeção para igrejas. Conversão de PDF ➔ PPTX (1 Página = 1 Slide), conversor inverso (PPTX ➔ Imagens/ZIP/PDF) e gerador de sermões.',
+      color: 'text-amber-400',
+      bgColor: 'bg-amber-500/10',
+      borderColor: 'border-amber-500/30',
+      tag: 'NOVO • CINZEL 4K & OFFLINE',
+      tagColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+      description: 'Plataforma oficial de mídia e projeção para igrejas. Novo Tema Nobre Cinzel 4K, conversão de PDF ➔ PPTX, conversor inverso (PPTX ➔ Imagens/ZIP/PDF) e gerador de sermões.',
       features: [
         'PDF ➔ PPTX Direto (1 Página = 1 Slide em Full HD)',
         'Conversor Inverso: PPTX para Imagens PNG, ZIP e PDF',
@@ -208,7 +208,7 @@ export default function ProductivityView({ darkMode }) {
             Estúdio & Ferramentas Integradas
           </h1>
           <p className="text-xs text-zinc-400 max-w-xl">
-            Soluções completas de design gráfico, apresentações e automação de relatórios nativas no Obnotion.
+            Soluções completas de design gráfico, apresentações e automação de relatórios nativas no SinaiHUB.
           </p>
         </div>
       </div>

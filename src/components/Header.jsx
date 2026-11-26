@@ -52,7 +52,7 @@ export default function Header({
         </button>
 
         <h2 className="text-sm sm:text-base font-semibold tracking-tight text-inherit truncate">
-          {titles[activeTab] || 'Obnotion'}
+          {titles[activeTab] || 'SinaiHUB'}
         </h2>
         <span className="hidden lg:inline-block text-[11px] font-mono px-2 py-0.5 rounded-md bg-white/[0.04] text-zinc-400 border border-white/[0.06]">
           {getFormattedDate()}

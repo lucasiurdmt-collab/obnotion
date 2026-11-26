@@ -240,7 +240,7 @@ export default function QuickSearchModal({
           <div className="flex items-center gap-3">
             <span>Pressione <kbd className="px-1.5 py-0.5 rounded bg-gray-800 text-gray-300 font-mono text-[10px]">Esc</kbd> para fechar</span>
           </div>
-          <span className="text-[11px] text-purple-400 font-medium">Obnotion Spotlight</span>
+          <span className="text-[11px] text-amber-400 font-medium">SinaiHUB Spotlight</span>
         </div>
       </div>
     </div>

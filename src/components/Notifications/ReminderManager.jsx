@@ -39,7 +39,7 @@ export default function ReminderManager({
         setHasPermission(perm === 'granted');
         if (perm === 'granted') {
           playAppleChime();
-          new Notification('Obnotion • Lembretes Ativos', {
+          new Notification('SinaiHUB • Lembretes Ativos', {
             body: 'Notificações e alarmes configurados com sucesso!',
             icon: '/obnotion/favicon.ico'
           });
@@ -170,7 +170,7 @@ export default function ReminderManager({
     // Native System Push Notification
     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
       try {
-        new Notification(`Obnotion: ${reminderItem.title}`, {
+        new Notification(`SinaiHUB: ${reminderItem.title}`, {
           body: `Horário: ${reminderItem.time || 'Agora'} • ${reminderItem.category}`,
           icon: '/obnotion/favicon.ico',
           vibrate: [200, 100, 200]
